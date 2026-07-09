@@ -120,6 +120,44 @@ real science, shippable alone:
   staining under failed gutters. Time made visible on the fabric. Render-only layer, added
   once the sim beneath it is stable.
 
+### 5a. The site is real
+
+Boss directive: build on a real, extensively surveyed location — woods and quarries near a
+castle site — so the terrain and geology come from data, not invention.
+
+**Recommendation: Kenilworth, Warwickshire** (open question Q8 to confirm). The case:
+- **The stone is on-site**: Kenilworth Castle is built almost entirely of local Permian
+  Kenilworth Sandstone from Castle Hill Quarry, ~400–600 m south of the walls — and a
+  quantity-surveyor study found the volume removed from the quarry roughly equals the
+  castle's outer walls. *The quarry is the castle inverted* — in-game, the pit can literally
+  deepen as the walls rise, block for block.
+- **The woods are right**: Kenilworth sits in the Arden — wood-pasture with clearings,
+  heavily assarted in exactly our window, not fairy-tale wildwood. That matches our commons
+  systems (assart hedges, estovers, pannage) instead of contradicting them.
+- **The water is a great work waiting to happen**: King John dammed the Finham and Inchford
+  Brooks (1210–16) to make the ~100-acre Great Mere — the largest artificial water defenses
+  in medieval England (in the 1266 siege, attackers hauled barges overland to cross it, and
+  the water still won). In-game, the mere is a buildable mid-game great work that unifies
+  the mill, the fishponds, and the siege moat in one dam.
+- **The data is free**: Environment Agency National LiDAR (1 m DTM, ±15 cm, Open Government
+  Licence) covers it, plus BGS geological mapping. Caveat on record: modern Kenilworth town
+  presses the east approach — the LiDAR needs a de-modernization pass, but the landform
+  survives under the streets.
+- **Our research corpus already lives there**: the 1266 siege, the six-man peacetime
+  garrison, the fishponds, and all the English customs work (§8a) anchor to this exact place.
+
+**Guédelon is the calibration dataset, not the map.** Its numbers generalize and are
+published: extraction from natural bed tables 50–80 cm thick, wedge lines every ~30 cm,
+courses of 20–35 cm; ~3 m³ raw stone/day at the face but only ~1 m³ usable; the Donzy
+trade-off (from 2007 they buy limestone from 30 km away because it dresses ~3× faster than
+the local sandstone — our transport-vs-workability economics, validated by a real crew
+making the real decision); mortar at 1:2 fat lime:sand, burned in **sacrificial kilns** —
+each ~3-day burn is demolished to extract the quicklime, so every batch of mortar quietly
+costs a kiln; a March–November season bounded by frost; treadwheel cranes at 500–600 kg;
+~10,000 m³ (~23–30 kt) of stone in the whole castle, with the foundations alone taking
+three years. Barnack's "Hills and Holes" is the visual reference for what a worked-out
+medieval quarry looks like: pit-and-mound ground, 58 acres of it.
+
 ## 6. Building
 
 - **Plan → courses → stones.** You draw a wall line and set its height; the system decomposes
@@ -140,6 +178,12 @@ real science, shippable alone:
 - **Lifting is infrastructure:** gin poles early, then a **treadwheel crane** — itself a
   build project, and when the tower is done the wheel stays in the roof space forever, as the
   real ones still do in English cathedral towers.
+- **The bell.** Ordering any construction rings a small chime — a placeholder voice. When
+  the village casts its own church bell (a great work: a pit dug beside the chapel, a tense
+  pour, a tone derived from the actual cast — size, metal, luck), that chime becomes *your*
+  bell's true tone, slightly flat or heartbreakingly true, and rings every event thereafter:
+  construction orders, harvest home, alarum, funerals, the evening curfew (§8). One sound,
+  owned by the village, for a century.
 
 ## 7. The people
 
@@ -151,6 +195,23 @@ real science, shippable alone:
 - **Trades:** laborer, quarryman, banker mason, fixer mason, carpenter, carter, farmer,
   healer, priest. **Apprenticeship** transfers skill across years — a master who dies without
   an apprentice takes lodge knowledge with her (pace and quality suffer; never a hard block).
+- **Knowledge is generational — the technique system.** This is why the game is called
+  *Castle Cultivator*: there is no tech tree. Techniques — a truer five-point arch, a
+  hotter lime mix, undercut tracery — are discovered by individual masters, transmitted
+  only through years of apprenticeship, and **die with an unteaching master** — unless a
+  literate mason studies the tracing floor (§9.7) and resurrects a dead master's technique
+  from her palimpsest lines. Knowledge is a crop: sow it in apprentices or lose it.
+  Techniques gate quality, pace, and what is buildable at all — tracery unlocks the rose
+  window the way a real master would have: by knowing how.
+- **The clerk.** The Lodge speaks through one small assistant sprite — your clerk — who
+  relays your orders, reads out the chronicle, and waits at the edge of the screen. The
+  clerk ages in true game time: upright, then gray, then stooped, then a funeral the whole
+  village attends — and the apprentice who has been visibly shadowing them for years picks
+  up the book and writes the next entry in a new hand. The clerk is the cost of time,
+  embodied, in the corner of your eye.
+- **Farm animals, no wildlife sim.** Oxen haul, pigs go to the mast woods in autumn, geese
+  and hens work the tofts, sheep keep the churchyard down. Animals are village staff with
+  sprites, not a nature simulation — the payroll cat (§8a) stays the only predator we model.
 - **Surnames coalesce from trades across generations** — the family that always carts becomes
   the Carters; the Masons earn their name. The player watches occupational surnames being
   born, which is exactly where real ones came from.
@@ -182,6 +243,22 @@ work or force a restart. Peaceful mode has no fail state — only hard years and
   collapsed arch leaves reusable stone, a chronicle entry, and sometimes a superstition.
   Master builders are not exempt: the most famous construction accident of the middle ages
   was a master mason falling from the vault scaffolding of his own cathedral choir.
+- **Fire.** A 12th-century Londoner named the game's stakes for us: *"The only pests of
+  London are the immoderate drinking of fools and the frequency of fires"* (FitzStephen,
+  c. 1173–83). Towns burned about once a generation, and fire is the hazard that justifies
+  the game's whole premise — the medieval sources themselves say stone stopped fires where
+  thatch fed them. Risk per building = roof material (thatch → whitewashed/plastered thatch
+  → tile/shingle → stone: the exact ladder London's 1212 ordinances imposed) × ignition
+  sources (hearths, forge, kiln, the brewhouse) × season (drought summers, hearth-heavy
+  winters) × curfew discipline. Firefighting is what was actually attested, nothing fancier:
+  the **fire hook and cord** to pull burning thatch down, a **water tub before every house**,
+  and demolition to cut a firebreak. (Bucket chains are honestly undated for our window —
+  we use tubs and hooks.) Every evening the **curfew bell** rings — genuine etymology,
+  *cuevrefeu*, "cover the fire," the banking of every hearth — and once the village casts
+  its own bell (§6), your bell rings your curfew. A barn or granary fire is the compound
+  nightmare where mutual aid burns; arson is the rare capital-crime event it truly was.
+  Aftermath writes the material arc: survivors rebuild in tile and stone, exactly as the
+  real towns did.
 - **Deaths are chronicled and memorialized** — see §9. Handled warm, never gory. This game's
   grief is churchyard grief, not horror.
 
@@ -228,7 +305,9 @@ exchanged with neighboring manors, a reason strangers visit.
   firebote, hedgebote, ploughbote), **turbary** (peat), **piscary** (fish). The Charter of
   the Forest (1217) is in living memory; the Statute of Merton (1235) is the standing
   temptation — the player *may* enclose common land for the castle's benefit, and the law
-  will even say it's allowed, and the village will remember it for a generation.
+  will even say it's allowed, and the village will remember it for a generation. (And
+  somewhere in the manor's ledgers, one modest rent is paid in eels; the chronicle records
+  the count without comment.)
 - **The foraging year**: ramsons (wild garlic) open spring as the first green thing; summer
   and autumn bring the archaeobotanically attested basket — hazelnuts above all, then
   blackberries, elderberries, crab apples, rosehips, and sloes sweetened by first frost;
@@ -287,6 +366,23 @@ The verified catalog people draw from, by temperament:
 Small works persist, weather, and are chronicled like great ones. The castle is the player's
 sentence; these are the marginalia — and as in real manuscripts, the margins are where the
 life is.
+
+## 8c. Trade and the look of prosperity (hands-off)
+
+Trade runs itself; the player builds the conditions and the world responds.
+
+- **Buildings attract traders.** Build the structures that spawn them — a market cross, a
+  wharf if there's water — and traders come on their own. There is no trading UI: the
+  exchange is computed from what the village has and lacks. The building portfolio IS the
+  trade policy. (In lean years, arriving grain merchants are a relief valve — mutual aid
+  by market, priced accordingly, and the chronicle notes who gouged.)
+- **Every building carries a value**, and the community's summed value sets a prosperity
+  tier. Tiers re-dress the world: at the low end, bare walls and packed dirt; as value
+  grows, banners on the walls, carved door-frames, more art and decor, more gardens, public
+  spaces where the mud was. Prosperity is never a number on screen — it's what the village
+  looks like when you walk it. This is §8b's principle applied at settlement scale, and it
+  absorbs the visitor effect: a high-tier village with rising towers simply draws more
+  travelers, coin, news, and the occasional settler.
 
 ## 9. Homage (the heart)
 
@@ -373,9 +469,11 @@ House patterns, ported deliberately:
 
 ## 12. Non-goals (the cut list)
 
-No multiplayer. No trade/economy simulation beyond a traveling merchant. No diplomacy, no
-map of rival lords. No second settlement. No individual needs micromanagement. No 3D
-animated humans. No tech tree beyond the natural tool ladder (gin pole → treadwheel; better
+No multiplayer. Trade exists but is hands-off (§8c) — no trading UI, no price
+micromanagement, no caravans to steer. No wildlife simulation (farm animals only). Farming
+stays simple — no soil-chemistry sim. No diplomacy, no map of rival lords. No second
+settlement. No individual needs micromanagement. No 3D animated humans. No tech tree —
+knowledge lives in people (§7), plus the natural tool ladder (gin pole → treadwheel; better
 rope; glazed windows). No procedural quest content. No mod tools at launch. Combat never
 grows beyond the toggle described in §10.
 
@@ -386,19 +484,24 @@ Each milestone ends with a push to Syntaxswine/freestone (boss's standing instru
 - **M0 — Scope.** This document + research anchors. *(today)*
 - **M1 — First Wall.** Terrain, camera, draw a wall line, watch masons lay instanced stones
   over game-months. No people sim yet — stub workers. Proves the core spectacle is fun.
-- **M2 — Quarry loop.** One limestone quarry end-to-end: extract → season → dress → cart →
-  lay, with per-stone provenance recorded. Transport cost real. The economic spine.
+- **M2 — Quarry loop.** One quarry end-to-end on the real site's actual stone (§5a):
+  extract → season → dress → cart → lay, with per-stone provenance recorded and bed
+  exhaustion designed in from day one (cheap to found, expensive to retrofit). Transport
+  cost real. The economic spine.
 - **M3 — Generations.** Named people, trades, aging, apprenticeship, death, marks on stones,
-  chronicle skeleton. The moment the game becomes itself.
+  chronicle skeleton, the clerk, and the technique-token data layout (§7 — features may land
+  later, the data shape lands here). The moment the game becomes itself.
 - **M4 — The granary year.** Season/weather calendar; harvest → sheaves → winter threshing →
-  granary with seed-corn reserve; the foraging calendar and gleaning; famine, disease,
-  accidents; winter thatching of wall tops (a real recurring cost: Windsor 1362 billed 125
-  cartloads of thatch for it). The Great Barn ships here as the tutorial great work. Tuned
-  by headless sweeps for "gentle but real."
+  granary with seed-corn reserve; farm animals; the foraging calendar and gleaning; famine,
+  disease, accidents, **fire and firefighting**; hands-off trade (§8c — traders are the
+  famine relief valve, so they tune together); winter thatching of wall tops (a real
+  recurring cost: Windsor 1362 billed 125 cartloads of thatch for it). The Great Barn ships
+  here as the tutorial great work. Tuned by headless sweeps for "gentle but real."
 - **M5 — Homage & small works.** Chronicle book UI, mark inspection, memorial slabs,
-  founder's stone, the Long Replay timelapse, the tracing-floor palimpsest, the page of
-  unnamed hands — and the small-works system (§8b), which is homage made by the villagers
-  instead of for them.
+  founder's stone, the Long Replay timelapse, the tracing-floor palimpsest (with the
+  technique-resurrection study action), the page of unnamed hands, bell casting, the
+  prosperity-tier dressing pass (§8c visuals) — and the small-works system (§8b), which is
+  homage made by the villagers instead of for them.
 - **M6 — The toggle.** Combat as specified. Wall data was combat-ready since M1.
 - **M7 — Beauty & shipping.** Weathering pass, audio, title, store page, Steam packaging.
 
@@ -421,6 +524,10 @@ Each milestone ends with a push to Syntaxswine/freestone (boss's standing instru
    refeeding deaths at famine relief, "useless mouths" expelled from besieged walls. Current
    stance: the refeeding lesson stays (taught once, gently, then the healer knows); the
    expulsion mechanic is refused on principle (the game's moral floor). Confirm or adjust.
+8. **The site: confirm Kenilworth** (§5a) as the real surveyed location — stone on-site,
+   Arden woods, the dammable brooks, free 1 m LiDAR + BGS geology, and our research corpus
+   already anchored there. Alternates on file: Guédelon/Puisaye (stays our calibration
+   dataset either way), Barnack (quarry-landscape visual reference).
 
 ## 15. Research anchors
 
@@ -535,6 +642,44 @@ adversarial re-checks).** Full source notes live in the research digest; the anc
     (1286, four masters named with years served; destroyed 1779, known from drawings);
     Bridekirk font — runic "Richard he wrought me" beside a carved self-portrait with mallet
     and chisel, mid-1100s.
+
+**Third pass — fire, and the real site (2026-07-09; 3 researchers, 38 claims, 6 adversarial
+re-checks; digest at research/DIGEST-2026-07-09-fire-site.md).**
+
+21. **Fire & firefighting — VERIFIED** (core), with honest edges. FitzStephen's "frequency
+    of fires" line is genuine 12th-c. text (skeptic-checked against the Rolls Series
+    edition). London burned 1087, 1133, 1212 (+1220, 1227, 1299); Lübeck ×3, Utrecht 1253 —
+    once a generation is fair. The 1212 ordinances attest the kit: alderman's **hook and
+    cord**, **tub of water before every house**, tile/shingle/board/lead for new roofs,
+    8-day plaster-or-demolish for existing thatch, whitewashed cook-shops and brewhouses
+    (fire code as status). Assize of Buildings: 3 ft × 16 ft joint stone party walls, fire
+    as stated motive ("not being able to injure it, [the fire] became there extinguished");
+    the traditional 1189 date is questioned — say "c. 1190s–1212." **Curfew etymology is
+    genuine** (cuevrefeu; Latin ignitegium/pyritegium; London statute 1285) — the
+    William-the-Conqueror-repression story is the debunked part. **UNVERIFIED and avoided:**
+    in-window bucket chains; "ring the bells backwards" fire alarms (post-medieval); the
+    "3,000 dead in 1212" figure (Stow, 1603). Arson: capital plea in-window (Assize of
+    Northampton 1176); rick-burning statutes are 18th–19th c. — flavor only.
+22. **Kenilworth as site — VERIFIED.** Stone quarried on-site (Castle Hill Quarry, ~400–600 m
+    south; quarry void ≈ outer-wall volume — skeptic-confirmed); **CORRECTED:** the stone is
+    Permian Kenilworth Sandstone, not Triassic ("New Red" only loosely). Great Mere: ~100
+    acres, dammed 1210–16 by King John, drained 1649 (so full mere is post-1216 within our
+    register — fine: the player builds it). Arden = assarted wood-pasture, not wildwood
+    (skeptic-confirmed). Data: EA National LiDAR 1 m DTM under OGL; BGS mapping; caveat —
+    modern town on the east approach. Bonus: Kenilworth and Warwick, 8 km apart, used two
+    different local stones — hyper-local provenance is the historical norm. Barnack Hills &
+    Holes = 58 acres of preserved pit-and-mound medieval quarry ground (visual reference).
+23. **Guédelon calibration — VERIFIED** (rich). Site chosen 1996–97 for a disused sandstone
+    quarry + forest + road + clay + water. Numbers a sim can use: bed tables 50–80 cm, wedge
+    lines ~30 cm, courses 20–35 cm; ~3 m³/day raw vs ~1 m³ usable; Donzy limestone bought
+    from 30 km away because it dresses ~3× faster (2007, skeptic-confirmed) — transport vs
+    workability, decided by a real crew; mortar 1:2 fat lime:sand; **sacrificial lime kilns**
+    (each burn demolished to extract the quicklime); March–November frost-bounded season;
+    treadwheel 500–600 kg; ~10,000 m³ / ~23–30 kt total stone, foundations = 3 years; tilery
+    ~3,000 tiles per 2-month cycle, **quality-tested by ear with a ~75% pass rate**; local
+    sandstone's medieval use runs late-11th–13th c. (24 documented buildings) — in-register.
+    Honest limits: Guédelon is a small French "château philippien" with an invented minor
+    lord — style reference and rate-book, not our map.
 
 ---
 

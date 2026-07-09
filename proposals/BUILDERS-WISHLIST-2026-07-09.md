@@ -117,3 +117,32 @@ to retrofit). #3 and #6 are small enough to smuggle into M3/M5. #1 and #7 shape 
 people-sim data is laid out (technique tokens, person mobility) even if the features land
 later. #4, #5, #8 are M4/M5 content. #9 is a stretch arc and should stay one. Nothing here
 touches M1.*
+
+---
+
+## Dispositions (boss, 2026-07-09 — same day; integrated into SCOPE the same session)
+
+1. Technique lineages + tracing-floor resurrection — **ACCEPTED, CORE.** Boss: "a game
+   changer... it means that you truly have to cultivate knowledge generationally." Now
+   SCOPE §7; data layout lands M3, floor-study action M5.
+2. Real beds — **ACCEPTED, AMENDED:** use a real, extensively-surveyed location — woods and
+   quarries near a castle site. Candidates + recommendation in SCOPE §5a; open question Q8.
+3. Names that erode — **PARKED** ("right flavor, but pass for the moment").
+4. The bell — **ACCEPTED,** plus boss addition: the bell chime is the construction-order
+   sound from day one; the cast bell later replaces it with the village's true tone. SCOPE §6.
+5. Wildlife tenancy — **DECLINED.** Farm animals instead (oxen, pigs, geese, hens, sheep);
+   the payroll cat survives as staff. SCOPE §7. (Dovecote: arguably husbandry, not wildlife
+   — left out, boss's call if it ever wants in.)
+6. Scribe & marginalia — **TRANSFORMED** into the boss's clerk: a ragdoll assistant sprite
+   who ages with game time — "it shows the cost of time." Ages, dies, is succeeded by the
+   apprentice who shadowed them; the chronicle hand changes. SCOPE §7.
+7. The lodge breathes — **REDIRECTED** into hands-off trade + prosperity tiers: trader-
+   spawning buildings, exchange computed from the building portfolio, community value
+   re-dresses the area sprites (banners → art → gardens → public spaces). SCOPE §8c.
+   (Traveling masons and the apprentice-called-to-a-cathedral were not ruled on — parked
+   alongside #3.)
+8. Eels, mills, muck — **SIMPLIFIED:** farming stays simple, muck slow-variable cut; the
+   eel survives as an easter egg (one rent in the manor ledgers, SCOPE §8a).
+9. Erosion epilogue — **ACCEPTED, loved.** Stays a stretch arc (post-M7).
+10. *(new, boss)* **Fire and firefighting — REQUIRED.** SCOPE §8 hazard + curfew-bell tie
+    (§6); research pass run before canonization, anchors in §15.
