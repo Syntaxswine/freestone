@@ -1,8 +1,9 @@
-# FREESTONE — Scope Document
+# CASTLE CULTIVATOR — Scope Document
 
-*Working title. "Freestone" is the medieval quarryman's word for stone fine-grained enough to be
-cut freely in any direction — the stone facing-work is made of, and the root of the word
-"freemason." Alternatives if the boss wants them: Cornerstone, Ashlar, The Long Build, Stonesong.*
+*Title chosen 2026-07-09: **Castle Cultivator** — castle = mutual defense, cultivator =
+mutual aid; you grow a castle rather than command one. The development codename "freestone"
+(the quarryman's word for stone that cuts freely in any direction, root of "freemason")
+survives in the repo and directory name until a rename is worth the link churn.*
 
 **Date:** 2026-07-09 · **Status:** M0 scoping · **Repo:** Syntaxswine/freestone
 
@@ -403,16 +404,11 @@ Each milestone ends with a push to Syntaxswine/freestone (boss's standing instru
 
 ## 14. Open questions for the boss
 
-1. **Title.** Live shortlist (decision not needed until M7), current leader first:
-   **Castle Cultivator** (boss float 2026-07-09 — free on Steam; the anti-lone-genius word:
-   you grow a castle rather than command one, and the two words carry the whole thesis,
-   castle = mutual defense, cultivator = mutual aid; flags: "cultivator" reads xianxia to a
-   slice of Steam, and it's also a farm implement — both minor, "Castle" anchors it);
-   **Stone by Stone** (plain register, free on Steam, the game's ethic in three words);
-   **Castle Architect** (earlier boss float, not sold — legible but the lone-genius word,
-   and the one anachronism we'd ever ship); **Freestone** (carries the history, but one
-   letter from Steam's established *Firestone* — confusion risk). A colon-subtitle can
-   carry whatever the title doesn't.
+1. **Title — RESOLVED 2026-07-09: Castle Cultivator.** Steam-collision-checked; the two
+   words carry the civic thesis (castle = defense, cultivator = aid); minor flags on record
+   (xianxia genre-parse, farm-implement parse — "Castle" anchors both). Runners-up archived:
+   Stone by Stone, Castle Architect, Freestone (Firestone confusion risk). A colon-subtitle
+   remains available for the store page.
 2. **Player identity** — "you are the Lodge/the Work, not a mortal lord": confirmed?
 3. **Era anchor** — I'm assuming ~1200s northwest Europe (Guédelon's century). OK?
 4. **Combat-on flavor** — strictly historical raiders, or is weirdness (sieges by something

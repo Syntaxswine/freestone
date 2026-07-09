@@ -9,10 +9,12 @@ Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a 
       commons, foraging year) + §8b (small works catalog, honest-dating filtered), siege
       rework (stores-vs-patience), tracing-floor palimpsest + page of unnamed hands (§9.7-8).
       Research: 6 agents, 78 claims, 18 skeptic checks → research/DIGEST-2026-07-09-*.md
-- [ ] Boss review of SCOPE.md open questions (§14): title shortlist (Castle Cultivator lead /
-      Stone by Stone / Castle Architect / Freestone), player identity, era, combat flavor,
-      idle tolerance, chapel long-game scope, Q7 tone ceiling (refeeding stays / expulsion
-      refused)
+- [x] Title RESOLVED 2026-07-09: **Castle Cultivator** (repo keeps codename `freestone`)
+- [ ] Boss review of remaining SCOPE.md open questions (§14): player identity, era, combat
+      flavor, idle tolerance, chapel long-game scope, Q7 tone ceiling (refeeding stays /
+      expulsion refused)
+- [ ] Builder's wishlist filed (proposals/BUILDERS-WISHLIST-2026-07-09.md) — boss picks
+      what graduates into scope; reconciliation notes at the bottom of the file
 
 ## Next
 - [ ] M1 — First Wall: terrain, camera, wall-line drawing, instanced stone accretion,
@@ -38,7 +40,10 @@ Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a 
   ("attested in emergencies", not "customary"), the word "banker mason" itself (practice
   medieval, term possibly later), bell "me fecit" dating, the ~50% wild-taxa archaeobotany
   figure (snippet-level only).
-- Title decision at M7; shortlist and tradeoffs live in SCOPE §14.1.
+- Title resolved (Castle Cultivator); rename of repo/dir deferred until worth the link churn.
+- Wishlist items #1/#7 (technique tokens, person mobility) should shape M3's people-sim data
+  layout even if the features land later; #2 (real beds) belongs in M2's design from day one
+  — cheap to found, expensive to retrofit.
 - Occupational-surname coalescence (§7) — delightful, but confirm it doesn't complicate
   save-format identity; people need stable IDs independent of display names.
 - Port decision Electron vs Tauri deferred to M7; nothing before then may depend on either.

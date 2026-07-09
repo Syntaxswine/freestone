@@ -1,4 +1,6 @@
-# Freestone *(working title)*
+# Castle Cultivator
+
+*(development codename `freestone` — the repo keeps it until a rename is worth the links)*
 
 A generational castle-building game. You are the Work itself — the lodge, the plan that
 outlives its builders. Small DS-scale people quarry, season, dress, and lay real stones over
