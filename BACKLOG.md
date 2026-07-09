@@ -9,9 +9,10 @@ Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a 
       commons, foraging year) + §8b (small works catalog, honest-dating filtered), siege
       rework (stores-vs-patience), tracing-floor palimpsest + page of unnamed hands (§9.7-8).
       Research: 6 agents, 78 claims, 18 skeptic checks → research/DIGEST-2026-07-09-*.md
-- [ ] Boss review of SCOPE.md open questions (§14): title shortlist (Castle Architect /
-      Stone by Stone / Freestone), player identity, era, combat flavor, idle tolerance,
-      chapel long-game scope, Q7 tone ceiling (refeeding stays / expulsion refused)
+- [ ] Boss review of SCOPE.md open questions (§14): title shortlist (Castle Cultivator lead /
+      Stone by Stone / Castle Architect / Freestone), player identity, era, combat flavor,
+      idle tolerance, chapel long-game scope, Q7 tone ceiling (refeeding stays / expulsion
+      refused)
 
 ## Next
 - [ ] M1 — First Wall: terrain, camera, wall-line drawing, instanced stone accretion,
