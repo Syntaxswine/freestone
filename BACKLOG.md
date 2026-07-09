@@ -15,7 +15,9 @@ Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a 
       prosperity tiers (§8c), eel easter egg (§8a), fire + firefighting + curfew bell (§8),
       real-site directive (§5a). Parked: name-erosion, traveling masons. Research pass 3
       (fire/Kenilworth/Guédelon): 9 agents, 38 claims → anchors 21-23.
-- [ ] **Q8: boss confirms Kenilworth as the site** (§5a; Guédelon stays calibration data)
+- [ ] **Q8: boss confirms DURHAM as the site** (§5a — re-recommended on the core-samples
+      directive; borehole census: Dudley 7,079 / Nottingham 2,470+93 AGS / Durham 1,598 /
+      Kenilworth 989; Durham wins on beds-with-names + water + medieval paper trail)
 - [ ] Boss review of remaining SCOPE.md open questions (§14): player identity, era, combat
       flavor, idle tolerance, chapel long-game scope, Q7 tone ceiling (refeeding stays /
       expulsion refused)
@@ -48,8 +50,15 @@ Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a 
 - Wishlist items #1/#7 (technique tokens, person mobility) should shape M3's people-sim data
   layout even if the features land later; #2 (real beds) belongs in M2's design from day one
   — cheap to found, expensive to retrofit.
-- M1/M2 site work (once Q8 confirmed): pull EA LiDAR 1 m DTM for Kenilworth + BGS mapping;
-  de-modernization pass (strip town, restore pre-dam brook line — the mere is player-built).
+- M1/M2 site work (once Q8 confirmed): pull EA LiDAR 1 m DTM + BGS 50k mapping for the
+  chosen site; de-modernization pass; download + hand-transcribe the borehole log scans in
+  the map box into the bed model (budget real hours — they're raster scans); grab the Mining
+  Remediation Authority abandoned-mine GeoPackage; study the BGS GeoIndex synthetic-borehole
+  viewer as the UX reference for our bed-query tool; email BGS Data Services asking whether
+  an unlisted LithoFrame model covers the site (cheap per-km² if so).
+- Harvested from rejected sites: carvable-undercroft mechanic + crown-hole unknown-void
+  hazard (Nottingham); fossil-in-the-dressed-stone zoom detail (Dudley's reef limestone →
+  ours via Durham's Frosterley Marble); medieval mine workings as unrecorded voids (MRA).
 - Fire honest gaps: no in-window bucket chains (tubs + hooks only); no "bells rung backwards";
   never quote "3,000 dead in 1212" as fact (Stow 1603 legend).
 - Occupational-surname coalescence (§7) — delightful, but confirm it doesn't complicate

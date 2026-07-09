@@ -122,29 +122,63 @@ real science, shippable alone:
 
 ### 5a. The site is real
 
-Boss directive: build on a real, extensively surveyed location — woods and quarries near a
-castle site — so the terrain and geology come from data, not invention.
+Boss directive, two rounds: build on a real, extensively surveyed location — woods and
+quarries near a castle site — and the discriminator is **subsurface truth**: core samples
+and borehole data, not just LiDAR (LiDAR is uniform across England anyway).
 
-**Recommendation: Kenilworth, Warwickshire** (open question Q8 to confirm). The case:
-- **The stone is on-site**: Kenilworth Castle is built almost entirely of local Permian
-  Kenilworth Sandstone from Castle Hill Quarry, ~400–600 m south of the walls — and a
-  quantity-surveyor study found the volume removed from the quarry roughly equals the
-  castle's outer walls. *The quarry is the castle inverted* — in-game, the pit can literally
-  deepen as the walls rise, block for block.
-- **The woods are right**: Kenilworth sits in the Arden — wood-pasture with clearings,
-  heavily assarted in exactly our window, not fairy-tale wildwood. That matches our commons
-  systems (assart hedges, estovers, pannage) instead of contradicting them.
-- **The water is a great work waiting to happen**: King John dammed the Finham and Inchford
-  Brooks (1210–16) to make the ~100-acre Great Mere — the largest artificial water defenses
-  in medieval England (in the 1266 siege, attackers hauled barges overland to cross it, and
-  the water still won). In-game, the mere is a buildable mid-game great work that unifies
-  the mill, the fishponds, and the siege moat in one dam.
-- **The data is free**: Environment Agency National LiDAR (1 m DTM, ±15 cm, Open Government
-  Licence) covers it, plus BGS geological mapping. Caveat on record: modern Kenilworth town
-  presses the east approach — the LiDAR needs a de-modernization pass, but the landform
-  survives under the streets.
-- **Our research corpus already lives there**: the 1266 siege, the six-man peacetime
-  garrison, the fishponds, and all the English customs work (§8a) anchor to this exact place.
+**The data reality first** (fourth research pass): BGS serves 1M+ scanned borehole logs,
+free to download under OGL — but they are raster scans of paper logs (hand-transcription
+required); machine-readable AGS boreholes are rare (~10k nationally); detailed urban 3D
+models exist only for London/Glasgow/Cardiff/Liverpool (viewer-free, download licensed —
+though the viewer's *synthetic borehole* tool is exactly the query primitive our bed sim
+needs, and a free UX reference). The Mining Remediation Authority's abandoned-mine
+catalogue is a free GeoPackage. Physical core lives at the BGS National Geological
+Repository (250 km of core; public open days). Same-size ~7 km boxes, queried live against
+the BGS OGC API (2026-07-09):
+
+| Site | scanned logs | AGS digital | stone on-site | water | medieval paper trail |
+|---|---|---|---|---|---|
+| **Durham** | 1,598 | 0 | ✅ Low Main Post | ✅✅ Wear gorge + mills | ✅✅ Boldon Book, Priory |
+| Dudley | **7,079** | 0 | ✅ Wenlock reef limestone | ❌ hilltop, no river | thin |
+| Nottingham | 2,470 | **93** | ❌ Castle Rock isn't building stone | ✅ Trent | ✅ royal castle, forest law |
+| Kenilworth | 989 | 0 | ✅ Kenilworth Sandstone | ✅✅ buildable mere | ✅✅ our corpus |
+
+**Recommendation: Durham** (Q8 to confirm). No site wins everything; Durham wins the game
+we're making:
+- **The beds have names, and miners named them**: the cathedral stands on the *Low Main
+  Post* — "post" is the Durham pitmen's own word for sandstone, and beds are named for the
+  coal seam beneath them (Low Main, Maudlin, Hutton). Our bed-exhaustion sim can speak the
+  local dialect verbatim. The strata dip gently east — real geometry for the quarry game.
+- **Bed exhaustion has a documented afterlife on this exact site**: the medieval Elvet Banks
+  quarries, worked out, became the city's rubbish dumps and are now invisible under
+  picturesque woodland — and quarrymen's tool grooves are still visible in the Low Main Post
+  cliff by the river path. Our T3 patina arc, already performed by history.
+- **A sacred forbidden bed**: the monks burned local coal but banned mining beneath the
+  cathedral — the seam still sits intact under the peninsula. A real management decision we
+  inherit as a mechanic.
+- **Water and mills are superbly documented**: the Wear's incised meander is a natural moat
+  on three sides, and the Boldon Book (c. 1183) attests the Bishop's Mill and its fellows
+  at the weirs — the best-papered water infrastructure of any candidate.
+- **The fantasy already happened here**: first stones 11 August 1093, cathedral essentially
+  complete in ~40 years, stone dressed at the quarry because carriage was the cost, masons
+  standing down each winter for the frost. Durham is our game played once, for real, and
+  the fossil delight survives too — the cathedral's black *Frosterley Marble* columns are
+  packed with visible corals, so zooming the walls still finds ancient life in the stone.
+- **Caveats on record**: quarry provenance is traditional ("thought to be" Kepier), not
+  petrographically proven; today's gorge woods are largely 18th-c. regrowth (ancient
+  woodland survives at Frankland, downstream); no confirmed BGS 3D city model (worth an
+  email); a small city sits on the peninsula — de-modernization pass, as anywhere.
+
+**Runners-up, honestly**: **Dudley** is the pure-data maximalist (7× Kenilworth's boreholes,
+a castle built of fossil-reef limestone in a UNESCO Geopark, 13th-c. deer-park landscape) —
+but it's a dry hilltop, and a granary-and-mill game without water is missing a limb.
+**Nottingham** uniquely offers machine-readable AGS data plus ~1,000 recorded man-made caves
+in carvable sandstone — but Castle Rock is friable non-building stone (the medieval castle
+was built of stone brought in), which breaks the quarry-beside-the-walls loop; we harvest
+its ideas instead (carvable undercrofts; the documented crown-hole collapse as an
+unknown-void hazard). **Kenilworth** has the weakest subsurface data (and the HS2 boreholes
+next door are *not* openly deposited — verified) — demoted with thanks; its customs corpus
+(§8a) was never site-specific and stands.
 
 **Guédelon is the calibration dataset, not the map.** Its numbers generalize and are
 published: extraction from natural bed tables 50–80 cm thick, wedge lines every ~30 cm,
@@ -524,10 +558,12 @@ Each milestone ends with a push to Syntaxswine/freestone (boss's standing instru
    refeeding deaths at famine relief, "useless mouths" expelled from besieged walls. Current
    stance: the refeeding lesson stays (taught once, gently, then the healer knows); the
    expulsion mechanic is refused on principle (the game's moral floor). Confirm or adjust.
-8. **The site: confirm Kenilworth** (§5a) as the real surveyed location — stone on-site,
-   Arden woods, the dammable brooks, free 1 m LiDAR + BGS geology, and our research corpus
-   already anchored there. Alternates on file: Guédelon/Puisaye (stays our calibration
-   dataset either way), Barnack (quarry-landscape visual reference).
+8. **The site: confirm Durham** (§5a) — re-recommended after the core-samples directive:
+   named beds in miners' dialect, documented bed-exhaustion afterlife, the forbidden seam
+   under the cathedral, the Wear gorge + Boldon Book mills, 1,598 free borehole logs.
+   Alternates on file: Dudley (most data, no water), Nottingham (AGS data + caves, wrong
+   stone), Kenilworth (demoted; customs corpus unaffected). Guédelon stays the calibration
+   dataset; Barnack stays the quarry-landscape visual reference.
 
 ## 15. Research anchors
 
@@ -680,6 +716,41 @@ re-checks; digest at research/DIGEST-2026-07-09-fire-site.md).**
     sandstone's medieval use runs late-11th–13th c. (24 documented buildings) — in-register.
     Honest limits: Guédelon is a small French "château philippien" with an invented minor
     lord — style reference and rate-book, not our map.
+
+**Fourth pass — core samples and the site decision (2026-07-09; 4 researchers + 8 skeptic
+checks + live BGS API queries; digest at research/DIGEST-2026-07-09-core-sample-sites.md).**
+
+24. **The open-subsurface landscape — VERIFIED.** BGS GeoIndex: ~850k borehole records /
+    1M+ log scans, free to view AND download under OGL — but raster scans, hand-transcribed;
+    AGS machine-readable service holds only ~10k boreholes nationally. UK3D national fence
+    model free; 14 regional models free; detailed urban 3D models (London/Glasgow/Cardiff/
+    Liverpool/Gateshead only) are viewer-free, download-licensed (LithoFrame from £0.68–
+    £5.12/km²) — the viewer's synthetic-borehole tool is our bed-query UX reference. Mining
+    Remediation Authority: 175k mine entries, catalogue downloadable; records reach the
+    13th c. but systematic only post-1872 — genuinely medieval workings are unrecorded
+    voids (a real surveying problem and a ready-made hazard). NGR Keyworth: 250 km of
+    physical core, visits by application, public open days. Delight: BGS has already built
+    free Minecraft worlds from real 3D geology. French BSS (for the Guédelon alternate) is
+    arguably more game-ready: one licence, bulk per-département dumps, quality-graded logs.
+25. **Borehole census (live OGC API, same-size ~7 km boxes, 2026-07-09) — VERIFIED, method
+    reproduced by skeptic with positive control.** Dudley 7,079 scans / 0 AGS; Nottingham
+    2,470 / 93 (only candidate with machine-readable data); Durham 1,598 / 0; Kenilworth
+    989 / 0. HS2's Kenilworth-adjacent GI data is NOT openly deposited (release language is
+    aspirational, under "possible future developments" — skeptic-confirmed).
+26. **Durham — VERIFIED** (site case in §5a). Low Main Post under the cathedral ("post" =
+    pitmen's word for sandstone; beds named for the seam beneath); eastward regional dip;
+    monks banned mining beneath the cathedral (seam intact); Elvet Banks medieval quarries →
+    rubbish dumps → 18th-c. woodland, tool grooves still visible; Boldon Book (c. 1183)
+    mills; peninsula chosen 995 for the gorge's natural defence; first stones 1093,
+    cathedral ~40 years; Frosterley Marble = fossil-packed decorative stone. **Hedges:**
+    Kepier/Quarryheads provenance is traditional not petrographic; Baxter Wood UNVERIFIED;
+    "Prebends fault" single-source. **Nottingham counterfacts:** Castle Rock (Chester Fm,
+    ex-"Nottingham Castle Sandstone") is friable non-building stone — the castle was built
+    of imported stone; ~1,000 recorded man-made caves (register hit 1,000 in 2026), earliest
+    dated 13th c., laser-scan archive access is NOT a simple download (skeptic inverted the
+    availability claim). **Dudley counterfacts:** castle IS local Wenlock reef limestone
+    (Black Country UNESCO Geopark, the Dudley Bug trilobite) but the hill has no river, and
+    limestone mine plans are not a simple open download.
 
 ---
 
