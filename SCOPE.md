@@ -558,12 +558,11 @@ Each milestone ends with a push to Syntaxswine/freestone (boss's standing instru
    refeeding deaths at famine relief, "useless mouths" expelled from besieged walls. Current
    stance: the refeeding lesson stays (taught once, gently, then the healer knows); the
    expulsion mechanic is refused on principle (the game's moral floor). Confirm or adjust.
-8. **The site: confirm Durham** (§5a) — re-recommended after the core-samples directive:
-   named beds in miners' dialect, documented bed-exhaustion afterlife, the forbidden seam
-   under the cathedral, the Wear gorge + Boldon Book mills, 1,598 free borehole logs.
-   Alternates on file: Dudley (most data, no water), Nottingham (AGS data + caves, wrong
-   stone), Kenilworth (demoted; customs corpus unaffected). Guédelon stays the calibration
-   dataset; Barnack stays the quarry-landscape visual reference.
+8. **The site — RESOLVED 2026-07-09: Durham.** Boss: "we can always add more locations
+   later, lets just start with this one." Architecture consequence adopted: a site is a
+   **data package** (terrain grid, bed model, water lines, names), loaded by id — so future
+   locations (Dudley, Kenilworth, a Guédelon-flavored French site) are content drops, not
+   engine surgery. Alternates and their harvested ideas remain in §5a and the backlog.
 
 ## 15. Research anchors
 

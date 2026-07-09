@@ -15,9 +15,11 @@ Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a 
       prosperity tiers (§8c), eel easter egg (§8a), fire + firefighting + curfew bell (§8),
       real-site directive (§5a). Parked: name-erosion, traveling masons. Research pass 3
       (fire/Kenilworth/Guédelon): 9 agents, 38 claims → anchors 21-23.
-- [ ] **Q8: boss confirms DURHAM as the site** (§5a — re-recommended on the core-samples
-      directive; borehole census: Dudley 7,079 / Nottingham 2,470+93 AGS / Durham 1,598 /
-      Kenilworth 989; Durham wins on beds-with-names + water + medieval paper trail)
+- [x] Q8 RESOLVED 2026-07-09: **DURHAM confirmed** by boss ("start with this one; more
+      locations later") → sites are data packages loaded by id, future locations = content
+- [ ] M1 groundwork IN PROGRESS: deterministic `worldStep` core + seed-first RNG +
+      command-log save format + project scaffold (TS/Three/Vite, port 8742) + real Durham
+      terrain (EA LiDAR 1m preferred, OS Terrain 50 fallback) → data/site-durham/
 - [ ] Boss review of remaining SCOPE.md open questions (§14): player identity, era, combat
       flavor, idle tolerance, chapel long-game scope, Q7 tone ceiling (refeeding stays /
       expulsion refused)
