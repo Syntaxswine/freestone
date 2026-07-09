@@ -5,6 +5,10 @@ outlives its builders. Small DS-scale people quarry, season, dress, and lay real
 real decades; they grow old and die doing it, and their children finish what they started.
 
 - Peaceful by default; combat is an optional toggle.
+- The granary is the heart: government is mutual aid + mutual defense, and the granary is
+  both — it answers the lean years and it answers the siege. The first great work is a barn.
+- Beauty is in everyone's hands: villagers make small works on their own — gardens, whittled
+  toys, scratched daisy wheels, harvest feasts — and that, not a score, is what prosperity is.
 - Realistic quarrying and masonry — the science *is* the pacing (lime mortar cures slowly;
   green stone must season; winter halts the walls).
 - Hazards write the chronicle: famine, disease, construction accidents. They scar and

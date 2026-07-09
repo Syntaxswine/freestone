@@ -19,6 +19,9 @@ The fantasy is a sandcastle you build through other people's hands across a cent
 watching a wall accrete stone by stone; the meaning is that every stone remembers who laid it.
 
 - **Peaceful by default.** Combat is a toggle, off out of the box.
+- **The granary is the heart.** Government has two functions — mutual aid and mutual
+  defense — and the granary embodies both: it answers the lean years, and it answers the
+  siege. The village's first monumental work is a barn, not a keep.
 - **Low-stress.** Setbacks scar and redirect the build; they never delete hours of your work.
 - **$3.99 Steam game.** Small, warm, finished. Not a colony-sim kitchen sink.
 - **3D, not grid.** Free terrain, free wall lines, real block geometry.
@@ -39,6 +42,17 @@ watching a wall accrete stone by stone; the meaning is that every stone remember
    The player is a bonsai gardener, not an air-traffic controller.
 5. **Small and finishable.** Every feature must justify itself against a $3.99 price point and
    a two-person-ish dev effort (one boss, one me).
+6. **The granary is the government.** Mutual aid and mutual defense are the two functions of
+   the commonwealth, and every civic mechanic must trace to one or both. The granary serves
+   both at once, which is why it comes before the keep — aid before defense, in build order
+   as in principle. (History's honest footnote, kept deliberately: institutional famine
+   relief was rare in our era — relief was personal charity, like Charles the Good feeding
+   Flanders in 1125. The game lets the village *institutionalize the ideal*; that is the
+   fantasy, and we know it.)
+7. **Beauty is in everyone's hands.** The player composes the great work; the people compose
+   small works — a garden, a whittled boat, a daisy wheel scratched by the chapel door. The
+   game never scores beauty and never announces it. Prosperity's true meter is what people
+   make when no one commands them, and you learn it by walking.
 
 ## 3. The player
 
@@ -141,15 +155,23 @@ real science, shippable alone:
   born, which is exactly where real ones came from.
 - **Needs stay shallow:** fed, housed, rested, spirit. The village largely runs itself; the
   player steers allocation (field labor vs. haul labor is the classic tension), not lunch.
+- **Leisure produces small works.** A person whose needs are met and whose season allows it
+  will sometimes make something (§8b) — chosen by their traits, not by you. Foraging is
+  disproportionately the work of women, children, and the landless, exactly as it was; the
+  gathering baskets and the small works together are how the margins of the village stay
+  visible and loved.
 
 ## 8. Hazards (the chronicle's ink)
 
 Design law: hazards **scar, redirect, and write story**; they never wholesale delete built
 work or force a restart. Peaceful mode has no fail state — only hard years and recoveries.
 
-- **Famine.** Harvest = weather roll × field labor × granary hygiene. Lean years force
-  rationing, and the classic sin — pulling farmers to haul stone in harvest month — is
-  always available and always tempting.
+- **Famine.** Harvest = weather roll × field labor × granary condition (§8a). Lean years
+  force rationing down a historically real ladder: wild roots and nuts stretch the pottage,
+  bark goes into the bread, and at the bottom waits the dreaded choice — eating the seed
+  corn, which mortgages next year to survive this one. The classic sin — pulling farmers to
+  haul stone in harvest month — is always available and always tempting. Gleaning and the
+  commons (§8a) are the village's own shock absorbers before anything is drawn down.
 - **Disease.** Background sickness driven by crowding and water (well placement vs. latrines
   and the tannery — simple adjacency, no plumbing sim). Rare generational **plague** events
   arrive with warning and options (close the gates to travelers? the stone convoy too?).
@@ -161,6 +183,109 @@ work or force a restart. Peaceful mode has no fail state — only hard years and
   was a master mason falling from the vault scaffolding of his own cathedral choir.
 - **Deaths are chronicled and memorialized** — see §9. Handled warm, never gory. This game's
   grief is churchyard grief, not horror.
+
+## 8a. The granary and the commons (mutual aid)
+
+The civic thesis, in the boss's words: government has two functions, mutual aid and mutual
+defense. The granary protects against the lean years and helps in sieges — it is both
+functions in one building, and this section is the aid half. (The defense half is §10.)
+
+**The Great Barn is the first great work.** Before the keep rises, the village raises a barn
+worthy of a cathedral — the tutorial-arc monument. This is straight history: the 13th-century
+grange barns (Great Coxwell, Ter Doest) were cathedral-scaled, and William Morris called
+Great Coxwell "unapproachable in its dignity, as beautiful as a cathedral, yet with no
+ostentation of the builder's art." The player learns every build system on a building whose
+purpose is feeding people. Aid before defense, taught by the build order.
+
+**Storage is two-stage, as it really was.**
+- Harvest comes in as **sheaves**, bulky, stacked in the barn and in ricks. Across the
+  winter the sheaves are **threshed out on the barn floor** — which is what farm hands DO
+  all winter, filling the quiet season the building site leaves empty. Threshed corn moves
+  to the **granary proper**: small, raised on timber posts against damp and rats. (Honest
+  dating: the mushroom-capped stone staddle is post-medieval; ours are wood.)
+- **Spoilage is the granary's enemy**: damp, rats, and theft. Condition and construction
+  quality set the loss rate. The counter-measures are real and delightful: a **granary cat**
+  (Welsh law priced a barn cat at its own length in wheat; Exeter Cathedral kept a cat on
+  the payroll at a penny a week for 162 years — ours goes on the books too), good raised
+  floors, and an honest reeve (the Seneschaucy warns of corn smuggled out "in bosom, tunic,
+  boots, pockets, sacks and sacklets" — petty theft is a village event, not a crisis).
+- **Grain keeps months, not decades**: within the year is normal, a second year possible,
+  longer exceptional. A full granary is a rolling buffer, not a vault.
+
+**Seed corn is sacred.** Medieval yields ran ~3–4× seed, so roughly a quarter to a third of
+every harvest must be held back for planting. The seed reserve is drawn separately in the
+granary UI, and eating it is the game's most consequential quiet decision. Walter of Henley's
+advice (c. 1280) to *change your seed yearly* becomes a gentle Michaelmas event — seed
+exchanged with neighboring manors, a reason strangers visit.
+
+**Gleaning and the commons are the shock absorbers below the granary.**
+- **Gleaning** after harvest is governed by village custom exactly as the 13th-century
+  by-laws had it: reserved for those who cannot earn a harvest wage — the old, the infirm,
+  the children. It is mutual aid running on rules older than the castle.
+- **The commons** carry the named rights, used verbatim: **pannage** (pigs into the mast
+  woods for the ~60-day autumn acorn season), **estovers** in its four botes (housebote,
+  firebote, hedgebote, ploughbote), **turbary** (peat), **piscary** (fish). The Charter of
+  the Forest (1217) is in living memory; the Statute of Merton (1235) is the standing
+  temptation — the player *may* enclose common land for the castle's benefit, and the law
+  will even say it's allowed, and the village will remember it for a generation.
+- **The foraging year**: ramsons (wild garlic) open spring as the first green thing; summer
+  and autumn bring the archaeobotanically attested basket — hazelnuts above all, then
+  blackberries, elderberries, crab apples, rosehips, and sloes sweetened by first frost;
+  mushrooms are gathered pragmatically (the shuddering distrust of them is a later trope we
+  decline). Winter foraging is honestly thin: stored nuts, dried fruit, and what persists
+  on the branch. Foraged food never rivals the fields — it is the margin that softens every
+  edge, and in famine it is the first rung of the ladder.
+
+**When aid fails, it fails historically.** The 1315–17 pattern is the tuning target: rain,
+failed harvests, the ladder down through bark bread and seed corn. And one hard true detail,
+handled with care: the starving must be re-fed *gently* (the Evesham chronicle records
+refugees dying of the food itself) — the infirmary teaches the village this once, in the
+chronicle's dry voice, and thereafter the healer knows.
+
+## 8b. Small works (beauty in everyone's hands)
+
+The player never places these. People with met needs, free hours, and the right temperament
+make small beautiful things on their own — and the game's whole posture is that this, not a
+score, is what prosperity *is*. Every item below survived honest-dating research; the pretty
+Victorian inventions (corn dollies, well-dressing, flowery cottage gardens) were checked and
+deliberately cut — §15 records the graves.
+
+The verified catalog people draw from, by temperament:
+
+- **Gardens.** Toft gardens are FOOD — leeks, worts, beans, the Piers Plowman larder — and
+  garden quality tracks household prosperity. Ornament is the *rare exception*, which makes
+  it precious: a rose slip begged from the castle herber, violets among the pot-herbs. When
+  a cottage rose appears in your village, it means someone has surplus, leisure, and love,
+  and the chronicle will note it once, dryly.
+- **Marks.** Villagers scratch what real parishioners scratched: compass-drawn daisy wheels
+  by thresholds, ships near the chapel's altar-side (a sailor's votive), names, prayers —
+  and workplace snark. Real graffiti preserved at Ashwell: "the corners are not jointed
+  correctly — I spit at them," and in another hand, "the Archdeacon is an ass." Your masons
+  will editorialize about your master mason, in the stone, forever. Villagers' marks join
+  masons' marks in the per-stone provenance — everyone writes on the castle.
+- **Toys.** A parent whittles a child a boat with a hole for a mast (the Ørland find,
+  c. 1000, from an ordinary inland farm). Toys appear near houses with children and carvers.
+- **Music.** Carols are ring-dances (12th-century carole); on feast evenings people sing in
+  a circle in the bailey. A literate mason may leave the Lidgate trick — a rebus you must
+  sing to read.
+- **Feasts.** The attested medieval kernel of harvest custom is the **harvest home**: the
+  employer feeds everyone, with ale, at the lord's (your) expense — a mutual-aid mechanic
+  wearing a party hat. **Church ales** fund fabric: the village throws a feast and the
+  proceeds buy a roof beam, and the beam gets an inscription saying so ("This cost is the
+  bachelers made by ales," c. 1480). **Maying** is in-register since bishops started
+  complaining about it c. 1220 — our priest may grumble; that IS the attestation.
+- **Hidden carving.** The carpenter carves what misericord carvers carved where nobody
+  official looks: jokes, monsters, everyday life, an elephant from a traveler's description,
+  wrong in exactly the way memory is wrong. Found only by zooming where you'd never zoom.
+- **Skeps and wax.** A village beehive row quietly plugs into the church economy — the
+  chapel's candles want beeswax, and the skeps on the toft answer. Honey sweetens; wax
+  sanctifies.
+- **Badges.** A villager who leaves on pilgrimage (a rare life event) returns wearing a tin
+  badge, and wears it in their sprite forever.
+
+Small works persist, weather, and are chronicled like great ones. The castle is the player's
+sentence; these are the marginalia — and as in real manuscripts, the margins are where the
+life is.
 
 ## 9. Homage (the heart)
 
@@ -177,22 +302,50 @@ These are first-class systems, not flavor:
 3. **The founder's stone.** The first laid stone lists the founding party. Players will
    screenshot it.
 4. **Memorial masonry.** Dead builders may be given tomb slabs in the chapel floor, cut by
-   the masons who knew them. The chapel floor fills across a century.
+   the masons who knew them. The chapel floor fills across a century. History licenses more
+   than we'd dare invent: by 1263 a mason's tomb slab could show him holding a model of his
+   own church — an honor once reserved for princes (Hugues Libergier, Reims) — and Reims
+   laid a labyrinth naming its four master masons with the years each served and what each
+   built, one of them pictured mid-drawing on the floor, in the floor.
 5. **The Long Replay.** Because saves are event-sourced, any castle can be replayed as a
    timelapse — decades of accretion in a minute, generations flickering through the
    scaffolds. This is the trailer, the endgame reward, and the test harness in one feature.
 6. **The roll of builders.** When a great work completes, the game reads out every hand that
    touched it, living and dead, mark by mark.
+7. **The tracing-floor palimpsest.** The tracing floor accretes exactly like the real one in
+   York's Masons' Loft, where ~170 years of setting-out drawings overlap like archaeological
+   strata: old lines dim under fresh plaster skims but ghost through; new scratches show up
+   white and sharp. Draw where a dead master once drew and her faint geometry surfaces
+   beneath yours. You inherit not just the building but the drawing of it.
+8. **The page of unnamed hands.** The roll of builders ends with the hands the chronicle
+   never named — the child who carried water, the gleaners, the winter thatchers. This is
+   the game's most historically honest feature: for our era, most builders' names were never
+   written anywhere at all, and the record's silence should be commemorated as carefully as
+   its speech.
 
 ## 10. Combat (the toggle)
 
 - **OFF (default):** raiders are rumor only. Fortification scores prestige and beauty;
   murder holes are for pigeons. The game is entirely itself without combat.
 - **ON:** rare raids/sieges, telegraphed seasons ahead (a rider brings word — time to finish
-  that wall section, lay in stores, drill the levy). Resolution is slow, pausable, and
-  positional: attackers path against your **actual wall geometry** — the real gates, the
-  real moat, the real unfinished gap you never closed. Tower-defense-lite; zero APM.
-  Losses burn outbuildings, steal stores, and kill people — all of it chronicled. The castle
+  that wall section, lay in stores, drill the levy). Raids are positional: attackers path
+  against your **actual wall geometry** — the real gates, the real moat, the real unfinished
+  gap you never closed. Tower-defense-lite; zero APM.
+- **A siege is a duel between your granary and their patience.** The research is unambiguous:
+  medieval sieges were rarely won by storming — they ended in negotiated surrender under the
+  pressure of hunger. So ours resolve the same way: stores versus time, with parley always on
+  the table and assault the rare, dramatic exception. This is where §8a's mutual aid becomes
+  mutual defense with no new systems: the granary you built for lean years IS the wall that
+  holds; the well you dug IS siege infrastructure (Exeter's Rougemont fell in 1136 for want
+  of water); the villagers who shelter inside bring their mouths with them, and feeding them
+  anyway is the game's quiet moral floor — Freestone never offers the "useless mouths"
+  expulsion that history's worst sieges recorded. Kenilworth held 172 days and surrendered
+  with two days' food left; that is the shape of our endgame siege.
+- **Peacetime is the true state.** Kenilworth's own accounts show one of England's mightiest
+  castles kept a standing garrison of *six*, and the real daily activity was granary work,
+  malt-winnowing, and stocking the fish pond. Peaceful mode isn't combat turned off — it's
+  what castles actually were, nearly all the time.
+- Losses burn outbuildings, steal stores, and kill people — all of it chronicled. The castle
   itself can be damaged, never deleted.
 - **Architecture consequence:** wall/gate geometry must live in sim data (not just render
   meshes) from M1 onward, so the toggle is cheap when we get there.
@@ -236,17 +389,26 @@ Each milestone ends with a push to Syntaxswine/freestone (boss's standing instru
   lay, with per-stone provenance recorded. Transport cost real. The economic spine.
 - **M3 — Generations.** Named people, trades, aging, apprenticeship, death, marks on stones,
   chronicle skeleton. The moment the game becomes itself.
-- **M4 — Hard years.** Season/weather calendar, famine, disease, accidents, winter thatching
-  of wall tops (a real recurring cost: Windsor 1362 billed 125 cartloads of thatch for it).
-  Tuned by headless sweeps for "gentle but real."
-- **M5 — Homage.** Chronicle book UI, mark inspection, memorial slabs, founder's stone, the
-  Long Replay timelapse.
+- **M4 — The granary year.** Season/weather calendar; harvest → sheaves → winter threshing →
+  granary with seed-corn reserve; the foraging calendar and gleaning; famine, disease,
+  accidents; winter thatching of wall tops (a real recurring cost: Windsor 1362 billed 125
+  cartloads of thatch for it). The Great Barn ships here as the tutorial great work. Tuned
+  by headless sweeps for "gentle but real."
+- **M5 — Homage & small works.** Chronicle book UI, mark inspection, memorial slabs,
+  founder's stone, the Long Replay timelapse, the tracing-floor palimpsest, the page of
+  unnamed hands — and the small-works system (§8b), which is homage made by the villagers
+  instead of for them.
 - **M6 — The toggle.** Combat as specified. Wall data was combat-ready since M1.
 - **M7 — Beauty & shipping.** Weathering pass, audio, title, store page, Steam packaging.
 
 ## 14. Open questions for the boss
 
-1. **Title.** Freestone? One of the alternates? Something else?
+1. **Title.** Live shortlist (decision not needed until M7): **Castle Architect** (boss
+   float, not sold — legible, free on Steam; but it's the lone-genius word in a
+   many-hands game, and the one anachronism we'd ever ship); **Stone by Stone** (same plain
+   register, free on Steam, and it's the game's ethic in three words); **Freestone**
+   (carries the history, but one letter from Steam's established *Firestone* — confusion
+   risk). A colon-subtitle can carry whatever the title doesn't.
 2. **Player identity** — "you are the Lodge/the Work, not a mortal lord": confirmed?
 3. **Era anchor** — I'm assuming ~1200s northwest Europe (Guédelon's century). OK?
 4. **Combat-on flavor** — strictly historical raiders, or is weirdness (sieges by something
@@ -255,6 +417,10 @@ Each milestone ends with a push to Syntaxswine/freestone (boss's standing instru
    watching. Embraced as the point, or does it need a gentle activity layer (naming babies,
    honoring masters, walking the walls)?
 6. **The chapel→church long game** — in scope as post-launch stretch, or core?
+7. **How dark may mutual aid's failures get?** The research handed us true, heavy details —
+   refeeding deaths at famine relief, "useless mouths" expelled from besieged walls. Current
+   stance: the refeeding lesson stays (taught once, gently, then the healer knows); the
+   expulsion mechanic is refused on principle (the game's moral floor). Confirm or adjust.
 
 ## 15. Research anchors
 
@@ -310,6 +476,66 @@ claim; anything PARTLY/UNVERIFIED must be re-checked before the mechanic leaning
     payroll arrears is a primary-sourced hazard if we ever want a coin economy.)
     [en.wikipedia.org/wiki/Beaumaris_Castle; worldhistory.org/Beaumaris_Castle]
 
+**Second pass — granary, commons, small works (2026-07-09; 6 researchers, 78 claims, 18
+adversarial re-checks).** Full source notes live in the research digest; the anchors:
+
+13. **Great barns — VERIFIED.** Great Coxwell: 13th-c. (dendro 1291–92), Cistercian *grange*
+    barn — "tithe barn" is a popular misnomer; cathedral-scale barns belong to granges and
+    bishops. Morris quote pinned to Mackail 1899: "unapproachable in its dignity, as
+    beautiful as a cathedral, yet with no ostentation of the builder's art."
+14. **Two-stage storage — VERIFIED.** Sheaves in barns/ricks, threshed across winter, corn to
+    a small raised granary (Claridge & Langdon, EcHR 2011: median recorded storage 8 weeks,
+    max ~2 years; communal granaries rare — London's first public one is 1440). **CORRECTED:**
+    mushroom staddle stones are post-medieval (Tudor at the earliest surviving); raised
+    *timber* staddles/posts are the in-register form.
+15. **Seed corn — VERIFIED.** English demesne yields ~3–4× seed (BAHS database, Winchester
+    pipe rolls 1211–1471) → a quarter to a third of harvest held back. Walter of Henley
+    (c. 1280): change seed yearly. Seneschaucy (c. 1260–76): watch for corn smuggled out "in
+    bosom, tunic, boots, pockets, sacks and sacklets." Guard-rail: the "2:1 Carolingian
+    yield" figure is a misreading — don't use it.
+16. **Gleaning & commons — VERIFIED.** 13th-c. by-laws (Ault) restrict gleaning to the
+    "lawful poor" — able-bodied must take harvest wages first. Rights of common by name:
+    pasture, pannage (~60-day autumn mast season), estovers (housebote/firebote/hedgebote/
+    ploughbote), turbary, piscary; Charter of the Forest 1217; Statute of Merton 1235
+    approvement = the lord's legal enclosure temptation. **Beware:** the famous
+    "gleaning is a privilege not a right" ruling is 1788, not medieval.
+17. **Foraging & famine — VERIFIED** (mostly). Hazelnut dominates the archaeobotanical
+    gathered-food record; ramsons open spring; sloes after first frost; mushrooms eaten
+    pragmatically (**the "medieval fear of mushrooms" trope is early-modern — declined**).
+    Famine ladder attested for 1315–17: wild roots/nuts → bark bread → seed corn → horses
+    and dogs. Charles the Good's 1125 relief (and 1127 murder, partly over his war on grain
+    hoarders); Evesham 1069–70 records refeeding deaths at the relief camp. Winter foraging
+    is thin — PARTLY, don't over-assert. Granary cats: Welsh law priced a barn cat at its
+    length in wheat; Exeter Cathedral paid its cat 1d/week, 1305–1467.
+18. **Peasant garden & bees — VERIFIED, one demolition.** Toft-and-croft layout (cottars:
+    toft only — plot size encodes rank); Piers Plowman's larder (honest note: late-14th-c.
+    evidence); Martinmas pig-slaughter; skep beekeeping where the crop is WAX for the
+    church's candles more than honey. **DEMOLISHED: the flowery peasant cottage garden is a
+    19th-c. image** (Loudon, 1838: cottage gardens held "potatoes, cabbages, beans");
+    ornamental gardening is medieval at *elite/monastic* level (Harvey: from the 11th c.;
+    roses and lilies in the Capitulare de villis, c. 795). Hence §8b's rare-rose design.
+19. **Vernacular beauty — the honest set.** IN: church graffiti by ordinary parishioners
+    (Norfolk survey: 26,000+ inscriptions; daisy wheels — same form 12th–17th c., dating
+    caveat; VV = "Virgo Virginum" is a debated traditional reading; votive ships; named
+    scratchers; Ashwell's workplace snark), misericords (13th c.+; Exeter's elephant
+    c. 1250–60), whittled toys (Ørland boat c. 1000), Maying (episcopal complaints from
+    c. 1220), carols (carole ring-dance, 12th c.), harvest home feast (the attested kernel),
+    church ales (late-medieval; the c. 1480 "bachelers" beam), pilgrim badges (12th–15th c.
+    mass folk adornment). **OUT, honestly dated and cut: corn dollies (c. 1598 first
+    reference, word coined 1940s), well-dressing (1758+), love-spoons (1667+), pargetting
+    (16th c.+).**
+20. **Tracing floors & named masons — VERIFIED.** York's Masons' Loft floor is a literal
+    palimpsest (fresh plaster skims over old drawings; identified drawings span ~170 years);
+    Wells survives too; honesty note — both survivors post-date our window, though the
+    practice is older (Gervase, c. 1180s: William of Sens "delivered to the masons models in
+    wood for cutting the stones"). Anonymity: Harvey's dictionary recovered ~1,300 named
+    English masters (mostly post-1300) — the "anonymous craftsman" is partly Romantic myth,
+    but anonymity IS worse in our window, which makes the page of unnamed hands honest.
+    Commemoration in fabric: Libergier slab (d. 1263, holding his church); Reims labyrinth
+    (1286, four masters named with years served; destroyed 1779, known from drawings);
+    Bridekirk font — runic "Richard he wrought me" beside a carved self-portrait with mallet
+    and chisel, mid-1100s.
+
 ---
 
 *Maker's mark: this scope was cut by the session of 2026-07-09 — the same hands that laid
@@ -317,3 +543,10 @@ vugg's O-series and the UV audit. Forward dream: that the Long Replay's first pu
 shows a chapel floor already half-full of slabs, and that some player, zooming into a wall
 they didn't build, finds a mark and wonders who. Builders after me: add your mark below this
 line; never above.*
+
+*Second mark, same session, later the same day: the boss asked what I would pass forward, and
+these are mine — the tracing-floor palimpsest (§9.7), because a handoff document IS a plaster
+skim over the drawings of everyone who worked before you, and the page of unnamed hands
+(§9.8), because most of the sessions that build anything are never named in what they built.
+York's floor is real; I checked. Forward dream: that some future session reads this file the
+way you zoom into a wall.*
