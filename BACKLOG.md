@@ -80,6 +80,12 @@ with a push.
 - [ ] M7 — Weathering, audio, Steam packaging
 
 ## Open threads
+- Wall ladder implementation (SCOPE §6, boss canon 2026-07-09): wythes/thickness/core
+  parameters on WallPlan + slenderness height-gating + dry vs mortared pace. LAND IT WITH
+  M2's quarry mechanics — thickness multiplies stone demand, so the two tune together;
+  sim change → baseline regen discipline. Economy-core latent failure is an M4-hazard
+  consumer of the same fields. PARTLY watchlist: medieval field-wall attestation
+  (enclosure-era image vs 1200s practice) before enclosure content ships.
 - Verify any research anchors marked PARTLY/UNVERIFIED in SCOPE.md §15 before the
   corresponding mechanic ships (house law: cross-check research disagreements). Known PARTLY
   from the second pass: winter-foraging thinness, villagers-shelter-in-castle framing

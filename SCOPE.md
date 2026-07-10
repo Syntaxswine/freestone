@@ -200,10 +200,33 @@ medieval quarry looks like: pit-and-mound ground, 58 acres of it.
 - **Per-stone provenance:** every block records its quarry, its banker mason's mark, and the
   year it was laid. Cheap (instanced attributes + event log), and it is the substrate for
   every homage feature.
+- **The wall ladder (boss canon, 2026-07-09).** One wall system spans the whole civic
+  thesis — the same tool does mutual aid and mutual defense:
+  - **The cheapest one-high wall is how you cordon off farms** and other low-level
+    buildings: a dry-laid single-wythe wall at a course or three marks closes, pens the
+    pigs out of the corn, edges a garden. No mortar, no cure wait, any pair of hands —
+    enclosure as the entry-level act of building. (Honest-dating flag, PARTLY: the
+    drystone field-wall *landscape* of the North is largely post-medieval enclosure;
+    medieval-attested stone enclosure = town closes, garden and precinct walls, monastic
+    grange walls. Research pass before enclosure content ships — the wall is fine, the
+    Yorkshire-Dales *image* is not automatically 1200s.)
+  - **Thickness is the logical continuation** (boss's words): walls carry a wythe/
+    thickness parameter. Single-wythe for enclosure; real defensive walls are **two
+    faced skins around a core**, and thickness is what honestly buys height —
+    slenderness rules of thumb gate how high a wall of a given thickness may rise
+    (a curtain wants meters of thickness, not our current 0.3 m at any height).
+  - **Hollow is the other option** (boss's words), and it is beautifully medieval in two
+    directions: an **economy core** (skimped rubble, lean mortar) is cheaper and faster
+    and reads identical when new — then bulges and bursts *decades* later, when the
+    mason who cheaped it is dead; the failure is a chronicled construction hazard and a
+    generational consequence, exactly this game's soul. And honest **mural space**: at
+    real thickness, the wall's interior hosts stairs, passages, chambers, the
+    wall-walk — the hollow becomes rooms (M6+ features standing on the same parameter).
 - **Structural plausibility lite** — rules of thumb, not FEM: height wants thickness or
-  buttresses; arches need carpentered **centering** (falsework) that must stand while the
-  mortar cures, then is struck; towers on clay settle and crack; foundations on rock are a
-  gift. Warnings arrive in-fiction from the master mason, not as red UI.
+  buttresses (the wall ladder above makes this a real parameter, not advice); arches need
+  carpentered **centering** (falsework) that must stand while the mortar cures, then is
+  struck; towers on clay settle and crack; foundations on rock are a gift. Warnings
+  arrive in-fiction from the master mason, not as red UI.
 - **Mortar cure gates pace.** Lime mortar hardens by slow carbonation; a wall can only rise
   so many courses a season before it slumps. Real numbers exist to tune from: ~20–50 cm of
   wall rise per day, with lifts sometimes waiting a week for mortar to set (Rodwell, via the
