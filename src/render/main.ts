@@ -316,8 +316,15 @@ async function boot(): Promise<void> {
       roofBtn.classList.toggle('active', active && mode === 'roof');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
-    // (they are all WallPlans) — a live getter, the world grows mid-drawing
-    snapTargets: () => world.walls.map((w) => w.points),
+    // (they are all WallPlans) — a live getter, the world grows mid-drawing;
+    // height + build state ride along so roof mode can snap at the TOPS of
+    // FINISHED walls only (the sim's support rule, mirrored)
+    snapTargets: () =>
+      world.walls.map((w) => ({
+        points: w.points,
+        height: w.height,
+        complete: w.stonesLaid >= w.stonesTotal,
+      })),
     // the gate tool, context-aware (boss canon 2026-07-10): a click near hung
     // furniture takes it down; a click near a FARM wall hangs a gate; near a
     // BUILDING wall it cuts a door — the sim validates and snaps for real

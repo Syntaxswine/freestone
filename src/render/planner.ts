@@ -19,7 +19,7 @@ import * as THREE from 'three';
 import { classifyFootprint, type FootprintKind } from '../sim/classify';
 import type { SiteData } from '../sim/site';
 import { decomposeWall, polylineLength } from '../sim/step';
-import { MATERIALS, type Material, type Vec2 } from '../sim/types';
+import { MATERIALS, ROOF_DECK, ROOF_SNAP, type Material, type Vec2 } from '../sim/types';
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
 const SNAP_PX = 16; // screen px: a wall click this near the FIRST point closes the ring
@@ -52,10 +52,20 @@ export interface PlannerDeps {
   /** gate mode's exit: a picked ground point — the resolver decides add/remove */
   onGate?: (point: Vec2) => void;
   /**
-   * Existing geometry the ⇧-snap magnetizes to (polylines — wall plans).
-   * A getter, not a snapshot: the world grows while the pencil is out.
+   * Existing geometry the ⇧-snap magnetizes to (wall plans with their height
+   * and build state). A getter, not a snapshot: the world grows while the
+   * pencil is out. Roof mode snaps at wall TOPS and only to COMPLETE walls
+   * (the sim's support rule, mirrored — boss finding 2026-07-10: the roof
+   * tool snapped to the bottom of walls).
    */
-  snapTargets?: () => readonly (readonly Vec2[])[];
+  snapTargets?: () => readonly SnapWall[];
+}
+
+/** a wall plan as the snap sees it */
+export interface SnapWall {
+  points: readonly Vec2[];
+  height: number;
+  complete: boolean;
 }
 
 export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof';
@@ -399,9 +409,14 @@ export class WallPlanner {
     };
   }
 
-  /** world ground point → screen px, for screen-space snap tests */
-  private screenOf(p: Vec2): { x: number; y: number } | null {
-    const v = new THREE.Vector3(p.x, this.deps.groundAt(p.x, p.y), p.y).project(
+  /**
+   * World point → screen px, for screen-space snap tests. `z` overrides the
+   * ground lookup: roof mode projects wall corners at their TOPS, so aiming
+   * at the visible top corner is aiming at the snap target (projecting at the
+   * base put the target meters below the cursor on any tall wall).
+   */
+  private screenOf(p: Vec2, z?: number): { x: number; y: number } | null {
+    const v = new THREE.Vector3(p.x, z ?? this.deps.groundAt(p.x, p.y), p.y).project(
       this.deps.camera,
     );
     if (v.z > 1) return null; // behind the eye
@@ -410,6 +425,29 @@ export class WallPlanner {
       x: rect.left + ((v.x + 1) / 2) * rect.width,
       y: rect.top + ((1 - v.y) / 2) * rect.height,
     };
+  }
+
+  /**
+   * The deck height a roof corner would take at p: the TOP of the finished
+   * wall holding it (display surface + wall height, max across holders), or
+   * null when nothing within ROOF_SNAP holds it — the sim's own level rule,
+   * mirrored on the display surface.
+   */
+  private roofTopAt(p: Vec2): number | null {
+    const walls = this.deps.snapTargets?.() ?? [];
+    let top: number | null = null;
+    for (const w of walls) {
+      if (!w.complete) continue;
+      for (let i = 1; i < w.points.length; i++) {
+        const q = nearestOnSeg(p, w.points[i - 1]!, w.points[i]!);
+        if (dist2d(p, q) <= ROOF_SNAP) {
+          const t = this.deps.groundAt(q.x, q.y) + w.height;
+          if (top === null || t > top) top = t;
+          break; // this wall holds it; try the next wall
+        }
+      }
+    }
+    return top;
   }
 
   /**
@@ -439,16 +477,25 @@ export class WallPlanner {
    * a corner outranks an edge so joints land on joints. Returns the pick
    * untouched when shift is up or nothing is in range.
    */
-  geoSnap(ev: { clientX: number; clientY: number; shiftKey: boolean }, picked: Vec2): Vec2 {
+  geoSnap(
+    ev: { clientX: number; clientY: number; shiftKey: boolean },
+    picked: Vec2 | null,
+  ): Vec2 | null {
     this.snapped = false;
     if (!ev.shiftKey) return picked;
-    const lines = this.deps.snapTargets?.() ?? [];
+    const roof = this.mode === 'roof';
+    // roof corners rest on FINISHED walls (the sim's support rule) — while
+    // roofing, only complete walls magnetize, and they magnetize at their
+    // TOPS; every other mode joins work at the ground line as before
+    const walls = (this.deps.snapTargets?.() ?? []).filter((w) => !roof || w.complete);
 
-    // corner pass: exact copies, so joints share coordinates, not almosts
+    // corner pass: exact copies, so joints share coordinates, not almosts.
+    // Pure screen space — it works even when the ground pick MISSED (a wall
+    // top aimed at against the sky flies the ray over every hill behind it).
     let bestV: Vec2 | null = null;
     let bestVd = GEO_SNAP_PX;
-    const tryVertex = (q: Vec2): void => {
-      const s = this.screenOf(q);
+    const tryVertex = (q: Vec2, z?: number): void => {
+      const s = this.screenOf(q, z);
       if (!s) return;
       const d = Math.hypot(ev.clientX - s.x, ev.clientY - s.y);
       if (d < bestVd) {
@@ -456,32 +503,42 @@ export class WallPlanner {
         bestV = q;
       }
     };
-    for (const line of lines) for (const q of line) tryVertex(q);
-    for (const q of this.points) tryVertex(q);
+    for (const w of walls) {
+      for (const q of w.points) {
+        tryVertex(q, roof ? this.deps.groundAt(q.x, q.y) + w.height : undefined);
+      }
+    }
+    for (const q of this.points) tryVertex(q, roof ? (this.roofTopAt(q) ?? undefined) : undefined);
     if (bestV !== null) {
       this.snapped = true;
       const v: Vec2 = bestV;
       return { x: v.x, y: v.y };
     }
+    if (!picked) return null; // sky pick and no corner in reach — nothing to hold
 
     // edge pass: nearest world point on any segment, then verified in pixels
+    // (at the top plane while roofing, same as the corners)
     let bestE: Vec2 | null = null;
+    let bestEh = 0;
     let bestEw = Infinity;
-    for (const line of lines) {
+    for (const w of walls) {
+      const line = w.points;
       for (let i = 1; i < line.length; i++) {
         const q = nearestOnSeg(picked, line[i - 1]!, line[i]!);
         const dw = dist2d(picked, q);
         if (dw < bestEw) {
           bestEw = dw;
           bestE = q;
+          bestEh = w.height;
         }
       }
     }
     if (bestE !== null) {
-      const s = this.screenOf(bestE);
+      const e: Vec2 = bestE;
+      const s = this.screenOf(e, roof ? this.deps.groundAt(e.x, e.y) + bestEh : undefined);
       if (s && Math.hypot(ev.clientX - s.x, ev.clientY - s.y) < EDGE_SNAP_PX) {
         this.snapped = true;
-        return bestE;
+        return e;
       }
     }
     return picked;
@@ -557,13 +614,27 @@ export class WallPlanner {
       }
     }
 
+    // roof mode: the deck is FLAT at the highest supporting wall top (the
+    // sim's own level rule) — the pencil flies at deck height instead of
+    // draping the floor (boss finding 2026-07-10). Until a corner is held,
+    // there is no level and the preview stays on the ground, honestly.
+    const roofLevel =
+      this.mode === 'roof'
+        ? poly.reduce<number | null>((lvl, p) => {
+            const t = this.roofTopAt(p);
+            return t !== null && (lvl === null || t > lvl) ? t : lvl;
+          }, null)
+        : null;
+    // a roof previews as a thin deck band, not a wall body
+    const bandTop = this.mode === 'roof' ? ROOF_DECK : this.height;
+
     for (let i = 0; i < samples.length; i++) {
       const s = samples[i]!;
-      const g = groundAt(s.x, s.y);
+      const g = roofLevel ?? groundAt(s.x, s.y);
       this.linePos.setXYZ(i, s.x, g + LINE_LIFT, s.y);
       // ribbon top follows the terrain the way the sim lays courses: per-column ground
       this.ribbonPos.setXYZ(i * 2, s.x, g + 0.05, s.y);
-      this.ribbonPos.setXYZ(i * 2 + 1, s.x, g + this.height, s.y);
+      this.ribbonPos.setXYZ(i * 2 + 1, s.x, g + bandTop, s.y);
     }
     this.linePos.needsUpdate = true;
     this.ribbonPos.needsUpdate = true;
@@ -572,7 +643,7 @@ export class WallPlanner {
 
     for (let i = 0; i < this.points.length; i++) {
       const p = this.points[i]!;
-      this.markerPos.setXYZ(i, p.x, groundAt(p.x, p.y) + 0.25, p.y);
+      this.markerPos.setXYZ(i, p.x, (roofLevel ?? groundAt(p.x, p.y)) + 0.25, p.y);
     }
     this.markerPos.needsUpdate = true;
     this.markers.geometry.setDrawRange(0, this.points.length);
@@ -632,13 +703,16 @@ export class WallPlanner {
       const jitter = Math.hypot(ev.clientX - this.lastAddX, ev.clientY - this.lastAddY);
       if (performance.now() - this.lastAddT < 500 && jitter < 8) return;
       const picked = this.pick(ev);
-      if (!picked) return;
-      // ⇧-held clicks land ON the old work; roof clicks always do
+      // ⇧-held clicks land ON the old work; roof clicks always do — and a
+      // roof click may miss the GROUND entirely (a top corner against the
+      // sky) yet still land on a corner, so the snap runs even on a sky pick
       const snapEv =
         this.mode === 'roof'
           ? { clientX: ev.clientX, clientY: ev.clientY, shiftKey: true }
           : ev;
+      if (!picked && this.mode !== 'roof') return;
       const p = this.geoSnap(snapEv, picked);
+      if (!p) return;
       const before = this.points.length;
       this.addPoint(p);
       if (this.points.length > before) {
@@ -662,15 +736,22 @@ export class WallPlanner {
       this.snapped = true;
     } else {
       const picked = this.pick(ev);
-      // roof corners MUST rest on walls, so snapping is always on in roof mode
+      // roof corners MUST rest on walls, so snapping is always on in roof
+      // mode — and it runs even when the ground pick missed (sky-silhouetted
+      // wall tops), because the corner pass is pure screen space
       const snapEv =
         this.mode === 'roof'
           ? { clientX: ev.clientX, clientY: ev.clientY, shiftKey: true }
           : ev;
-      this.cursor = picked ? this.geoSnap(snapEv, picked) : null;
+      this.cursor = picked || this.mode === 'roof' ? this.geoSnap(snapEv, picked) : null;
     }
     if (this.cursor) {
-      const g = this.deps.groundAt(this.cursor.x, this.cursor.y);
+      // the ring rides the deck plane while roofing — the same top the snap
+      // projected, so what swells is what you aimed at
+      const g =
+        this.mode === 'roof'
+          ? (this.roofTopAt(this.cursor) ?? this.deps.groundAt(this.cursor.x, this.cursor.y))
+          : this.deps.groundAt(this.cursor.x, this.cursor.y);
       this.cursorRing.position.set(this.cursor.x, g + 0.1, this.cursor.y);
       this.cursorRing.visible = true;
       // the ring answers the held ⇧: swollen and solid while magnetized
