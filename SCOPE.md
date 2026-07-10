@@ -222,6 +222,11 @@ medieval quarry looks like: pit-and-mound ground, 58 acres of it.
     generational consequence, exactly this game's soul. And honest **mural space**: at
     real thickness, the wall's interior hosts stairs, passages, chambers, the
     wall-walk — the hollow becomes rooms (M6+ features standing on the same parameter).
+  - **Hollow walls connect buildings** (boss canon, 2026-07-09): mural passages run
+    through the wall thickness from building to building — keep to chapel to granary
+    without stepping into the weather (or the arrow-fall, when combat is on). The wall
+    network doubles as the castle's circulation system; a fully joined-up castle is a
+    single connected organism, and the wall ladder is what makes it legal.
 - **Structural plausibility lite** — rules of thumb, not FEM: height wants thickness or
   buttresses (the wall ladder above makes this a real parameter, not advice); arches need
   carpentered **centering** (falsework) that must stand while the mortar cures, then is
@@ -235,6 +240,18 @@ medieval quarry looks like: pit-and-mound ground, 58 acres of it.
 - **Lifting is infrastructure:** gin poles early, then a **treadwheel crane** — itself a
   build project, and when the tower is done the wheel stays in the roof space forever, as the
   real ones still do in English cathedral towers.
+- **The plot is the plan (boss canon, 2026-07-09, via Populous).** The size and shape of
+  the footprint the player draws determines what the building IS — its name, its look,
+  and eventually its function. No building menu: draw a small box and a cot rises; a
+  stretched rectangle is a longhouse; something enormous and long is a barn; broad and
+  square is a hall. The classification is honest, not arbitrary: medieval buildings were
+  footprint-typed by **roof span** — timber length caps clear span at ~5–6 m, so
+  buildings grow LONG, not deep, and real width needs aisles. The master mason says so
+  in-fiction when a plan wants aisles ("that span wants a forest, my lord — or two rows
+  of posts"). Downstream consumers: the look (roof forms and dressing, M3+ carpentry),
+  §8c building values (a barn is not a cot to a trader), M4's granary (the Great Barn is
+  a footprint you draw, and the game recognizes what you drew). PARTLY watchlist:
+  vernacular dimension bins should get a citation pass before they gate function.
 - **The bell.** Ordering any construction rings a small chime — a placeholder voice. When
   the village casts its own church bell (a great work: a pit dug beside the chapel, a tense
   pour, a tone derived from the actual cast — size, metal, luck), that chime becomes *your*

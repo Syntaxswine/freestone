@@ -14,7 +14,7 @@ import { worldStep } from '../sim/step';
 import { createWorld } from '../sim/world';
 import { COURSE_HEIGHT, STONE_DEPTH, STONE_LEN, TICKS_PER_YEAR, type Command } from '../sim/types';
 import { PeopleLayer } from './people';
-import { WallPlanner } from './planner';
+import { describeFootprint, WallPlanner } from './planner';
 
 const SEED = 'durham-first-wall';
 const STONE_CAPACITY = 20000;
@@ -221,13 +221,15 @@ async function boot(): Promise<void> {
 
   const wallBtn = document.createElement('button');
   wallBtn.textContent = '⚒ wall (B)';
+  const bldBtn = document.createElement('button');
+  bldBtn.textContent = '⌂ building (H)';
   const hMinus = document.createElement('button');
   hMinus.textContent = '−';
   const hVal = document.createElement('span');
   hVal.style.margin = '0 6px 0 2px';
   const hPlus = document.createElement('button');
   hPlus.textContent = '+';
-  build.append(wallBtn, hMinus, hVal, hPlus);
+  build.append(wallBtn, bldBtn, hMinus, hVal, hPlus);
 
   // --- the pencil and the people ---
   const planner = new WallPlanner({
@@ -239,12 +241,16 @@ async function boot(): Promise<void> {
     dom: renderer.domElement,
     onConfirm: (points, height) =>
       enqueue({ kind: 'plan_wall', tick: world.tick, points, height }),
-    onModeChange: (active) => wallBtn.classList.toggle('active', active),
+    onModeChange: (active, mode) => {
+      wallBtn.classList.toggle('active', active && mode === 'wall');
+      bldBtn.classList.toggle('active', active && mode === 'building');
+    },
   });
   const people = new PeopleLayer(world, site, scene, terrain.groundAt);
   const paceSum = world.people.reduce((n, p) => n + p.pace, 0);
 
-  wallBtn.onclick = () => planner.toggle();
+  wallBtn.onclick = () => planner.toggle('wall');
+  bldBtn.onclick = () => planner.toggle('building');
   hMinus.onclick = () => planner.setHeight(planner.height - 0.5);
   hPlus.onclick = () => planner.setHeight(planner.height + 0.5);
 
@@ -332,16 +338,22 @@ async function boot(): Promise<void> {
     setText(hVal, `h ${planner.height.toFixed(1)} m`);
     if (planner.active) {
       const s = planner.stats();
+      const fp = planner.footprint();
+      const what = fp ? describeFootprint(fp.front, fp.depth) : null;
+      const name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';
+      const warn = what?.note ? ` · ${what.note}` : '';
       setText(
         plan,
         s
-          ? `plan: ${s.length.toFixed(0)} m · ${s.courses} courses · ` +
-              `${s.stonesTotal.toLocaleString()} stones · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days`
+          ? `plan: ${name}${s.length.toFixed(0)} m · ${s.courses} courses · ` +
+              `${s.stonesTotal.toLocaleString()} stones · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}`
           : 'plan: click the ground to start the line',
       );
       setText(
         hint,
-        'click: place · right-click/Backspace: undo · double-click/Enter: lay it · Esc: put the pencil down',
+        planner.mode === 'building'
+          ? 'click: two front corners · move: pull the depth · click: raise it · Esc: put the pencil down'
+          : 'click: place · right-click/Backspace: undo · double-click/Enter: lay it · Esc: put the pencil down',
       );
     } else {
       setText(plan, '');
@@ -355,7 +367,7 @@ async function boot(): Promise<void> {
             ? 'wall committed — press ×1 to break ground'
             : 'wall committed — the crew takes it up'
           : world.walls.length === 0
-            ? 'the hill is bare — press ⚒ wall (or B) and draw the first line'
+            ? 'the hill is bare — ⚒ wall (B) draws a line, ⌂ building (H) raises a shell'
             : '',
       );
     }

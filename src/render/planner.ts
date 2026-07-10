@@ -6,8 +6,10 @@
  * enqueue({kind:'plan_wall', ...}). The planner itself never touches WorldState.
  *
  * Input grammar (also shown in the HUD hint):
- *   click        place a point            right-click / Backspace   undo a point
- *   double-click / Enter   commit the wall        Esc               put the pencil down
+ *   WALL (B):      click places points · right-click/Backspace undoes ·
+ *                  double-click/Enter commits · Esc puts the pencil down
+ *   BUILDING (H):  two clicks set the front corners · the cursor pulls the
+ *                  depth · a third click (or Enter) raises the shell
  * Click-vs-drag is discriminated by pointer travel so OrbitControls keeps
  * owning drags; a "click" is a press that moved < 6 px and lasted < 500 ms.
  */
@@ -21,6 +23,9 @@ const SAMPLE_STEP = 2; // meters between preview samples along each segment
 const MAX_SAMPLES = 2048;
 const MAX_POINTS = 128;
 const LINE_LIFT = 0.12; // meters above ground so the preview never z-fights the terrain
+const DOOR_W = 1.1; // meters left open at the front-edge middle — the gap IS the doorway
+const MIN_EDGE = 2.0; // a building front shorter than this won't close into a loop
+const MIN_DEPTH = 1.2; // a building shallower than this won't commit
 
 export interface PlannerDeps {
   scene: THREE.Scene;
@@ -37,11 +42,14 @@ export interface PlannerDeps {
   dom: HTMLElement;
   /** the one exit: hand the polyline to the command log; return false to keep drawing */
   onConfirm: (points: Vec2[], height: number) => boolean;
-  onModeChange?: (active: boolean) => void;
+  onModeChange?: (active: boolean, mode: PlannerMode) => void;
 }
+
+export type PlannerMode = 'wall' | 'building';
 
 export class WallPlanner {
   active = false;
+  mode: PlannerMode = 'wall';
   height = 4;
   points: Vec2[] = [];
   private cursor: Vec2 | null = null;
@@ -134,9 +142,14 @@ export class WallPlanner {
     window.addEventListener('keydown', this.onKeyDown);
   }
 
-  toggle(): void {
+  toggle(mode: PlannerMode = 'wall'): void {
+    if (this.active && this.mode === mode) {
+      this.exit();
+      return;
+    }
     if (this.active) this.exit();
-    else this.enter();
+    this.mode = mode;
+    this.enter();
   }
 
   enter(): void {
@@ -144,7 +157,7 @@ export class WallPlanner {
     this.active = true;
     this.group.visible = true;
     document.body.classList.add('planning');
-    this.deps.onModeChange?.(true);
+    this.deps.onModeChange?.(true, this.mode);
   }
 
   exit(): void {
@@ -156,7 +169,7 @@ export class WallPlanner {
     this.group.visible = false;
     document.body.classList.remove('planning');
     this.rebuild();
-    this.deps.onModeChange?.(false);
+    this.deps.onModeChange?.(false, this.mode);
   }
 
   setHeight(h: number): void {
@@ -164,14 +177,91 @@ export class WallPlanner {
     if (this.active) this.rebuild();
   }
 
-  /** committed points plus the cursor, when it meaningfully extends the line */
+  /**
+   * The polyline the preview shows and confirm commits. Wall mode: committed
+   * points plus the cursor when it meaningfully extends the line. Building
+   * mode: the doorway loop (see buildingLoop).
+   */
   previewPolyline(): Vec2[] {
+    if (this.mode === 'building') return this.buildingLoop();
     const poly = [...this.points];
     if (this.active && this.cursor) {
       const last = poly[poly.length - 1];
       if (!last || dist2d(last, this.cursor) > MIN_POINT_GAP) poly.push(this.cursor);
     }
     return poly;
+  }
+
+  /**
+   * Building mode: two committed corners define the front edge; the cursor
+   * pulls the depth out to either side. The rectangle deliberately stays OPEN
+   * for DOOR_W at the front-edge middle — the gap IS the doorway, so one
+   * ordinary plan_wall builds a roofless shell a person can walk into, with
+   * zero sim changes. Roofs, floors and framed doors are later carpentry.
+   */
+  /** the live front edge + signed cursor depth, shared by loop and footprint */
+  private buildingFrame(): {
+    A: Vec2; B: Vec2; len: number; ux: number; uy: number; px: number; py: number; depth: number;
+  } | null {
+    const A = this.points[0];
+    const B = this.points[1];
+    if (!A || !B) return null;
+    const ex = B.x - A.x;
+    const ey = B.y - A.y;
+    const len = Math.sqrt(ex * ex + ey * ey);
+    if (len < MIN_EDGE) return null;
+    const ux = ex / len;
+    const uy = ey / len;
+    const px = -uy; // perpendicular — depth grows to whichever side the cursor is on
+    const py = ux;
+    const c = this.cursor;
+    let depth = c ? (c.x - A.x) * px + (c.y - A.y) * py : 0;
+    // The cursor is clamped by pick(), but the DERIVED back corners (A+p·depth,
+    // B+p·depth) are not — cap the depth so both stay inside the same
+    // [1, extent-1] box, or a building could be committed hanging off the world.
+    if (depth !== 0) {
+      const s = Math.sign(depth);
+      const qx = px * s;
+      const qy = py * s;
+      let m = Math.abs(depth);
+      const { site } = this.deps;
+      for (const K of [A, B]) {
+        if (qx > 1e-12) m = Math.min(m, (site.extentX - 1 - K.x) / qx);
+        else if (qx < -1e-12) m = Math.min(m, (1 - K.x) / qx);
+        if (qy > 1e-12) m = Math.min(m, (site.extentY - 1 - K.y) / qy);
+        else if (qy < -1e-12) m = Math.min(m, (1 - K.y) / qy);
+      }
+      depth = s * Math.max(0, m);
+    }
+    return { A, B, len, ux, uy, px, py, depth };
+  }
+
+  private buildingLoop(): Vec2[] {
+    const A = this.points[0];
+    const B = this.points[1];
+    if (!A) return [];
+    if (!B) return this.cursor ? [A, this.cursor] : [A];
+    const f = this.buildingFrame();
+    if (!f || Math.abs(f.depth) < MIN_DEPTH) return [A, B];
+    const half = Math.min(DOOR_W, f.len * 0.4) / 2;
+    const mx = (A.x + B.x) / 2;
+    const my = (A.y + B.y) / 2;
+    return [
+      { x: mx + f.ux * half, y: my + f.uy * half }, // door jamb, B side
+      { x: B.x, y: B.y },
+      { x: B.x + f.px * f.depth, y: B.y + f.py * f.depth },
+      { x: A.x + f.px * f.depth, y: A.y + f.py * f.depth },
+      { x: A.x, y: A.y },
+      { x: mx - f.ux * half, y: my - f.uy * half }, // door jamb, A side
+    ];
+  }
+
+  /** live building dimensions (front × depth, meters) once the loop is real */
+  footprint(): { front: number; depth: number } | null {
+    if (this.mode !== 'building') return null;
+    const f = this.buildingFrame();
+    if (!f || Math.abs(f.depth) < MIN_DEPTH) return null;
+    return { front: f.len, depth: Math.abs(f.depth) };
   }
 
   stats(): { length: number; courses: number; stonesTotal: number } | null {
@@ -187,6 +277,7 @@ export class WallPlanner {
     // previewPolyline(), so the rubber-band cursor point is part of the plan
     const poly = this.previewPolyline();
     if (poly.length < 2) return;
+    if (this.mode === 'building' && poly.length < 6) return; // no loop, no shell
     const ok = this.deps.onConfirm(
       poly.map((p) => ({ x: p.x, y: p.y })),
       this.height,
@@ -197,7 +288,12 @@ export class WallPlanner {
   private addPoint(p: Vec2): void {
     if (this.points.length >= MAX_POINTS) return;
     const last = this.points[this.points.length - 1];
-    if (last && dist2d(last, p) < MIN_POINT_GAP) return;
+    // building mode: the second corner must give a legal front edge — a front
+    // in the 0.6–2 m crack would otherwise dead-end (the loop can never close,
+    // and every commit gesture silently no-ops while the hint says "raise it")
+    const gap =
+      this.mode === 'building' && this.points.length === 1 ? MIN_EDGE : MIN_POINT_GAP;
+    if (last && dist2d(last, p) < gap) return;
     this.points.push(p);
     this.rebuild();
   }
@@ -330,20 +426,31 @@ export class WallPlanner {
     const held = performance.now() - this.downT;
     if (moved >= 6 || held >= 500) return; // that was a camera drag, not a click
     if (ev.button === 0) {
+      if (this.mode === 'building' && this.points.length >= 2) {
+        // the third click doesn't place a point — where it lands IS the depth.
+        // It runs BEFORE the jitter guard below: that guard protects point
+        // placement from double-click slop, and swallowing the commit click
+        // (zoomed out, 8 px can be meters of depth) left the tool mute.
+        const commit = this.pick(ev);
+        if (commit) {
+          this.cursor = commit;
+          this.confirm();
+        }
+        return;
+      }
       // the second click of a double-click must be a no-op IN SCREEN SPACE: a few
       // pixels of jitter can be many meters of ground when zoomed out, so a
       // world-space gap check cannot swallow it
       const jitter = Math.hypot(ev.clientX - this.lastAddX, ev.clientY - this.lastAddY);
       if (performance.now() - this.lastAddT < 500 && jitter < 8) return;
       const p = this.pick(ev);
-      if (p) {
-        const before = this.points.length;
-        this.addPoint(p);
-        if (this.points.length > before) {
-          this.lastAddX = ev.clientX;
-          this.lastAddY = ev.clientY;
-          this.lastAddT = performance.now();
-        }
+      if (!p) return;
+      const before = this.points.length;
+      this.addPoint(p);
+      if (this.points.length > before) {
+        this.lastAddX = ev.clientX;
+        this.lastAddY = ev.clientY;
+        this.lastAddT = performance.now();
       }
     } else if (ev.button === 2) {
       this.undoPoint();
@@ -371,8 +478,13 @@ export class WallPlanner {
   };
 
   private onKeyDown = (ev: KeyboardEvent): void => {
-    if ((ev.key === 'b' || ev.key === 'B') && !ev.ctrlKey && !ev.metaKey && !ev.altKey && !ev.repeat) {
-      this.toggle();
+    const clean = !ev.ctrlKey && !ev.metaKey && !ev.altKey && !ev.repeat;
+    if ((ev.key === 'b' || ev.key === 'B') && clean) {
+      this.toggle('wall');
+      return;
+    }
+    if ((ev.key === 'h' || ev.key === 'H') && clean) {
+      this.toggle('building');
       return;
     }
     if (!this.active) return;
@@ -393,4 +505,28 @@ function dist2d(a: Vec2, b: Vec2): number {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   return Math.sqrt(dx * dx + dy * dy);
+}
+
+/**
+ * The plot is the plan (SCOPE §6, boss canon via Populous): footprint size and
+ * shape name the building. The bins are honest vernacular typology — roof span
+ * caps depth at ~5–6 m of clear timber, so buildings grow LONG, not deep, and
+ * real width historically means aisles (halls and great barns were aisled).
+ * Render-side naming only for now; function wiring lands with M3/M4.
+ * PARTLY watchlist: dimension bins want a citation pass before they gate function.
+ */
+export function describeFootprint(front: number, depth: number): { label: string; note?: string } {
+  const long = Math.max(front, depth);
+  const span = Math.min(front, depth);
+  const area = front * depth;
+  let label: string;
+  if (area < 12) label = 'a shed';
+  else if (area < 40) label = 'a cot';
+  else if (span <= 6.5 && long >= 15) label = area >= 180 ? 'a great barn' : 'a longhouse';
+  else if (area >= 220 && long / span >= 1.8) label = 'a great barn';
+  else if (area >= 110) label = 'a hall';
+  else label = 'a house';
+  const note =
+    span > 6.5 ? 'the master mason: that span wants aisles — or a forest of a roof' : undefined;
+  return { label, note };
 }
