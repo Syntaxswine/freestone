@@ -7,8 +7,9 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
+import type { BuildingKind } from './classify';
 
-export const SIM_VERSION = 2; // 2: fills (earthworks) + wall materials
+export const SIM_VERSION = 3; // 3: farms + buildings recognized from enclosure geometry
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -55,6 +56,37 @@ export interface FillPlan {
   volumeMoved: number; // m³ moved so far
 }
 
+/**
+ * Enclosure recognition thresholds (SCOPE §6 — the plot is the plan). A wall's
+ * GEOMETRY declares what it makes; the pencil mode is not sim data.
+ * Boss canon 2026-07-09: "farms are made by building a low wall, .5m around a
+ * piece of land" — 0.5 m is the canonical recipe; anything you can step over
+ * (≤ 1 m) cordons land rather than defending it.
+ */
+export const FARM_WALL_MAX_H = 1.0; // meters: above this an enclosure is no field wall
+export const FARM_MIN_AREA = 25; // m²: smaller closed rings are yards, not farms
+export const FARM_CLOSE_EPS = 0.45; // meters: a gap under one stone length still closes
+export const DOOR_GAP_MAX = 2.0; // meters: a person-width gap makes a doorway, not a breach
+export const BUILDING_MIN_H = 2.0; // meters: below headroom a ring shelters nothing
+
+/** A recognized field enclosure — established the day its wall completes. */
+export interface Farm {
+  id: number;
+  wallId: number;
+  /** the enclosure ring (open form — no duplicate closing vertex) */
+  points: Vec2[];
+  area: number; // m², shoelace of the ring
+}
+
+/** A recognized building — its shell is an ordinary wall; the plot named it. */
+export interface Building {
+  id: number;
+  wallId: number;
+  /** constant string from classify.ts BUILDING_KINDS — enters hashed state */
+  kind: BuildingKind;
+  area: number; // m² enclosed (the doorway's closing edge implied)
+}
+
 export interface PlacedStone {
   id: number;
   wallId: number;
@@ -98,6 +130,14 @@ export type SimEvent =
   | { kind: 'wall_complete'; tick: number; wallId: number }
   | { kind: 'fill_planned'; tick: number; fillId: number; volumeTotal: number }
   | { kind: 'fill_complete'; tick: number; fillId: number }
+  | { kind: 'farm_established'; tick: number; farmId: number; wallId: number; area: number }
+  | {
+      kind: 'building_complete';
+      tick: number;
+      buildingId: number;
+      wallId: number;
+      buildingKind: BuildingKind;
+    }
   /** an invalid command was deterministically skipped — chronicled, never crashed on */
   | { kind: 'command_rejected'; tick: number; commandKind: string; reason: string };
 
@@ -111,6 +151,8 @@ export interface WorldState {
   people: Person[];
   walls: WallPlan[];
   fills: FillPlan[];
+  farms: Farm[];
+  buildings: Building[];
   stones: PlacedStone[];
   /**
    * Chronicle source. Deterministically reproduced by replay, so it may live in

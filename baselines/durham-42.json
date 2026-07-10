@@ -2,7 +2,7 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 2,
+      "simVersion": 3,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 400
@@ -110,65 +110,137 @@
           }
         ],
         "height": 1
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 130,
+        "points": [
+          {
+            "x": 1990,
+            "y": 1900
+          },
+          {
+            "x": 2014,
+            "y": 1900
+          },
+          {
+            "x": 2014,
+            "y": 1924
+          },
+          {
+            "x": 1990,
+            "y": 1924
+          },
+          {
+            "x": 1990,
+            "y": 1900
+          }
+        ],
+        "height": 0.5
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 150,
+        "points": [
+          {
+            "x": 2044.55,
+            "y": 1960
+          },
+          {
+            "x": 2048,
+            "y": 1960
+          },
+          {
+            "x": 2048,
+            "y": 1966
+          },
+          {
+            "x": 2040,
+            "y": 1966
+          },
+          {
+            "x": 2040,
+            "y": 1960
+          },
+          {
+            "x": 2043.45,
+            "y": 1960
+          }
+        ],
+        "height": 3
       }
     ]
   },
   "milestones": [
     {
       "tick": 1,
-      "hash": "a07c761b",
+      "hash": "459b2c36",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
-      "fillsComplete": 0
+      "fillsComplete": 0,
+      "farms": 0,
+      "buildings": 0
     },
     {
       "tick": 6,
-      "hash": "7990b397",
+      "hash": "f65d2b10",
       "stones": 54,
       "events": 56,
       "wallsComplete": 0,
-      "fillsComplete": 0
+      "fillsComplete": 0,
+      "farms": 0,
+      "buildings": 0
     },
     {
       "tick": 61,
-      "hash": "ffe8c54f",
+      "hash": "21657ec6",
       "stones": 3024,
       "events": 3028,
       "wallsComplete": 0,
-      "fillsComplete": 1
+      "fillsComplete": 1,
+      "farms": 0,
+      "buildings": 0
     },
     {
       "tick": 101,
-      "hash": "b5a17928",
+      "hash": "52ed6359",
       "stones": 5014,
       "events": 5022,
       "wallsComplete": 2,
-      "fillsComplete": 1
+      "fillsComplete": 1,
+      "farms": 0,
+      "buildings": 0
     },
     {
       "tick": 200,
-      "hash": "c566905a",
-      "stones": 5014,
-      "events": 5022,
-      "wallsComplete": 2,
-      "fillsComplete": 1
+      "hash": "6f7ca375",
+      "stones": 6148,
+      "events": 6162,
+      "wallsComplete": 4,
+      "fillsComplete": 1,
+      "farms": 1,
+      "buildings": 1
     },
     {
       "tick": 260,
-      "hash": "51d34bb4",
-      "stones": 5082,
-      "events": 5092,
-      "wallsComplete": 3,
-      "fillsComplete": 1
+      "hash": "be6b1aee",
+      "stones": 6216,
+      "events": 6232,
+      "wallsComplete": 5,
+      "fillsComplete": 1,
+      "farms": 1,
+      "buildings": 1
     },
     {
       "tick": 400,
-      "hash": "dd178444",
-      "stones": 5082,
-      "events": 5092,
-      "wallsComplete": 3,
-      "fillsComplete": 1
+      "hash": "e6286e0a",
+      "stones": 6216,
+      "events": 6232,
+      "wallsComplete": 5,
+      "fillsComplete": 1,
+      "farms": 1,
+      "buildings": 1
     }
   ]
 }

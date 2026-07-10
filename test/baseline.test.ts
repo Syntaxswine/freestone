@@ -35,8 +35,10 @@ const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 400];
  * The canon must exercise every physics path the fingerprint should guard
  * (the SIM 2 review caught it guarding zero fill/material behavior): walls in
  * both materials, a fill that completes with a wall planned ON the platform
- * (effectiveGroundAt in the record), and deliberately invalid commands so the
- * constant rejection strings are fingerprinted too.
+ * (effectiveGroundAt in the record), deliberately invalid commands so the
+ * constant rejection strings are fingerprinted too, and — SIM 3 — a closed
+ * low ring that must establish a farm plus a doorway loop that must complete
+ * a building, so enclosure recognition is in the fingerprint.
  */
 const CANON_COMMANDS: Command[] = [
   {
@@ -97,6 +99,31 @@ const CANON_COMMANDS: Command[] = [
     ],
     height: 1, // stands ON the tick-3 fill's completed platform
   },
+  {
+    kind: 'plan_wall',
+    tick: 130,
+    points: [
+      { x: 1990, y: 1900 },
+      { x: 2014, y: 1900 },
+      { x: 2014, y: 1924 },
+      { x: 1990, y: 1924 },
+      { x: 1990, y: 1900 },
+    ],
+    height: 0.5, // closed low ring — SIM 3 must establish a farm on completion
+  },
+  {
+    kind: 'plan_wall',
+    tick: 150,
+    points: [
+      { x: 2044.55, y: 1960 }, // the doorway loop: jambs collinear on the front edge
+      { x: 2048, y: 1960 },
+      { x: 2048, y: 1966 },
+      { x: 2040, y: 1966 },
+      { x: 2040, y: 1960 },
+      { x: 2043.45, y: 1960 },
+    ],
+    height: 3, // near-closed tall ring — SIM 3 must complete a building (house)
+  },
 ];
 
 interface Milestone {
@@ -106,6 +133,8 @@ interface Milestone {
   events: number;
   wallsComplete: number;
   fillsComplete: number;
+  farms: number;
+  buildings: number;
 }
 
 interface Baseline {
@@ -138,6 +167,8 @@ function runCanon(site: SiteData): Baseline {
         events: world.events.length,
         wallsComplete: world.walls.filter((w) => w.stonesLaid >= w.stonesTotal).length,
         fillsComplete: world.fills.filter((f) => f.volumeMoved >= f.volumeTotal).length,
+        farms: world.farms.length,
+        buildings: world.buildings.length,
       });
     }
   }
