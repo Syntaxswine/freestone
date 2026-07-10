@@ -88,7 +88,7 @@ function terrainMesh(site: SiteData): TerrainDisplay {
   geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geo.setIndex(indices);
   geo.computeVertexNormals();
-  const mat = new THREE.MeshLambertMaterial({ color: 0x6b7b57 });
+  const mat = new THREE.MeshLambertMaterial({ color: 0x90ac6e }); // sage, not moor-gloom
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = false;
 
@@ -142,9 +142,10 @@ async function boot(): Promise<void> {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   app.appendChild(renderer.domElement);
 
+  // The look (SCOPE §8d, Townscaper canon): a mild warm morning, never grim.
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x101210);
-  scene.fog = new THREE.Fog(0x101210, 400, 2500);
+  scene.background = new THREE.Color(0xc3d7e0);
+  scene.fog = new THREE.Fog(0xc3d7e0, 600, 3200);
 
   const camera = new THREE.PerspectiveCamera(
     55,
@@ -165,8 +166,8 @@ async function boot(): Promise<void> {
   controls.screenSpacePanning = false; // pan rides the ground plane; target.y never drifts
   controls.update();
 
-  scene.add(new THREE.HemisphereLight(0xcfd8dc, 0x2f2a20, 0.9));
-  const sun = new THREE.DirectionalLight(0xfff3d6, 1.4);
+  scene.add(new THREE.HemisphereLight(0xdcebf2, 0x8a9a6f, 1.0));
+  const sun = new THREE.DirectionalLight(0xffe9c4, 1.3);
   sun.position.set(300, 400, -200);
   scene.add(sun);
 
@@ -174,7 +175,9 @@ async function boot(): Promise<void> {
   scene.add(terrain.mesh);
 
   const stoneGeo = new THREE.BoxGeometry(STONE_LEN, COURSE_HEIGHT, STONE_DEPTH);
-  const stoneMat = new THREE.MeshLambertMaterial({ color: 0xb9a88f });
+  // white base: per-instance color MULTIPLIES material color, and a tan base
+  // muddied every tint toward chocolate — the instance tint carries the color
+  const stoneMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
   function makeStoneMesh(cap: number): THREE.InstancedMesh {
     const m = new THREE.InstancedMesh(stoneGeo, stoneMat, cap);
     m.count = 0;
@@ -277,7 +280,8 @@ async function boot(): Promise<void> {
       // Per-stone tonal variation so the wall reads as coursework, not extrusion.
       // Render-side only, keyed on the stone's id — the sim rng is never touched here.
       const t = ((s.id * 2654435761) >>> 0) / 4294967296;
-      tint.setHSL(0.09 + t * 0.02, 0.22, 0.55 + (((s.id * 40503) % 97) / 97 - 0.5) * 0.12);
+      // honey-toned Durham sandstone in warm daylight (SCOPE §8d)
+      tint.setHSL(0.085 + t * 0.02, 0.34, 0.68 + (((s.id * 40503) % 97) / 97 - 0.5) * 0.1);
       stones.setColorAt(i, tint);
     }
     if (world.stones.length !== lastStoneCount) {

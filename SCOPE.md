@@ -418,6 +418,31 @@ Trade runs itself; the player builds the conditions and the world responds.
   absorbs the visitor effect: a high-tier village with rising towers simply draws more
   travelers, coin, news, and the occasional settler.
 
+## 8d. The look (art direction — boss canon, 2026-07-09)
+
+The boss's reference image is **Townscaper**: soft daylight, terracotta roofs, cream
+plaster, sage-green grounds, chunky rounded forms, everything warm and unthreatening.
+"This is the kind of cozy aesthetic I am going for."
+
+What we take from it:
+- **Daylight, always warm.** The base scene is a mild morning — pale sky, warm sun,
+  gentle fog. Weather and seasons (M7) may pass through, but the resting state of the
+  world is cozy, never grim. A low-stress game must LOOK low-stress before a single
+  mechanic is read.
+- **The palette:** terracotta / warm cream / sage green / soft sky. Stone reads warm
+  (Durham's sandstone genuinely is honey-toned — the science agrees with the vibe).
+- **Readable chunk.** Forms read at a glance from a middle distance; detail is reserved
+  for what matters (the coursework, the marks, the people).
+
+What we deliberately do NOT take:
+- Townscaper's smooth vector-sculpted buildings. Our walls are real courses of real
+  stones with provenance — the texture of the build IS the game. The palette gets cozy;
+  the masonry stays honest.
+- Its abstraction of people (it has none). Our DS-scale pixel folk stay — the boss chose
+  them, and their smallness against the growing work is the point.
+- HUD chrome stays restrained field-guide monospace; coziness lives in the world, not in
+  bubbly UI.
+
 ## 9. Homage (the heart)
 
 The boss asked for a game that pays homage to builders who die before the work is done.
