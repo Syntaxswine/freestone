@@ -107,12 +107,17 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   sim change → baseline regen discipline. Economy-core latent failure is an M4-hazard
   consumer of the same fields. PARTLY watchlist: medieval field-wall attestation
   (enclosure-era image vs 1200s practice) before enclosure content ships.
-- Earthworks follow-ons (SIM 2 shipped 2026-07-09): true palisade geometry for wood
-  (vertical posts, faster pace, no mortar cure) with the pace/economy pass; fills
-  planned ON existing platforms should ground on effectiveGroundAt, not raw site
-  (stacked mottes); cut as well as fill (ditches — the spoil feeds the rampart, one
-  command's dirt is the other's); building-footprint auto-fill ("fill the squares" —
-  click inside a shell); material picker grows real stone kinds from the bed model.
+- Earthworks follow-ons (SIM 2 shipped 2026-07-09; ramps + roofs SIM 8 2026-07-10):
+  true palisade geometry for wood (vertical posts, faster pace, no mortar cure) with
+  the pace/economy pass; cut as well as fill (ditches — the spoil feeds the rampart,
+  one command's dirt is the other's); building-footprint auto-fill ("fill the
+  squares" — click inside a shell); material picker grows real stone kinds from the
+  bed model. Roof follow-ons: pitched wood/straw geometry (today all decks are flat
+  plates; the auto-gable on recognized buildings stays separate), roof-on-roof for
+  towers, carpenters as a trade distinct from laborers, deck timber from the woods
+  when the timber economy lands, span honesty (>6.5 m wants posts — the aisle rule
+  applied to decks). Ramp follow-ons: ramp direction picker (today first-side-low),
+  switchback ramps, spoil accounting shared with ditches.
 - Farms/houses follow-ons (SIM 3 shipped 2026-07-10): crop ECONOMY belongs to M4
   (harvest/sheaves/gleaning; the seasonal field LOOK shipped render-only 2026-07-10 —
   PARTLY: precise Durham crop calendar, oats/barley weighting, two- vs three-field
