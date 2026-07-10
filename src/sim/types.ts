@@ -9,8 +9,9 @@
  */
 import type { BuildingKind } from './classify';
 
-// 4: field work (Farm.workdays) + degenerate-ring overlap guard
-export const SIM_VERSION = 4;
+// 5: fill closure normalized before the guards (a hand-closed ring's trailing
+// near-duplicate vertex is a gesture, not geometry — 4: field work + overlap guard)
+export const SIM_VERSION = 5;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4

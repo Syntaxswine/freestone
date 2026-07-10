@@ -140,6 +140,18 @@ const CANON_COMMANDS: Command[] = [
     ],
     height: 3, // near-closed tall ring — SIM 3 must complete a building (house)
   },
+  {
+    kind: 'plan_fill',
+    tick: 320,
+    points: [
+      { x: 2000, y: 2040 },
+      { x: 2008, y: 2040 },
+      { x: 2008, y: 2048 },
+      { x: 2000, y: 2048 },
+      { x: 2000, y: 2040.2 }, // hand-closed: SIM 5 normalization ACCEPTS this,
+    ], //                        and tending must pause for it then resume
+    height: 0.5,
+  },
 ];
 
 interface Milestone {

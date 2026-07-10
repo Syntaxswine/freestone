@@ -10,7 +10,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
-import { polygonArea, ringSelfIntersects, worldStep } from '../sim/step';
+import { polygonArea, ringSelfIntersects, ringSelfOverlaps, worldStep } from '../sim/step';
 import { createWorld } from '../sim/world';
 import {
   BUILDING_MIN_H,
@@ -445,10 +445,11 @@ async function boot(): Promise<void> {
         if (planner.mode === 'building' && planner.height < BUILDING_MIN_H) {
           warn += ` · too low to shelter — raise it to ${BUILDING_MIN_H} m`;
         }
-        // the pencil's promise uses the sim's own recognition rules: a closed
-        // low ring is a farm, and the HUD says so before a stone is laid
+        // the pencil's promise uses the sim's own recognition rules — ALL of
+        // them: the second fleet caught this gate missing the overlap guard,
+        // so the pencil endorsed the double-wound ring the sim refuses
         const ring = planner.closedRing();
-        if (ring && !ringSelfIntersects(ring)) {
+        if (ring && !ringSelfIntersects(ring) && !ringSelfOverlaps(ring)) {
           const area = polygonArea(ring);
           if (area >= FARM_MIN_AREA) {
             if (planner.height <= FARM_WALL_MAX_H) name = `a farm — ${area.toFixed(0)} m² · `;

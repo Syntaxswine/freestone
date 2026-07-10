@@ -79,15 +79,21 @@ function rejectReason(cmd: Command): string | null {
         return 'a fill needs at least three points';
       }
       if (badPoints(cmd.points)) return 'fill points must have finite x and y';
+      // the closure gesture is normalized BEFORE the geometry guards run: a
+      // hand-closed ring's final near-duplicate vertex would otherwise sit
+      // inside the overlap epsilon and reject the most careful honest closure
+      // (the second fleet's confirmed knife edge — 3 cm rejected, 6 cm fine)
+      const ring = normalizedFillRing(cmd.points);
+      if (ring.length < 3) return 'a fill needs at least three points';
       // a self-crossing ring is a cheat, not a shape: its shoelace area can
       // cancel toward zero while even-odd containment still grants both lobes
       // as platform — volume billed at Math.max(1, ~0) for real ground gained
-      if (ringSelfIntersects(cmd.points)) return 'fill ring must not cross itself';
+      if (ringSelfIntersects(ring)) return 'fill ring must not cross itself';
       // the double-wound lap (the review fleet's probe): collinear overlapping
       // runs cross nothing PROPERLY while shoelace adds every lap — billed
       // and granted geometry must share one measure
-      if (ringSelfOverlaps(cmd.points)) return 'fill ring must not overlap itself';
-      if (polygonArea(cmd.points) < 1) return 'fill ring must enclose area';
+      if (ringSelfOverlaps(ring)) return 'fill ring must not overlap itself';
+      if (polygonArea(ring) < 1) return 'fill ring must enclose area';
       return null;
     }
   }
@@ -118,6 +124,27 @@ export function ringSelfIntersects(pts: readonly Vec2[]): boolean {
     }
   }
   return false;
+}
+
+/**
+ * Fill rings arrive open by convention (the pencil commits the open ring and
+ * the closing edge is implied), but a player who clicks back near the start
+ * out of wall-mode habit ships a trailing near-duplicate vertex. Drop it —
+ * the same closure tolerance recognition uses — so the ring the guards judge
+ * and the ring the fill stores are the honest shape, not the gesture.
+ */
+export function normalizedFillRing(points: readonly Vec2[]): Vec2[] {
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (
+    points.length >= 4 &&
+    first &&
+    last &&
+    dist(first.x, first.y, last.x, last.y) <= FARM_CLOSE_EPS
+  ) {
+    return points.slice(0, -1).map((p) => ({ x: p.x, y: p.y }));
+  }
+  return points.map((p) => ({ x: p.x, y: p.y }));
 }
 
 /**
@@ -214,7 +241,9 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       // Target level: the highest sampled ground (vertices + centroid) plus the
       // asked-for height. Volume: polygon area × mean depth to that level — an
       // estimate, computed ONCE here so it is part of the deterministic record.
-      const pts = cmd.points.map((p) => ({ x: p.x, y: p.y }));
+      // The ring is normalized exactly as validation normalized it: the stored
+      // fill and the judged fill must be the same shape.
+      const pts = normalizedFillRing(cmd.points);
       let cx = 0;
       let cy = 0;
       for (const p of pts) {

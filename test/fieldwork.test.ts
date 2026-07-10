@@ -124,6 +124,28 @@ describe('field work', () => {
     expect(reasons).toEqual(['fill ring must not overlap itself']);
   });
 
+  it('a hand-closed fill ring is normalized, not rejected (the 3 cm knife edge)', () => {
+    // the second fleet's confirmed finding: a trailing vertex within 5 cm of
+    // the start sat inside the overlap epsilon and rejected the most careful
+    // honest closure — even an EXACT duplicate. The gesture is dropped first.
+    const ring = [
+      { x: 200, y: 200 },
+      { x: 230, y: 200 },
+      { x: 230, y: 230 },
+      { x: 200, y: 230 },
+      { x: 200, y: 200.03 }, // the closing click, 3 cm out
+    ];
+    const { world } = run([{ kind: 'plan_fill', tick: 0, points: ring, height: 2 }], 1);
+    expect(world.fills).toHaveLength(1);
+    expect(world.fills[0]!.points).toHaveLength(4); // gesture dropped, shape stored
+    expect(world.fills[0]!.volumeTotal).toBe(1800); // 30×30 × 2 m, flat site, exact
+    const { world: exact } = run(
+      [{ kind: 'plan_fill', tick: 0, points: [...ring.slice(0, 4), { x: 200, y: 200 }], height: 2 }],
+      1,
+    );
+    expect(exact.fills).toHaveLength(1); // the perfect duplicate closes too
+  });
+
   it('honest rings pass the overlap guard', () => {
     expect(ringSelfOverlaps(FIELD_RING.slice(0, -1))).toBe(false);
     // the doorway loop's closing edge runs the door line: collinear with the

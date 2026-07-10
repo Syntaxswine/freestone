@@ -2,7 +2,7 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 4,
+      "simVersion": 5,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 400
@@ -211,13 +211,40 @@
           }
         ],
         "height": 3
+      },
+      {
+        "kind": "plan_fill",
+        "tick": 320,
+        "points": [
+          {
+            "x": 2000,
+            "y": 2040
+          },
+          {
+            "x": 2008,
+            "y": 2040
+          },
+          {
+            "x": 2008,
+            "y": 2048
+          },
+          {
+            "x": 2000,
+            "y": 2048
+          },
+          {
+            "x": 2000,
+            "y": 2040.2
+          }
+        ],
+        "height": 0.5
       }
     ]
   },
   "milestones": [
     {
       "tick": 1,
-      "hash": "7e018381",
+      "hash": "d2768a3c",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
@@ -228,7 +255,7 @@
     },
     {
       "tick": 6,
-      "hash": "f0e539cf",
+      "hash": "48475b9a",
       "stones": 54,
       "events": 56,
       "wallsComplete": 0,
@@ -239,7 +266,7 @@
     },
     {
       "tick": 61,
-      "hash": "f537480f",
+      "hash": "e9162f74",
       "stones": 3024,
       "events": 3028,
       "wallsComplete": 0,
@@ -250,7 +277,7 @@
     },
     {
       "tick": 101,
-      "hash": "c7715b5d",
+      "hash": "589dee44",
       "stones": 5014,
       "events": 5023,
       "wallsComplete": 2,
@@ -261,7 +288,7 @@
     },
     {
       "tick": 200,
-      "hash": "a6a66d4a",
+      "hash": "84ed98f9",
       "stones": 6148,
       "events": 6163,
       "wallsComplete": 4,
@@ -272,7 +299,7 @@
     },
     {
       "tick": 260,
-      "hash": "06caacf4",
+      "hash": "60d75707",
       "stones": 6216,
       "events": 6233,
       "wallsComplete": 5,
@@ -283,14 +310,14 @@
     },
     {
       "tick": 400,
-      "hash": "d534f6cd",
+      "hash": "36481eb9",
       "stones": 6216,
-      "events": 6233,
+      "events": 6235,
       "wallsComplete": 5,
-      "fillsComplete": 1,
+      "fillsComplete": 2,
       "farms": 1,
       "buildings": 1,
-      "farmWorkdays": 524
+      "farmWorkdays": 500
     }
   ]
 }

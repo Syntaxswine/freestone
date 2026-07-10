@@ -19,7 +19,7 @@ import * as THREE from 'three';
 import { classifyFootprint, type BuildingKind } from '../sim/classify';
 import type { SiteData } from '../sim/site';
 import { decomposeWall, polylineLength } from '../sim/step';
-import { MATERIALS, type Material, type Vec2 } from '../sim/types';
+import { FARM_CLOSE_EPS, MATERIALS, type Material, type Vec2 } from '../sim/types';
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
 const SNAP_PX = 16; // screen px: a wall click this near the FIRST point closes the ring
@@ -282,10 +282,11 @@ export class WallPlanner {
   }
 
   /**
-   * Wall mode: the ring being drawn/hovered, IF it closes exactly (last point
-   * === first, via startSnap's exact copy). Returns the OPEN ring — the
-   * duplicate closing vertex dropped — ready for polygon math. The HUD names
-   * the enclosure from this with the sim's own recognition rules.
+   * Wall mode: the ring being drawn/hovered, IF it closes the way the SIM
+   * judges closure — within FARM_CLOSE_EPS, not just startSnap's exact copy
+   * (the second fleet: a hand-closed 0.3 m ring farmed unannounced because
+   * the pencil demanded equality the sim never required). Returns the OPEN
+   * ring, closing vertex dropped exactly as recognition drops it.
    */
   closedRing(): Vec2[] | null {
     if (this.mode !== 'wall') return null;
@@ -293,7 +294,7 @@ export class WallPlanner {
     if (poly.length < 4) return null;
     const first = poly[0]!;
     const last = poly[poly.length - 1]!;
-    if (first.x !== last.x || first.y !== last.y) return null;
+    if (dist2d(first, last) > FARM_CLOSE_EPS) return null;
     return poly.slice(0, -1);
   }
 
@@ -385,7 +386,8 @@ export class WallPlanner {
    * how farms are made (boss canon 2026-07-09). The snap radius is SCREEN
    * SPACE (input-guard law: pixels, not meters — 8 px is meters of ground when
    * zoomed out), and the snapped point is an EXACT copy of the first, so the
-   * sim can recognize closure by equality, not tolerance.
+   * closure is unambiguous at any zoom (the sim itself closes anything within
+   * FARM_CLOSE_EPS; the snap just makes the gesture certain).
    */
   private startSnap(ev: { clientX: number; clientY: number }): Vec2 | null {
     if (this.mode !== 'wall' || this.points.length < 3) return null;

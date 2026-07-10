@@ -122,65 +122,62 @@ export class PeopleLayer {
 
   /**
    * A furrow row for one field hand: runs with the plough (the ring's longest
-   * edge), offset sideways per worker, endpoints shrunk until both sit inside
-   * the enclosure. Pure theater derived from sim truth — the sim only counts
-   * the workday; where in the field it was spent is presentation.
+   * edge — matching the tillage strips), anchored ON that edge and stepped
+   * INWARD, never at the vertex centroid: for a C- or U-shaped farm the
+   * centroid sits in the unfarmed hollow, and the second fleet proved 800/800
+   * centroid rows landed outside. Land beside the longest edge is the one
+   * region a legal enclosure guarantees. Pure theater derived from sim truth —
+   * the sim only counts the workday; where in the field it was spent is
+   * presentation.
    */
   private fieldRow(farm: Farm, idx: number): { a: Vec2; b: Vec2 } {
     const ring = farm.points;
-    let ux = 1;
-    let uy = 0;
+    let ei = 0;
     let best = 0;
     for (let i = 0; i < ring.length; i++) {
       const a = ring[i]!;
       const b = ring[(i + 1) % ring.length]!;
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const l2 = dx * dx + dy * dy;
+      const l2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
       if (l2 > best) {
         best = l2;
-        const l = Math.sqrt(l2);
-        ux = dx / l;
-        uy = dy / l;
+        ei = i;
       }
     }
-    const px = -uy;
-    const py = ux;
-    let cx = 0;
-    let cy = 0;
-    for (const q of ring) {
-      cx += q.x;
-      cy += q.y;
+    const a0 = ring[ei]!;
+    const b0 = ring[(ei + 1) % ring.length]!;
+    const el = Math.sqrt(best) || 1;
+    const ux = (b0.x - a0.x) / el;
+    const uy = (b0.y - a0.y) / el;
+    let px = -uy;
+    let py = ux;
+    const mx = (a0.x + b0.x) / 2;
+    const my = (a0.y + b0.y) / 2;
+    // point the perpendicular into the field
+    if (!pointInPolygon(mx + px * 1.2, my + py * 1.2, ring)) {
+      px = -px;
+      py = -py;
     }
-    cx /= ring.length;
-    cy /= ring.length;
-    let uMin = Infinity;
-    let uMax = -Infinity;
-    let pMin = Infinity;
-    let pMax = -Infinity;
-    for (const q of ring) {
-      const du = (q.x - cx) * ux + (q.y - cy) * uy;
-      const dp = (q.x - cx) * px + (q.y - cy) * py;
-      if (du < uMin) uMin = du;
-      if (du > uMax) uMax = du;
-      if (dp < pMin) pMin = dp;
-      if (dp > pMax) pMax = dp;
+    // walk inward to this hand's row, stopping at the far side of the land
+    const want = 1.2 + hash2(farm.id, idx * 13 + 1) * 10;
+    let dep = 1.2;
+    for (let d = 1.2; d <= want; d += 0.8) {
+      if (!pointInPolygon(mx + px * d, my + py * d, ring)) break;
+      dep = d;
     }
-    const off = (hash2(farm.id, idx * 13 + 1) - 0.5) * (pMax - pMin) * 0.55;
-    let sA = uMin * 0.6;
-    let sB = uMax * 0.6;
-    const mk = (s: number): Vec2 => ({ x: cx + ux * s + px * off, y: cy + uy * s + py * off });
-    let a = mk(sA);
-    let b = mk(sB);
+    const cx = mx + px * dep;
+    const cy = my + py * dep;
+    let half = el * 0.38;
+    const mk = (s: number): Vec2 => ({ x: cx + ux * s, y: cy + uy * s });
+    let a = mk(-half);
+    let b = mk(half);
     for (
       let k = 0;
-      k < 5 && !(pointInPolygon(a.x, a.y, ring) && pointInPolygon(b.x, b.y, ring));
+      k < 6 && !(pointInPolygon(a.x, a.y, ring) && pointInPolygon(b.x, b.y, ring));
       k++
     ) {
-      sA *= 0.65;
-      sB *= 0.65;
-      a = mk(sA);
-      b = mk(sB);
+      half *= 0.6;
+      a = mk(-half);
+      b = mk(half);
     }
     return { a, b };
   }
