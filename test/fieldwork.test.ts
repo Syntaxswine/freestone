@@ -1,0 +1,154 @@
+/**
+ * SIM 4: field work + the degenerate-ring overlap guard.
+ * The load-bearing claims: a laborer with no earth to move tends the farm
+ * with the fewest workdays (+1 person-day, exact and deterministic);
+ * construction outranks the fields; multiple farms balance; and the review
+ * fleet's double-wound lap exploit (collinear overlapping runs that cross
+ * nothing PROPERLY while shoelace adds every lap) is recognized as nothing
+ * and rejected as a fill.
+ */
+import { describe, expect, it } from 'vitest';
+import { hashState, makeSave, replay } from '../src/sim/save';
+import { flatSite } from '../src/sim/site';
+import { ringSelfOverlaps, worldStep } from '../src/sim/step';
+import { createWorld } from '../src/sim/world';
+import type { Command, Vec2 } from '../src/sim/types';
+
+const FIELD_RING: Vec2[] = [
+  { x: 100, y: 100 },
+  { x: 120, y: 100 },
+  { x: 120, y: 120 },
+  { x: 100, y: 120 },
+  { x: 100, y: 100 },
+];
+
+/**
+ * The fleet's probe: two collinear laps joined along x=1 (the map-edge clamp
+ * makes exact collinearity free in real play). No proper crossing; shoelace
+ * counts both laps (~14,600 m² for ~7,700 m² of even-odd land).
+ */
+const DOUBLE_WOUND: Vec2[] = [
+  { x: 1, y: 90 },
+  { x: 1, y: 1 },
+  { x: 90, y: 1 },
+  { x: 90, y: 90 },
+  { x: 1, y: 89 },
+  { x: 1, y: 5 },
+  { x: 85, y: 5 },
+  { x: 85, y: 85 },
+  { x: 1, y: 85 },
+  { x: 1, y: 90 },
+];
+
+const wall = (points: Vec2[], height: number, tick = 0): Command => ({
+  kind: 'plan_wall',
+  tick,
+  points,
+  height,
+});
+
+function run(commands: Command[], days: number, seed = 'fieldwork') {
+  const site = flatSite('flat', 1000);
+  const world = createWorld(seed, site.id);
+  const byTick = new Map<number, Command[]>();
+  for (const c of commands) {
+    const b = byTick.get(c.tick);
+    if (b) b.push(c);
+    else byTick.set(c.tick, [c]);
+  }
+  for (let i = 0; i < days; i++) worldStep(world, site, byTick.get(world.tick) ?? []);
+  return { world, site };
+}
+
+describe('field work', () => {
+  it('idle laborers tend the farm: exactly one person-day each, from the day after establishment', () => {
+    const { world } = run([wall(FIELD_RING, 0.5)], 60);
+    const est = world.events.find((e) => e.kind === 'farm_established')!;
+    const laborers = world.people.filter((p) => p.trade === 'laborer').length;
+    expect(laborers).toBe(2);
+    // established DURING tick est.tick (after that day's moveEarth ran), so
+    // tending starts the next tick; world.tick ticks completed so far
+    expect(world.farms[0]!.workdays).toBe(laborers * (world.tick - est.tick - 1));
+    expect(world.farms[0]!.workdays).toBeGreaterThan(0);
+  });
+
+  it('construction outranks the fields: earth moves first, tending pauses', () => {
+    const { world } = run([wall(FIELD_RING, 0.5)], 60);
+    const before = world.farms[0]!.workdays;
+    const site = flatSite('flat', 1000);
+    // a fresh fill: laborers barrow again; the farm waits
+    worldStep(world, site, [
+      {
+        kind: 'plan_fill',
+        tick: world.tick,
+        points: [
+          { x: 200, y: 200 },
+          { x: 220, y: 200 },
+          { x: 220, y: 220 },
+          { x: 200, y: 220 },
+        ],
+        height: 1,
+      },
+    ]);
+    while (world.fills[0]!.volumeMoved < world.fills[0]!.volumeTotal) {
+      expect(world.farms[0]!.workdays).toBe(before);
+      worldStep(world, site, []);
+    }
+    const atCompletion = world.farms[0]!.workdays;
+    worldStep(world, site, []);
+    expect(world.farms[0]!.workdays).toBe(atCompletion + 2); // both laborers back in the field
+  });
+
+  it('two farms balance to the day (fewest-workdays rule)', () => {
+    const second = FIELD_RING.map((p) => ({ x: p.x + 40, y: p.y }));
+    const { world } = run([wall(FIELD_RING, 0.5, 0), wall(second, 0.5, 0)], 100);
+    expect(world.farms).toHaveLength(2);
+    const [a, b] = world.farms;
+    expect(a!.workdays + b!.workdays).toBeGreaterThan(0);
+    expect(Math.abs(a!.workdays - b!.workdays)).toBeLessThanOrEqual(1);
+  });
+
+  it('the double-wound lap is recognized as nothing (farm) and rejected (fill)', () => {
+    expect(ringSelfOverlaps(DOUBLE_WOUND.slice(0, -1))).toBe(true);
+    const { world } = run([wall(DOUBLE_WOUND, 0.5)], 300);
+    expect(world.walls[0]!.stonesLaid).toBe(world.walls[0]!.stonesTotal); // masonry is legal
+    expect(world.farms).toHaveLength(0); // the 14,600 m² claim is not
+    const { world: w2 } = run(
+      [{ kind: 'plan_fill', tick: 0, points: DOUBLE_WOUND.slice(0, -1), height: 1 }],
+      1,
+    );
+    expect(w2.fills).toHaveLength(0);
+    const reasons = w2.events
+      .filter((e) => e.kind === 'command_rejected')
+      .map((e) => (e as { reason: string }).reason);
+    expect(reasons).toEqual(['fill ring must not overlap itself']);
+  });
+
+  it('honest rings pass the overlap guard', () => {
+    expect(ringSelfOverlaps(FIELD_RING.slice(0, -1))).toBe(false);
+    // the doorway loop's closing edge runs the door line: collinear with the
+    // front edge but 1.1 m clear of both jamb segments
+    expect(
+      ringSelfOverlaps([
+        { x: 104.55, y: 100 },
+        { x: 108, y: 100 },
+        { x: 108, y: 106 },
+        { x: 100, y: 106 },
+        { x: 100, y: 100 },
+        { x: 103.45, y: 100 },
+      ]),
+    ).toBe(false);
+  });
+
+  it('field work replays identically from a save', () => {
+    const site = flatSite('flat', 1000);
+    const world = createWorld('fieldwork-replay', site.id);
+    const log: Command[] = [wall(FIELD_RING, 0.5)];
+    const byTick = new Map<number, Command[]>();
+    byTick.set(0, log);
+    for (let i = 0; i < 90; i++) worldStep(world, site, byTick.get(world.tick) ?? []);
+    expect(world.farms[0]!.workdays).toBeGreaterThan(0);
+    const replayed = replay(makeSave(world, log), site);
+    expect(hashState(replayed)).toBe(hashState(world));
+  });
+});

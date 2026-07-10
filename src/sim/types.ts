@@ -9,7 +9,8 @@
  */
 import type { BuildingKind } from './classify';
 
-export const SIM_VERSION = 3; // 3: farms + buildings recognized from enclosure geometry
+// 4: field work (Farm.workdays) + degenerate-ring overlap guard
+export const SIM_VERSION = 4;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -76,6 +77,15 @@ export interface Farm {
   /** the enclosure ring (open form — no duplicate closing vertex) */
   points: Vec2[];
   area: number; // m², shoelace of the ring
+  /**
+   * Person-days of tending. A laborer with no earth to move works the farm
+   * with the fewest workdays (boss canon 2026-07-10: recognized farms put
+   * citizens to work). The Lodge never puppets individuals — this is
+   * recognition creating work, not an assignment UI. M4's granary year
+   * converts workdays + seasons into yield; until then the counter is the
+   * honest substrate.
+   */
+  workdays: number;
 }
 
 /** A recognized building — its shell is an ordinary wall; the plot named it. */

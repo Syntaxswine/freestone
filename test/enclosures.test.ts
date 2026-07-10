@@ -73,8 +73,10 @@ describe('farms', () => {
     const nearClosed = [...FIELD_RING.slice(0, 4), { x: 100, y: 100.3 }];
     const { world } = run([wall(nearClosed, 0.5)], 100);
     expect(world.farms).toHaveLength(1);
-    expect(world.farms[0]!.area).toBe(400); // the extra vertex is collinear on the west wall
-    expect(world.farms[0]!.points).toHaveLength(5); // tiny closing edge kept, no vertex dropped
+    expect(world.farms[0]!.area).toBe(400); // the near-return vertex is dropped either way
+    // the closing vertex is ALWAYS dropped: a kept sub-stone sliver edge would
+    // sit inside the overlap guard's epsilon and read as degenerate
+    expect(world.farms[0]!.points).toHaveLength(4);
   });
 
   it('a tall closed ring is a yard wall, not a farm', () => {

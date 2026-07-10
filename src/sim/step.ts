@@ -83,6 +83,10 @@ function rejectReason(cmd: Command): string | null {
       // cancel toward zero while even-odd containment still grants both lobes
       // as platform — volume billed at Math.max(1, ~0) for real ground gained
       if (ringSelfIntersects(cmd.points)) return 'fill ring must not cross itself';
+      // the double-wound lap (the review fleet's probe): collinear overlapping
+      // runs cross nothing PROPERLY while shoelace adds every lap — billed
+      // and granted geometry must share one measure
+      if (ringSelfOverlaps(cmd.points)) return 'fill ring must not overlap itself';
       if (polygonArea(cmd.points) < 1) return 'fill ring must enclose area';
       return null;
     }
@@ -114,6 +118,51 @@ export function ringSelfIntersects(pts: readonly Vec2[]): boolean {
     }
   }
   return false;
+}
+
+/**
+ * Degenerate-ring guard, the proper-crossing test's blind spot: non-adjacent
+ * segments that RUN ALONG each other (double-wound laps via the map-edge
+ * clamp, T-touches) cross nothing properly, but shoelace area counts every
+ * lap while even-odd containment does not — a recognized farm could record
+ * ~2× the land its tillage grants. Any non-adjacent pair closer than eps
+ * makes the ring degenerate. Comparisons, multiplies, Math.sqrt only.
+ */
+export function ringSelfOverlaps(pts: readonly Vec2[], eps = 0.05): boolean {
+  const n = pts.length;
+  const segDist = (a: Vec2, b: Vec2, c: Vec2, d: Vec2): number =>
+    Math.min(
+      pointSegDist(a.x, a.y, c.x, c.y, d.x, d.y),
+      pointSegDist(b.x, b.y, c.x, c.y, d.x, d.y),
+      pointSegDist(c.x, c.y, a.x, a.y, b.x, b.y),
+      pointSegDist(d.x, d.y, a.x, a.y, b.x, b.y),
+    );
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      if (j === (i + 1) % n || (j + 1) % n === i) continue; // adjacent share a vertex
+      if (
+        segDist(pts[i]!, pts[(i + 1) % n]!, pts[j]!, pts[(j + 1) % n]!) < eps
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function pointSegDist(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const l2 = dx * dx + dy * dy;
+  const t = l2 === 0 ? 0 : Math.min(1, Math.max(0, ((px - ax) * dx + (py - ay) * dy) / l2));
+  return dist(px, py, ax + dx * t, ay + dy * t);
 }
 
 function badPoints(points: readonly Vec2[]): boolean {
@@ -211,20 +260,36 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
   }
 }
 
-/** Laborers move earth to the oldest unfinished fill; m³ per day = their pace. */
+/**
+ * Laborers move earth to the oldest unfinished fill; m³ per day = their pace.
+ * A laborer with NO earth to move that day tends the farm with the fewest
+ * workdays instead (tie: the older farm) — one person-day of field work.
+ * Construction outranks the fields; the fields outrank idleness. The Lodge
+ * never puppets individuals: recognized farms create the work by existing
+ * (boss canon 2026-07-10).
+ */
 function moveEarth(state: WorldState): void {
   for (const person of state.people) {
     if (person.trade !== 'laborer') continue;
     let quota = person.pace;
+    let moved = 0;
     while (quota > 0) {
       const fill = state.fills.find((f) => f.volumeMoved < f.volumeTotal);
-      if (!fill) return;
-      const moved = Math.min(quota, fill.volumeTotal - fill.volumeMoved);
-      fill.volumeMoved += moved;
-      quota -= moved;
+      if (!fill) break;
+      const m = Math.min(quota, fill.volumeTotal - fill.volumeMoved);
+      fill.volumeMoved += m;
+      moved += m;
+      quota -= m;
       if (fill.volumeMoved >= fill.volumeTotal) {
         state.events.push({ kind: 'fill_complete', tick: state.tick, fillId: fill.id });
       }
+    }
+    if (moved === 0 && state.farms.length > 0) {
+      let target = state.farms[0]!;
+      for (const f of state.farms) {
+        if (f.workdays < target.workdays) target = f;
+      }
+      target.workdays += 1;
     }
   }
 }
@@ -321,11 +386,13 @@ export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
   const gap = dist(first.x, first.y, last.x, last.y);
 
   if (gap <= FARM_CLOSE_EPS) {
-    // closed ring — a farm candidate. Exact closure (the snap's copy) drops
-    // the duplicate vertex; a sub-stone gap keeps its tiny closing edge.
+    // closed ring — a farm candidate. The closing vertex is dropped whether
+    // closure is exact (the snap's copy) or within tolerance: a kept sub-stone
+    // sliver edge would sit inside the overlap guard's epsilon of the first
+    // segment and read the honest ring as degenerate.
     if (wall.height > FARM_WALL_MAX_H) return;
-    const ring = gap === 0 ? pts.slice(0, -1) : pts;
-    if (ring.length < 3 || ringSelfIntersects(ring)) return;
+    const ring = pts.slice(0, -1);
+    if (ring.length < 3 || ringSelfIntersects(ring) || ringSelfOverlaps(ring)) return;
     const area = polygonArea(ring);
     if (area < FARM_MIN_AREA) return;
     const farm = {
@@ -333,6 +400,7 @@ export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
       wallId: wall.id,
       points: ring.map((p) => ({ x: p.x, y: p.y })),
       area,
+      workdays: 0,
     };
     state.farms.push(farm);
     state.events.push({
@@ -349,7 +417,7 @@ export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
     // near-closed ring, person-width gap — a building candidate. The closing
     // edge across the doorway completes the footprint polygon.
     if (wall.height < BUILDING_MIN_H) return;
-    if (ringSelfIntersects(pts)) return;
+    if (ringSelfIntersects(pts) || ringSelfOverlaps(pts)) return;
     const area = polygonArea(pts);
     if (area < 4) return; // smaller than any shed shelters nothing
     // Reduced to 4 true corners (the doorway loop's jambs are collinear with

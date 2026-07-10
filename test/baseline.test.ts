@@ -91,6 +91,22 @@ const CANON_COMMANDS: Command[] = [
     height: 1, // rejected: two points cannot ring ground
   },
   {
+    kind: 'plan_fill',
+    tick: 100,
+    points: [
+      { x: 1860, y: 1890 },
+      { x: 1860, y: 1860 },
+      { x: 1890, y: 1860 },
+      { x: 1890, y: 1890 },
+      { x: 1860, y: 1889 },
+      { x: 1860, y: 1862 },
+      { x: 1888, y: 1862 },
+      { x: 1888, y: 1888 },
+      { x: 1860, y: 1888 },
+    ],
+    height: 1, // rejected: double-wound lap (SIM 4 overlap guard fingerprinted)
+  },
+  {
     kind: 'plan_wall',
     tick: 250,
     points: [
@@ -135,6 +151,7 @@ interface Milestone {
   fillsComplete: number;
   farms: number;
   buildings: number;
+  farmWorkdays: number;
 }
 
 interface Baseline {
@@ -169,6 +186,7 @@ function runCanon(site: SiteData): Baseline {
         fillsComplete: world.fills.filter((f) => f.volumeMoved >= f.volumeTotal).length,
         farms: world.farms.length,
         buildings: world.buildings.length,
+        farmWorkdays: world.farms.reduce((n, f) => n + f.workdays, 0),
       });
     }
   }

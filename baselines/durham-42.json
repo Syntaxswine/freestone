@@ -2,7 +2,7 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 3,
+      "simVersion": 4,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 400
@@ -97,6 +97,49 @@
         "height": 1
       },
       {
+        "kind": "plan_fill",
+        "tick": 100,
+        "points": [
+          {
+            "x": 1860,
+            "y": 1890
+          },
+          {
+            "x": 1860,
+            "y": 1860
+          },
+          {
+            "x": 1890,
+            "y": 1860
+          },
+          {
+            "x": 1890,
+            "y": 1890
+          },
+          {
+            "x": 1860,
+            "y": 1889
+          },
+          {
+            "x": 1860,
+            "y": 1862
+          },
+          {
+            "x": 1888,
+            "y": 1862
+          },
+          {
+            "x": 1888,
+            "y": 1888
+          },
+          {
+            "x": 1860,
+            "y": 1888
+          }
+        ],
+        "height": 1
+      },
+      {
         "kind": "plan_wall",
         "tick": 250,
         "points": [
@@ -174,73 +217,80 @@
   "milestones": [
     {
       "tick": 1,
-      "hash": "459b2c36",
+      "hash": "7e018381",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
       "fillsComplete": 0,
       "farms": 0,
-      "buildings": 0
+      "buildings": 0,
+      "farmWorkdays": 0
     },
     {
       "tick": 6,
-      "hash": "f65d2b10",
+      "hash": "f0e539cf",
       "stones": 54,
       "events": 56,
       "wallsComplete": 0,
       "fillsComplete": 0,
       "farms": 0,
-      "buildings": 0
+      "buildings": 0,
+      "farmWorkdays": 0
     },
     {
       "tick": 61,
-      "hash": "21657ec6",
+      "hash": "f537480f",
       "stones": 3024,
       "events": 3028,
       "wallsComplete": 0,
       "fillsComplete": 1,
       "farms": 0,
-      "buildings": 0
+      "buildings": 0,
+      "farmWorkdays": 0
     },
     {
       "tick": 101,
-      "hash": "52ed6359",
+      "hash": "c7715b5d",
       "stones": 5014,
-      "events": 5022,
+      "events": 5023,
       "wallsComplete": 2,
       "fillsComplete": 1,
       "farms": 0,
-      "buildings": 0
+      "buildings": 0,
+      "farmWorkdays": 0
     },
     {
       "tick": 200,
-      "hash": "6f7ca375",
+      "hash": "a6a66d4a",
       "stones": 6148,
-      "events": 6162,
+      "events": 6163,
       "wallsComplete": 4,
       "fillsComplete": 1,
       "farms": 1,
-      "buildings": 1
+      "buildings": 1,
+      "farmWorkdays": 124
     },
     {
       "tick": 260,
-      "hash": "be6b1aee",
+      "hash": "06caacf4",
       "stones": 6216,
-      "events": 6232,
+      "events": 6233,
       "wallsComplete": 5,
       "fillsComplete": 1,
       "farms": 1,
-      "buildings": 1
+      "buildings": 1,
+      "farmWorkdays": 244
     },
     {
       "tick": 400,
-      "hash": "e6286e0a",
+      "hash": "d534f6cd",
       "stones": 6216,
-      "events": 6232,
+      "events": 6233,
       "wallsComplete": 5,
       "fillsComplete": 1,
       "farms": 1,
-      "buildings": 1
+      "buildings": 1,
+      "farmWorkdays": 524
     }
   ]
 }
