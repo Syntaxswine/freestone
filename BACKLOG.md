@@ -86,6 +86,16 @@ with a push.
   sim change → baseline regen discipline. Economy-core latent failure is an M4-hazard
   consumer of the same fields. PARTLY watchlist: medieval field-wall attestation
   (enclosure-era image vs 1200s practice) before enclosure content ships.
+- Earthworks follow-ons (SIM 2 shipped 2026-07-09): true palisade geometry for wood
+  (vertical posts, faster pace, no mortar cure) with the pace/economy pass; fills
+  planned ON existing platforms should ground on effectiveGroundAt, not raw site
+  (stacked mottes); cut as well as fill (ditches — the spoil feeds the rampart, one
+  command's dirt is the other's); building-footprint auto-fill ("fill the squares" —
+  click inside a shell); material picker grows real stone kinds from the bed model.
+- Trees → timber economy (render-side TreeLayer shipped 2026-07-09): when the wood
+  material gets a cost, the gorge woods become the supply — felling as a sim command,
+  cleared trees counted, regrowth over decades; coppicing is the honest medieval
+  practice to research. Wood-material walls should eventually consume felled timber.
 - Verify any research anchors marked PARTLY/UNVERIFIED in SCOPE.md §15 before the
   corresponding mechanic ships (house law: cross-check research disagreements). Known PARTLY
   from the second pass: winter-foraging thinness, villagers-shelter-in-castle framing

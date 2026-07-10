@@ -10,13 +10,15 @@
  *                  double-click/Enter commits · Esc puts the pencil down
  *   BUILDING (H):  two clicks set the front corners · the cursor pulls the
  *                  depth · a third click (or Enter) raises the shell
+ *   FILL (F):      click rings a polygon (≥3) · double-click/Enter tips the
+ *                  dirt — laborers fill it to the drawn height over the days
  * Click-vs-drag is discriminated by pointer travel so OrbitControls keeps
  * owning drags; a "click" is a press that moved < 6 px and lasted < 500 ms.
  */
 import * as THREE from 'three';
 import type { SiteData } from '../sim/site';
 import { decomposeWall, polylineLength } from '../sim/step';
-import type { Vec2 } from '../sim/types';
+import { MATERIALS, type Material, type Vec2 } from '../sim/types';
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
 const SAMPLE_STEP = 2; // meters between preview samples along each segment
@@ -40,17 +42,19 @@ export interface PlannerDeps {
   groundAt: (x: number, y: number) => number;
   heightBounds: { min: number; max: number };
   dom: HTMLElement;
-  /** the one exit: hand the polyline to the command log; return false to keep drawing */
-  onConfirm: (points: Vec2[], height: number) => boolean;
+  /** the one exit: hand the plan to the command log; return false to keep drawing */
+  onConfirm: (mode: PlannerMode, points: Vec2[], height: number, material: Material) => boolean;
   onModeChange?: (active: boolean, mode: PlannerMode) => void;
 }
 
-export type PlannerMode = 'wall' | 'building';
+export type PlannerMode = 'wall' | 'building' | 'fill';
 
 export class WallPlanner {
   active = false;
   mode: PlannerMode = 'wall';
   height = 4;
+  /** applies to wall/building plans; fills are always dirt */
+  material: Material = 'sandstone';
   points: Vec2[] = [];
   private cursor: Vec2 | null = null;
   private readonly deps: PlannerDeps;
@@ -152,10 +156,20 @@ export class WallPlanner {
     this.enter();
   }
 
+  cycleMaterial(): Material {
+    const i = MATERIALS.indexOf(this.material);
+    this.material = MATERIALS[(i + 1) % MATERIALS.length]!;
+    return this.material;
+  }
+
   enter(): void {
     if (this.active) return;
     this.active = true;
     this.group.visible = true;
+    // the pencil shows what it draws: cream plans for masonry, earth for fill
+    const tone = this.mode === 'fill' ? 0x9b7a52 : 0xd8d3c4;
+    (this.line.material as THREE.LineBasicMaterial).color.setHex(tone);
+    (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(tone);
     document.body.classList.add('planning');
     this.deps.onModeChange?.(true, this.mode);
   }
@@ -177,18 +191,25 @@ export class WallPlanner {
     if (this.active) this.rebuild();
   }
 
-  /**
-   * The polyline the preview shows and confirm commits. Wall mode: committed
-   * points plus the cursor when it meaningfully extends the line. Building
-   * mode: the doorway loop (see buildingLoop).
-   */
-  previewPolyline(): Vec2[] {
-    if (this.mode === 'building') return this.buildingLoop();
+  /** committed points plus the cursor when it meaningfully extends the line */
+  private rawPolyline(): Vec2[] {
     const poly = [...this.points];
     if (this.active && this.cursor) {
       const last = poly[poly.length - 1];
       if (!last || dist2d(last, this.cursor) > MIN_POINT_GAP) poly.push(this.cursor);
     }
+    return poly;
+  }
+
+  /**
+   * The polyline the preview shows. Wall mode: the raw line. Building mode:
+   * the doorway loop (see buildingLoop). Fill mode: the raw ring CLOSED back
+   * to its first point for display — the command carries the open polygon.
+   */
+  previewPolyline(): Vec2[] {
+    if (this.mode === 'building') return this.buildingLoop();
+    const poly = this.rawPolyline();
+    if (this.mode === 'fill' && poly.length >= 3) return [...poly, poly[0]!];
     return poly;
   }
 
@@ -274,13 +295,17 @@ export class WallPlanner {
   confirm(): void {
     if (!this.active) return;
     // commit exactly what the preview shows — ribbon and stats both come from
-    // previewPolyline(), so the rubber-band cursor point is part of the plan
-    const poly = this.previewPolyline();
+    // the same polyline, so the rubber-band cursor point is part of the plan
+    // (fill commits the OPEN ring; the display's closing point is not data)
+    const poly = this.mode === 'fill' ? this.rawPolyline() : this.previewPolyline();
     if (poly.length < 2) return;
     if (this.mode === 'building' && poly.length < 6) return; // no loop, no shell
+    if (this.mode === 'fill' && poly.length < 3) return; // no ring, no fill
     const ok = this.deps.onConfirm(
+      this.mode,
       poly.map((p) => ({ x: p.x, y: p.y })),
       this.height,
+      this.material,
     );
     if (ok) this.exit();
   }
@@ -485,6 +510,10 @@ export class WallPlanner {
     }
     if ((ev.key === 'h' || ev.key === 'H') && clean) {
       this.toggle('building');
+      return;
+    }
+    if ((ev.key === 'f' || ev.key === 'F') && clean) {
+      this.toggle('fill');
       return;
     }
     if (!this.active) return;

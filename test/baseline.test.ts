@@ -29,14 +29,27 @@ const TERRAIN_PATH = resolve(here, '../public/data/site-durham/heightmap.json');
 
 const SEED = 'durham-baseline-42';
 const END_TICK = 400;
-const MILESTONE_TICKS = [1, 6, 61, 101, 200, 400];
+const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 400];
 
 /**
- * The canon: two walls near Palace Green, and one command that is INVALID on
- * purpose (JSON turns NaN into null) — the boundary-rejection path and its
- * constant reason string are physics too, and belong in the fingerprint.
+ * The canon must exercise every physics path the fingerprint should guard
+ * (the SIM 2 review caught it guarding zero fill/material behavior): walls in
+ * both materials, a fill that completes with a wall planned ON the platform
+ * (effectiveGroundAt in the record), and deliberately invalid commands so the
+ * constant rejection strings are fingerprinted too.
  */
 const CANON_COMMANDS: Command[] = [
+  {
+    kind: 'plan_fill',
+    tick: 3,
+    points: [
+      { x: 1970, y: 1968 },
+      { x: 1982, y: 1968 },
+      { x: 1982, y: 1980 },
+      { x: 1970, y: 1980 },
+    ],
+    height: 1,
+  },
   {
     kind: 'plan_wall',
     tick: 5,
@@ -55,6 +68,7 @@ const CANON_COMMANDS: Command[] = [
       { x: 1940, y: 1930 },
     ],
     height: 2.5,
+    material: 'wood',
   },
   {
     kind: 'plan_wall',
@@ -65,6 +79,24 @@ const CANON_COMMANDS: Command[] = [
     ],
     height: null as unknown as number, // deterministically rejected, chronicled
   },
+  {
+    kind: 'plan_fill',
+    tick: 100,
+    points: [
+      { x: 1900, y: 1900 },
+      { x: 1910, y: 1900 },
+    ],
+    height: 1, // rejected: two points cannot ring ground
+  },
+  {
+    kind: 'plan_wall',
+    tick: 250,
+    points: [
+      { x: 1972, y: 1974 },
+      { x: 1980, y: 1974 },
+    ],
+    height: 1, // stands ON the tick-3 fill's completed platform
+  },
 ];
 
 interface Milestone {
@@ -73,6 +105,7 @@ interface Milestone {
   stones: number;
   events: number;
   wallsComplete: number;
+  fillsComplete: number;
 }
 
 interface Baseline {
@@ -104,6 +137,7 @@ function runCanon(site: SiteData): Baseline {
         stones: world.stones.length,
         events: world.events.length,
         wallsComplete: world.walls.filter((w) => w.stonesLaid >= w.stonesTotal).length,
+        fillsComplete: world.fills.filter((f) => f.volumeMoved >= f.volumeTotal).length,
       });
     }
   }

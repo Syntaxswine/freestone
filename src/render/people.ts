@@ -138,6 +138,8 @@ export class PeopleLayer {
     const laying = this.clock - this.lastLaidClock < 1.0;
 
     const ws = this.workSite();
+    // laborers serve the earth first, like the sim's moveEarth does
+    const fill = this.world.fills.find((f) => f.volumeMoved < f.volumeTotal) ?? null;
 
     for (const p of this.puppets) {
       // --- pick this puppet's target ---
@@ -149,6 +151,29 @@ export class PeopleLayer {
         tx = st.x;
         ty = st.y;
         tz = st.z;
+      } else if (fill && p.person.trade === 'laborer') {
+        // barrow dirt from a borrow point outside the ring to the mound's middle
+        let cx = 0;
+        let cy = 0;
+        for (const q of fill.points) {
+          cx += q.x;
+          cy += q.y;
+        }
+        cx /= fill.points.length;
+        cy /= fill.points.length;
+        if (p.carrying) {
+          tx = cx + (hash2(p.person.id, 3) - 0.5) * 4;
+          ty = cy + (hash2(p.person.id, 7) - 0.5) * 4;
+        } else {
+          const v0 = fill.points[0]!;
+          let ox = v0.x - cx;
+          let oy = v0.y - cy;
+          const ol = Math.sqrt(ox * ox + oy * oy) || 1;
+          ox /= ol;
+          oy /= ol;
+          tx = v0.x + ox * 6 + (p.tradeIndex % 2) * 2;
+          ty = v0.y + oy * 6;
+        }
       } else if (ws && p.person.trade === 'laborer') {
         // shuttle blocks between a stockpile near the wall's start and the
         // station of "their" mason (round-robin by index)
@@ -187,7 +212,7 @@ export class PeopleLayer {
         if (Math.abs(dx) > 0.02) p.facing = dx >= 0 ? 1 : -1;
       } else if (
         d <= WORK_RADIUS &&
-        ws &&
+        (ws !== null || fill !== null) &&
         p.person.trade === 'laborer' &&
         simActive &&
         this.clock - p.lastToggle > TOGGLE_DWELL

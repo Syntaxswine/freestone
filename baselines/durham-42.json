@@ -2,12 +2,35 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 1,
+      "simVersion": 2,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 400
     },
     "commands": [
+      {
+        "kind": "plan_fill",
+        "tick": 3,
+        "points": [
+          {
+            "x": 1970,
+            "y": 1968
+          },
+          {
+            "x": 1982,
+            "y": 1968
+          },
+          {
+            "x": 1982,
+            "y": 1980
+          },
+          {
+            "x": 1970,
+            "y": 1980
+          }
+        ],
+        "height": 1
+      },
       {
         "kind": "plan_wall",
         "tick": 5,
@@ -40,7 +63,8 @@
             "y": 1930
           }
         ],
-        "height": 2.5
+        "height": 2.5,
+        "material": "wood"
       },
       {
         "kind": "plan_wall",
@@ -56,51 +80,95 @@
           }
         ],
         "height": null
+      },
+      {
+        "kind": "plan_fill",
+        "tick": 100,
+        "points": [
+          {
+            "x": 1900,
+            "y": 1900
+          },
+          {
+            "x": 1910,
+            "y": 1900
+          }
+        ],
+        "height": 1
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 250,
+        "points": [
+          {
+            "x": 1972,
+            "y": 1974
+          },
+          {
+            "x": 1980,
+            "y": 1974
+          }
+        ],
+        "height": 1
       }
     ]
   },
   "milestones": [
     {
       "tick": 1,
-      "hash": "c9f08d29",
+      "hash": "a07c761b",
       "stones": 0,
       "events": 0,
-      "wallsComplete": 0
+      "wallsComplete": 0,
+      "fillsComplete": 0
     },
     {
       "tick": 6,
-      "hash": "57c10420",
+      "hash": "7990b397",
       "stones": 54,
-      "events": 55,
-      "wallsComplete": 0
+      "events": 56,
+      "wallsComplete": 0,
+      "fillsComplete": 0
     },
     {
       "tick": 61,
-      "hash": "9c74b654",
+      "hash": "ffe8c54f",
       "stones": 3024,
-      "events": 3026,
-      "wallsComplete": 0
+      "events": 3028,
+      "wallsComplete": 0,
+      "fillsComplete": 1
     },
     {
       "tick": 101,
-      "hash": "dfaae9a8",
+      "hash": "b5a17928",
       "stones": 5014,
-      "events": 5019,
-      "wallsComplete": 2
+      "events": 5022,
+      "wallsComplete": 2,
+      "fillsComplete": 1
     },
     {
       "tick": 200,
-      "hash": "63a19e9a",
+      "hash": "c566905a",
       "stones": 5014,
-      "events": 5019,
-      "wallsComplete": 2
+      "events": 5022,
+      "wallsComplete": 2,
+      "fillsComplete": 1
+    },
+    {
+      "tick": 260,
+      "hash": "51d34bb4",
+      "stones": 5082,
+      "events": 5092,
+      "wallsComplete": 3,
+      "fillsComplete": 1
     },
     {
       "tick": 400,
-      "hash": "8efe71b4",
-      "stones": 5014,
-      "events": 5019,
-      "wallsComplete": 2
+      "hash": "dd178444",
+      "stones": 5082,
+      "events": 5092,
+      "wallsComplete": 3,
+      "fillsComplete": 1
     }
   ]
 }

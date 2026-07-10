@@ -10,11 +10,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
-import { worldStep } from '../sim/step';
+import { polygonArea, worldStep } from '../sim/step';
 import { createWorld } from '../sim/world';
 import { COURSE_HEIGHT, STONE_DEPTH, STONE_LEN, TICKS_PER_YEAR, type Command } from '../sim/types';
+import { FillLayer } from './fills';
 import { PeopleLayer } from './people';
 import { describeFootprint, WallPlanner } from './planner';
+import { TreeLayer } from './trees';
 
 const SEED = 'durham-first-wall';
 const STONE_CAPACITY = 20000;
@@ -230,27 +232,57 @@ async function boot(): Promise<void> {
   const hPlus = document.createElement('button');
   hPlus.textContent = '+';
   build.append(wallBtn, bldBtn, hMinus, hVal, hPlus);
+  const build2 = document.createElement('div');
+  const fillBtn = document.createElement('button');
+  fillBtn.textContent = '⛰ fill (F)';
+  const matBtn = document.createElement('button');
+  matBtn.textContent = '🪨 sandstone';
+  build2.append(fillBtn, matBtn);
+  build.after(build2);
 
-  // --- the pencil and the people ---
+  // --- the woods, the earthworks, the pencil and the people ---
+  const trees = new TreeLayer(site, terrain.groundAt, scene);
+  const fills = new FillLayer(world, scene, terrain.groundAt);
+  // masonry grounds on COMPLETED fills (matches the sim's effectiveGroundAt);
+  // feet may climb the rising mound
+  const groundSim = (x: number, y: number): number =>
+    Math.max(terrain.groundAt(x, y), fills.topAtSim(x, y));
+  const groundShow = (x: number, y: number): number =>
+    Math.max(terrain.groundAt(x, y), fills.topAtShow(x, y));
   const planner = new WallPlanner({
     scene,
     camera,
     site,
-    groundAt: terrain.groundAt,
-    heightBounds: { min: terrain.minH, max: terrain.maxH },
+    groundAt: groundSim,
+    heightBounds: { min: terrain.minH, max: terrain.maxH + 10 }, // fills raise the roof
     dom: renderer.domElement,
-    onConfirm: (points, height) =>
-      enqueue({ kind: 'plan_wall', tick: world.tick, points, height }),
+    onConfirm: (mode, points, height, material) =>
+      enqueue(
+        mode === 'fill'
+          ? { kind: 'plan_fill', tick: world.tick, points, height }
+          : { kind: 'plan_wall', tick: world.tick, points, height, material },
+      ),
     onModeChange: (active, mode) => {
       wallBtn.classList.toggle('active', active && mode === 'wall');
       bldBtn.classList.toggle('active', active && mode === 'building');
+      fillBtn.classList.toggle('active', active && mode === 'fill');
     },
   });
-  const people = new PeopleLayer(world, site, scene, terrain.groundAt);
-  const paceSum = world.people.reduce((n, p) => n + p.pace, 0);
+  const people = new PeopleLayer(world, site, scene, groundShow);
+  const paceSum = world.people
+    .filter((p) => p.trade === 'mason')
+    .reduce((n, p) => n + p.pace, 0);
+  const earthPace = world.people
+    .filter((p) => p.trade === 'laborer')
+    .reduce((n, p) => n + p.pace, 0);
 
   wallBtn.onclick = () => planner.toggle('wall');
   bldBtn.onclick = () => planner.toggle('building');
+  fillBtn.onclick = () => planner.toggle('fill');
+  matBtn.onclick = () => {
+    const m = planner.cycleMaterial();
+    matBtn.textContent = m === 'wood' ? '🪵 wood' : '🪨 sandstone';
+  };
   hMinus.onclick = () => planner.setHeight(planner.height - 0.5);
   hPlus.onclick = () => planner.setHeight(planner.height + 0.5);
 
@@ -277,6 +309,7 @@ async function boot(): Promise<void> {
       scene.add(stones);
       lastStoneCount = 0;
     }
+    const matById = new Map(world.walls.map((w) => [w.id, w.material]));
     for (let i = lastStoneCount; i < world.stones.length; i++) {
       const s = world.stones[i]!;
       dummy.position.set(s.pos[0], s.pos[2], s.pos[1]);
@@ -286,8 +319,13 @@ async function boot(): Promise<void> {
       // Per-stone tonal variation so the wall reads as coursework, not extrusion.
       // Render-side only, keyed on the stone's id — the sim rng is never touched here.
       const t = ((s.id * 2654435761) >>> 0) / 4294967296;
-      // honey-toned Durham sandstone in warm daylight (SCOPE §8d)
-      tint.setHSL(0.085 + t * 0.02, 0.34, 0.68 + (((s.id * 40503) % 97) / 97 - 0.5) * 0.1);
+      const v = (((s.id * 40503) % 97) / 97 - 0.5);
+      if (matById.get(s.wallId) === 'wood') {
+        tint.setHSL(0.075 + t * 0.015, 0.42, 0.38 + v * 0.14); // weathered timber
+      } else {
+        // honey-toned Durham sandstone in warm daylight (SCOPE §8d)
+        tint.setHSL(0.085 + t * 0.02, 0.34, 0.68 + v * 0.1);
+      }
       stones.setColorAt(i, tint);
     }
     if (world.stones.length !== lastStoneCount) {
@@ -323,6 +361,8 @@ async function boot(): Promise<void> {
       acc -= 1;
     }
     syncStones();
+    fills.update();
+    trees.update(world);
     people.update(dt, speed > 0);
 
     const year = Math.floor(world.tick / TICKS_PER_YEAR) + 1;
@@ -337,37 +377,85 @@ async function boot(): Promise<void> {
 
     setText(hVal, `h ${planner.height.toFixed(1)} m`);
     if (planner.active) {
-      const s = planner.stats();
-      const fp = planner.footprint();
-      const what = fp ? describeFootprint(fp.front, fp.depth) : null;
-      const name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';
-      const warn = what?.note ? ` · ${what.note}` : '';
-      setText(
-        plan,
-        s
-          ? `plan: ${name}${s.length.toFixed(0)} m · ${s.courses} courses · ` +
-              `${s.stonesTotal.toLocaleString()} stones · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}`
-          : 'plan: click the ground to start the line',
-      );
-      setText(
-        hint,
-        planner.mode === 'building'
-          ? 'click: two front corners · move: pull the depth · click: raise it · Esc: put the pencil down'
-          : 'click: place · right-click/Backspace: undo · double-click/Enter: lay it · Esc: put the pencil down',
-      );
+      if (planner.mode === 'fill') {
+        const ring = planner.previewPolyline();
+        if (ring.length >= 4) {
+          // mirror the sim's own volume math (area × (gMax − gMean + height),
+          // sampled at vertices + centroid) or slopes get quoted flat-rate
+          const open = ring.slice(0, -1);
+          const area = polygonArea(open);
+          let cx = 0;
+          let cy = 0;
+          for (const p of open) {
+            cx += p.x;
+            cy += p.y;
+          }
+          cx /= open.length;
+          cy /= open.length;
+          let gMax = groundSim(cx, cy);
+          let gSum = gMax;
+          for (const p of open) {
+            const g = groundSim(p.x, p.y);
+            if (g > gMax) gMax = g;
+            gSum += g;
+          }
+          const gMean = gSum / (open.length + 1);
+          const vol = Math.max(1, area * (gMax - gMean + planner.height));
+          setText(
+            plan,
+            `plan: fill ${area.toFixed(0)} m² · ≈${vol.toFixed(0)} m³ of earth · ` +
+              `~${Math.ceil(vol / Math.max(1, earthPace))} days of barrowing`,
+          );
+        } else {
+          setText(plan, 'plan: click the ground to ring the fill');
+        }
+        setText(
+          hint,
+          'click: ring the ground · right-click/Backspace: undo · double-click/Enter: tip the dirt · Esc: put the pencil down',
+        );
+      } else {
+        const s = planner.stats();
+        const fp = planner.footprint();
+        const what = fp ? describeFootprint(fp.front, fp.depth) : null;
+        const name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';
+        const warn = what?.note ? ` · ${what.note}` : '';
+        const stuff = planner.material === 'wood' ? 'timbers' : 'stones';
+        setText(
+          plan,
+          s
+            ? `plan: ${name}${s.length.toFixed(0)} m · ${s.courses} courses · ` +
+                `${s.stonesTotal.toLocaleString()} ${stuff} · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}`
+            : 'plan: click the ground to start the line',
+        );
+        setText(
+          hint,
+          planner.mode === 'building'
+            ? 'click: two front corners · move: pull the depth · click: raise it · Esc: put the pencil down'
+            : 'click: place · right-click/Backspace: undo · double-click/Enter: lay it · Esc: put the pencil down',
+        );
+      }
     } else {
       setText(plan, '');
       // a committed command applies at the start of its tick — while paused it is
       // real but invisible, and the HUD must not claim the hill is bare
-      const pending = commandLog.some((c) => c.tick >= world.tick);
+      let pending: Command | undefined;
+      for (let i = commandLog.length - 1; i >= 0; i--) {
+        if (commandLog[i]!.tick >= world.tick) {
+          pending = commandLog[i];
+          break;
+        }
+      }
+      const noun = pending?.kind === 'plan_fill' ? 'fill' : 'wall';
       setText(
         hint,
         pending
           ? speed === 0
-            ? 'wall committed — press ×1 to break ground'
-            : 'wall committed — the crew takes it up'
-          : world.walls.length === 0
-            ? 'the hill is bare — ⚒ wall (B) draws a line, ⌂ building (H) raises a shell'
+            ? `${noun} committed — press ×1 to break ground`
+            : noun === 'fill'
+              ? 'fill committed — the barrows roll'
+              : 'wall committed — the crew takes it up'
+          : world.walls.length === 0 && world.fills.length === 0
+            ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F)'
             : '',
       );
     }
@@ -396,13 +484,18 @@ async function boot(): Promise<void> {
     controls,
     planner,
     people,
+    fills,
+    trees,
     renderer,
     scene, // renderer+scene exposed so a hidden tab can render one frame on demand
     enqueue, // pushing to __cc.commandLog directly does nothing — this is the way in
     /** dev-only manual stepper (hidden tabs pause rAF); still goes through the law */
     step: (n: number) => {
       for (let i = 0; i < n; i++) worldStep(world, site, byTick.get(world.tick) ?? []);
+      // sync every world-driven display layer, or hidden-tab renders show stale scenes
       syncStones();
+      fills.update();
+      trees.update(world);
       return world.tick;
     },
   };

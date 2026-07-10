@@ -18,7 +18,9 @@ export function createWorld(seed: string, siteId: string): WorldState {
       id: nextId++,
       name,
       trade: i < 2 ? 'mason' : 'laborer',
-      pace: i < 2 ? 24 + rng.int(13) : 0, // masons: 24–36 stones/day (stub)
+      // masons: 24–36 stones/day; laborers: 3–5 m³ of earth/day (both stubs
+      // until M2's economy — a laborer's pace feeds fills, a mason's feeds walls)
+      pace: i < 2 ? 24 + rng.int(13) : 3 + rng.int(3),
     });
   }
   return {
@@ -30,6 +32,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
     nextId,
     people,
     walls: [],
+    fills: [],
     stones: [],
     events: [],
   };

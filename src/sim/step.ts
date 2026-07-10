@@ -2,8 +2,10 @@ import { Rng } from './rng';
 import type { SiteData } from './site';
 import {
   COURSE_HEIGHT,
+  MATERIALS,
   STONE_LEN,
   type Command,
+  type FillPlan,
   type Vec2,
   type WallPlan,
   type WorldState,
@@ -27,9 +29,12 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
       // mis-timed command would silently break replay-equals-live. Fail loudly.
       throw new Error(`command stamped tick ${cmd.tick} handed to worldStep at tick ${state.tick}`);
     }
-    applyCommand(state, cmd);
+    applyCommand(state, site, cmd);
   }
 
+  // fixed daily order: earth moves before stones are laid (a fill completed
+  // this morning can carry this afternoon's masonry)
+  moveEarth(state);
   layStones(state, site, rng);
 
   state.tick += 1;
@@ -43,33 +48,83 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
  * so bad data can never fork the two or crash a timelapse.
  */
 function rejectReason(cmd: Command): string | null {
+  // Reasons must be CONSTANT strings: they enter hashed state, and the same bad
+  // command must reject with byte-identical reason before and after a JSON
+  // round-trip (NaN and Infinity both arrive as null from a save file).
   switch (cmd.kind) {
     case 'plan_wall': {
-      // Reasons must be CONSTANT strings: they enter hashed state, and the same bad
-      // command must reject with byte-identical reason before and after a JSON
-      // round-trip (NaN and Infinity both arrive as null from a save file).
       if (typeof cmd.height !== 'number' || !Number.isFinite(cmd.height) || cmd.height <= 0) {
         return 'height must be a finite positive number';
       }
       if (!Array.isArray(cmd.points) || cmd.points.length < 2) {
         return 'a wall needs at least two points';
       }
-      for (const p of cmd.points) {
-        if (
-          typeof p?.x !== 'number' ||
-          typeof p?.y !== 'number' ||
-          !Number.isFinite(p.x) ||
-          !Number.isFinite(p.y)
-        ) {
-          return 'wall points must have finite x and y';
-        }
+      if (badPoints(cmd.points)) return 'wall points must have finite x and y';
+      if (cmd.material !== undefined && !MATERIALS.includes(cmd.material)) {
+        return 'unknown material';
       }
+      return null;
+    }
+    case 'plan_fill': {
+      if (typeof cmd.height !== 'number' || !Number.isFinite(cmd.height) || cmd.height <= 0) {
+        return 'height must be a finite positive number';
+      }
+      if (!Array.isArray(cmd.points) || cmd.points.length < 3) {
+        return 'a fill needs at least three points';
+      }
+      if (badPoints(cmd.points)) return 'fill points must have finite x and y';
+      // a self-crossing ring is a cheat, not a shape: its shoelace area can
+      // cancel toward zero while even-odd containment still grants both lobes
+      // as platform — volume billed at Math.max(1, ~0) for real ground gained
+      if (ringSelfIntersects(cmd.points)) return 'fill ring must not cross itself';
+      if (polygonArea(cmd.points) < 1) return 'fill ring must enclose area';
       return null;
     }
   }
 }
 
-function applyCommand(state: WorldState, cmd: Command): void {
+/** proper-crossing test over the closed ring's non-adjacent segment pairs */
+export function ringSelfIntersects(pts: readonly Vec2[]): boolean {
+  const n = pts.length;
+  const cross = (o: Vec2, a: Vec2, b: Vec2): number =>
+    (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      if (j === (i + 1) % n || (j + 1) % n === i) continue; // adjacent share a vertex
+      const a = pts[i]!;
+      const b = pts[(i + 1) % n]!;
+      const c = pts[j]!;
+      const d = pts[(j + 1) % n]!;
+      const d1 = cross(a, b, c);
+      const d2 = cross(a, b, d);
+      const d3 = cross(c, d, a);
+      const d4 = cross(c, d, b);
+      if (
+        ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+        ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function badPoints(points: readonly Vec2[]): boolean {
+  for (const p of points) {
+    if (
+      typeof p?.x !== 'number' ||
+      typeof p?.y !== 'number' ||
+      !Number.isFinite(p.x) ||
+      !Number.isFinite(p.y)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
   const reason = rejectReason(cmd);
   if (reason !== null) {
     state.events.push({
@@ -87,6 +142,7 @@ function applyCommand(state: WorldState, cmd: Command): void {
         id: state.nextId++,
         points: cmd.points.map((p) => ({ x: p.x, y: p.y })),
         height: cmd.height,
+        material: cmd.material ?? 'sandstone', // old logs/saves carry no material
         stonesTotal,
         stonesLaid: 0,
       };
@@ -98,6 +154,71 @@ function applyCommand(state: WorldState, cmd: Command): void {
         stonesTotal,
       });
       break;
+    }
+    case 'plan_fill': {
+      // Target level: the highest sampled ground (vertices + centroid) plus the
+      // asked-for height. Volume: polygon area × mean depth to that level — an
+      // estimate, computed ONCE here so it is part of the deterministic record.
+      const pts = cmd.points.map((p) => ({ x: p.x, y: p.y }));
+      let cx = 0;
+      let cy = 0;
+      for (const p of pts) {
+        cx += p.x;
+        cy += p.y;
+      }
+      cx /= pts.length;
+      cy /= pts.length;
+      // sample the EFFECTIVE ground (terrain + completed platforms), or a fill
+      // planned on an existing motte burns full labor to gain nothing; a fill
+      // over one still IN PROGRESS still under-grounds — known, chronicled cost.
+      // Vertices are sampled 2% inset toward the centroid: a ring re-drawn on a
+      // platform puts its corners exactly ON the boundary, where even-odd
+      // containment is a knife edge — inset samples land honestly inside.
+      let gMax = effectiveGroundAt(state, site, cx, cy);
+      let gSum = gMax;
+      for (const p of pts) {
+        const sx = p.x + (cx - p.x) * 0.02;
+        const sy = p.y + (cy - p.y) * 0.02;
+        const g = effectiveGroundAt(state, site, sx, sy);
+        if (g > gMax) gMax = g;
+        gSum += g;
+      }
+      const gMean = gSum / (pts.length + 1);
+      const level = gMax + cmd.height;
+      const volumeTotal = Math.max(1, polygonArea(pts) * (level - gMean));
+      const fill: FillPlan = {
+        id: state.nextId++,
+        points: pts,
+        level,
+        volumeTotal,
+        volumeMoved: 0,
+      };
+      state.fills.push(fill);
+      state.events.push({
+        kind: 'fill_planned',
+        tick: state.tick,
+        fillId: fill.id,
+        volumeTotal,
+      });
+      break;
+    }
+  }
+}
+
+/** Laborers move earth to the oldest unfinished fill; m³ per day = their pace. */
+function moveEarth(state: WorldState): void {
+  for (const person of state.people) {
+    if (person.trade !== 'laborer') continue;
+    let quota = person.pace;
+    while (quota > 0) {
+      const fill = state.fills.find((f) => f.volumeMoved < f.volumeTotal);
+      if (!fill) return;
+      const moved = Math.min(quota, fill.volumeTotal - fill.volumeMoved);
+      fill.volumeMoved += moved;
+      quota -= moved;
+      if (fill.volumeMoved >= fill.volumeTotal) {
+        state.events.push({ kind: 'fill_complete', tick: state.tick, fillId: fill.id });
+      }
     }
   }
 }
@@ -142,7 +263,7 @@ function layOneStone(
   const spacing = length / stonesPerCourse;
   const at = pointAt(wall.points, (slot + 0.5) * spacing);
 
-  const ground = site.heightAt(at.x, at.y);
+  const ground = effectiveGroundAt(state, site, at.x, at.y);
   const z = ground + course * COURSE_HEIGHT + COURSE_HEIGHT / 2;
   // The human hand: a degree or two of jitter per stone. Uses the sim rng, so the
   // determinism tests exercise the cursor path. Quantized to 1e-9 rad before it
@@ -169,6 +290,50 @@ function layOneStone(
   if (wall.stonesLaid === wall.stonesTotal) {
     state.events.push({ kind: 'wall_complete', tick: state.tick, wallId: wall.id });
   }
+}
+
+/**
+ * Ground for masonry: the site terrain, raised by any COMPLETED fill whose
+ * polygon contains the point — walls stand on finished platforms (ramparts,
+ * mottes), never on loose tipping. Pure function of state + site; only
+ * comparisons and multiplies, so it is deterministic across engines.
+ */
+export function effectiveGroundAt(
+  state: WorldState,
+  site: SiteData,
+  x: number,
+  y: number,
+): number {
+  let g = site.heightAt(x, y);
+  for (const f of state.fills) {
+    if (f.volumeMoved >= f.volumeTotal && f.level > g && pointInPolygon(x, y, f.points)) {
+      g = f.level;
+    }
+  }
+  return g;
+}
+
+/** Standard even-odd ray cast; comparisons and multiplies only. */
+export function pointInPolygon(x: number, y: number, pts: readonly Vec2[]): boolean {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const a = pts[i]!;
+    const b = pts[j]!;
+    const crosses = a.y > y !== b.y > y;
+    if (crosses && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
+}
+
+/** Shoelace area, absolute value. */
+export function polygonArea(pts: readonly Vec2[]): number {
+  let s = 0;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const a = pts[j]!;
+    const b = pts[i]!;
+    s += a.x * b.y - b.x * a.y;
+  }
+  return Math.abs(s) / 2;
 }
 
 /** Math.sqrt is IEEE-exact where Math.hypot is implementation-approximated. */

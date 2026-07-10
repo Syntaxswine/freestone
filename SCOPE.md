@@ -473,6 +473,11 @@ What we take from it:
   (Durham's sandstone genuinely is honey-toned — the science agrees with the vibe).
 - **Readable chunk.** Forms read at a glance from a middle distance; detail is reserved
   for what matters (the coursework, the marks, the people).
+- **The woods wear Townscaper canopies** (boss, 2026-07-09): chunky low-poly blobs in
+  sage tones on stubby trunks — and they grow where Durham's real woods grow, on the
+  steep gorge banks, thinning to copses on the open plateau. Placement is terrain
+  analysis, not decor. The crew clears trees where work is planned; when the wood
+  economy lands, the woods become countable timber (BACKLOG).
 
 What we deliberately do NOT take:
 - Townscaper's smooth vector-sculpted buildings. Our walls are real courses of real
