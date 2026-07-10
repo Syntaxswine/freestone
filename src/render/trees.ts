@@ -40,6 +40,7 @@ export class TreeLayer {
   private trunks: THREE.InstancedMesh;
   private lastWallCount = 0;
   private lastFillCount = 0;
+  private lastFarmCount = 0;
   count = 0;
 
   constructor(
@@ -183,6 +184,12 @@ export class TreeLayer {
     while (this.lastFillCount < world.fills.length) {
       this.clearInPolygon(world.fills[this.lastFillCount]!.points);
       this.lastFillCount += 1;
+    }
+    // a new farm grubs its field (instant for now — gradual clearing joins
+    // the timber economy, see BACKLOG)
+    while (this.lastFarmCount < world.farms.length) {
+      this.clearInPolygon(world.farms[this.lastFarmCount]!.points);
+      this.lastFarmCount += 1;
     }
   }
 }

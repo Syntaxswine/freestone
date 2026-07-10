@@ -10,9 +10,19 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
-import { polygonArea, worldStep } from '../sim/step';
+import { polygonArea, ringSelfIntersects, worldStep } from '../sim/step';
 import { createWorld } from '../sim/world';
-import { COURSE_HEIGHT, STONE_DEPTH, STONE_LEN, TICKS_PER_YEAR, type Command } from '../sim/types';
+import {
+  COURSE_HEIGHT,
+  FARM_MIN_AREA,
+  FARM_WALL_MAX_H,
+  STONE_DEPTH,
+  STONE_LEN,
+  TICKS_PER_YEAR,
+  type Command,
+} from '../sim/types';
+import { BuildingLayer } from './buildings';
+import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
 import { PeopleLayer } from './people';
 import { describeFootprint, WallPlanner } from './planner';
@@ -249,6 +259,8 @@ async function boot(): Promise<void> {
     Math.max(terrain.groundAt(x, y), fills.topAtSim(x, y));
   const groundShow = (x: number, y: number): number =>
     Math.max(terrain.groundAt(x, y), fills.topAtShow(x, y));
+  const farms = new FarmLayer(world, scene, terrain.groundAt);
+  const buildings = new BuildingLayer(world, scene, groundSim);
   const planner = new WallPlanner({
     scene,
     camera,
@@ -362,6 +374,8 @@ async function boot(): Promise<void> {
     }
     syncStones();
     fills.update();
+    farms.update();
+    buildings.update();
     trees.update(world);
     people.update(dt, speed > 0);
 
@@ -369,10 +383,13 @@ async function boot(): Promise<void> {
     const day = (world.tick % TICKS_PER_YEAR) + 1;
     const laid = world.walls.reduce((n, w) => n + w.stonesLaid, 0);
     const total = world.walls.reduce((n, w) => n + w.stonesTotal, 0);
+    const holdings =
+      (world.farms.length ? ` — farms ${world.farms.length}` : '') +
+      (world.buildings.length ? ` — buildings ${world.buildings.length}` : '');
     setText(
       status,
       `Year ${year}, day ${day} — stones ${laid}${total ? `/${total}` : ''} — ` +
-        `souls ${world.people.length} — site ${site.id}`,
+        `souls ${world.people.length}${holdings} — site ${site.id}`,
     );
 
     setText(hVal, `h ${planner.height.toFixed(1)} m`);
@@ -417,8 +434,18 @@ async function boot(): Promise<void> {
         const s = planner.stats();
         const fp = planner.footprint();
         const what = fp ? describeFootprint(fp.front, fp.depth) : null;
-        const name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';
-        const warn = what?.note ? ` · ${what.note}` : '';
+        let name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';
+        let warn = what?.note ? ` · ${what.note}` : '';
+        // the pencil's promise uses the sim's own recognition rules: a closed
+        // low ring is a farm, and the HUD says so before a stone is laid
+        const ring = planner.closedRing();
+        if (ring && !ringSelfIntersects(ring)) {
+          const area = polygonArea(ring);
+          if (area >= FARM_MIN_AREA) {
+            if (planner.height <= FARM_WALL_MAX_H) name = `a farm — ${area.toFixed(0)} m² · `;
+            else warn = ` · rings ${area.toFixed(0)} m² — a wall ≤ ${FARM_WALL_MAX_H} m would farm it`;
+          }
+        }
         const stuff = planner.material === 'wood' ? 'timbers' : 'stones';
         setText(
           plan,
@@ -485,6 +512,8 @@ async function boot(): Promise<void> {
     planner,
     people,
     fills,
+    farms,
+    buildings,
     trees,
     renderer,
     scene, // renderer+scene exposed so a hidden tab can render one frame on demand
@@ -495,6 +524,8 @@ async function boot(): Promise<void> {
       // sync every world-driven display layer, or hidden-tab renders show stale scenes
       syncStones();
       fills.update();
+      farms.update();
+      buildings.update();
       trees.update(world);
       return world.tick;
     },
