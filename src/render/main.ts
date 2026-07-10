@@ -13,6 +13,7 @@ import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '
 import { polygonArea, ringSelfIntersects, worldStep } from '../sim/step';
 import { createWorld } from '../sim/world';
 import {
+  BUILDING_MIN_H,
   COURSE_HEIGHT,
   FARM_MIN_AREA,
   FARM_WALL_MAX_H,
@@ -259,8 +260,11 @@ async function boot(): Promise<void> {
     Math.max(terrain.groundAt(x, y), fills.topAtSim(x, y));
   const groundShow = (x: number, y: number): number =>
     Math.max(terrain.groundAt(x, y), fills.topAtShow(x, y));
-  const farms = new FarmLayer(world, scene, terrain.groundAt);
-  const buildings = new BuildingLayer(world, scene, groundSim);
+  // fields ground on the SIM-matching surface (terrain + completed platforms)
+  // — a farm ringed on a finished fill tills the platform, not the buried
+  // terrain beneath; roofs cap the as-built stones and need no ground at all
+  const farms = new FarmLayer(world, scene, groundSim);
+  const buildings = new BuildingLayer(world, scene);
   const planner = new WallPlanner({
     scene,
     camera,
@@ -436,6 +440,11 @@ async function boot(): Promise<void> {
         const what = fp ? describeFootprint(fp.front, fp.depth) : null;
         let name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';
         let warn = what?.note ? ` · ${what.note}` : '';
+        // the pencil must not promise what the sim won't recognize: below
+        // headroom the shell completes as a wall, not a building
+        if (planner.mode === 'building' && planner.height < BUILDING_MIN_H) {
+          warn += ` · too low to shelter — raise it to ${BUILDING_MIN_H} m`;
+        }
         // the pencil's promise uses the sim's own recognition rules: a closed
         // low ring is a farm, and the HUD says so before a stone is laid
         const ring = planner.closedRing();

@@ -13,7 +13,7 @@
  */
 import * as THREE from 'three';
 import { reduceCorners } from '../sim/classify';
-import type { Vec2, WorldState } from '../sim/types';
+import { COURSE_HEIGHT, type Vec2, type WorldState } from '../sim/types';
 
 const OVERHANG = 0.35; // meters of eave past the wall face
 const PITCH = 0.5; // ridge rise per meter of half-span (0.5 = 45°)
@@ -31,8 +31,6 @@ export class BuildingLayer {
   constructor(
     private world: WorldState,
     private scene: THREE.Scene,
-    /** the SIM-matching ground (terrain + completed platforms) — eaves sit on it */
-    private groundAt: (x: number, y: number) => number,
   ) {}
 
   update(): void {
@@ -49,13 +47,17 @@ export class BuildingLayer {
     const corners = reduceCorners(wall.points);
     if (corners.length !== 4) return; // an irregular shell keeps the sky for now
 
-    // eaves: the tallest corner's wall top (courses ride per-column ground)
-    let eaveZ = -Infinity;
-    for (const c of corners) {
-      const z = this.groundAt(c.x, c.y) + wall.height;
-      if (z > eaveZ) eaveZ = z;
+    // eaves cap what was actually BUILT: the highest as-laid stone top of this
+    // wall. Ground math would mix the decimated display surface with the sim's
+    // full-res stone heights (up to ~0.5 m apart) and let top courses pierce
+    // the roof; the stones themselves are the one honest datum. The building
+    // is recognized only at completion, so every stone is already in state.
+    let topZ = -Infinity;
+    for (const s of this.world.stones) {
+      if (s.wallId === wall.id && s.pos[2] > topZ) topZ = s.pos[2];
     }
-    eaveZ += 0.03;
+    if (topZ === -Infinity) return; // no stones, no roof (unreachable past recognition)
+    const eaveZ = topZ + COURSE_HEIGHT / 2 + 0.02;
 
     // overhang: push each corner outward from the footprint's center
     const cx = (corners[0]!.x + corners[1]!.x + corners[2]!.x + corners[3]!.x) / 4;

@@ -518,6 +518,11 @@ export class WallPlanner {
       const snap = this.startSnap(ev);
       if (snap) {
         if (this.points.length < MAX_POINTS) {
+          // the click IS the cursor: a stale rubber-band point (the last
+          // pointermove can be 16 px = meters away when zoomed out) would be
+          // appended by rawPolyline() past the closure, silently un-closing
+          // the ring the player just closed
+          this.cursor = snap;
           this.points.push(snap);
           this.rebuild();
           this.confirm();

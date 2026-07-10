@@ -41,6 +41,7 @@ export class TreeLayer {
   private lastWallCount = 0;
   private lastFillCount = 0;
   private lastFarmCount = 0;
+  private lastBuildingCount = 0;
   count = 0;
 
   constructor(
@@ -190,6 +191,14 @@ export class TreeLayer {
     while (this.lastFarmCount < world.farms.length) {
       this.clearInPolygon(world.farms[this.lastFarmCount]!.points);
       this.lastFarmCount += 1;
+    }
+    // a completed building clears its interior — the wall line was cleared at
+    // plan time, but a canopy INSIDE the ring would pierce the new roof
+    while (this.lastBuildingCount < world.buildings.length) {
+      const b = world.buildings[this.lastBuildingCount]!;
+      const wall = world.walls.find((w) => w.id === b.wallId);
+      if (wall) this.clearInPolygon(wall.points);
+      this.lastBuildingCount += 1;
     }
   }
 }
