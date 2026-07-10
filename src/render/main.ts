@@ -13,6 +13,8 @@ import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '
 import { worldStep } from '../sim/step';
 import { createWorld } from '../sim/world';
 import { COURSE_HEIGHT, STONE_DEPTH, STONE_LEN, TICKS_PER_YEAR, type Command } from '../sim/types';
+import { PeopleLayer } from './people';
+import { WallPlanner } from './planner';
 
 const SEED = 'durham-first-wall';
 const STONE_CAPACITY = 20000;
@@ -30,21 +32,43 @@ async function loadSite(): Promise<SiteData> {
   }
 }
 
-function terrainMesh(site: SiteData): THREE.Mesh {
+interface TerrainDisplay {
+  mesh: THREE.Mesh;
+  /**
+   * Height on the DECIMATED display surface — the ground the player's eye sees.
+   * Preview overlays and sprite feet must sit on THIS, not site.heightAt: the two
+   * differ by up to ~0.5 m where 16 m triangles cut across the 8 m data, and a
+   * full-res height can land underneath the displayed mesh (buried previews).
+   * The SIM keeps sampling full-res heightAt — this is presentation only.
+   */
+  groundAt: (x: number, y: number) => number;
+  minH: number;
+  maxH: number;
+}
+
+function terrainMesh(site: SiteData): TerrainDisplay {
   // Decimate to at most ~257 vertices per axis for the render mesh; the SIM always
   // samples the full-resolution heightAt, so this is a display decision only.
   const step = Math.max(1, Math.ceil(Math.max(site.width, site.height) / 257));
   const w = Math.ceil(site.width / step) + 1;
   const h = Math.ceil(site.height / step) + 1;
+  const s = step * site.cellSize;
+  const grid = new Float32Array(w * h);
   const positions = new Float32Array(w * h * 3);
   let p = 0;
+  let minH = Infinity;
+  let maxH = -Infinity;
   for (let j = 0; j < h; j++) {
     for (let i = 0; i < w; i++) {
       // clamp the last row/column to the site edge so decimation leaves no void strip
-      const x = Math.min(i * step * site.cellSize, site.extentX);
-      const y = Math.min(j * step * site.cellSize, site.extentY);
+      const x = Math.min(i * s, site.extentX);
+      const y = Math.min(j * s, site.extentY);
+      const z = site.heightAt(x, y);
+      grid[j * w + i] = z;
+      if (z < minH) minH = z;
+      if (z > maxH) maxH = z;
       positions[p++] = x;
-      positions[p++] = site.heightAt(x, y);
+      positions[p++] = z;
       positions[p++] = y;
     }
   }
@@ -67,34 +91,48 @@ function terrainMesh(site: SiteData): THREE.Mesh {
   const mat = new THREE.MeshLambertMaterial({ color: 0x6b7b57 });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = false;
-  return mesh;
+
+  const groundAt = (x: number, y: number): number => {
+    // sample the exact triangulated surface: pick the cell, then the triangle
+    // (a,c,b)/(b,c,d) the point falls in, matching the index winding above
+    const xi = Math.min(Math.max(Math.floor(x / s), 0), w - 2);
+    const yi = Math.min(Math.max(Math.floor(y / s), 0), h - 2);
+    const x0 = Math.min(xi * s, site.extentX);
+    const x1 = Math.min((xi + 1) * s, site.extentX);
+    const y0 = Math.min(yi * s, site.extentY);
+    const y1 = Math.min((yi + 1) * s, site.extentY);
+    const tx = x1 > x0 ? Math.min(Math.max((x - x0) / (x1 - x0), 0), 1) : 0;
+    const ty = y1 > y0 ? Math.min(Math.max((y - y0) / (y1 - y0), 0), 1) : 0;
+    const A = grid[yi * w + xi]!;
+    const B = grid[yi * w + xi + 1]!;
+    const C = grid[(yi + 1) * w + xi]!;
+    const D = grid[(yi + 1) * w + xi + 1]!;
+    return tx + ty <= 1
+      ? A + (B - A) * tx + (C - A) * ty
+      : D + (C - D) * (1 - tx) + (B - D) * (1 - ty);
+  };
+  return { mesh, groundAt, minH, maxH };
 }
 
 async function boot(): Promise<void> {
   const site = await loadSite();
   const world = createWorld(SEED, site.id);
 
-  // Demo intent for the groundwork build: one L-shaped wall near map center,
-  // planned on day 5. M1 proper replaces this with player wall-drawing.
+  // The command log starts EMPTY: the groundwork demo is gone, and the first
+  // wall on this hill is drawn by the player's own hand.
   const cx = site.extentX / 2;
   const cy = site.extentY / 2;
-  const commandLog: Command[] = [
-    {
-      kind: 'plan_wall',
-      tick: 5,
-      points: [
-        { x: cx - 30, y: cy },
-        { x: cx + 30, y: cy },
-        { x: cx + 30, y: cy + 40 },
-      ],
-      height: 4,
-    },
-  ];
+  const commandLog: Command[] = [];
   const byTick = new Map<number, Command[]>();
-  for (const cmd of commandLog) {
+
+  /** The one legal write path into the sim: append to the log AND the tick index. */
+  function enqueue(cmd: Command): boolean {
+    if (cmd.tick < world.tick) return false; // the past is written; refuse quietly
+    commandLog.push(cmd);
     const bucket = byTick.get(cmd.tick);
     if (bucket) bucket.push(cmd);
     else byTick.set(cmd.tick, [cmd]);
+    return true;
   }
 
   // --- three.js scene ---
@@ -119,6 +157,12 @@ async function boot(): Promise<void> {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(cx, groundAtCenter, cy);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 12;
+  controls.maxDistance = 1500;
+  controls.maxPolarAngle = Math.PI * 0.47; // keep the eye above the hill
+  controls.screenSpacePanning = false; // pan rides the ground plane; target.y never drifts
   controls.update();
 
   scene.add(new THREE.HemisphereLight(0xcfd8dc, 0x2f2a20, 0.9));
@@ -126,25 +170,38 @@ async function boot(): Promise<void> {
   sun.position.set(300, 400, -200);
   scene.add(sun);
 
-  scene.add(terrainMesh(site));
+  const terrain = terrainMesh(site);
+  scene.add(terrain.mesh);
 
   const stoneGeo = new THREE.BoxGeometry(STONE_LEN, COURSE_HEIGHT, STONE_DEPTH);
   const stoneMat = new THREE.MeshLambertMaterial({ color: 0xb9a88f });
-  const stones = new THREE.InstancedMesh(stoneGeo, stoneMat, STONE_CAPACITY);
-  stones.count = 0;
-  // InstancedMesh culls by the base geometry's bounds (one 0.45 m box at the origin),
-  // which would blink the whole wall out of existence — cull per-frame ourselves: never.
-  stones.frustumCulled = false;
+  function makeStoneMesh(cap: number): THREE.InstancedMesh {
+    const m = new THREE.InstancedMesh(stoneGeo, stoneMat, cap);
+    m.count = 0;
+    // InstancedMesh culls by the base geometry's bounds (one 0.45 m box at the origin),
+    // which would blink the whole wall out of existence — cull per-frame ourselves: never.
+    m.frustumCulled = false;
+    return m;
+  }
+  // capacity GROWS with the build (player walls are unbounded); a hard cap here
+  // silently froze the wall on screen while the sim kept laying
+  let stoneCapacity = STONE_CAPACITY;
+  let stones = makeStoneMesh(stoneCapacity);
   scene.add(stones);
 
   // --- HUD ---
   const hud = document.getElementById('hud')!;
   const status = document.createElement('div');
+  const plan = document.createElement('div');
+  plan.className = 'plan';
   const buttons = document.createElement('div');
+  const build = document.createElement('div');
+  const hint = document.createElement('div');
+  hint.className = 'hint';
   const attribution = document.createElement('div');
   attribution.style.opacity = '0.6';
   attribution.textContent = site.attribution || `terrain: ${site.id}`;
-  hud.append(status, buttons, attribution);
+  hud.append(status, plan, buttons, build, hint, attribution);
 
   let speed: (typeof SPEEDS)[number] = 1;
   for (const s of SPEEDS) {
@@ -159,6 +216,40 @@ async function boot(): Promise<void> {
     buttons.appendChild(b);
   }
 
+  const wallBtn = document.createElement('button');
+  wallBtn.textContent = '⚒ wall (B)';
+  const hMinus = document.createElement('button');
+  hMinus.textContent = '−';
+  const hVal = document.createElement('span');
+  hVal.style.margin = '0 6px 0 2px';
+  const hPlus = document.createElement('button');
+  hPlus.textContent = '+';
+  build.append(wallBtn, hMinus, hVal, hPlus);
+
+  // --- the pencil and the people ---
+  const planner = new WallPlanner({
+    scene,
+    camera,
+    site,
+    groundAt: terrain.groundAt,
+    heightBounds: { min: terrain.minH, max: terrain.maxH },
+    dom: renderer.domElement,
+    onConfirm: (points, height) =>
+      enqueue({ kind: 'plan_wall', tick: world.tick, points, height }),
+    onModeChange: (active) => wallBtn.classList.toggle('active', active),
+  });
+  const people = new PeopleLayer(world, site, scene, terrain.groundAt);
+  const paceSum = world.people.reduce((n, p) => n + p.pace, 0);
+
+  wallBtn.onclick = () => planner.toggle();
+  hMinus.onclick = () => planner.setHeight(planner.height - 0.5);
+  hPlus.onclick = () => planner.setHeight(planner.height + 0.5);
+
+  /** assign only on change — the HUD repaints every frame otherwise */
+  function setText(el: HTMLElement, text: string): void {
+    if (el.textContent !== text) el.textContent = text;
+  }
+
   // --- sim/render loop; speed is transport only ---
   const dummy = new THREE.Object3D();
   const tint = new THREE.Color();
@@ -167,7 +258,17 @@ async function boot(): Promise<void> {
   let lastTime = performance.now();
 
   function syncStones(): void {
-    for (let i = lastStoneCount; i < world.stones.length && i < STONE_CAPACITY; i++) {
+    if (world.stones.length > stoneCapacity) {
+      // regrow and re-upload from stone 0 — the sim is the source of truth,
+      // so a full rebuild is cheap, deterministic, and render-side only
+      stoneCapacity = Math.max(stoneCapacity * 2, world.stones.length);
+      scene.remove(stones);
+      stones.dispose();
+      stones = makeStoneMesh(stoneCapacity);
+      scene.add(stones);
+      lastStoneCount = 0;
+    }
+    for (let i = lastStoneCount; i < world.stones.length; i++) {
       const s = world.stones[i]!;
       dummy.position.set(s.pos[0], s.pos[2], s.pos[1]);
       dummy.rotation.set(0, -s.yaw, 0);
@@ -180,7 +281,7 @@ async function boot(): Promise<void> {
       stones.setColorAt(i, tint);
     }
     if (world.stones.length !== lastStoneCount) {
-      stones.count = Math.min(world.stones.length, STONE_CAPACITY);
+      stones.count = world.stones.length;
       stones.instanceMatrix.needsUpdate = true;
       if (stones.instanceColor) stones.instanceColor.needsUpdate = true;
       lastStoneCount = world.stones.length;
@@ -212,15 +313,57 @@ async function boot(): Promise<void> {
       acc -= 1;
     }
     syncStones();
+    people.update(dt, speed > 0);
 
     const year = Math.floor(world.tick / TICKS_PER_YEAR) + 1;
     const day = (world.tick % TICKS_PER_YEAR) + 1;
     const laid = world.walls.reduce((n, w) => n + w.stonesLaid, 0);
     const total = world.walls.reduce((n, w) => n + w.stonesTotal, 0);
-    status.textContent =
+    setText(
+      status,
       `Year ${year}, day ${day} — stones ${laid}${total ? `/${total}` : ''} — ` +
-      `souls ${world.people.length} — site ${site.id}`;
+        `souls ${world.people.length} — site ${site.id}`,
+    );
 
+    setText(hVal, `h ${planner.height.toFixed(1)} m`);
+    if (planner.active) {
+      const s = planner.stats();
+      setText(
+        plan,
+        s
+          ? `plan: ${s.length.toFixed(0)} m · ${s.courses} courses · ` +
+              `${s.stonesTotal.toLocaleString()} stones · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days`
+          : 'plan: click the ground to start the line',
+      );
+      setText(
+        hint,
+        'click: place · right-click/Backspace: undo · double-click/Enter: lay it · Esc: put the pencil down',
+      );
+    } else {
+      setText(plan, '');
+      // a committed command applies at the start of its tick — while paused it is
+      // real but invisible, and the HUD must not claim the hill is bare
+      const pending = commandLog.some((c) => c.tick >= world.tick);
+      setText(
+        hint,
+        pending
+          ? speed === 0
+            ? 'wall committed — press ×1 to break ground'
+            : 'wall committed — the crew takes it up'
+          : world.walls.length === 0
+            ? 'the hill is bare — press ⚒ wall (or B) and draw the first line'
+            : '',
+      );
+    }
+
+    // keep the eye inside the site box; shift the camera by the same delta so the
+    // clamp never pumps the orbit radius while damping replays the pan
+    const tcx = Math.min(Math.max(controls.target.x, 0), site.extentX);
+    const tcz = Math.min(Math.max(controls.target.z, 0), site.extentY);
+    camera.position.x += tcx - controls.target.x;
+    camera.position.z += tcz - controls.target.z;
+    controls.target.x = tcx;
+    controls.target.z = tcz;
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
@@ -229,22 +372,16 @@ async function boot(): Promise<void> {
   window.addEventListener('resize', sizeToWindow);
 
   // Dev handle for kernel-truth checks from the preview console (read-only by law).
-  /** The one legal write path into the sim: append to the log AND the tick index. */
-  function enqueue(cmd: Command): boolean {
-    if (cmd.tick < world.tick) return false; // the past is written; refuse quietly
-    commandLog.push(cmd);
-    const bucket = byTick.get(cmd.tick);
-    if (bucket) bucket.push(cmd);
-    else byTick.set(cmd.tick, [cmd]);
-    return true;
-  }
-
   (window as unknown as Record<string, unknown>).__cc = {
     world,
     site,
     commandLog,
     camera,
     controls,
+    planner,
+    people,
+    renderer,
+    scene, // renderer+scene exposed so a hidden tab can render one frame on demand
     enqueue, // pushing to __cc.commandLog directly does nothing — this is the way in
     /** dev-only manual stepper (hidden tabs pause rAF); still goes through the law */
     step: (n: number) => {

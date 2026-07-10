@@ -24,8 +24,14 @@ cold-CI skill exists: `npm test` + `npm run build` green before touching anythin
       command-log save/replay + scaffold (TS/Three/Vite, port 8745) + REAL Durham terrain
       (EA LiDAR 1m → 500×500@8m, public/data/site-durham/) + adversarial review pass
       (3 lenses + verify; 8 confirmed findings fixed, 17/17 tests)
-- [ ] M1 proper: player wall-drawing UI, mason sprites, camera polish — the demo command
-      in render/main.ts is the placeholder to replace
+- [x] M1 proper SHIPPED (2026-07-09): player wall-drawing UI (B / ⚒ wall: click-place
+      polyline, ghost ribbon, double-click/Enter commits via enqueue; demo command
+      DELETED — the log boots empty), procedural pixel-sprite crew (masons work stations
+      along the wall at the active course; laborers shuttle blocks stockpile↔station),
+      camera manners. Adversarial review: 20 confirmed findings → 13 distinct, all fixed
+      + re-verified live (growable stone mesh, screen-space dblclick guard, UV-space
+      sprite mirroring, displayed-surface grounding, analytic ground picking, paused-
+      commit feedback, orbit-clamp compensation, key guards)
 
 ## Deferred from groundwork review (do before the systems they guard ship)
 - Save meta should carry a CONTENT FINGERPRINT of the site heightmap (id equality is
@@ -40,10 +46,12 @@ cold-CI skill exists: `npm test` + `npm run build` green before touching anythin
       expulsion refused)
 
 ## Next
-- [ ] M1 — First Wall: terrain, camera, wall-line drawing, instanced stone accretion,
-      stub workers. Acceptance: watching a wall grow for 5 minutes is *pleasant*.
-- [ ] M1 groundwork: deterministic `worldStep` skeleton + seed-first RNG + event-log save
-      format (before any rendering — the sim law comes first)
+- [ ] Instruments before M2 (house law): gen-baseline/cold-CI harness — seed-42-style
+      canonical runs, state hashes per tick milestone, a strip/summary artifact
+- [ ] M1 design data (from the honest eye-check; polish, not bugs): scaffold sprite once
+      walls pass ~2 m; per-station stone piles so laborers read on long walls; billboard
+      sprites don't face the work; cursor ring is world-sized (0.65 m) and vanishes at
+      high zoom; laborer hand-off has no receiving animation
 
 ## Later (ordered)
 - [ ] M2 — Quarry loop end-to-end with per-stone provenance
