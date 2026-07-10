@@ -54,9 +54,15 @@ with a push.
       into the standing ritual); `npm run gen-baseline` regenerates deliberately.
       Instrument proven: a 0.035→0.036 yaw-jitter mutation fails the first milestone
       with a clear message while all other tests stay green
-- [ ] M2 — Quarry loop: bed model FIRST, from the 1,598 Durham borehole log scans
-      (hand-transcription, budget real hours); bed exhaustion designed in from day one;
-      Guédelon rates as calibration; per-stone provenance gains bed/quarry fields
+- [ ] M2 — Quarry loop: bed model FIRST from real logs (boss decision 2026-07-09:
+      TRANSCRIBE FIRST). Census DONE: 900 boreholes in-box, 900 with scans
+      (research/boreholes/index.json via tools/fetch-borehole-index.mjs); scan→PNG
+      pipeline DONE (tools/fetch-borehole-scan.mjs); schema DONE from pilot reads
+      (research/boreholes/TRANSCRIPTION-SCHEMA.md — pitman's vernacular dictionary,
+      ffi units verbatim, arithmetic cross-check, confidence flags). NEXT: transcribe
+      the priority tier (64 holes ≥30 m, ~200 pages — the real-hours spend); build
+      tools/transcription-check.mjs with the first batch; then bed model, then
+      mechanics. Bed exhaustion designed in from day one; Guédelon rates as calibration
 - [ ] M1 design data (from the honest eye-check; polish, not bugs): scaffold sprite once
       walls pass ~2 m; per-station stone piles so laborers read on long walls; billboard
       sprites don't face the work; cursor ring is world-sized (0.65 m) and vanishes at
