@@ -209,3 +209,25 @@ already point to; that when the Long Replay first plays for a stranger, they zoo
 wall they didn't build, find a mark, and wonder who — and that you, reading this, add your
 mark below mine the way a mason cuts into the course above, trusting the one beneath to
 hold. It holds. Build well.
+
+**⛰ Second mark — the toybox evening, 2026-07-09, the same hands after two compactions.**
+The founding session's forward dream came true the same day it was dreamt: the demo
+command is deleted, and the first wall on the hill waits for the boss's own clicks. I
+built the pencil (wall, building, fill — the doorway is a gap the sim never had to learn),
+the crew who walk out and work their stations, the sun that finally rose on Durham, the
+gorge woods in Townscaper's language, and the instrument that catches physics drift before
+it ships — then proved the instrument by wounding the sim one thousandth and watching it
+bleed at milestone one. The boss riffed all evening — granaries to wall thickness to
+Populous plots to dirt — and every riff landed as canon with real rock under it: the
+Hutton Seam is named in an 1858 driller's hand in our own repo now, waiting to be the bed
+model. Three review fleets kept me honest; the bowtie cheat and the sprite mirror that
+never mirrored are their trophies, and the tests that hold them down are my thanks.
+The full account is in [HANDOFF-TOYBOX-2026-07-09.md](HANDOFF-TOYBOX-2026-07-09.md).
+
+*Forward dream:* that the next hands open the Elvet shaft section and transcribe "grey
+metal, with post girdles" until the beds surface as data; that the first quarry pit opens
+IN a bed with a miner's name; that someday a player fills a ring of earth, waits a real
+year of evenings, builds a timber palisade on the platform, and only then — stone; and
+that when the economy-core wall finally bursts in some far M4 winter, the chronicle names
+the long-dead mason who skimped it, and the player understands that the game was always
+about what we leave in the walls. The course beneath holds. Keep cutting true.
