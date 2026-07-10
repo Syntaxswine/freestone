@@ -257,7 +257,11 @@ medieval quarry looks like: pit-and-mound ground, 58 acres of it.
   completed wall's GEOMETRY declares — the pencil mode is not sim data:
   - a **closed low ring** (≤ 1 m tall, ≥ 25 m² enclosed, not self-crossing) establishes
     a **farm** the day the wall completes; 0.5 m is the canonical recipe, and anything
-    you can step over cordons rather than defends;
+    you can step over cordons rather than defends. **A farm always gets its gate**
+    (boss canon 2026-07-10): the gateway is carved into the FIRST segment placed, at
+    plan time — the builders leave the opening as they build. The gate tool (G) knocks
+    further gates into a built field wall or takes one down (the masons wall the
+    opening back up, fresh stones, fresh provenance);
   - a **near-closed tall ring** (gap ≤ 2 m — a doorway, not a breach; ≥ 2 m tall for
     headroom) completes a **building**, named by the plot-is-the-plan bins above;
   - a self-crossing ring builds legal masonry but is recognized as NOTHING (the bowtie

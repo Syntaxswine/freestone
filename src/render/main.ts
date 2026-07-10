@@ -12,6 +12,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
 import {
   classifyRing,
+  nearestOnPolyline,
+  planGates,
   polygonArea,
   ringSelfIntersects,
   ringSelfOverlaps,
@@ -31,6 +33,7 @@ import {
 import { BuildingLayer } from './buildings';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
+import { GateLayer } from './gates';
 import { PeopleLayer } from './people';
 import { describeFootprint, KIND_LABEL, WallPlanner } from './planner';
 import { TreeLayer } from './trees';
@@ -252,9 +255,11 @@ async function boot(): Promise<void> {
   const build2 = document.createElement('div');
   const fillBtn = document.createElement('button');
   fillBtn.textContent = '⛰ fill (F)';
+  const gateBtn = document.createElement('button');
+  gateBtn.textContent = '🚪 gate (G)';
   const matBtn = document.createElement('button');
   matBtn.textContent = '🪨 sandstone';
-  build2.append(fillBtn, matBtn);
+  build2.append(fillBtn, gateBtn, matBtn);
   build.after(build2);
 
   // --- the woods, the earthworks, the pencil and the people ---
@@ -271,6 +276,7 @@ async function boot(): Promise<void> {
   // terrain beneath; roofs cap the as-built stones and need no ground at all
   const farms = new FarmLayer(world, scene, groundSim);
   const buildings = new BuildingLayer(world, scene);
+  const gates = new GateLayer(world, scene, groundSim);
   const planner = new WallPlanner({
     scene,
     camera,
@@ -288,10 +294,45 @@ async function boot(): Promise<void> {
       wallBtn.classList.toggle('active', active && mode === 'wall');
       bldBtn.classList.toggle('active', active && mode === 'building');
       fillBtn.classList.toggle('active', active && mode === 'fill');
+      gateBtn.classList.toggle('active', active && mode === 'gate');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing
     snapTargets: () => world.walls.map((w) => w.points),
+    // the gate tool: a click near a hung gate takes it down; a click near a
+    // farm's wall hangs one there — the sim validates and snaps for real
+    onGate: (p) => {
+      let gateFarm: number | null = null;
+      let gd = Infinity;
+      for (const f of world.farms) {
+        for (const g of f.gates) {
+          const d = Math.hypot(p.x - g.x, p.y - g.y);
+          if (d < gd) {
+            gd = d;
+            gateFarm = f.wallId;
+          }
+        }
+      }
+      if (gateFarm !== null && gd < 2.5) {
+        enqueue({ kind: 'remove_gate', tick: world.tick, wallId: gateFarm, at: { x: p.x, y: p.y } });
+        return;
+      }
+      let addWall: number | null = null;
+      let wd = Infinity;
+      for (const f of world.farms) {
+        const w = world.walls.find((q) => q.id === f.wallId);
+        if (!w) continue;
+        const q = nearestOnPolyline(w.points, p);
+        const d = Math.hypot(p.x - q.x, p.y - q.y);
+        if (d < wd) {
+          wd = d;
+          addWall = w.id;
+        }
+      }
+      if (addWall !== null && wd < 3) {
+        enqueue({ kind: 'add_gate', tick: world.tick, wallId: addWall, at: { x: p.x, y: p.y } });
+      }
+    },
   });
   const people = new PeopleLayer(world, site, scene, groundShow);
   const paceSum = world.people
@@ -304,6 +345,7 @@ async function boot(): Promise<void> {
   wallBtn.onclick = () => planner.toggle('wall');
   bldBtn.onclick = () => planner.toggle('building');
   fillBtn.onclick = () => planner.toggle('fill');
+  gateBtn.onclick = () => planner.toggle('gate');
   matBtn.onclick = () => {
     const m = planner.cycleMaterial();
     matBtn.textContent = m === 'wood' ? '🪵 wood' : '🪨 sandstone';
@@ -389,6 +431,7 @@ async function boot(): Promise<void> {
     fills.update();
     farms.update();
     buildings.update();
+    gates.update();
     trees.update(world);
     people.update(dt, speed > 0);
 
@@ -443,8 +486,19 @@ async function boot(): Promise<void> {
           hint,
           'click: ring the ground · right-click/Backspace: undo · double-click/Enter: tip the dirt · hold ⇧: snap to walls · Esc: put the pencil down',
         );
+      } else if (planner.mode === 'gate') {
+        setText(plan, `plan: gates — ${world.farms.reduce((n, f) => n + f.gates.length, 0)} hung`);
+        setText(
+          hint,
+          'click a field wall: hang a gate · click a gate: take it down · Esc: put the tool down',
+        );
       } else {
-        const s = planner.stats();
+        // the ring/auto-gate read comes FIRST so the stone count the plan row
+        // promises is decomposed with the same gates the sim will carve
+        const ring = planner.previewRing();
+        const rc = ring ? classifyRing(ring, planner.height) : null;
+        const autoGates = ring ? planGates(ring, planner.height) : [];
+        const s = planner.stats(autoGates);
         const fp = planner.footprint();
         const what = fp ? describeFootprint(fp.front, fp.depth) : null;
         let name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';
@@ -458,10 +512,8 @@ async function boot(): Promise<void> {
         // imported, never re-derived (the second fleet's parity law), so
         // farms, gated farms and hand-drawn buildings name themselves
         // exactly when the sim would claim them
-        const ring = planner.previewRing();
-        const rc = ring ? classifyRing(ring, planner.height) : null;
         if (rc?.kind === 'farm') {
-          name = `a farm${rc.gate ? ' with a gate' : ''} — ${rc.area.toFixed(0)} m² · `;
+          name = `a farm with a gate — ${rc.area.toFixed(0)} m² · `;
         } else if (rc?.kind === 'building') {
           name = `${KIND_LABEL[rc.buildingKind]} — ${rc.area.toFixed(0)} m² · `;
         } else if (ring && !ringSelfIntersects(ring) && !ringSelfOverlaps(ring)) {
@@ -554,6 +606,7 @@ async function boot(): Promise<void> {
       fills.update();
       farms.update();
       buildings.update();
+      gates.update();
       trees.update(world);
       return world.tick;
     },

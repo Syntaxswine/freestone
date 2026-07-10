@@ -9,9 +9,10 @@
  */
 import type { BuildingKind } from './classify';
 
-// 6: gated farms (a low ring with a person-width gap farms, gate recorded)
-// — 5: fill closure normalized; 4: field work + overlap guard
-export const SIM_VERSION = 6;
+// 7: real gates — auto-gate carved on a farm's first segment at plan time,
+// the gate tool (add_gate/remove_gate), masonry skips openings
+// — 6: gated farms; 5: fill closure normalized; 4: field work + overlap guard
+export const SIM_VERSION = 7;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -40,6 +41,19 @@ export interface WallPlan {
   points: Vec2[]; // polyline in site-local meters
   height: number; // target height above ground, meters
   material: Material;
+  /**
+   * Gateway centers ON the polyline. Masonry keeps GATE_HALF clear of each —
+   * the opening is left as the wall is BUILT (a farm ring auto-gates its
+   * first-placed segment at plan time), or knocked out/walled back up later
+   * by the gate tool (add_gate / remove_gate).
+   */
+  gates: Vec2[];
+  /**
+   * Slots waiting to be re-laid after a gate was removed: the masons wall the
+   * opening back up through the ordinary daily loop, one honest stone at a
+   * time. Non-empty only between a remove_gate and the wall's re-completion.
+   */
+  infill: { course: number; slot: number }[];
   stonesTotal: number;
   stonesLaid: number;
 }
@@ -70,6 +84,9 @@ export const FARM_MIN_AREA = 25; // m²: smaller closed rings are yards, not far
 export const FARM_CLOSE_EPS = 0.45; // meters: a gap under one stone length still closes
 export const DOOR_GAP_MAX = 2.0; // meters: a person-width gap makes a doorway, not a breach
 export const BUILDING_MIN_H = 2.0; // meters: below headroom a ring shelters nothing
+export const GATE_W = 1.5; // meters: a field gate's clear width (foot + barrow; carts later)
+export const GATE_HALF = 0.75; // meters: masonry keeps this far from a gate's center
+export const GATE_MIN_SEG = 2.7; // meters: a segment shorter than this can't take a gate
 
 /** A recognized field enclosure — established the day its wall completes. */
 export interface Farm {
@@ -79,11 +96,12 @@ export interface Farm {
   points: Vec2[];
   area: number; // m², shoelace of the ring
   /**
-   * Where the gateway sits (midpoint of the wall's open gap), or null for a
-   * fully closed step-over ring. Recorded now — cheap to found — so the herd,
-   * the harvest cart and the hurdle-gate mechanics land on real geometry later.
+   * Every gateway into this farm: the auto-gate carved on the first-placed
+   * segment (boss canon 2026-07-10 — a farm always has its gate), any the
+   * gate tool added, and a hand-drawn gap's midpoint. Kept in step with the
+   * wall's gates by the add_gate/remove_gate handlers.
    */
-  gate: Vec2 | null;
+  gates: Vec2[];
   /**
    * Person-days of tending. A laborer with no earth to move works the farm
    * with the fewest workdays (boss canon 2026-07-10: recognized farms put
@@ -139,6 +157,18 @@ export type Command =
       tick: number;
       points: Vec2[]; // polygon, ≥3 points
       height: number; // meters of fill above the highest sampled ground
+    }
+  | {
+      kind: 'add_gate';
+      tick: number;
+      wallId: number; // must be a farm's wall, complete and idle
+      at: Vec2; // snapped to the nearest point ON the wall by the sim
+    }
+  | {
+      kind: 'remove_gate';
+      tick: number;
+      wallId: number;
+      at: Vec2; // the nearest gate within reach is taken down and walled up
     };
 
 export type SimEvent =
@@ -148,6 +178,8 @@ export type SimEvent =
   | { kind: 'fill_planned'; tick: number; fillId: number; volumeTotal: number }
   | { kind: 'fill_complete'; tick: number; fillId: number }
   | { kind: 'farm_established'; tick: number; farmId: number; wallId: number; area: number }
+  | { kind: 'gate_added'; tick: number; wallId: number; stonesRemoved: number }
+  | { kind: 'gate_removed'; tick: number; wallId: number; stonesToRelay: number }
   | {
       kind: 'building_complete';
       tick: number;

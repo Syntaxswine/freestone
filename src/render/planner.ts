@@ -49,6 +49,8 @@ export interface PlannerDeps {
   /** the one exit: hand the plan to the command log; return false to keep drawing */
   onConfirm: (mode: PlannerMode, points: Vec2[], height: number, material: Material) => boolean;
   onModeChange?: (active: boolean, mode: PlannerMode) => void;
+  /** gate mode's exit: a picked ground point — the resolver decides add/remove */
+  onGate?: (point: Vec2) => void;
   /**
    * Existing geometry the ⇧-snap magnetizes to (polylines — wall plans).
    * A getter, not a snapshot: the world grows while the pencil is out.
@@ -56,7 +58,7 @@ export interface PlannerDeps {
   snapTargets?: () => readonly (readonly Vec2[])[];
 }
 
-export type PlannerMode = 'wall' | 'building' | 'fill';
+export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate';
 
 export class WallPlanner {
   active = false;
@@ -311,10 +313,11 @@ export class WallPlanner {
     return { front: f.len, depth: Math.abs(f.depth) };
   }
 
-  stats(): { length: number; courses: number; stonesTotal: number } | null {
+  /** pass the plan's auto-gates so the promised stone count is the sim's own */
+  stats(gates: readonly Vec2[] = []): { length: number; courses: number; stonesTotal: number } | null {
     const poly = this.previewPolyline();
     if (poly.length < 2) return null;
-    const { courses, stonesTotal } = decomposeWall(poly, this.height);
+    const { courses, stonesTotal } = decomposeWall(poly, this.height, gates);
     return { length: polylineLength(poly), courses, stonesTotal };
   }
 
@@ -565,6 +568,12 @@ export class WallPlanner {
     const held = performance.now() - this.downT;
     if (moved >= 6 || held >= 500) return; // that was a camera drag, not a click
     if (ev.button === 0) {
+      if (this.mode === 'gate') {
+        // the gate tool places no points: a click is the whole gesture
+        const p = this.pick(ev);
+        if (p) this.deps.onGate?.(p);
+        return;
+      }
       if (this.mode === 'building' && this.points.length >= 2) {
         // the third click doesn't place a point — where it lands IS the depth.
         // It runs BEFORE the jitter guard below: that guard protects point
@@ -659,6 +668,10 @@ export class WallPlanner {
     }
     if ((ev.key === 'f' || ev.key === 'F') && clean) {
       this.toggle('fill');
+      return;
+    }
+    if ((ev.key === 'g' || ev.key === 'G') && clean) {
+      this.toggle('gate');
       return;
     }
     if (!this.active) return;

@@ -8,10 +8,14 @@ import {
   FARM_CLOSE_EPS,
   FARM_MIN_AREA,
   FARM_WALL_MAX_H,
+  GATE_HALF,
+  GATE_MIN_SEG,
+  GATE_W,
   MATERIALS,
   STONE_LEN,
   type Command,
   type FillPlan,
+  type PlacedStone,
   type Vec2,
   type WallPlan,
   type WorldState,
@@ -53,7 +57,7 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
  * deterministically SKIPPED and chronicled, identically in live play and replay,
  * so bad data can never fork the two or crash a timelapse.
  */
-function rejectReason(cmd: Command): string | null {
+function rejectReason(state: WorldState, cmd: Command): string | null {
   // Reasons must be CONSTANT strings: they enter hashed state, and the same bad
   // command must reject with byte-identical reason before and after a JSON
   // round-trip (NaN and Infinity both arrive as null from a save file).
@@ -94,6 +98,48 @@ function rejectReason(cmd: Command): string | null {
       // and granted geometry must share one measure
       if (ringSelfOverlaps(ring)) return 'fill ring must not overlap itself';
       if (polygonArea(ring) < 1) return 'fill ring must enclose area';
+      return null;
+    }
+    case 'add_gate':
+    case 'remove_gate': {
+      if (
+        typeof cmd.at?.x !== 'number' ||
+        typeof cmd.at?.y !== 'number' ||
+        !Number.isFinite(cmd.at.x) ||
+        !Number.isFinite(cmd.at.y)
+      ) {
+        return 'gate point must have finite x and y';
+      }
+      const wall =
+        typeof cmd.wallId === 'number'
+          ? state.walls.find((w) => w.id === cmd.wallId)
+          : undefined;
+      if (!wall) return 'no such wall';
+      // gates are FARM furniture for now; gatehouses are another course (M6)
+      if (!state.farms.some((f) => f.wallId === wall.id)) {
+        return 'only a farm wall takes a gate';
+      }
+      // gate ops only on an idle, complete wall: the slot mapping that placed
+      // every laid stone must never shift under a build in progress
+      if (wall.stonesLaid < wall.stonesTotal) return 'the wall is at work';
+      if (cmd.kind === 'add_gate') {
+        const at = nearestOnPolyline(wall.points, cmd.at);
+        for (const g of wall.gates) {
+          if (dist(g.x, g.y, at.x, at.y) < GATE_W) return 'a gate already stands there';
+        }
+        // a wall may not be mostly holes
+        const test = decomposeWall(wall.points, wall.height, [...wall.gates, at]);
+        const raw = Math.max(1, Math.floor(polylineLength(wall.points) / STONE_LEN));
+        if (test.stonesPerCourse < raw * 0.5) return 'the wall has gates enough';
+      } else {
+        let near = false;
+        for (const g of wall.gates) {
+          if (dist(g.x, g.y, cmd.at.x, cmd.at.y) < 2.5) near = true;
+        }
+        // a hand-drawn gap is the wall's SHAPE, not hung furniture — it has no
+        // masonry to reinstate, so it cannot be removed here
+        if (!near) return 'no gate there';
+      }
       return null;
     }
   }
@@ -207,7 +253,7 @@ function badPoints(points: readonly Vec2[]): boolean {
 }
 
 function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
-  const reason = rejectReason(cmd);
+  const reason = rejectReason(state, cmd);
   if (reason !== null) {
     state.events.push({
       kind: 'command_rejected',
@@ -219,12 +265,17 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
   }
   switch (cmd.kind) {
     case 'plan_wall': {
-      const { stonesTotal } = decomposeWall(cmd.points, cmd.height);
+      // a plan that closes into a farm carves its gateway NOW: the builders
+      // leave the opening as they build (boss canon 2026-07-10)
+      const gates = planGates(cmd.points, cmd.height);
+      const { stonesTotal } = decomposeWall(cmd.points, cmd.height, gates);
       const wall: WallPlan = {
         id: state.nextId++,
         points: cmd.points.map((p) => ({ x: p.x, y: p.y })),
         height: cmd.height,
         material: cmd.material ?? 'sandstone', // old logs/saves carry no material
+        gates,
+        infill: [],
         stonesTotal,
         stonesLaid: 0,
       };
@@ -234,6 +285,72 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         tick: state.tick,
         wallId: wall.id,
         stonesTotal,
+      });
+      break;
+    }
+    case 'add_gate': {
+      const wall = state.walls.find((w) => w.id === cmd.wallId)!; // validated
+      const at = nearestOnPolyline(wall.points, cmd.at);
+      wall.gates.push(at);
+      const after = decomposeWall(wall.points, wall.height, wall.gates);
+      // the crew knocks the span out: every standing stone inside the new
+      // opening comes down (positions are exact slot centers, so this matches
+      // the slots the decomposition just closed)
+      const keep: PlacedStone[] = [];
+      let removed = 0;
+      for (const s of state.stones) {
+        if (s.wallId === wall.id && dist(s.pos[0], s.pos[1], at.x, at.y) < GATE_HALF) {
+          removed += 1;
+        } else {
+          keep.push(s);
+        }
+      }
+      state.stones = keep;
+      wall.stonesTotal = after.stonesTotal;
+      wall.stonesLaid -= removed;
+      const farm = state.farms.find((f) => f.wallId === wall.id)!; // validated
+      farm.gates.push({ x: at.x, y: at.y });
+      state.events.push({
+        kind: 'gate_added',
+        tick: state.tick,
+        wallId: wall.id,
+        stonesRemoved: removed,
+      });
+      break;
+    }
+    case 'remove_gate': {
+      const wall = state.walls.find((w) => w.id === cmd.wallId)!; // validated
+      let gi = 0;
+      let gd = Infinity;
+      for (let i = 0; i < wall.gates.length; i++) {
+        const g = wall.gates[i]!;
+        const d = dist(g.x, g.y, cmd.at.x, cmd.at.y);
+        if (d < gd) {
+          gd = d;
+          gi = i;
+        }
+      }
+      const gate = wall.gates[gi]!;
+      const before = decomposeWall(wall.points, wall.height, wall.gates);
+      wall.gates.splice(gi, 1);
+      const after = decomposeWall(wall.points, wall.height, wall.gates);
+      // the reopened slots queue as infill: the masons wall the gateway back
+      // up through the ordinary daily loop — fresh stones, fresh provenance,
+      // the walling-up crew's marks in the record
+      const had = new Set(before.slots);
+      const reopened = after.slots.filter((s) => !had.has(s));
+      for (let c = 0; c < after.courses; c++) {
+        for (const s of reopened) wall.infill.push({ course: c, slot: s });
+      }
+      wall.stonesTotal = after.stonesTotal;
+      const farm = state.farms.find((f) => f.wallId === wall.id)!;
+      const fi = farm.gates.findIndex((g) => g.x === gate.x && g.y === gate.y);
+      if (fi >= 0) farm.gates.splice(fi, 1);
+      state.events.push({
+        kind: 'gate_removed',
+        tick: state.tick,
+        wallId: wall.id,
+        stonesToRelay: reopened.length * after.courses,
       });
       break;
     }
@@ -323,15 +440,104 @@ function moveEarth(state: WorldState): void {
   }
 }
 
-/** Wall decomposition: full courses of evenly spaced stones along the polyline. */
+/**
+ * Wall decomposition: full courses of evenly spaced stone SLOTS along the
+ * polyline — minus any slot whose center falls inside a gateway (within
+ * GATE_HALF of a gate point). Slot POSITIONS are pure geometry, independent
+ * of which are buildable, so a gate added or removed later never shifts the
+ * stones already standing. With no gates this reduces exactly to the old
+ * uniform decomposition.
+ */
 export function decomposeWall(
   points: readonly Vec2[],
   height: number,
-): { stonesPerCourse: number; courses: number; stonesTotal: number } {
+  gates: readonly Vec2[] = [],
+): {
+  stonesPerCourse: number;
+  courses: number;
+  stonesTotal: number;
+  slots: number[];
+  spacing: number;
+} {
   const length = polylineLength(points);
-  const stonesPerCourse = Math.max(1, Math.floor(length / STONE_LEN));
+  const raw = Math.max(1, Math.floor(length / STONE_LEN));
+  const spacing = length / raw;
   const courses = Math.max(1, Math.ceil(height / COURSE_HEIGHT));
-  return { stonesPerCourse, courses, stonesTotal: stonesPerCourse * courses };
+  const slots: number[] = [];
+  for (let s = 0; s < raw; s++) {
+    if (gates.length > 0) {
+      const at = pointAt(points, (s + 0.5) * spacing);
+      let open = false;
+      for (const g of gates) {
+        if (dist(at.x, at.y, g.x, g.y) < GATE_HALF) {
+          open = true;
+          break;
+        }
+      }
+      if (open) continue;
+    }
+    slots.push(s);
+  }
+  return {
+    stonesPerCourse: slots.length,
+    courses,
+    stonesTotal: slots.length * courses,
+    slots,
+    spacing,
+  };
+}
+
+/**
+ * A farm always gets its gate (boss canon 2026-07-10): when a plan's ring
+ * closes at farm height, a gateway is carved into the FIRST segment placed —
+ * the builders leave the opening as they build; nobody knocks a hole in a
+ * finished wall. If the first segment is too short to take a gate, the first
+ * long-enough segment serves; failing that, the longest. A hand-gapped ring
+ * already has its way in and gets nothing extra.
+ */
+export function planGates(points: readonly Vec2[], height: number): Vec2[] {
+  const rc = classifyRing(points, height);
+  if (rc === null || rc.kind !== 'farm' || rc.gate !== null) return [];
+  let chosen = -1;
+  let longest = -1;
+  let longestLen = 0;
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i]!;
+    const b = points[i + 1]!;
+    const l = dist(a.x, a.y, b.x, b.y);
+    if (chosen === -1 && l >= GATE_MIN_SEG) chosen = i;
+    if (l > longestLen) {
+      longestLen = l;
+      longest = i;
+    }
+  }
+  const i = chosen !== -1 ? chosen : longest;
+  if (i === -1) return [];
+  const a = points[i]!;
+  const b = points[i + 1]!;
+  return [{ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }];
+}
+
+/** Closest point ON the polyline to p; comparisons, multiplies, sqrt only. */
+export function nearestOnPolyline(points: readonly Vec2[], p: Vec2): Vec2 {
+  let best: Vec2 = { x: points[0]!.x, y: points[0]!.y };
+  let bd = Infinity;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1]!;
+    const b = points[i]!;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const l2 = dx * dx + dy * dy;
+    const t = l2 === 0 ? 0 : Math.min(1, Math.max(0, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2));
+    const qx = a.x + dx * t;
+    const qy = a.y + dy * t;
+    const d = dist(p.x, p.y, qx, qy);
+    if (d < bd) {
+      bd = d;
+      best = { x: qx, y: qy };
+    }
+  }
+  return best;
 }
 
 function layStones(state: WorldState, site: SiteData, rng: Rng): void {
@@ -354,13 +560,23 @@ function layOneStone(
   wall: WallPlan,
   masonId: number,
 ): void {
-  const { stonesPerCourse } = decomposeWall(wall.points, wall.height);
-  const i = wall.stonesLaid;
-  const course = Math.floor(i / stonesPerCourse);
-  const slot = i % stonesPerCourse;
+  const { slots, spacing } = decomposeWall(wall.points, wall.height, wall.gates);
+  let course: number;
+  let slot: number;
+  if (wall.infill.length > 0) {
+    // walling a removed gate back up: explicit slots, bottom course first
+    const job = wall.infill.shift()!;
+    course = job.course;
+    slot = job.slot;
+  } else {
+    // the initial build: the slot list is stable for a wall's whole first
+    // life (gate ops are legal only on complete, idle walls), so the plain
+    // counter mapping stays sound
+    const i = wall.stonesLaid;
+    course = Math.floor(i / slots.length);
+    slot = slots[i % slots.length]!;
+  }
 
-  const length = polylineLength(wall.points);
-  const spacing = length / stonesPerCourse;
   const at = pointAt(wall.points, (slot + 0.5) * spacing);
 
   const ground = effectiveGroundAt(state, site, at.x, at.y);
@@ -476,9 +692,12 @@ export function classifyRing(pts: readonly Vec2[], height: number): RingClass {
  * When a wall completes, its GEOMETRY declares what it made (boss canon
  * 2026-07-09/10) — the pencil mode is not sim data. Recognition happens at
  * COMPLETION, not planning: the field exists when the wall stands, and the
- * chronicle records the day.
+ * chronicle records the day. Recognition is ONE-SHOT per wall: a wall that
+ * re-completes after gate infill must not claim its land twice.
  */
 export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
+  if (state.farms.some((f) => f.wallId === wall.id)) return;
+  if (state.buildings.some((b) => b.wallId === wall.id)) return;
   const rc = classifyRing(wall.points, wall.height);
   if (rc === null) return;
   if (rc.kind === 'farm') {
@@ -487,7 +706,9 @@ export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
       wallId: wall.id,
       points: rc.ring,
       area: rc.area,
-      gate: rc.gate,
+      // every way in: the auto-gate carved at plan time (wall.gates) and/or
+      // a hand-drawn gap's midpoint (rc.gate)
+      gates: [...wall.gates.map((g) => ({ x: g.x, y: g.y })), ...(rc.gate ? [rc.gate] : [])],
       workdays: 0,
     };
     state.farms.push(farm);

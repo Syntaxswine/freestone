@@ -115,7 +115,7 @@ export class PeopleLayer {
   private workSite(): WorkSite | null {
     const wall = this.world.walls.find((w) => w.stonesLaid < w.stonesTotal);
     if (!wall) return null;
-    const { stonesPerCourse } = decomposeWall(wall.points, wall.height);
+    const { stonesPerCourse } = decomposeWall(wall.points, wall.height, wall.gates);
     const course = Math.floor(wall.stonesLaid / stonesPerCourse);
     return { wall, course, length: polylineLength(wall.points) };
   }

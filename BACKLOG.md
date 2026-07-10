@@ -117,8 +117,12 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   (harvest/sheaves/gleaning; the seasonal field LOOK shipped render-only 2026-07-10 —
   PARTLY: precise Durham crop calendar, oats/barley weighting, two- vs three-field
   course are M4 research; also work honesty — winter is hedging/ditching, not arable
-  tending year-round); gates SHIPPED (SIM 6, Farm.gate) — next: field hands and later
-  herds path THROUGH the gate, hurdle-gate render at the gap, animals kept in/out;
+  tending year-round); gates SHIPPED IN FULL (SIM 7): auto-gate carved on the
+  first-placed segment at plan time, masonry skips real openings, hurdle gates
+  rendered, the gate tool (G) knocks gates into / walls them out of built field
+  walls — next: field hands and later herds path THROUGH the gate, animals kept
+  in/out, CART gates (~2.5 m — GATE_W is a 1.5 m foot gate) when carts exist,
+  gates on non-farm walls = the M6 gatehouse course;
   a plough team (oxen!) for the spring band is the big theater upgrade; building
   OCCUPANCY belongs to M3 people; gradual field clearing + grubbing
   labor when the timber economy lands (today trees vanish on establishment);

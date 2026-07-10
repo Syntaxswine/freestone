@@ -63,7 +63,8 @@ describe('farms', () => {
     expect(farm.wallId).toBe(w.id);
     expect(farm.area).toBe(400); // 20 × 20, shoelace-exact on the open ring
     expect(farm.points).toHaveLength(4); // duplicate closing vertex dropped
-    expect(farm.gate).toBeNull(); // fully closed — you step over 0.5 m
+    // SIM 7: a farm always gets its gate, carved on the FIRST segment placed
+    expect(farm.gates).toEqual([{ x: 110, y: 100 }]);
     const done = world.events.find((e) => e.kind === 'wall_complete')!;
     const est = world.events.find((e) => e.kind === 'farm_established')!;
     expect(est.tick).toBe(done.tick); // recognized at completion, same day
@@ -87,7 +88,7 @@ describe('farms', () => {
     const farm = world.farms[0]!;
     expect(farm.area).toBe(400); // the gate's closing edge completes the polygon
     expect(farm.points).toHaveLength(5); // the gapped ring is kept as drawn
-    expect(farm.gate).toEqual({ x: 100, y: 100.7 }); // the gap's exact midpoint
+    expect(farm.gates).toEqual([{ x: 100, y: 100.7 }]); // the gap's exact midpoint
   });
 
   it('a gapped ring between heights claims nothing (too tall to step, too low to shelter)', () => {
@@ -170,7 +171,7 @@ describe('buildings', () => {
     expect(world.buildings).toHaveLength(0); // below headroom, no shelter
     expect(world.farms).toHaveLength(1); // but a low gapped ring is a gated paddock
     expect(world.farms[0]!.area).toBeCloseTo(48, 6);
-    expect(world.farms[0]!.gate).toEqual({ x: 104, y: 100 }); // mid-doorway
+    expect(world.farms[0]!.gates).toEqual([{ x: 104, y: 100 }]); // mid-doorway
   });
 
   it('an irregular near-closed ring falls back to area-only classification', () => {

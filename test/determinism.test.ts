@@ -100,11 +100,14 @@ describe('the sim law', () => {
   it('mutating the live world after makeSave does not corrupt the save (deep copy)', () => {
     const live = run('beta', 50);
     const save = makeSave(live, CMDS);
-    CMDS[0]!.points[0]!.x = 99999;
+    // CMDS[0] is a plan_wall by construction; narrow past the gate commands
+    const original = CMDS[0] as Command & { kind: 'plan_wall' };
+    const saved = save.commands[0] as Command & { kind: 'plan_wall' };
+    original.points[0]!.x = 99999;
     try {
-      expect(save.commands[0]!.points[0]!.x).toBe(100);
+      expect(saved.points[0]!.x).toBe(100);
     } finally {
-      CMDS[0]!.points[0]!.x = 100;
+      original.points[0]!.x = 100;
     }
   });
 

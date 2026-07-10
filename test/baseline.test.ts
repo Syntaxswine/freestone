@@ -164,6 +164,18 @@ const CANON_COMMANDS: Command[] = [
     ],
     height: 0.5,
   },
+  {
+    kind: 'add_gate',
+    tick: 360,
+    wallId: 5022, // the tick-130 farm ring's wall — deterministic id, probed
+    at: { x: 2014, y: 1912 }, // a second gate knocked into the east wall
+  },
+  {
+    kind: 'remove_gate',
+    tick: 375,
+    wallId: 5022,
+    at: { x: 2014, y: 1912 }, // taken down again: the masons wall it back up
+  },
 ];
 
 interface Milestone {
@@ -176,6 +188,7 @@ interface Milestone {
   farms: number;
   buildings: number;
   farmWorkdays: number;
+  gates: number;
 }
 
 interface Baseline {
@@ -211,6 +224,7 @@ function runCanon(site: SiteData): Baseline {
         farms: world.farms.length,
         buildings: world.buildings.length,
         farmWorkdays: world.farms.reduce((n, f) => n + f.workdays, 0),
+        gates: world.farms.reduce((n, f) => n + f.gates.length, 0),
       });
     }
   }
