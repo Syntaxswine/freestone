@@ -34,6 +34,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
     walls: [],
     fills: [],
     roofs: [],
+    pending: [],
     farms: [],
     buildings: [],
     stones: [],

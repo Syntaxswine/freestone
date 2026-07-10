@@ -1,8 +1,11 @@
 /**
- * Farm fields: when the sim establishes a farm (a completed closed or gated
- * low ring — SIM 3/6), the land inside turns to tilled strips, and the strips
- * FOLLOW THE YEAR. Render reads, never writes: every color here is a pure
- * function of world.tick and the farm's establishment day.
+ * Field enclosures: when a plot is DESIGNATED (SIM 10 — the lord's word), the
+ * land inside turns to its use. ARABLE farms till in strips and FOLLOW THE
+ * YEAR; a LIVESTOCK paddock wears mottled pasture (dulling in winter); FALLOW
+ * rests under tawny scrub and weeds. Render reads, never writes: every color
+ * here is a pure function of world.tick, the plot's use, and its designation
+ * day. An undesignated pending plot shows nothing — land is just land until
+ * it is put to a use.
  *
  * The field is a quad grid clipped to the enclosure ring — a quad is included
  * only when all four corners are inside, so a strip of green survives between
@@ -27,13 +30,17 @@ const LIFT = 0.06; // above terrain, below the wall's first course
 const MAX_QUADS = 60000; // absurd rings get coarser tillage, never a stall
 const FRESH_DAYS = 45; // a new field reads as raw tillage this long
 
-/** the year's look, in band order; FRESH overrides by age */
+/** the year's look, in band order; FRESH overrides by age (arable only) */
 const FRESH = 0;
 const WINTER = 1;
 const SPRING = 2;
 const SUMMER = 3;
 const GOLD = 4;
 const STUBBLE = 5;
+/** the other uses: pasture turns with the cold; fallow rests the year round */
+const PASTURE_GREEN = 6;
+const PASTURE_WINTER = 7;
+const FALLOW_SCRUB = 8;
 
 function hash1(a: number): number {
   let x = Math.imul(a + 1, 0x85ebca6b) >>> 0;
@@ -63,6 +70,12 @@ function bandTones(band: number, j: number): [THREE.Color, THREE.Color] {
       return [c(0.11 + j * 0.02, 0.48, 0.52 + j * 0.06), c(0.125 + j * 0.02, 0.52, 0.58 + j * 0.06)];
     case STUBBLE: // cut straw and bared earth
       return [c(0.11 + j * 0.02, 0.3, 0.55 + j * 0.05), c(0.08 + j * 0.02, 0.25, 0.4 + j * 0.05)];
+    case PASTURE_GREEN: // grazing in leaf — two greens, mottled not stripped
+      return [c(0.28 + j * 0.03, 0.32, 0.42 + j * 0.05), c(0.26 + j * 0.03, 0.28, 0.48 + j * 0.05)];
+    case PASTURE_WINTER: // the sward gone dull and thin
+      return [c(0.2 + j * 0.02, 0.16, 0.38 + j * 0.04), c(0.17 + j * 0.02, 0.14, 0.44 + j * 0.04)];
+    case FALLOW_SCRUB: // rested land — dun earth and weedy flecks
+      return [c(0.1 + j * 0.02, 0.2, 0.42 + j * 0.05), c(0.2 + j * 0.03, 0.18, 0.4 + j * 0.05)];
     default: // FRESH — just tilled, first sowing (the founding look)
       return [c(0.07 + j * 0.02, 0.3, 0.34 + j * 0.06), c(0.23 + j * 0.05, 0.3, 0.4 + j * 0.08)];
   }
@@ -70,7 +83,8 @@ function bandTones(band: number, j: number): [THREE.Color, THREE.Color] {
 
 interface FarmView {
   colorAttr: THREE.BufferAttribute;
-  parities: Uint8Array; // one per quad: which furrow tone
+  parities: Uint8Array; // one per quad: which of the band's two tones
+  use: 'farm' | 'livestock' | 'fallow';
   establishedTick: number;
   jitter: number;
   shownBand: number;
@@ -101,6 +115,13 @@ export class FarmLayer {
   }
 
   private bandFor(v: FarmView): number {
+    if (v.use === 'fallow') return FALLOW_SCRUB; // rest knows no season
+    if (v.use === 'livestock') {
+      // pasture keeps no crop calendar — only the cold shows
+      return seasonBand(this.world.tick % TICKS_PER_YEAR) === WINTER
+        ? PASTURE_WINTER
+        : PASTURE_GREEN;
+    }
     if (this.world.tick - v.establishedTick < FRESH_DAYS) return FRESH;
     return seasonBand(this.world.tick % TICKS_PER_YEAR);
   }
@@ -183,8 +204,14 @@ export class FarmLayer {
         }
         const cxq = (x0 + x1) / 2;
         const cyq = (y0 + y1) / 2;
-        const strip = Math.floor((px * (cxq - ring[0]!.x) + py * (cyq - ring[0]!.y)) / STRIP_W);
-        parities.push(strip & 1);
+        if (farm.use === 'farm') {
+          // furrow strips follow the plough line
+          const strip = Math.floor((px * (cxq - ring[0]!.x) + py * (cyq - ring[0]!.y)) / STRIP_W);
+          parities.push(strip & 1);
+        } else {
+          // pasture and fallow mottle — nobody ploughed them
+          parities.push(hash1(farm.id * 8191 + parities.length) < 0.5 ? 0 : 1);
+        }
         const z00 = g(x0, y0) + LIFT;
         const z10 = g(x1, y0) + LIFT;
         const z11 = g(x1, y1) + LIFT;
@@ -196,10 +223,10 @@ export class FarmLayer {
     }
     if (positions.length === 0) return; // a farm thinner than a quad shows no tillage
 
-    // the chronicle knows the day the field came to be; the render asks it
+    // the chronicle knows the day the plot was put to its use; the render asks it
     let established = 0;
     for (const e of this.world.events) {
-      if (e.kind === 'farm_established' && e.farmId === farm.id) {
+      if (e.kind === 'plot_designated' && e.plotId === farm.id) {
         established = e.tick;
         break;
       }
@@ -217,6 +244,7 @@ export class FarmLayer {
     const view: FarmView = {
       colorAttr,
       parities: Uint8Array.from(parities),
+      use: farm.use,
       establishedTick: established,
       jitter: hash1(farm.id),
       shownBand: -1,

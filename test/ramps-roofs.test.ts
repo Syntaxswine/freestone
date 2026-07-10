@@ -219,7 +219,13 @@ describe('roofs', () => {
       { x: 100, y: 120 },
       { x: 100, y: 100 },
     ];
-    const { world, site } = run([{ kind: 'plan_wall', tick: 0, points: farmRing, height: 0.5 }], 60);
+    const { world, site } = run(
+      [
+        { kind: 'plan_wall', tick: 0, points: farmRing, height: 0.5 },
+        { kind: 'designate', tick: 20, wallId: 5, use: 'farm' }, // first wall in a fresh world
+      ],
+      60,
+    );
     expect(world.farms).toHaveLength(1);
     const shell: Command = { kind: 'plan_wall', tick: world.tick, points: SHELL_RING, height: 3 };
     worldStep(world, site, [shell]);

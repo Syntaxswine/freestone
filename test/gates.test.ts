@@ -12,7 +12,7 @@ import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { decomposeWall, pointAt, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import { GATE_HALF, type Command, type Vec2 } from '../src/sim/types';
+import { GATE_HALF, type BuildingKind, type Command, type FieldUse, type Vec2 } from '../src/sim/types';
 
 const FIELD_RING: Vec2[] = [
   { x: 100, y: 100 },
@@ -29,6 +29,15 @@ const wall = (points: Vec2[], height: number, tick = 0): Command => ({
   height,
 });
 
+/** first wall in a fresh world is id 5 (4 founders) */
+const W1 = 5;
+
+const designate = (
+  wallId: number,
+  use: FieldUse | BuildingKind,
+  tick = 50,
+): Command => ({ kind: 'designate', tick, wallId, use });
+
 function run(commands: Command[], days: number, seed = 'gates') {
   const site = flatSite('flat', 1000);
   const world = createWorld(seed, site.id);
@@ -44,7 +53,7 @@ function run(commands: Command[], days: number, seed = 'gates') {
 
 describe('auto-gates', () => {
   it('a closed farm ring carves its gate on the first-placed segment, and the masonry skips it', () => {
-    const { world } = run([wall(FIELD_RING, 0.5)], 100);
+    const { world } = run([wall(FIELD_RING, 0.5), designate(W1, 'farm')], 100);
     const w = world.walls[0]!;
     expect(w.gates).toEqual([{ x: 110, y: 100 }]); // first segment's midpoint
     expect(world.farms[0]!.gates).toEqual([{ x: 110, y: 100 }]);
@@ -62,7 +71,7 @@ describe('auto-gates', () => {
 
   it('a hand-gapped ring gets no auto-gate — the gap already serves', () => {
     const gapped = [...FIELD_RING.slice(0, 4), { x: 100, y: 101.4 }];
-    const { world } = run([wall(gapped, 0.5)], 100);
+    const { world } = run([wall(gapped, 0.5), designate(W1, 'farm')], 100);
     expect(world.walls[0]!.gates).toEqual([]);
     expect(world.farms[0]!.gates).toEqual([{ x: 100, y: 100.7 }]);
   });
@@ -77,14 +86,14 @@ describe('auto-gates', () => {
       { x: 0, y: 0 },
     ];
     const { world } = run([wall(ring, 0.5)], 200);
-    expect(world.farms).toHaveLength(1);
+    expect(world.pending).toEqual([W1]); // the plot asks; the gate was carved regardless
     expect(world.walls[0]!.gates).toEqual([{ x: 2, y: 10 }]); // second segment's midpoint
   });
 });
 
 describe('the gate tool', () => {
   it('add_gate knocks the span out of a built wall, exactly', () => {
-    const { world, site } = run([wall(FIELD_RING, 0.5)], 100);
+    const { world, site } = run([wall(FIELD_RING, 0.5), designate(W1, 'farm')], 100);
     const w = world.walls[0]!;
     const before = decomposeWall(w.points, w.height, w.gates);
     const stonesBefore = world.stones.length;
@@ -105,7 +114,7 @@ describe('the gate tool', () => {
   });
 
   it('remove_gate queues infill and the masons wall it back up — with no second farm', () => {
-    const { world, site } = run([wall(FIELD_RING, 0.5)], 100);
+    const { world, site } = run([wall(FIELD_RING, 0.5), designate(W1, 'farm')], 100);
     const w = world.walls[0]!;
     const preAddTotal = w.stonesTotal; // auto-gate only
     worldStep(world, site, [
@@ -165,7 +174,7 @@ describe('the gate tool', () => {
       .map((e) => (e as { reason: string }).reason);
     expect(reasons).toEqual([
       'no such wall',
-      'only a farm or building wall takes a gate',
+      'only an enclosure wall takes a gate',
       'a gate already stands there',
       'no gate there',
     ]);
@@ -181,7 +190,7 @@ describe('the gate tool', () => {
       { x: 300, y: 300 },
       { x: 303.45, y: 300 },
     ];
-    const { world, site } = run([wall(loop, 3)], 200);
+    const { world, site } = run([wall(loop, 3), designate(W1, 'house')], 200);
     expect(world.buildings).toHaveLength(1);
     const w = world.walls[0]!;
     const stonesBefore = world.stones.length;
@@ -230,7 +239,8 @@ describe('the gate tool', () => {
     ];
     const { world, site } = run([wall(small, 0.5)], 100);
     const w = world.walls[0]!;
-    expect(world.farms).toHaveLength(1); // 36 m² — a legal garden farm
+    expect(world.pending).toEqual([w.id]); // 36 m² — a legal garden plot, asking
+    // (and the tool works on it while it asks: gates before the word)
     // march the whole ring trying to gate every 1.7 m — the spacing guard
     // refuses neighbors, and the half-solid cap must trip before the wall
     // dissolves into posts

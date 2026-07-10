@@ -211,6 +211,9 @@ export class PeopleLayer {
     const fill = this.world.fills.find((f) => f.volumeMoved < f.volumeTotal) ?? null;
     const deck = this.world.roofs.find((r) => r.workDone < r.workTotal) ?? null;
     const haul: { points: Vec2[] } | null = fill ?? deck;
+    // hands walk only the ARABLE fields — moveEarth's own filter (pasture is
+    // grazed, fallow rests; theater must not show work the sim doesn't do)
+    const arable = this.world.farms.filter((f) => f.use === 'farm');
 
     for (const p of this.puppets) {
       // --- pick this puppet's target ---
@@ -246,11 +249,11 @@ export class PeopleLayer {
           tx = v0.x + ox * 6 + (p.tradeIndex % 2) * 2;
           ty = v0.y + oy * 6;
         }
-      } else if (p.person.trade === 'laborer' && this.world.farms.length > 0) {
+      } else if (p.person.trade === 'laborer' && arable.length > 0) {
         // the fields: sim truth says an earthless laborer tends a farm
         // (moveEarth's fallback) — walk the furrows of "their" farm,
         // pacing row ends like the shuttle paces its two stations
-        const farm = this.world.farms[p.tradeIndex % this.world.farms.length]!;
+        const farm = arable[p.tradeIndex % arable.length]!;
         const row = this.fieldRow(farm, p.tradeIndex);
         const end = p.carrying ? row.b : row.a; // carrying doubles as "which end"
         inField = true;

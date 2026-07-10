@@ -75,6 +75,17 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
       fingerprints fills-outrank-fields via the tick-320 hand-closed fill), HUD gate
       mirrors ringSelfOverlaps, fieldRow anchors on the longest edge not the centroid
       (C-farms: 800/800 rows landed in the hollow), closedRing() tolerant like the sim.
+- [x] SIM 10 — designation (2026-07-10, boss: "a pop up should appear with options of
+      what can fill it… farm, livestock, or fallow… buildings should offer… house,
+      blacksmith, tower, tavern"): recognition ASKS — a completed enclosure pends
+      (state.pending = wallIds only; class/ring/area recompute from classifyRing at
+      the word, nothing copied that can drift) and the designate command answers.
+      Arable-only tending (paddock wd 0 in canon), gates legal on pending walls
+      ("hang the gate before you name the field"), the word-card asks at the plot
+      (choices are data, unlock-ready), pasture/fallow coats, tower keeps the sky,
+      classifyFootprint demoted to the mason's advisory READING. Canon: stones
+      byte-identical at every milestone; workdays −4 exact; events +3 exact;
+      pending=1 fingerprinted at ticks 200/260. Baseline regen SIM 9→10. 88 tests.
 - [ ] M2 — Quarry loop: bed model FIRST from real logs (boss decision 2026-07-09:
       TRANSCRIBE FIRST). Census DONE: 900 boreholes in-box, 900 with scans
       (research/boreholes/index.json via tools/fetch-borehole-index.mjs); scan→PNG
@@ -118,6 +129,18 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   when the timber economy lands, span honesty (>6.5 m wants posts — the aisle rule
   applied to decks). Ramp follow-ons: ramp direction picker (today first-side-low),
   switchback ramps, spoil accounting shared with ditches.
+- Designation follow-ons (SIM 10 shipped 2026-07-10, boss: "a pop up should appear
+  with options of what can fill it… these options might unlock later"): the choice
+  lists in main.ts (FIELD_CHOICES/SHELL_CHOICES) are data — an `enabled`/unlock flag
+  is one field when progression lands; RE-designation (rotation! fallow→arable is the
+  three-field course — needs a gesture on a designated plot and M4 rules for what
+  changing use mid-year costs); herds for paddocks (the paddock exists, empty and
+  honest, until animals are a system); building kinds gaining FUNCTION with trades
+  (blacksmith with M2's tool economy, tavern with M3 people, tower with M6 defense —
+  today kind is label + roof dressing; tower keeps the sky for crenellation later);
+  card polish if the boss wants it: Esc to dismiss + a reopen chip (today the card
+  stands until answered, non-modal); pending plots keep their trees until the word
+  (deliberate: land is just land until put to a use).
 - Farms/houses follow-ons (SIM 3 shipped 2026-07-10): crop ECONOMY belongs to M4
   (harvest/sheaves/gleaning; the seasonal field LOOK shipped render-only 2026-07-10 —
   PARTLY: precise Durham crop calendar, oats/barley weighting, two- vs three-field

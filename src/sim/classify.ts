@@ -8,7 +8,14 @@
  */
 import type { Vec2 } from './types';
 
-export const BUILDING_KINDS = [
+/**
+ * The mason's READING of a footprint — vernacular typology, advisory only.
+ * Since SIM 10 a building's functional kind (house/blacksmith/tower/tavern)
+ * is the lord's designation, not the geometry's; the reading survives as the
+ * crew's opinion in the HUD and the designation card ("the masons read this
+ * as a cot"), never gating anything.
+ */
+export const FOOTPRINT_KINDS = [
   'shed',
   'cot',
   'longhouse',
@@ -16,7 +23,7 @@ export const BUILDING_KINDS = [
   'hall',
   'house',
 ] as const;
-export type BuildingKind = (typeof BUILDING_KINDS)[number];
+export type FootprintKind = (typeof FOOTPRINT_KINDS)[number];
 
 /**
  * Vernacular typology bins. The honest logic: ~5–6.5 m of clear roof timber
@@ -24,7 +31,7 @@ export type BuildingKind = (typeof BUILDING_KINDS)[number];
  * width means aisles (halls and great barns were aisled).
  * PARTLY watchlist: dimension bins want a citation pass before they gate function.
  */
-export function classifyFootprint(area: number, long: number, span: number): BuildingKind {
+export function classifyFootprint(area: number, long: number, span: number): FootprintKind {
   if (area < 12) return 'shed';
   if (area < 40) return 'cot';
   if (span <= 6.5 && long >= 15) return area >= 180 ? 'great_barn' : 'longhouse';

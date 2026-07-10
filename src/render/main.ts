@@ -29,7 +29,9 @@ import {
   STONE_DEPTH,
   STONE_LEN,
   TICKS_PER_YEAR,
+  type BuildingKind,
   type Command,
+  type FieldUse,
 } from '../sim/types';
 import { BuildingLayer } from './buildings';
 import { FarmLayer } from './farms';
@@ -338,6 +340,7 @@ async function boot(): Promise<void> {
       const owned = new Set<number>([
         ...world.farms.map((f) => f.wallId),
         ...world.buildings.map((b) => b.wallId),
+        ...world.pending, // hang the gate before you name the field
       ]);
       let addWall: number | null = null;
       let wd = Infinity;
@@ -356,6 +359,91 @@ async function boot(): Promise<void> {
       }
     },
   });
+  // --- the designation card (SIM 10): a completed enclosure asks its lord ---
+  // Choices as data so later courses can gate entries behind unlocks (boss
+  // canon 2026-07-10: "these options might unlock later") — today all stand.
+  const FIELD_CHOICES: { use: FieldUse; label: string }[] = [
+    { use: 'farm', label: '🌾 farm' },
+    { use: 'livestock', label: '🐑 livestock' },
+    { use: 'fallow', label: '🌿 fallow' },
+  ];
+  const SHELL_CHOICES: { use: BuildingKind; label: string }[] = [
+    { use: 'house', label: '⌂ house' },
+    { use: 'blacksmith', label: '⚒ blacksmith' },
+    { use: 'tower', label: '🗼 tower' },
+    { use: 'tavern', label: '🍺 tavern' },
+  ];
+  const card = document.createElement('div');
+  card.id = 'word-card';
+  card.style.display = 'none';
+  const cardTitle = document.createElement('div');
+  const cardRow = document.createElement('div');
+  card.append(cardTitle, cardRow);
+  document.body.appendChild(card);
+  const cardAnchor = new THREE.Vector3();
+  let cardWall = -1; // the pending wall the card is asking about
+  let cardBaseTitle = '';
+  // a wall whose word is enqueued but not yet stepped: the card moves on
+  // rather than asking twice. An entry stands only while world.tick <= its
+  // tick — once stepped, the live pending list is the truth again (so a
+  // rejected word can never wedge a plot unaskable).
+  const spoken = new Map<number, number>();
+
+  function updateCard(): void {
+    for (const [id, t] of spoken) {
+      if (world.tick > t) spoken.delete(id);
+    }
+    const queue = world.pending.filter((id) => !spoken.has(id));
+    const target = queue[0]; // completion order: the oldest asks first
+    if (target === undefined) {
+      card.style.display = 'none';
+      cardWall = -1;
+      return;
+    }
+    const wall = world.walls.find((w) => w.id === target);
+    if (!wall) return; // unreachable: pending ⇒ the wall stands
+    if (cardWall !== target) {
+      // the one predicate names the class; the card only asks the question
+      const rc = classifyRing(wall.points, wall.height);
+      if (!rc) return; // unreachable: pending ⇒ classifiable
+      cardWall = target;
+      cardBaseTitle =
+        rc.kind === 'farm'
+          ? `the plot is enclosed — ${rc.area.toFixed(0)} m² · what is it for?`
+          : `the shell stands — ${rc.area.toFixed(0)} m² · the masons read ${KIND_LABEL[rc.reading]}`;
+      cardRow.textContent = '';
+      for (const c of rc.kind === 'farm' ? FIELD_CHOICES : SHELL_CHOICES) {
+        const b = document.createElement('button');
+        b.textContent = c.label;
+        b.onclick = () => {
+          enqueue({ kind: 'designate', tick: world.tick, wallId: target, use: c.use });
+          spoken.set(target, world.tick);
+        };
+        cardRow.appendChild(b);
+      }
+    }
+    setText(cardTitle, cardBaseTitle + (queue.length > 1 ? ` · (1 of ${queue.length})` : ''));
+    // anchor over the enclosure's middle, reprojected every frame; clamped so
+    // the question never leaves the screen while it stands unanswered
+    let ax = 0;
+    let ay = 0;
+    for (const p of wall.points) {
+      ax += p.x;
+      ay += p.y;
+    }
+    ax /= wall.points.length;
+    ay /= wall.points.length;
+    cardAnchor.set(ax, groundSim(ax, ay) + 2.5, ay).project(camera);
+    card.style.display = '';
+    const sx = (cardAnchor.x * 0.5 + 0.5) * window.innerWidth;
+    const sy = (-cardAnchor.y * 0.5 + 0.5) * window.innerHeight;
+    const behind = cardAnchor.z > 1; // over the shoulder: park it, don't mirror it
+    const cw = card.offsetWidth;
+    const ch = card.offsetHeight;
+    card.style.left = `${behind ? 8 : Math.min(Math.max(sx - cw / 2, 8), window.innerWidth - cw - 8)}px`;
+    card.style.top = `${behind ? window.innerHeight - ch - 8 : Math.min(Math.max(sy - ch - 12, 8), window.innerHeight - ch - 8)}px`;
+  }
+
   const people = new PeopleLayer(world, site, scene, groundShow);
   const paceSum = world.people
     .filter((p) => p.trade === 'mason')
@@ -472,14 +560,21 @@ async function boot(): Promise<void> {
     gates.update();
     trees.update(world);
     people.update(dt, speed > 0);
+    updateCard();
 
     const year = Math.floor(world.tick / TICKS_PER_YEAR) + 1;
     const day = (world.tick % TICKS_PER_YEAR) + 1;
     const laid = world.walls.reduce((n, w) => n + w.stonesLaid, 0);
     const total = world.walls.reduce((n, w) => n + w.stonesTotal, 0);
+    const nFarms = world.farms.filter((f) => f.use === 'farm').length;
+    const nPaddocks = world.farms.filter((f) => f.use === 'livestock').length;
+    const nFallow = world.farms.filter((f) => f.use === 'fallow').length;
     const holdings =
-      (world.farms.length ? ` — farms ${world.farms.length}` : '') +
-      (world.buildings.length ? ` — buildings ${world.buildings.length}` : '');
+      (nFarms ? ` — farms ${nFarms}` : '') +
+      (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
+      (nFallow ? ` — fallow ${nFallow}` : '') +
+      (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
+      (world.pending.length ? ` — ${world.pending.length} awaiting the word` : '');
     setText(
       status,
       `Year ${year}, day ${day} — stones ${laid}${total ? `/${total}` : ''} — ` +
@@ -595,13 +690,13 @@ async function boot(): Promise<void> {
           warn += ` · too low to shelter — raise it to ${BUILDING_MIN_H} m`;
         }
         // the pencil's promise IS the sim's predicate — classifyRing,
-        // imported, never re-derived (the second fleet's parity law), so
-        // farms, gated farms and hand-drawn buildings name themselves
-        // exactly when the sim would claim them
+        // imported, never re-derived (the second fleet's parity law). Since
+        // SIM 10 the promise is the ASKING: a closed plot or a raised shell
+        // awaits its lord's word, so the pencil says so
         if (rc?.kind === 'farm') {
-          name = `a farm with a gate — ${rc.area.toFixed(0)} m² · `;
+          name = `a gated plot — ${rc.area.toFixed(0)} m² · asks its use when it closes · `;
         } else if (rc?.kind === 'building') {
-          name = `${KIND_LABEL[rc.buildingKind]} — ${rc.area.toFixed(0)} m² · `;
+          name = `a shell (reads ${KIND_LABEL[rc.reading]}) — ${rc.area.toFixed(0)} m² · asks its use when it tops out · `;
         } else if (ring && !ringSelfIntersects(ring) && !ringSelfOverlaps(ring)) {
           // an honest near-ring the sim will NOT claim: say why, pencil in hand
           const f = ring[0]!;
@@ -639,17 +734,27 @@ async function boot(): Promise<void> {
         }
       }
       const noun =
-        pending?.kind === 'plan_fill' ? 'fill' : pending?.kind === 'plan_roof' ? 'roof' : 'wall';
+        pending?.kind === 'plan_fill'
+          ? 'fill'
+          : pending?.kind === 'plan_roof'
+            ? 'roof'
+            : pending?.kind === 'designate'
+              ? 'word'
+              : 'wall';
       setText(
         hint,
         pending
           ? speed === 0
-            ? `${noun} committed — press ×1 to break ground`
+            ? noun === 'word'
+              ? 'the word is given — press ×1 and it is so'
+              : `${noun} committed — press ×1 to break ground`
             : noun === 'fill'
               ? 'fill committed — the barrows roll'
               : noun === 'roof'
                 ? 'roof committed — the deck goes up'
-                : 'wall committed — the crew takes it up'
+                : noun === 'word'
+                  ? 'the word is given'
+                  : 'wall committed — the crew takes it up'
           : world.walls.length === 0 && world.fills.length === 0
             ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F)'
             : '',
@@ -699,6 +804,7 @@ async function boot(): Promise<void> {
       buildings.update();
       gates.update();
       trees.update(world);
+      updateCard();
       return world.tick;
     },
   };

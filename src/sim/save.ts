@@ -27,8 +27,11 @@ export function makeSave(state: WorldState, commandLog: readonly Command[]): Sav
       savedAtTick: state.tick,
     },
     commands: commandLog.map((c) => {
-      // deep-copy per shape: gate commands carry `at`, the plans carry `points`
+      // deep-copy per shape: gate commands carry `at`, designate carries only
+      // scalars, the plans carry `points` (the husbandry course's law 8: a
+      // copy that assumes one shape crashes on the first command without it)
       if (c.kind === 'add_gate' || c.kind === 'remove_gate') return { ...c, at: { ...c.at } };
+      if (c.kind === 'designate') return { ...c };
       return { ...c, points: c.points.map((p) => ({ ...p })) };
     }),
   };

@@ -1,13 +1,15 @@
-import { classifyFootprint, reduceCorners, type BuildingKind } from './classify';
+import { classifyFootprint, reduceCorners, type FootprintKind } from './classify';
 import { Rng } from './rng';
 import type { SiteData } from './site';
 import {
+  BUILDING_KINDS,
   BUILDING_MIN_H,
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
   FARM_CLOSE_EPS,
   FARM_MIN_AREA,
   FARM_WALL_MAX_H,
+  FIELD_USES,
   GATE_HALF,
   GATE_MIN_SEG,
   GATE_W,
@@ -16,7 +18,9 @@ import {
   ROOF_SNAP,
   ROOF_DECK,
   STONE_LEN,
+  type BuildingKind,
   type Command,
+  type FieldUse,
   type FillPlan,
   type PlacedStone,
   type Vec2,
@@ -149,13 +153,15 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
           : undefined;
       if (!wall) return 'no such wall';
       // one tool, context decides (boss canon 2026-07-10): a farm wall takes
-      // a GATE, a building wall takes a DOOR — the mechanics are the same
-      // opening. Plain curtain walls wait for the M6 gatehouse course.
+      // a GATE, a building wall takes a DOOR, and a PENDING enclosure (built,
+      // not yet designated) takes either — you hang the gate before you name
+      // the field. Plain curtain walls wait for the M6 gatehouse course.
       if (
         !state.farms.some((f) => f.wallId === wall.id) &&
-        !state.buildings.some((b) => b.wallId === wall.id)
+        !state.buildings.some((b) => b.wallId === wall.id) &&
+        !state.pending.includes(wall.id)
       ) {
-        return 'only a farm or building wall takes a gate';
+        return 'only an enclosure wall takes a gate';
       }
       // gate ops only on an idle, complete wall: the slot mapping that placed
       // every laid stone must never shift under a build in progress
@@ -180,7 +186,34 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       return null;
     }
+    case 'designate': {
+      const wall =
+        typeof cmd.wallId === 'number'
+          ? state.walls.find((w) => w.id === cmd.wallId)
+          : undefined;
+      if (!wall || !state.pending.includes(wall.id)) {
+        return 'no enclosure awaits the word there';
+      }
+      // pending ⇒ the wall classified at completion, and wall geometry is
+      // immutable — re-running the one predicate here cannot disagree
+      const rc = classifyRing(wall.points, wall.height);
+      if (rc === null) return 'no enclosure awaits the word there'; // unreachable
+      if (rc.kind === 'farm') {
+        if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, or fallow';
+      } else if (!isBuildingKind(cmd.use)) {
+        return 'a shell takes house, blacksmith, tower, or tavern';
+      }
+      return null;
+    }
   }
+}
+
+/** palette guards for designate — includes() over the constant lists */
+function isFieldUse(u: unknown): u is FieldUse {
+  return typeof u === 'string' && (FIELD_USES as readonly string[]).includes(u);
+}
+function isBuildingKind(u: unknown): u is BuildingKind {
+  return typeof u === 'string' && (BUILDING_KINDS as readonly string[]).includes(u);
 }
 
 /** proper-crossing test over the closed ring's non-adjacent segment pairs */
@@ -491,13 +524,61 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       });
       break;
     }
+    case 'designate': {
+      // the lord's word: the pending enclosure becomes what it is FOR. A paper
+      // act, applied the day it is given — no labor, no wall idle-check (the
+      // masonry may be mid-infill; the land's purpose is not the crew's
+      // business). Everything geometric recomputes from the one predicate.
+      const wall = state.walls.find((w) => w.id === cmd.wallId)!; // validated
+      const rc = classifyRing(wall.points, wall.height)!; // validated non-null
+      state.pending = state.pending.filter((id) => id !== wall.id);
+      if (rc.kind === 'farm') {
+        const farm = {
+          id: state.nextId++,
+          wallId: wall.id,
+          use: cmd.use as FieldUse, // validated against the field palette
+          points: rc.ring,
+          area: rc.area,
+          // every way in: the auto-gate carved at plan time plus any the tool
+          // hung while pending (wall.gates is live truth) and/or a hand-drawn
+          // gap's midpoint (rc.gate)
+          gates: [...wall.gates.map((g) => ({ x: g.x, y: g.y })), ...(rc.gate ? [rc.gate] : [])],
+          workdays: 0,
+        };
+        state.farms.push(farm);
+        state.events.push({
+          kind: 'plot_designated',
+          tick: state.tick,
+          plotId: farm.id,
+          wallId: wall.id,
+          use: farm.use,
+          area: rc.area,
+        });
+      } else {
+        const building = {
+          id: state.nextId++,
+          wallId: wall.id,
+          kind: cmd.use as BuildingKind, // validated against the shell palette
+          area: rc.area,
+        };
+        state.buildings.push(building);
+        state.events.push({
+          kind: 'building_complete',
+          tick: state.tick,
+          buildingId: building.id,
+          wallId: wall.id,
+          buildingKind: building.kind,
+        });
+      }
+      break;
+    }
   }
 }
 
 /**
  * Laborers move earth to the oldest unfinished fill (m³/day = their pace),
  * then deck the oldest unfinished roof (≈ m²/day at the same pace), and a
- * laborer with NO construction that day tends the farm with the fewest
+ * laborer with NO construction that day tends the ARABLE farm with the fewest
  * workdays instead (tie: the older farm) — one person-day of field work.
  * Earth outranks carpentry outranks the fields outranks idleness. The Lodge
  * never puppets individuals: the work exists, so hands find it.
@@ -529,12 +610,15 @@ function moveEarth(state: WorldState): void {
         state.events.push({ kind: 'roof_complete', tick: state.tick, roofId: roof.id });
       }
     }
-    if (moved === 0 && state.farms.length > 0) {
-      let target = state.farms[0]!;
+    if (moved === 0) {
+      // ARABLE only: pasture is grazed by its herd (later), fallow rests —
+      // hands go to the tilled fields alone
+      let target: { workdays: number } | null = null;
       for (const f of state.farms) {
-        if (f.workdays < target.workdays) target = f;
+        if (f.use !== 'farm') continue;
+        if (target === null || f.workdays < target.workdays) target = f;
       }
-      target.workdays += 1;
+      if (target !== null) target.workdays += 1;
     }
   }
 }
@@ -708,10 +792,14 @@ function layOneStone(
   }
 }
 
-/** What a completed ring's geometry declares — see classifyRing. */
+/**
+ * What a completed ring's geometry declares — see classifyRing. `reading` is
+ * the mason's vernacular opinion of a shell's footprint (advisory since
+ * SIM 10; the functional kind is the lord's designation).
+ */
 export type RingClass =
   | { kind: 'farm'; ring: Vec2[]; area: number; gate: Vec2 | null }
-  | { kind: 'building'; area: number; buildingKind: BuildingKind }
+  | { kind: 'building'; area: number; reading: FootprintKind }
   | null;
 
 /**
@@ -784,56 +872,30 @@ export function classifyRing(pts: readonly Vec2[], height: number): RingClass {
     long = Math.sqrt(area);
     span = long;
   }
-  return { kind: 'building', area, buildingKind: classifyFootprint(area, long, span) };
+  return { kind: 'building', area, reading: classifyFootprint(area, long, span) };
 }
 
 /**
  * When a wall completes, its GEOMETRY declares what it made (boss canon
- * 2026-07-09/10) — the pencil mode is not sim data. Recognition happens at
- * COMPLETION, not planning: the field exists when the wall stands, and the
- * chronicle records the day. Recognition is ONE-SHOT per wall: a wall that
- * re-completes after gate infill must not claim its land twice.
+ * 2026-07-09/10) — the pencil mode is not sim data. Since SIM 10 recognition
+ * ASKS rather than answers (boss canon 2026-07-10): the completed enclosure
+ * goes on state.pending and waits for its lord's designate command; only the
+ * class (field plot vs shell) is geometry's call. Recognition happens at
+ * COMPLETION, and is ONE-SHOT per wall: a wall that re-completes after gate
+ * infill must not ask twice, and a designated wall never re-pends.
  */
 export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
+  if (state.pending.includes(wall.id)) return;
   if (state.farms.some((f) => f.wallId === wall.id)) return;
   if (state.buildings.some((b) => b.wallId === wall.id)) return;
   const rc = classifyRing(wall.points, wall.height);
   if (rc === null) return;
-  if (rc.kind === 'farm') {
-    const farm = {
-      id: state.nextId++,
-      wallId: wall.id,
-      points: rc.ring,
-      area: rc.area,
-      // every way in: the auto-gate carved at plan time (wall.gates) and/or
-      // a hand-drawn gap's midpoint (rc.gate)
-      gates: [...wall.gates.map((g) => ({ x: g.x, y: g.y })), ...(rc.gate ? [rc.gate] : [])],
-      workdays: 0,
-    };
-    state.farms.push(farm);
-    state.events.push({
-      kind: 'farm_established',
-      tick: state.tick,
-      farmId: farm.id,
-      wallId: wall.id,
-      area: rc.area,
-    });
-    return;
-  }
-  const building = {
-    id: state.nextId++,
-    wallId: wall.id,
-    kind: rc.buildingKind,
-    area: rc.area,
-  };
-  state.buildings.push(building);
-  state.events.push({
-    kind: 'building_complete',
-    tick: state.tick,
-    buildingId: building.id,
-    wallId: wall.id,
-    buildingKind: building.kind,
-  });
+  state.pending.push(wall.id);
+  state.events.push(
+    rc.kind === 'farm'
+      ? { kind: 'plot_enclosed', tick: state.tick, wallId: wall.id, area: rc.area }
+      : { kind: 'shell_raised', tick: state.tick, wallId: wall.id, area: rc.area },
+  );
 }
 
 /**

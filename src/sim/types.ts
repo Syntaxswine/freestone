@@ -7,11 +7,10 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
-import type { BuildingKind } from './classify';
-
-// 9: the gate tool opens DOORS on building walls too (same tool, context
-// decides) — 8: ramps + roofs; 7: real gates + gate tool; 6: gated farms
-export const SIM_VERSION = 9;
+// 10: designation — a completed enclosure asks its lord (farm/livestock/
+// fallow, house/blacksmith/tower/tavern) — 9: doors; 8: ramps + roofs;
+// 7: real gates + gate tool; 6: gated farms
+export const SIM_VERSION = 10;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -116,10 +115,29 @@ export interface Roof {
   workDone: number;
 }
 
-/** A recognized field enclosure — established the day its wall completes. */
+/**
+ * What a designated field plot is FOR (boss canon 2026-07-10: the closed low
+ * ring asks its lord — farm, livestock, or fallow; all choices open today,
+ * some may unlock later). Constant strings; they enter hashed state via
+ * Farm.use and the designate command.
+ */
+export const FIELD_USES = ['farm', 'livestock', 'fallow'] as const;
+export type FieldUse = (typeof FIELD_USES)[number];
+
+/**
+ * What a designated shell is FOR (boss canon 2026-07-10). The lord's word,
+ * not the footprint's — the mason's vernacular reading (classify.ts) stays
+ * advisory. Constant strings; they enter hashed state via Building.kind.
+ */
+export const BUILDING_KINDS = ['house', 'blacksmith', 'tower', 'tavern'] as const;
+export type BuildingKind = (typeof BUILDING_KINDS)[number];
+
+/** A designated field enclosure — the plot its lord put to a use. */
 export interface Farm {
   id: number;
   wallId: number;
+  /** farm (arable, tended), livestock (a paddock; herds later), or fallow (rested) */
+  use: FieldUse;
   /** the enclosure ring (open form — no duplicate closing vertex) */
   points: Vec2[];
   area: number; // m², shoelace of the ring
@@ -131,21 +149,22 @@ export interface Farm {
    */
   gates: Vec2[];
   /**
-   * Person-days of tending. A laborer with no earth to move works the farm
-   * with the fewest workdays (boss canon 2026-07-10: recognized farms put
-   * citizens to work). The Lodge never puppets individuals — this is
-   * recognition creating work, not an assignment UI. M4's granary year
-   * converts workdays + seasons into yield; until then the counter is the
-   * honest substrate.
+   * Person-days of tending, ARABLE ONLY (use 'farm'): a laborer with no earth
+   * to move works the arable farm with the fewest workdays (boss canon
+   * 2026-07-10: recognized farms put citizens to work). Pasture is grazed,
+   * fallow rests — neither draws hands. The Lodge never puppets individuals —
+   * this is recognition creating work, not an assignment UI. M4's granary
+   * year converts workdays + seasons into yield; until then the counter is
+   * the honest substrate.
    */
   workdays: number;
 }
 
-/** A recognized building — its shell is an ordinary wall; the plot named it. */
+/** A designated building — its shell is an ordinary wall; the lord named it. */
 export interface Building {
   id: number;
   wallId: number;
-  /** constant string from classify.ts BUILDING_KINDS — enters hashed state */
+  /** constant string from BUILDING_KINDS — the designation, enters hashed state */
   kind: BuildingKind;
   area: number; // m² enclosed (the doorway's closing edge implied)
 }
@@ -206,6 +225,14 @@ export type Command =
       tick: number;
       wallId: number;
       at: Vec2; // the nearest gate within reach is taken down and walled up
+    }
+  | {
+      kind: 'designate';
+      tick: number;
+      /** a wall in state.pending — the completed enclosure awaiting the word */
+      wallId: number;
+      /** must match the enclosure's class: FieldUse for a plot, BuildingKind for a shell */
+      use: FieldUse | BuildingKind;
     };
 
 export type SimEvent =
@@ -216,9 +243,22 @@ export type SimEvent =
   | { kind: 'fill_complete'; tick: number; fillId: number }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
   | { kind: 'roof_complete'; tick: number; roofId: number }
-  | { kind: 'farm_established'; tick: number; farmId: number; wallId: number; area: number }
+  /** a low ring closed and awaits the lord's word — the chronicle knows the day */
+  | { kind: 'plot_enclosed'; tick: number; wallId: number; area: number }
+  /** a shell topped out and awaits its purpose */
+  | { kind: 'shell_raised'; tick: number; wallId: number; area: number }
+  /** the word given: the plot is a farm, a paddock, or left fallow */
+  | {
+      kind: 'plot_designated';
+      tick: number;
+      plotId: number;
+      wallId: number;
+      use: FieldUse;
+      area: number;
+    }
   | { kind: 'gate_added'; tick: number; wallId: number; stonesRemoved: number }
   | { kind: 'gate_removed'; tick: number; wallId: number; stonesToRelay: number }
+  /** the word given: the shell is a house, a smithy, a tower, or a tavern */
   | {
       kind: 'building_complete';
       tick: number;
@@ -240,6 +280,14 @@ export interface WorldState {
   walls: WallPlan[];
   fills: FillPlan[];
   roofs: Roof[];
+  /**
+   * Wall ids of completed enclosures awaiting designation (SIM 10). Just the
+   * ids: wall geometry is immutable, so class, ring, area and gap gate all
+   * recompute from classifyRing at designation time — one predicate, nothing
+   * copied that could drift. Completion order preserved (the card asks oldest
+   * first). A designate command moves the wall from here to farms/buildings.
+   */
+  pending: number[];
   farms: Farm[];
   buildings: Building[];
   stones: PlacedStone[];

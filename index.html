@@ -20,6 +20,18 @@
       #hud button.active { background: #4a473b; }
       #hud .plan { color: #cfe3b8; }
       #hud .hint { opacity: 0.65; }
+      /* the designation card: a completed enclosure asks its lord (SIM 10) */
+      #word-card {
+        position: fixed; z-index: 10; color: #d8d3c4;
+        font: 12px/1.6 ui-monospace, Consolas, monospace;
+        background: rgba(20, 20, 17, 0.88); padding: 7px 10px; border: 1px solid #6a6552;
+        user-select: none; max-width: 360px;
+      }
+      #word-card button {
+        font: inherit; color: inherit; background: #2a2822; border: 1px solid #4a473b;
+        margin: 4px 4px 0 0; padding: 1px 8px; cursor: pointer;
+      }
+      #word-card button:hover { background: #4a473b; }
       body.planning #app canvas { cursor: crosshair; }
     </style>
   </head>

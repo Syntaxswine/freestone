@@ -16,7 +16,7 @@
  * owning drags; a "click" is a press that moved < 6 px and lasted < 500 ms.
  */
 import * as THREE from 'three';
-import { classifyFootprint, type BuildingKind } from '../sim/classify';
+import { classifyFootprint, type FootprintKind } from '../sim/classify';
 import type { SiteData } from '../sim/site';
 import { decomposeWall, polylineLength } from '../sim/step';
 import { MATERIALS, type Material, type Vec2 } from '../sim/types';
@@ -740,7 +740,8 @@ function nearestOnSeg(p: Vec2, a: Vec2, b: Vec2): Vec2 {
   return { x: a.x + dx * t, y: a.y + dy * t };
 }
 
-export const KIND_LABEL: Record<BuildingKind, string> = {
+/** the mason's vernacular — labels for the READING, not the designation */
+export const KIND_LABEL: Record<FootprintKind, string> = {
   shed: 'a shed',
   cot: 'a cot',
   longhouse: 'a longhouse',

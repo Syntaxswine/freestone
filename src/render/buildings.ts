@@ -1,8 +1,9 @@
 /**
- * Roofs: when the sim completes a building (SIM 3 — a near-closed tall ring
- * with a doorway gap), a gable roof rises over the shell. Render reads, never
- * writes; the roof appears the day the walls top out (honest carpentry — a
- * timber phase with real days — is a later course, noted in BACKLOG).
+ * Roofs: when a shell is DESIGNATED (SIM 10 — the lord's word makes it a
+ * house, smithy, tower or tavern), a gable roof rises over it; towers keep
+ * the sky. Render reads, never writes; the roof appears the day the word is
+ * given (honest carpentry — a timber phase with real days — is a later
+ * course, noted in BACKLOG).
  *
  * Geometry: the ring reduced to its 4 true corners (shared sim helper) gives
  * eaves; the ridge runs between the midpoints of the SHORT edges at a 45°
@@ -42,6 +43,9 @@ export class BuildingLayer {
 
   private build(index: number): void {
     const b = this.world.buildings[index]!;
+    // a TOWER keeps the sky: no auto-gable — its cap is crenellation or the
+    // roof tool's honest deck, both later courses (M6)
+    if (b.kind === 'tower') return;
     const wall = this.world.walls.find((w) => w.id === b.wallId);
     if (!wall) return;
     const corners = reduceCorners(wall.points);
@@ -86,10 +90,11 @@ export class BuildingLayer {
         ? [mid(ov[0]!, ov[1]!), mid(ov[2]!, ov[3]!), ov[1]!, ov[2]!, ov[3]!, ov[0]!]
         : [mid(ov[1]!, ov[2]!), mid(ov[3]!, ov[0]!), ov[2]!, ov[3]!, ov[0]!, ov[1]!];
 
-    // thatch for the small, stone slate for the grand (dressing, not canon)
+    // thatch for the homely, stone slate for the smithy — sparks and straw
+    // roofs are old enemies (dressing, not canon)
     const j = hash1(b.id);
     const color =
-      b.kind === 'hall' || b.kind === 'great_barn'
+      b.kind === 'blacksmith'
         ? new THREE.Color().setHSL(0.58 + j * 0.03, 0.06, 0.5 + j * 0.08)
         : new THREE.Color().setHSL(0.1 + j * 0.02, 0.38, 0.52 + j * 0.08);
 

@@ -1,18 +1,19 @@
 /**
- * SIM 4: field work + the degenerate-ring overlap guard.
- * The load-bearing claims: a laborer with no earth to move tends the farm
- * with the fewest workdays (+1 person-day, exact and deterministic);
- * construction outranks the fields; multiple farms balance; and the review
- * fleet's double-wound lap exploit (collinear overlapping runs that cross
- * nothing PROPERLY while shoelace adds every lap) is recognized as nothing
- * and rejected as a fill.
+ * SIM 4/10: field work + the degenerate-ring overlap guard.
+ * The load-bearing claims: a laborer with no earth to move tends the ARABLE
+ * farm with the fewest workdays (+1 person-day, exact and deterministic —
+ * pasture is grazed and fallow rests, neither draws hands); construction
+ * outranks the fields; multiple farms balance; and the review fleet's
+ * double-wound lap exploit (collinear overlapping runs that cross nothing
+ * PROPERLY while shoelace adds every lap) is recognized as nothing and
+ * rejected as a fill.
  */
 import { describe, expect, it } from 'vitest';
 import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { ringSelfOverlaps, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import type { Command, Vec2 } from '../src/sim/types';
+import type { Command, FieldUse, Vec2 } from '../src/sim/types';
 
 const FIELD_RING: Vec2[] = [
   { x: 100, y: 100 },
@@ -47,6 +48,17 @@ const wall = (points: Vec2[], height: number, tick = 0): Command => ({
   height,
 });
 
+/** first wall in a fresh world is id 5 (4 founders), a same-tick second is 6 */
+const W1 = 5;
+const W2 = 6;
+
+const designate = (wallId: number, use: FieldUse, tick = 20): Command => ({
+  kind: 'designate',
+  tick,
+  wallId,
+  use,
+});
+
 function run(commands: Command[], days: number, seed = 'fieldwork') {
   const site = flatSite('flat', 1000);
   const world = createWorld(seed, site.id);
@@ -61,19 +73,46 @@ function run(commands: Command[], days: number, seed = 'fieldwork') {
 }
 
 describe('field work', () => {
-  it('idle laborers tend the farm: exactly one person-day each, from the day after establishment', () => {
-    const { world } = run([wall(FIELD_RING, 0.5)], 60);
-    const est = world.events.find((e) => e.kind === 'farm_established')!;
+  it('idle laborers tend the farm: exactly one person-day each, from the day of the word', () => {
+    const { world } = run([wall(FIELD_RING, 0.5), designate(W1, 'farm')], 60);
+    const word = world.events.find((e) => e.kind === 'plot_designated')!;
+    expect(word.tick).toBe(20);
     const laborers = world.people.filter((p) => p.trade === 'laborer').length;
     expect(laborers).toBe(2);
-    // established DURING tick est.tick (after that day's moveEarth ran), so
-    // tending starts the next tick; world.tick ticks completed so far
-    expect(world.farms[0]!.workdays).toBe(laborers * (world.tick - est.tick - 1));
-    expect(world.farms[0]!.workdays).toBeGreaterThan(0);
+    // the word applies at the START of its tick (commands before moveEarth),
+    // so idle hands are in the field the very day it is given
+    expect(world.farms[0]!.workdays).toBe(laborers * (world.tick - word.tick));
+    expect(world.farms[0]!.workdays).toBe(80); // 2 hands × ticks 20…59
+  });
+
+  it('pasture is grazed and fallow rests: neither draws hands; arable takes ALL idle labor', () => {
+    const second = FIELD_RING.map((p) => ({ x: p.x + 40, y: p.y }));
+    const { world } = run(
+      [
+        wall(FIELD_RING, 0.5, 0),
+        wall(second, 0.5, 0),
+        designate(W1, 'livestock'),
+        designate(W2, 'farm'),
+      ],
+      60,
+    );
+    expect(world.farms.find((f) => f.use === 'livestock')!.workdays).toBe(0);
+    expect(world.farms.find((f) => f.use === 'farm')!.workdays).toBe(80); // undiluted
+    // and a holding of ONLY paddock + fallow leaves every hand idle
+    const { world: rest } = run(
+      [
+        wall(FIELD_RING, 0.5, 0),
+        wall(second, 0.5, 0),
+        designate(W1, 'livestock'),
+        designate(W2, 'fallow'),
+      ],
+      60,
+    );
+    expect(rest.farms.map((f) => f.workdays)).toEqual([0, 0]);
   });
 
   it('construction outranks the fields: earth moves first, tending pauses', () => {
-    const { world } = run([wall(FIELD_RING, 0.5)], 60);
+    const { world } = run([wall(FIELD_RING, 0.5), designate(W1, 'farm')], 60);
     const before = world.farms[0]!.workdays;
     const site = flatSite('flat', 1000);
     // a fresh fill: laborers barrow again; the farm waits
@@ -101,7 +140,10 @@ describe('field work', () => {
 
   it('two farms balance to the day (fewest-workdays rule)', () => {
     const second = FIELD_RING.map((p) => ({ x: p.x + 40, y: p.y }));
-    const { world } = run([wall(FIELD_RING, 0.5, 0), wall(second, 0.5, 0)], 100);
+    const { world } = run(
+      [wall(FIELD_RING, 0.5, 0), wall(second, 0.5, 0), designate(W1, 'farm'), designate(W2, 'farm')],
+      100,
+    );
     expect(world.farms).toHaveLength(2);
     const [a, b] = world.farms;
     expect(a!.workdays + b!.workdays).toBeGreaterThan(0);
@@ -112,6 +154,7 @@ describe('field work', () => {
     expect(ringSelfOverlaps(DOUBLE_WOUND.slice(0, -1))).toBe(true);
     const { world } = run([wall(DOUBLE_WOUND, 0.5)], 300);
     expect(world.walls[0]!.stonesLaid).toBe(world.walls[0]!.stonesTotal); // masonry is legal
+    expect(world.pending).toHaveLength(0); // it never even asks
     expect(world.farms).toHaveLength(0); // the 14,600 m² claim is not
     const { world: w2 } = run(
       [{ kind: 'plan_fill', tick: 0, points: DOUBLE_WOUND.slice(0, -1), height: 1 }],
@@ -165,9 +208,13 @@ describe('field work', () => {
   it('field work replays identically from a save', () => {
     const site = flatSite('flat', 1000);
     const world = createWorld('fieldwork-replay', site.id);
-    const log: Command[] = [wall(FIELD_RING, 0.5)];
+    const log: Command[] = [wall(FIELD_RING, 0.5), designate(W1, 'farm')];
     const byTick = new Map<number, Command[]>();
-    byTick.set(0, log);
+    for (const c of log) {
+      const b = byTick.get(c.tick);
+      if (b) b.push(c);
+      else byTick.set(c.tick, [c]);
+    }
     for (let i = 0; i < 90; i++) worldStep(world, site, byTick.get(world.tick) ?? []);
     expect(world.farms[0]!.workdays).toBeGreaterThan(0);
     const replayed = replay(makeSave(world, log), site);

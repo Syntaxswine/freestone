@@ -36,9 +36,11 @@ const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 400];
  * (the SIM 2 review caught it guarding zero fill/material behavior): walls in
  * both materials, a fill that completes with a wall planned ON the platform
  * (effectiveGroundAt in the record), deliberately invalid commands so the
- * constant rejection strings are fingerprinted too, and — SIM 3 — a closed
- * low ring that must establish a farm plus a doorway loop that must complete
- * a building, so enclosure recognition is in the fingerprint.
+ * constant rejection strings are fingerprinted too, and — SIM 3/10 — a closed
+ * low ring and a doorway loop that must PEND at completion and become a farm
+ * and a tavern by the lord's word, a paddock whose workdays stay zero
+ * (arable-only tending in the record), a door cut on a still-PENDING shell,
+ * and two milestones (200, 260) that fingerprint a live pending state.
  */
 const CANON_COMMANDS: Command[] = [
   {
@@ -125,7 +127,13 @@ const CANON_COMMANDS: Command[] = [
       { x: 1990, y: 1924 },
       { x: 1990, y: 1900 },
     ],
-    height: 0.5, // closed low ring — SIM 3 must establish a farm on completion
+    height: 0.5, // closed low ring — SIM 10: pends at completion (@137), designated below
+  },
+  {
+    kind: 'designate',
+    tick: 140,
+    wallId: 5022, // the tick-130 ring — deterministic id, probed
+    use: 'farm', // the word makes it arable; tending begins this very tick
   },
   {
     kind: 'plan_wall',
@@ -138,7 +146,14 @@ const CANON_COMMANDS: Command[] = [
       { x: 2040, y: 1960 },
       { x: 2043.45, y: 1960 },
     ],
-    height: 3, // near-closed tall ring — SIM 3 must complete a building (house)
+    height: 3, // near-closed tall ring — pends @163 and STAYS pending through the
+    //            200 and 260 milestones (the asking state is in the fingerprint)
+  },
+  {
+    kind: 'designate',
+    tick: 370,
+    wallId: 5444, // the tick-150 shell (probed) — the masons read a cot…
+    use: 'tavern', // …the lord keeps ale. AFTER the tick-350 door: doors cut on pending shells
   },
   {
     kind: 'plan_fill',
@@ -160,9 +175,15 @@ const CANON_COMMANDS: Command[] = [
       { x: 1946, y: 2035 },
       { x: 1946, y: 2051 },
       { x: 1930, y: 2051 },
-      { x: 1930, y: 2036.5 }, // a 1.5 m gateway — SIM 6 must farm it WITH a gate
+      { x: 1930, y: 2036.5 }, // a 1.5 m gateway — SIM 6: the gap gate rides the designation
     ],
     height: 0.5,
+  },
+  {
+    kind: 'designate',
+    tick: 355,
+    wallId: 6223, // the tick-340 gapped ring (probed, completes @345)
+    use: 'livestock', // a paddock: its workdays must stay ZERO in every milestone
   },
   {
     kind: 'add_gate',
@@ -223,6 +244,7 @@ interface Milestone {
   events: number;
   wallsComplete: number;
   fillsComplete: number;
+  pending: number;
   farms: number;
   buildings: number;
   farmWorkdays: number;
@@ -260,6 +282,7 @@ function runCanon(site: SiteData): Baseline {
         events: world.events.length,
         wallsComplete: world.walls.filter((w) => w.stonesLaid >= w.stonesTotal).length,
         fillsComplete: world.fills.filter((f) => f.volumeMoved >= f.volumeTotal).length,
+        pending: world.pending.length,
         farms: world.farms.length,
         buildings: world.buildings.length,
         farmWorkdays: world.farms.reduce((n, f) => n + f.workdays, 0),
