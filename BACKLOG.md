@@ -1,8 +1,8 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-TOYBOX-2026-07-09.md](proposals/HANDOFF-TOYBOX-2026-07-09.md)**
-(reads the foundation keystone first — the soul and the nine laws live there; the toybox
-course carries the new laws, traps, and next steps).
+**🗿 Current handoff: [proposals/HANDOFF-HUSBANDRY-2026-07-10.md](proposals/HANDOFF-HUSBANDRY-2026-07-10.md)**
+(reads the FOUNDATION keystone first — the soul, the nine laws, the maker's marks —
+then the TOYBOX course; husbandry carries SIM 3–9's laws, traps, and next steps).
 
 **New session? Run the `/freestone-session-start` skill** (cold CI + orientation), or by
 hand: the current handoff above, then `npm test` + `npm run build` green before touching

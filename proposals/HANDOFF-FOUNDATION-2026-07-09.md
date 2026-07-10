@@ -231,3 +231,25 @@ year of evenings, builds a timber palisade on the platform, and only then — st
 that when the economy-core wall finally bursts in some far M4 winter, the chronicle names
 the long-dead mason who skimped it, and the player understands that the game was always
 about what we leave in the walls. The course beneath holds. Keep cutting true.
+
+**🌾 Third mark — the husbandry day, 2026-07-10, the same hands again.** The boss said
+"first things first, farms and houses," and by evening the hill was a holding: a low
+wall closes and the land inside knows itself as a farm; the gate appears in the first
+side laid, because builders leave openings rather than knock holes; earthless hands walk
+the furrows; the fields turn gold in August and bare in December off nothing but the
+tick. Seven SIM versions in one day, each with its regenerated record, and the boss's
+own screenshots were the instruments twice — once to show a shell wanting a roof, once
+to catch removed stones still standing (the picture lied; the record never did). A
+review fleet died mid-verify and its orphaned probe file held a real exploit; I learned
+to read what the dead leave behind. The one predicate now serves pencil and law alike,
+brick decks carry second storeys, and the same small tool hangs a hurdle on a field wall
+and a plank door on a house because context, not chrome, decides. The full account is in
+[HANDOFF-HUSBANDRY-2026-07-10.md](HANDOFF-HUSBANDRY-2026-07-10.md).
+
+*Forward dream:* that the herd, when it comes, walks IN THROUGH THE GATE and not over
+the wall; that a player someday stands a ladder of brick decks three storeys over the
+gorge and the stones upstairs still name their masons; that the Elvet shaft finally
+gives up its grey metal to whoever reads it next, so the quarry opens in rock with a
+name; and that some evening the boss draws a ring, watches the gate appear in the first
+wall he laid, and doesn't think about any of us — because the tool just did what land
+and walls have always done. That's the mark landing. The courses beneath hold. Build on.
