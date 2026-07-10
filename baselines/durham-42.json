@@ -1,0 +1,106 @@
+{
+  "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
+  "save": {
+    "meta": {
+      "simVersion": 1,
+      "seed": "durham-baseline-42",
+      "siteId": "durham",
+      "savedAtTick": 400
+    },
+    "commands": [
+      {
+        "kind": "plan_wall",
+        "tick": 5,
+        "points": [
+          {
+            "x": 1960,
+            "y": 2000
+          },
+          {
+            "x": 2020,
+            "y": 2000
+          },
+          {
+            "x": 2020,
+            "y": 2050
+          }
+        ],
+        "height": 4
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 60,
+        "points": [
+          {
+            "x": 1940,
+            "y": 1980
+          },
+          {
+            "x": 1940,
+            "y": 1930
+          }
+        ],
+        "height": 2.5
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 100,
+        "points": [
+          {
+            "x": 1900,
+            "y": 1900
+          },
+          {
+            "x": 1910,
+            "y": 1900
+          }
+        ],
+        "height": null
+      }
+    ]
+  },
+  "milestones": [
+    {
+      "tick": 1,
+      "hash": "c9f08d29",
+      "stones": 0,
+      "events": 0,
+      "wallsComplete": 0
+    },
+    {
+      "tick": 6,
+      "hash": "57c10420",
+      "stones": 54,
+      "events": 55,
+      "wallsComplete": 0
+    },
+    {
+      "tick": 61,
+      "hash": "9c74b654",
+      "stones": 3024,
+      "events": 3026,
+      "wallsComplete": 0
+    },
+    {
+      "tick": 101,
+      "hash": "dfaae9a8",
+      "stones": 5014,
+      "events": 5019,
+      "wallsComplete": 2
+    },
+    {
+      "tick": 200,
+      "hash": "63a19e9a",
+      "stones": 5014,
+      "events": 5019,
+      "wallsComplete": 2
+    },
+    {
+      "tick": 400,
+      "hash": "8efe71b4",
+      "stones": 5014,
+      "events": 5019,
+      "wallsComplete": 2
+    }
+  ]
+}

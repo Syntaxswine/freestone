@@ -46,8 +46,15 @@ cold-CI skill exists: `npm test` + `npm run build` green before touching anythin
       expulsion refused)
 
 ## Next
-- [ ] Instruments before M2 (house law): gen-baseline/cold-CI harness — seed-42-style
-      canonical runs, state hashes per tick milestone, a strip/summary artifact
+- [x] Instruments before M2 SHIPPED (2026-07-09): baselines/durham-42.json — canonical
+      400-tick run on real Durham terrain (2 walls + 1 deliberately-invalid command),
+      state hashes at 6 milestone ticks, compared on EVERY `npm test` (cold-CI folds
+      into the standing ritual); `npm run gen-baseline` regenerates deliberately.
+      Instrument proven: a 0.035→0.036 yaw-jitter mutation fails the first milestone
+      with a clear message while all other tests stay green
+- [ ] M2 — Quarry loop: bed model FIRST, from the 1,598 Durham borehole log scans
+      (hand-transcription, budget real hours); bed exhaustion designed in from day one;
+      Guédelon rates as calibration; per-stone provenance gains bed/quarry fields
 - [ ] M1 design data (from the honest eye-check; polish, not bugs): scaffold sprite once
       walls pass ~2 m; per-station stone piles so laborers read on long walls; billboard
       sprites don't face the work; cursor ring is world-sized (0.65 m) and vanishes at
