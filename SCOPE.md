@@ -485,7 +485,7 @@ These are first-class systems, not flavor:
 
 House patterns, ported deliberately:
 
-- **TypeScript + Three.js + Vite.** Browser-first dev (port 8742), Steam later via
+- **TypeScript + Three.js + Vite.** Browser-first dev (port 8745), Steam later via
   Electron/Tauri. Rationale: the entire in-house verification toolchain (headless CI,
   baselines, replay saves, agent-driven tuning) is JS-native. Godot was considered and
   declined — better Steam story, but it would orphan every house tool. **[D1, recommended]**

@@ -17,9 +17,21 @@ Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a 
       (fire/Kenilworth/Guédelon): 9 agents, 38 claims → anchors 21-23.
 - [x] Q8 RESOLVED 2026-07-09: **DURHAM confirmed** by boss ("start with this one; more
       locations later") → sites are data packages loaded by id, future locations = content
-- [ ] M1 groundwork IN PROGRESS: deterministic `worldStep` core + seed-first RNG +
-      command-log save format + project scaffold (TS/Three/Vite, port 8742) + real Durham
-      terrain (EA LiDAR 1m preferred, OS Terrain 50 fallback) → data/site-durham/
+- [x] M1 groundwork SHIPPED (2026-07-09): deterministic `worldStep` core + seed-first RNG +
+      command-log save/replay + scaffold (TS/Three/Vite, port 8745) + REAL Durham terrain
+      (EA LiDAR 1m → 500×500@8m, public/data/site-durham/) + adversarial review pass
+      (3 lenses + verify; 8 confirmed findings fixed, 17/17 tests)
+- [ ] M1 proper: player wall-drawing UI, mason sprites, camera polish — the demo command
+      in render/main.ts is the placeholder to replace
+
+## Deferred from groundwork review (do before the systems they guard ship)
+- Save meta should carry a CONTENT FINGERPRINT of the site heightmap (id equality is
+  necessary-not-sufficient — a regenerated heightmap with the same id would still fork
+  replay). Do when the load-game UI lands (M3).
+- Cross-engine determinism: Math.hypot/atan2 eliminated or quantized in sim state; if the
+  sim ever computes more transcendental math, keep the rule — implementation-approximated
+  functions never write raw into state.
+- events[] grows unboundedly in state — move to external chronicle sink/ring buffer at M3.
 - [ ] Boss review of remaining SCOPE.md open questions (§14): player identity, era, combat
       flavor, idle tolerance, chapel long-game scope, Q7 tone ceiling (refeeding stays /
       expulsion refused)

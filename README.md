@@ -22,5 +22,21 @@ real decades; they grow old and die doing it, and their children finish what the
 **Status:** M0 — scoping. Read [SCOPE.md](SCOPE.md) for the full design; [BACKLOG.md](BACKLOG.md)
 for milestones and open threads.
 
-**Stack (planned):** TypeScript + Three.js + Vite; deterministic headless sim core with
-event-sourced replay saves (the save IS the chronicle IS the timelapse IS the test fixture).
+**Stack:** TypeScript + Three.js + Vite; deterministic headless sim core with event-sourced
+replay saves (the save IS the chronicle IS the timelapse IS the test fixture).
+
+## Development
+
+```
+npm install
+npm run dev     # vite on port 8745
+npm test        # vitest: determinism / replay / provenance suite
+npm run build   # tsc typecheck + vite build
+```
+
+The sim law lives in [src/sim/step.ts](src/sim/step.ts): physics advances only through
+`worldStep`; the rng cursor lives in `WorldState.rng` and only `worldStep` moves it; UI
+speed is transport. Saves are `{seed, commands}` — see [src/sim/save.ts](src/sim/save.ts);
+`replay(save) === live` is enforced by [test/determinism.test.ts](test/determinism.test.ts).
+The site is a data package ([src/sim/site.ts](src/sim/site.ts)); Durham terrain lands in
+`data/site-durham/`.
