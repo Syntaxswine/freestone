@@ -16,11 +16,13 @@
  * owning drags; a "click" is a press that moved < 6 px and lasted < 500 ms.
  */
 import * as THREE from 'three';
+import { classifyFootprint, type BuildingKind } from '../sim/classify';
 import type { SiteData } from '../sim/site';
 import { decomposeWall, polylineLength } from '../sim/step';
 import { MATERIALS, type Material, type Vec2 } from '../sim/types';
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
+const SNAP_PX = 16; // screen px: a wall click this near the FIRST point closes the ring
 const SAMPLE_STEP = 2; // meters between preview samples along each segment
 const MAX_SAMPLES = 2048;
 const MAX_POINTS = 128;
@@ -187,7 +189,9 @@ export class WallPlanner {
   }
 
   setHeight(h: number): void {
-    this.height = Math.min(8, Math.max(1, Math.round(h * 2) / 2));
+    // floor 0.5: the field wall (boss canon 2026-07-09 — farms are made by a
+    // low wall around a piece of land; two courses you can step over)
+    this.height = Math.min(8, Math.max(0.5, Math.round(h * 2) / 2));
     if (this.active) this.rebuild();
   }
 
@@ -277,6 +281,22 @@ export class WallPlanner {
     ];
   }
 
+  /**
+   * Wall mode: the ring being drawn/hovered, IF it closes exactly (last point
+   * === first, via startSnap's exact copy). Returns the OPEN ring — the
+   * duplicate closing vertex dropped — ready for polygon math. The HUD names
+   * the enclosure from this with the sim's own recognition rules.
+   */
+  closedRing(): Vec2[] | null {
+    if (this.mode !== 'wall') return null;
+    const poly = this.rawPolyline();
+    if (poly.length < 4) return null;
+    const first = poly[0]!;
+    const last = poly[poly.length - 1]!;
+    if (first.x !== last.x || first.y !== last.y) return null;
+    return poly.slice(0, -1);
+  }
+
   /** live building dimensions (front × depth, meters) once the loop is real */
   footprint(): { front: number; depth: number } | null {
     if (this.mode !== 'building') return null;
@@ -345,6 +365,35 @@ export class WallPlanner {
       x: Math.min(Math.max(hit.x, 1), site.extentX - 1),
       y: Math.min(Math.max(hit.y, 1), site.extentY - 1),
     };
+  }
+
+  /** world ground point → screen px, for screen-space snap tests */
+  private screenOf(p: Vec2): { x: number; y: number } | null {
+    const v = new THREE.Vector3(p.x, this.deps.groundAt(p.x, p.y), p.y).project(
+      this.deps.camera,
+    );
+    if (v.z > 1) return null; // behind the eye
+    const rect = this.deps.dom.getBoundingClientRect();
+    return {
+      x: rect.left + ((v.x + 1) / 2) * rect.width,
+      y: rect.top + ((1 - v.y) / 2) * rect.height,
+    };
+  }
+
+  /**
+   * Wall mode: a pointer near the FIRST point closes the ring — enclosures are
+   * how farms are made (boss canon 2026-07-09). The snap radius is SCREEN
+   * SPACE (input-guard law: pixels, not meters — 8 px is meters of ground when
+   * zoomed out), and the snapped point is an EXACT copy of the first, so the
+   * sim can recognize closure by equality, not tolerance.
+   */
+  private startSnap(ev: { clientX: number; clientY: number }): Vec2 | null {
+    if (this.mode !== 'wall' || this.points.length < 3) return null;
+    const first = this.points[0]!;
+    const s = this.screenOf(first);
+    if (!s) return null;
+    const d = Math.hypot(ev.clientX - s.x, ev.clientY - s.y);
+    return d < SNAP_PX ? { x: first.x, y: first.y } : null;
   }
 
   /**
@@ -463,6 +512,18 @@ export class WallPlanner {
         }
         return;
       }
+      // ring it and it's real: a click on the start point closes the ring AND
+      // commits in one gesture. Like the building commit above, this runs
+      // BEFORE the jitter guard — a closing click is a commit, not a placement.
+      const snap = this.startSnap(ev);
+      if (snap) {
+        if (this.points.length < MAX_POINTS) {
+          this.points.push(snap);
+          this.rebuild();
+          this.confirm();
+        }
+        return;
+      }
       // the second click of a double-click must be a no-op IN SCREEN SPACE: a few
       // pixels of jitter can be many meters of ground when zoomed out, so a
       // world-space gap check cannot swallow it
@@ -484,7 +545,9 @@ export class WallPlanner {
 
   private onPointerMove = (ev: PointerEvent): void => {
     if (!this.active) return;
-    this.cursor = this.pick(ev);
+    // hovering the start point previews the closure: the cursor (and so the
+    // ribbon) snaps onto the first point, and the HUD can name the enclosure
+    this.cursor = this.startSnap(ev) ?? this.pick(ev);
     if (this.cursor) {
       const g = this.deps.groundAt(this.cursor.x, this.cursor.y);
       this.cursorRing.position.set(this.cursor.x, g + 0.1, this.cursor.y);
@@ -536,26 +599,25 @@ function dist2d(a: Vec2, b: Vec2): number {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+export const KIND_LABEL: Record<BuildingKind, string> = {
+  shed: 'a shed',
+  cot: 'a cot',
+  longhouse: 'a longhouse',
+  great_barn: 'a great barn',
+  hall: 'a hall',
+  house: 'a house',
+};
+
 /**
  * The plot is the plan (SCOPE §6, boss canon via Populous): footprint size and
- * shape name the building. The bins are honest vernacular typology — roof span
- * caps depth at ~5–6 m of clear timber, so buildings grow LONG, not deep, and
- * real width historically means aisles (halls and great barns were aisled).
- * Render-side naming only for now; function wiring lands with M3/M4.
- * PARTLY watchlist: dimension bins want a citation pass before they gate function.
+ * shape name the building. The bins live in sim/classify.ts — shared with the
+ * sim's own recognition, so the pencil's promise and the record always agree.
  */
 export function describeFootprint(front: number, depth: number): { label: string; note?: string } {
   const long = Math.max(front, depth);
   const span = Math.min(front, depth);
-  const area = front * depth;
-  let label: string;
-  if (area < 12) label = 'a shed';
-  else if (area < 40) label = 'a cot';
-  else if (span <= 6.5 && long >= 15) label = area >= 180 ? 'a great barn' : 'a longhouse';
-  else if (area >= 220 && long / span >= 1.8) label = 'a great barn';
-  else if (area >= 110) label = 'a hall';
-  else label = 'a house';
+  const kind = classifyFootprint(front * depth, long, span);
   const note =
     span > 6.5 ? 'the master mason: that span wants aisles — or a forest of a roof' : undefined;
-  return { label, note };
+  return { label: KIND_LABEL[kind], note };
 }
