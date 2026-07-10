@@ -9,10 +9,10 @@
  */
 import type { BuildingKind } from './classify';
 
-// 7: real gates — auto-gate carved on a farm's first segment at plan time,
-// the gate tool (add_gate/remove_gate), masonry skips openings
-// — 6: gated farms; 5: fill closure normalized; 4: field work + overlap guard
-export const SIM_VERSION = 7;
+// 8: ramp fills (surface slopes from the first-placed edge) + roofs
+// (plan_roof spans wall corners; brick roofs are the next storey's floor)
+// — 7: real gates + gate tool; 6: gated farms; 5: fill normalization
+export const SIM_VERSION = 8;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -68,6 +68,14 @@ export interface FillPlan {
   id: number;
   points: Vec2[]; // closed polygon (last edge implied), site-local meters
   level: number; // target surface elevation, meters AOD
+  /**
+   * 'flat' tips to a level platform. 'ramp' slopes: ground at the FIRST-placed
+   * edge, rising linearly to `level` at the polygon's far extent — the way up
+   * onto a platform (boss canon 2026-07-10). Constant strings, hashed state.
+   */
+  shape: 'flat' | 'ramp';
+  /** ramp only: the ground sampled at the first edge's midpoint at plan time */
+  rampLowG: number;
   volumeTotal: number; // m³, estimated at plan time
   volumeMoved: number; // m³ moved so far
 }
@@ -87,6 +95,27 @@ export const BUILDING_MIN_H = 2.0; // meters: below headroom a ring shelters not
 export const GATE_W = 1.5; // meters: a field gate's clear width (foot + barrow; carts later)
 export const GATE_HALF = 0.75; // meters: masonry keeps this far from a gate's center
 export const GATE_MIN_SEG = 2.7; // meters: a segment shorter than this can't take a gate
+export const ROOF_SNAP = 0.75; // meters: a roof corner must rest this close to a wall
+export const ROOF_DECK = 0.25; // meters: a roof plate's thickness — a brick deck IS a floor
+
+/**
+ * Roof materials (boss canon 2026-07-10): wood and straw cap a void; FLAT
+ * BRICK adds another layer — a completed brick roof counts as ground, so the
+ * next storey's walls stand on it. Constant strings; they enter hashed state.
+ */
+export const ROOF_MATERIALS = ['wood', 'straw', 'brick'] as const;
+export type RoofMaterial = (typeof ROOF_MATERIALS)[number];
+
+/** A roof plate spanning wall tops. Laborers build it after fills, before fields. */
+export interface Roof {
+  id: number;
+  points: Vec2[]; // the spanned polygon; every vertex rests on a finished wall
+  level: number; // meters AOD of the supporting wall tops (the highest)
+  material: RoofMaterial;
+  area: number; // m², shoelace
+  workTotal: number; // person-days of carpentry (≈ area)
+  workDone: number;
+}
 
 /** A recognized field enclosure — established the day its wall completes. */
 export interface Farm {
@@ -157,6 +186,15 @@ export type Command =
       tick: number;
       points: Vec2[]; // polygon, ≥3 points
       height: number; // meters of fill above the highest sampled ground
+      /** absent in old logs/saves — defaults to 'flat' at the boundary */
+      shape?: 'flat' | 'ramp';
+    }
+  | {
+      kind: 'plan_roof';
+      tick: number;
+      points: Vec2[]; // ≥3 vertices, each resting on a FINISHED wall
+      /** absent defaults to 'wood' at the boundary */
+      material?: RoofMaterial;
     }
   | {
       kind: 'add_gate';
@@ -177,6 +215,8 @@ export type SimEvent =
   | { kind: 'wall_complete'; tick: number; wallId: number }
   | { kind: 'fill_planned'; tick: number; fillId: number; volumeTotal: number }
   | { kind: 'fill_complete'; tick: number; fillId: number }
+  | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
+  | { kind: 'roof_complete'; tick: number; roofId: number }
   | { kind: 'farm_established'; tick: number; farmId: number; wallId: number; area: number }
   | { kind: 'gate_added'; tick: number; wallId: number; stonesRemoved: number }
   | { kind: 'gate_removed'; tick: number; wallId: number; stonesToRelay: number }
@@ -200,6 +240,7 @@ export interface WorldState {
   people: Person[];
   walls: WallPlan[];
   fills: FillPlan[];
+  roofs: Roof[];
   farms: Farm[];
   buildings: Building[];
   stones: PlacedStone[];

@@ -176,6 +176,38 @@ const CANON_COMMANDS: Command[] = [
     wallId: 5022,
     at: { x: 2014, y: 1912 }, // taken down again: the masons wall it back up
   },
+  {
+    kind: 'plan_roof',
+    tick: 100,
+    points: [
+      { x: 1900, y: 1900 },
+      { x: 1910, y: 1900 },
+      { x: 1910, y: 1910 },
+    ], // rejected: floating in a field (SIM 8 support rule fingerprinted)
+  },
+  {
+    kind: 'plan_roof',
+    tick: 380,
+    points: [
+      { x: 2040, y: 1960 }, // the tick-150 house's four corners — a brick deck
+      { x: 2048, y: 1960 },
+      { x: 2048, y: 1966 },
+      { x: 2040, y: 1966 },
+    ],
+    material: 'brick',
+  },
+  {
+    kind: 'plan_fill',
+    tick: 385,
+    points: [
+      { x: 1955, y: 1955 },
+      { x: 1961, y: 1955 },
+      { x: 1961, y: 1961 },
+      { x: 1955, y: 1961 },
+    ],
+    height: 1,
+    shape: 'ramp', // SIM 8: the wedge in the record
+  },
 ];
 
 interface Milestone {
@@ -189,6 +221,7 @@ interface Milestone {
   buildings: number;
   farmWorkdays: number;
   gates: number;
+  roofsComplete: number;
 }
 
 interface Baseline {
@@ -225,6 +258,7 @@ function runCanon(site: SiteData): Baseline {
         buildings: world.buildings.length,
         farmWorkdays: world.farms.reduce((n, f) => n + f.workdays, 0),
         gates: world.farms.reduce((n, f) => n + f.gates.length, 0),
+        roofsComplete: world.roofs.filter((r) => r.workDone >= r.workTotal).length,
       });
     }
   }

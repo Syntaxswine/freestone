@@ -14,16 +14,28 @@
  * of "pointer nowhere near a fill" must stay O(fills) integer compares.
  */
 import * as THREE from 'three';
-import { pointInPolygon } from '../sim/step';
+import { fillSurfaceAt, pointInPolygon } from '../sim/step';
 import type { FillPlan, WorldState } from '../sim/types';
 
-const TOP_COLOR = 0x97764f; // trodden earth
-const SIDE_COLOR = 0x8a6a48; // raw tipped dirt
 const SKIRT_STEP = 3; // meters between skirt bottom samples along an edge
+
+function hash1(a: number): number {
+  let x = Math.imul(a + 1, 0x85ebca6b) >>> 0;
+  x = Math.imul(x ^ (x >>> 15), 0x27d4eb2f) >>> 0;
+  return ((x ^ (x >>> 15)) >>> 0) / 4294967296;
+}
 
 interface FillView {
   group: THREE.Group;
   volumeShown: number;
+  /**
+   * Per-fill earth tones (boss bug report 2026-07-10: dirt on dirt turned
+   * invisible — every fill shared ONE material, so stacked platforms read as
+   * a single brown void). Each fill's tint is jittered by its id, the same
+   * trick the stones use, so layers meet at a visible seam.
+   */
+  topMat: THREE.MeshLambertMaterial;
+  sideMat: THREE.MeshLambertMaterial;
 }
 
 interface BBox {
@@ -36,8 +48,6 @@ interface BBox {
 export class FillLayer {
   private views = new Map<number, FillView>();
   private bboxes = new Map<number, BBox>();
-  private topMat = new THREE.MeshLambertMaterial({ color: TOP_COLOR, side: THREE.DoubleSide });
-  private sideMat = new THREE.MeshLambertMaterial({ color: SIDE_COLOR, side: THREE.DoubleSide });
 
   constructor(
     private world: WorldState,
@@ -64,11 +74,13 @@ export class FillLayer {
     return f.volumeTotal > 0 ? Math.min(1, f.volumeMoved / f.volumeTotal) : 1;
   }
 
-  /** displayed surface height at a point: terrain lerped toward the flat level */
+  /** displayed surface at a point: terrain lerped toward the FINISHED surface
+   *  (flat level, or the ramp's slope — fillSurfaceAt is the sim's own fn) */
   private surfaceAt(f: FillPlan, x: number, y: number): number {
     const t = this.terrainGroundAt(x, y);
-    if (f.level <= t) return t;
-    return t + (f.level - t) * this.progress(f);
+    const target = fillSurfaceAt(f, x, y);
+    if (target <= t) return t;
+    return t + (target - t) * this.progress(f);
   }
 
   /** completed fills only — the surface the SIM grounds masonry on */
@@ -78,7 +90,10 @@ export class FillLayer {
       if (f.volumeMoved < f.volumeTotal || f.level <= top) continue;
       const b = this.bbox(f);
       if (x < b.minX || x > b.maxX || y < b.minY || y > b.maxY) continue;
-      if (pointInPolygon(x, y, f.points)) top = f.level;
+      if (pointInPolygon(x, y, f.points)) {
+        const s = fillSurfaceAt(f, x, y);
+        if (s > top) top = s;
+      }
     }
     return top;
   }
@@ -101,7 +116,19 @@ export class FillLayer {
     for (const f of this.world.fills) {
       let v = this.views.get(f.id);
       if (!v) {
-        v = { group: new THREE.Group(), volumeShown: -1 };
+        const j = hash1(f.id);
+        v = {
+          group: new THREE.Group(),
+          volumeShown: -1,
+          topMat: new THREE.MeshLambertMaterial({
+            color: new THREE.Color().setHSL(0.07 + j * 0.025, 0.3, 0.42 + j * 0.12),
+            side: THREE.DoubleSide,
+          }),
+          sideMat: new THREE.MeshLambertMaterial({
+            color: new THREE.Color().setHSL(0.065 + j * 0.02, 0.28, 0.36 + j * 0.1),
+            side: THREE.DoubleSide,
+          }),
+        };
         this.views.set(f.id, v);
         this.scene.add(v.group);
       }
@@ -127,7 +154,7 @@ export class FillLayer {
       pos.setY(i, this.surfaceAt(f, pos.getX(i), pos.getZ(i)) + 0.02);
     }
     topGeo.computeVertexNormals();
-    const topMesh = new THREE.Mesh(topGeo, this.topMat);
+    const topMesh = new THREE.Mesh(topGeo, v.topMat);
     topMesh.frustumCulled = false;
     v.group.add(topMesh);
 
@@ -159,7 +186,7 @@ export class FillLayer {
     skirtGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(bottoms), 3));
     skirtGeo.setIndex(idx);
     skirtGeo.computeVertexNormals();
-    const skirt = new THREE.Mesh(skirtGeo, this.sideMat);
+    const skirt = new THREE.Mesh(skirtGeo, v.sideMat);
     skirt.frustumCulled = false;
     v.group.add(skirt);
   }

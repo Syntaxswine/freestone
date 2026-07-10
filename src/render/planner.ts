@@ -58,7 +58,10 @@ export interface PlannerDeps {
   snapTargets?: () => readonly (readonly Vec2[])[];
 }
 
-export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate';
+export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof';
+
+export const ROOF_MATERIAL_CYCLE = ['wood', 'straw', 'brick'] as const;
+export type PlannerRoofMaterial = (typeof ROOF_MATERIAL_CYCLE)[number];
 
 export class WallPlanner {
   active = false;
@@ -66,6 +69,10 @@ export class WallPlanner {
   height = 4;
   /** applies to wall/building plans; fills are always dirt */
   material: Material = 'sandstone';
+  /** roof plans: wood and straw cap; flat brick adds another layer */
+  roofMaterial: PlannerRoofMaterial = 'wood';
+  /** fill plans: a flat platform, or a ramp rising from the first-placed edge */
+  fillShape: 'flat' | 'ramp' = 'flat';
   points: Vec2[] = [];
   private cursor: Vec2 | null = null;
   private readonly deps: PlannerDeps;
@@ -175,12 +182,25 @@ export class WallPlanner {
     return this.material;
   }
 
+  cycleRoofMaterial(): PlannerRoofMaterial {
+    const i = ROOF_MATERIAL_CYCLE.indexOf(this.roofMaterial);
+    this.roofMaterial = ROOF_MATERIAL_CYCLE[(i + 1) % ROOF_MATERIAL_CYCLE.length]!;
+    return this.roofMaterial;
+  }
+
+  cycleFillShape(): 'flat' | 'ramp' {
+    this.fillShape = this.fillShape === 'flat' ? 'ramp' : 'flat';
+    return this.fillShape;
+  }
+
   enter(): void {
     if (this.active) return;
     this.active = true;
     this.group.visible = true;
-    // the pencil shows what it draws: cream plans for masonry, earth for fill
-    const tone = this.mode === 'fill' ? 0x9b7a52 : 0xd8d3c4;
+    // the pencil shows what it draws: cream for masonry, earth for fill,
+    // timber for the roof deck
+    const tone =
+      this.mode === 'fill' ? 0x9b7a52 : this.mode === 'roof' ? 0xb08968 : 0xd8d3c4;
     (this.line.material as THREE.LineBasicMaterial).color.setHex(tone);
     (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(tone);
     document.body.classList.add('planning');
@@ -224,7 +244,9 @@ export class WallPlanner {
   previewPolyline(): Vec2[] {
     if (this.mode === 'building') return this.buildingLoop();
     const poly = this.rawPolyline();
-    if (this.mode === 'fill' && poly.length >= 3) return [...poly, poly[0]!];
+    if ((this.mode === 'fill' || this.mode === 'roof') && poly.length >= 3) {
+      return [...poly, poly[0]!];
+    }
     return poly;
   }
 
@@ -325,11 +347,12 @@ export class WallPlanner {
     if (!this.active) return;
     // commit exactly what the preview shows — ribbon and stats both come from
     // the same polyline, so the rubber-band cursor point is part of the plan
-    // (fill commits the OPEN ring; the display's closing point is not data)
-    const poly = this.mode === 'fill' ? this.rawPolyline() : this.previewPolyline();
+    // (fill and roof commit the OPEN ring; the display's closing point is not data)
+    const ringMode = this.mode === 'fill' || this.mode === 'roof';
+    const poly = ringMode ? this.rawPolyline() : this.previewPolyline();
     if (poly.length < 2) return;
     if (this.mode === 'building' && poly.length < 6) return; // no loop, no shell
-    if (this.mode === 'fill' && poly.length < 3) return; // no ring, no fill
+    if (ringMode && poly.length < 3) return; // no ring, no fill/deck
     const ok = this.deps.onConfirm(
       this.mode,
       poly.map((p) => ({ x: p.x, y: p.y })),
@@ -610,7 +633,12 @@ export class WallPlanner {
       if (performance.now() - this.lastAddT < 500 && jitter < 8) return;
       const picked = this.pick(ev);
       if (!picked) return;
-      const p = this.geoSnap(ev, picked); // ⇧-held clicks land ON the old work
+      // ⇧-held clicks land ON the old work; roof clicks always do
+      const snapEv =
+        this.mode === 'roof'
+          ? { clientX: ev.clientX, clientY: ev.clientY, shiftKey: true }
+          : ev;
+      const p = this.geoSnap(snapEv, picked);
       const before = this.points.length;
       this.addPoint(p);
       if (this.points.length > before) {
@@ -634,7 +662,12 @@ export class WallPlanner {
       this.snapped = true;
     } else {
       const picked = this.pick(ev);
-      this.cursor = picked ? this.geoSnap(ev, picked) : null;
+      // roof corners MUST rest on walls, so snapping is always on in roof mode
+      const snapEv =
+        this.mode === 'roof'
+          ? { clientX: ev.clientX, clientY: ev.clientY, shiftKey: true }
+          : ev;
+      this.cursor = picked ? this.geoSnap(snapEv, picked) : null;
     }
     if (this.cursor) {
       const g = this.deps.groundAt(this.cursor.x, this.cursor.y);
@@ -672,6 +705,10 @@ export class WallPlanner {
     }
     if ((ev.key === 'g' || ev.key === 'G') && clean) {
       this.toggle('gate');
+      return;
+    }
+    if ((ev.key === 'r' || ev.key === 'R') && clean) {
+      this.toggle('roof');
       return;
     }
     if (!this.active) return;

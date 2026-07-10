@@ -12,6 +12,9 @@ import {
   GATE_MIN_SEG,
   GATE_W,
   MATERIALS,
+  ROOF_MATERIALS,
+  ROOF_SNAP,
+  ROOF_DECK,
   STONE_LEN,
   type Command,
   type FillPlan,
@@ -98,6 +101,36 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       // and granted geometry must share one measure
       if (ringSelfOverlaps(ring)) return 'fill ring must not overlap itself';
       if (polygonArea(ring) < 1) return 'fill ring must enclose area';
+      if (cmd.shape !== undefined && cmd.shape !== 'flat' && cmd.shape !== 'ramp') {
+        return 'unknown fill shape';
+      }
+      return null;
+    }
+    case 'plan_roof': {
+      if (!Array.isArray(cmd.points) || cmd.points.length < 3) {
+        return 'a roof needs at least three points';
+      }
+      if (badPoints(cmd.points)) return 'roof points must have finite x and y';
+      if (cmd.material !== undefined && !ROOF_MATERIALS.includes(cmd.material)) {
+        return 'unknown roof material';
+      }
+      if (ringSelfIntersects(cmd.points)) return 'roof ring must not cross itself';
+      if (ringSelfOverlaps(cmd.points)) return 'roof ring must not overlap itself';
+      if (polygonArea(cmd.points) < 1) return 'roof ring must enclose area';
+      // every corner must rest on standing masonry — roofs span voids, they
+      // do not float; and the walls must be FINISHED (you deck what is built)
+      for (const v of cmd.points) {
+        let held = false;
+        for (const w of state.walls) {
+          if (w.stonesLaid < w.stonesTotal) continue;
+          const q = nearestOnPolyline(w.points, v);
+          if (dist(v.x, v.y, q.x, q.y) <= ROOF_SNAP) {
+            held = true;
+            break;
+          }
+        }
+        if (!held) return 'roof corners must rest on finished walls';
+      }
       return null;
     }
     case 'add_gate':
@@ -386,11 +419,24 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       }
       const gMean = gSum / (pts.length + 1);
       const level = gMax + cmd.height;
-      const volumeTotal = Math.max(1, polygonArea(pts) * (level - gMean));
+      const shape = cmd.shape ?? 'flat';
+      // a ramp climbs from the FIRST-placed edge: ground there is the toe
+      let rampLowG = 0;
+      if (shape === 'ramp') {
+        const a = pts[0]!;
+        const b = pts[1]!;
+        rampLowG = effectiveGroundAt(state, site, (a.x + b.x) / 2, (a.y + b.y) / 2);
+      }
+      // billed volume: a ramp is the wedge — mean surface is halfway between
+      // the toe and the crest, honestly cheaper than the full platform
+      const meanSurf = shape === 'ramp' ? (rampLowG + level) / 2 : level;
+      const volumeTotal = Math.max(1, polygonArea(pts) * (meanSurf - gMean));
       const fill: FillPlan = {
         id: state.nextId++,
         points: pts,
         level,
+        shape,
+        rampLowG,
         volumeTotal,
         volumeMoved: 0,
       };
@@ -403,16 +449,50 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       });
       break;
     }
+    case 'plan_roof': {
+      // the deck sits on the HIGHEST supporting wall top among the corners;
+      // each corner's support was validated to exist
+      const pts = cmd.points.map((p) => ({ x: p.x, y: p.y }));
+      let level = -Infinity;
+      for (const v of pts) {
+        for (const w of state.walls) {
+          if (w.stonesLaid < w.stonesTotal) continue;
+          const q = nearestOnPolyline(w.points, v);
+          if (dist(v.x, v.y, q.x, q.y) <= ROOF_SNAP) {
+            const top = effectiveGroundAt(state, site, v.x, v.y) + w.height;
+            if (top > level) level = top;
+          }
+        }
+      }
+      const area = polygonArea(pts);
+      const roof = {
+        id: state.nextId++,
+        points: pts,
+        level,
+        material: cmd.material ?? 'wood',
+        area,
+        workTotal: Math.max(1, area), // ≈ a person-day per square meter
+        workDone: 0,
+      };
+      state.roofs.push(roof);
+      state.events.push({
+        kind: 'roof_planned',
+        tick: state.tick,
+        roofId: roof.id,
+        workTotal: roof.workTotal,
+      });
+      break;
+    }
   }
 }
 
 /**
- * Laborers move earth to the oldest unfinished fill; m³ per day = their pace.
- * A laborer with NO earth to move that day tends the farm with the fewest
+ * Laborers move earth to the oldest unfinished fill (m³/day = their pace),
+ * then deck the oldest unfinished roof (≈ m²/day at the same pace), and a
+ * laborer with NO construction that day tends the farm with the fewest
  * workdays instead (tie: the older farm) — one person-day of field work.
- * Construction outranks the fields; the fields outrank idleness. The Lodge
- * never puppets individuals: recognized farms create the work by existing
- * (boss canon 2026-07-10).
+ * Earth outranks carpentry outranks the fields outranks idleness. The Lodge
+ * never puppets individuals: the work exists, so hands find it.
  */
 function moveEarth(state: WorldState): void {
   for (const person of state.people) {
@@ -428,6 +508,17 @@ function moveEarth(state: WorldState): void {
       quota -= m;
       if (fill.volumeMoved >= fill.volumeTotal) {
         state.events.push({ kind: 'fill_complete', tick: state.tick, fillId: fill.id });
+      }
+    }
+    while (quota > 0) {
+      const roof = state.roofs.find((r) => r.workDone < r.workTotal);
+      if (!roof) break;
+      const m = Math.min(quota, roof.workTotal - roof.workDone);
+      roof.workDone += m;
+      moved += m;
+      quota -= m;
+      if (roof.workDone >= roof.workTotal) {
+        state.events.push({ kind: 'roof_complete', tick: state.tick, roofId: roof.id });
       }
     }
     if (moved === 0 && state.farms.length > 0) {
@@ -738,10 +829,52 @@ export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
 }
 
 /**
+ * A fill's finished surface at a point: flat platforms sit at `level`; a ramp
+ * climbs from rampLowG at the FIRST-placed edge to `level` at the polygon's
+ * far extent (linear in the perpendicular distance from that edge). Shared by
+ * the sim's ground query and the render, so the drawn slope and the built
+ * slope are one surface. Comparisons, multiplies and sqrt only.
+ */
+export function fillSurfaceAt(f: FillPlan, x: number, y: number): number {
+  if (f.shape !== 'ramp') return f.level;
+  const a = f.points[0]!;
+  const b = f.points[1]!;
+  const mx = (a.x + b.x) / 2;
+  const my = (a.y + b.y) / 2;
+  const ex = b.x - a.x;
+  const ey = b.y - a.y;
+  const el = Math.sqrt(ex * ex + ey * ey) || 1;
+  let px = -ey / el;
+  let py = ex / el;
+  // the climb points INTO the polygon: toward the vertices' mean
+  let cx = 0;
+  let cy = 0;
+  for (const q of f.points) {
+    cx += q.x;
+    cy += q.y;
+  }
+  cx /= f.points.length;
+  cy /= f.points.length;
+  if ((cx - mx) * px + (cy - my) * py < 0) {
+    px = -px;
+    py = -py;
+  }
+  let extent = 0;
+  for (const q of f.points) {
+    const d = (q.x - mx) * px + (q.y - my) * py;
+    if (d > extent) extent = d;
+  }
+  if (extent <= 0) return f.level;
+  const t = Math.min(1, Math.max(0, ((x - mx) * px + (y - my) * py) / extent));
+  return f.rampLowG + (f.level - f.rampLowG) * t;
+}
+
+/**
  * Ground for masonry: the site terrain, raised by any COMPLETED fill whose
- * polygon contains the point — walls stand on finished platforms (ramparts,
- * mottes), never on loose tipping. Pure function of state + site; only
- * comparisons and multiplies, so it is deterministic across engines.
+ * polygon contains the point (flat platforms and ramp slopes alike — walls
+ * stand on finished earth, never loose tipping), and by any completed BRICK
+ * roof deck (boss canon 2026-07-10: flat brick adds another layer — the deck
+ * IS the next storey's floor). Pure function of state + site; deterministic.
  */
 export function effectiveGroundAt(
   state: WorldState,
@@ -752,7 +885,18 @@ export function effectiveGroundAt(
   let g = site.heightAt(x, y);
   for (const f of state.fills) {
     if (f.volumeMoved >= f.volumeTotal && f.level > g && pointInPolygon(x, y, f.points)) {
-      g = f.level;
+      const s = fillSurfaceAt(f, x, y);
+      if (s > g) g = s;
+    }
+  }
+  for (const r of state.roofs) {
+    if (
+      r.material === 'brick' &&
+      r.workDone >= r.workTotal &&
+      r.level + ROOF_DECK > g &&
+      pointInPolygon(x, y, r.points)
+    ) {
+      g = r.level + ROOF_DECK;
     }
   }
   return g;

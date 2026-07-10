@@ -25,6 +25,7 @@ import {
   COURSE_HEIGHT,
   FARM_MIN_AREA,
   FARM_WALL_MAX_H,
+  ROOF_SNAP,
   STONE_DEPTH,
   STONE_LEN,
   TICKS_PER_YEAR,
@@ -34,6 +35,7 @@ import { BuildingLayer } from './buildings';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
 import { GateLayer } from './gates';
+import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
 import { describeFootprint, KIND_LABEL, WallPlanner } from './planner';
 import { TreeLayer } from './trees';
@@ -261,6 +263,15 @@ async function boot(): Promise<void> {
   matBtn.textContent = '🪨 sandstone';
   build2.append(fillBtn, gateBtn, matBtn);
   build.after(build2);
+  const build3 = document.createElement('div');
+  const roofBtn = document.createElement('button');
+  roofBtn.textContent = '⛉ roof (R)';
+  const roofMatBtn = document.createElement('button');
+  roofMatBtn.textContent = '🪵 wood';
+  const shapeBtn = document.createElement('button');
+  shapeBtn.textContent = '⬓ flat fill';
+  build3.append(roofBtn, roofMatBtn, shapeBtn);
+  build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
   const trees = new TreeLayer(site, terrain.groundAt, scene);
@@ -277,7 +288,10 @@ async function boot(): Promise<void> {
   const farms = new FarmLayer(world, scene, groundSim);
   const buildings = new BuildingLayer(world, scene);
   const gates = new GateLayer(world, scene, groundSim);
-  const planner = new WallPlanner({
+  const roofs = new RoofLayer(world, scene);
+  // explicit annotation: onConfirm's closure reads planner.fillShape /
+  // roofMaterial, so inference would otherwise chase its own tail
+  const planner: WallPlanner = new WallPlanner({
     scene,
     camera,
     site,
@@ -287,14 +301,17 @@ async function boot(): Promise<void> {
     onConfirm: (mode, points, height, material) =>
       enqueue(
         mode === 'fill'
-          ? { kind: 'plan_fill', tick: world.tick, points, height }
-          : { kind: 'plan_wall', tick: world.tick, points, height, material },
+          ? { kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape }
+          : mode === 'roof'
+            ? { kind: 'plan_roof', tick: world.tick, points, material: planner.roofMaterial }
+            : { kind: 'plan_wall', tick: world.tick, points, height, material },
       ),
     onModeChange: (active, mode) => {
       wallBtn.classList.toggle('active', active && mode === 'wall');
       bldBtn.classList.toggle('active', active && mode === 'building');
       fillBtn.classList.toggle('active', active && mode === 'fill');
       gateBtn.classList.toggle('active', active && mode === 'gate');
+      roofBtn.classList.toggle('active', active && mode === 'roof');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing
@@ -346,6 +363,14 @@ async function boot(): Promise<void> {
   bldBtn.onclick = () => planner.toggle('building');
   fillBtn.onclick = () => planner.toggle('fill');
   gateBtn.onclick = () => planner.toggle('gate');
+  roofBtn.onclick = () => planner.toggle('roof');
+  roofMatBtn.onclick = () => {
+    const m = planner.cycleRoofMaterial();
+    roofMatBtn.textContent = m === 'wood' ? '🪵 wood' : m === 'straw' ? '🌾 straw' : '🧱 brick';
+  };
+  shapeBtn.onclick = () => {
+    shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
+  };
   matBtn.onclick = () => {
     const m = planner.cycleMaterial();
     matBtn.textContent = m === 'wood' ? '🪵 wood' : '🪨 sandstone';
@@ -429,6 +454,7 @@ async function boot(): Promise<void> {
     }
     syncStones();
     fills.update();
+    roofs.update();
     farms.update();
     buildings.update();
     gates.update();
@@ -473,10 +499,20 @@ async function boot(): Promise<void> {
             gSum += g;
           }
           const gMean = gSum / (open.length + 1);
-          const vol = Math.max(1, area * (gMax - gMean + planner.height));
+          // mirror the sim exactly: a ramp bills the wedge — mean surface is
+          // halfway between the toe (first-edge ground) and the crest level
+          const level = gMax + planner.height;
+          let meanSurf = level;
+          if (planner.fillShape === 'ramp') {
+            const a = open[0]!;
+            const b = open[1]!;
+            const gLow = groundSim((a.x + b.x) / 2, (a.y + b.y) / 2);
+            meanSurf = (gLow + level) / 2;
+          }
+          const vol = Math.max(1, area * (meanSurf - gMean));
           setText(
             plan,
-            `plan: fill ${area.toFixed(0)} m² · ≈${vol.toFixed(0)} m³ of earth · ` +
+            `plan: ${planner.fillShape === 'ramp' ? 'ramp' : 'fill'} ${area.toFixed(0)} m² · ≈${vol.toFixed(0)} m³ of earth · ` +
               `~${Math.ceil(vol / Math.max(1, earthPace))} days of barrowing`,
           );
         } else {
@@ -484,13 +520,51 @@ async function boot(): Promise<void> {
         }
         setText(
           hint,
-          'click: ring the ground · right-click/Backspace: undo · double-click/Enter: tip the dirt · hold ⇧: snap to walls · Esc: put the pencil down',
+          planner.fillShape === 'ramp'
+            ? 'click: ring the ground (the FIRST side laid is the low end) · right-click/Backspace: undo · double-click/Enter: tip the dirt · Esc: put the pencil down'
+            : 'click: ring the ground · right-click/Backspace: undo · double-click/Enter: tip the dirt · hold ⇧: snap to walls · Esc: put the pencil down',
         );
       } else if (planner.mode === 'gate') {
         setText(plan, `plan: gates — ${world.farms.reduce((n, f) => n + f.gates.length, 0)} hung`);
         setText(
           hint,
           'click a field wall: hang a gate · click a gate: take it down · Esc: put the tool down',
+        );
+      } else if (planner.mode === 'roof') {
+        const poly = planner.previewPolyline();
+        if (poly.length >= 4) {
+          const open = poly.slice(0, -1);
+          const area = polygonArea(open);
+          // mirror the sim's support rule so the promise can't outrun the deck
+          let held = true;
+          for (const v of open) {
+            let ok = false;
+            for (const w of world.walls) {
+              if (w.stonesLaid < w.stonesTotal) continue;
+              const q = nearestOnPolyline(w.points, v);
+              if (Math.hypot(v.x - q.x, v.y - q.y) <= ROOF_SNAP) {
+                ok = true;
+                break;
+              }
+            }
+            if (!ok) {
+              held = false;
+              break;
+            }
+          }
+          const m = planner.roofMaterial;
+          setText(
+            plan,
+            `plan: roof — ${area.toFixed(0)} m² · ${m}${m === 'brick' ? ' (a floor above)' : ''} · ` +
+              `~${Math.ceil(area / Math.max(1, earthPace))} days of decking` +
+              (held ? '' : ' · corners must rest on finished walls'),
+          );
+        } else {
+          setText(plan, 'plan: click wall corners to span the void');
+        }
+        setText(
+          hint,
+          'click: corners (snap to walls) · right-click/Backspace: undo · double-click/Enter: raise the deck · Esc: put the tool down',
         );
       } else {
         // the ring/auto-gate read comes FIRST so the stone count the plan row
@@ -552,7 +626,8 @@ async function boot(): Promise<void> {
           break;
         }
       }
-      const noun = pending?.kind === 'plan_fill' ? 'fill' : 'wall';
+      const noun =
+        pending?.kind === 'plan_fill' ? 'fill' : pending?.kind === 'plan_roof' ? 'roof' : 'wall';
       setText(
         hint,
         pending
@@ -560,7 +635,9 @@ async function boot(): Promise<void> {
             ? `${noun} committed — press ×1 to break ground`
             : noun === 'fill'
               ? 'fill committed — the barrows roll'
-              : 'wall committed — the crew takes it up'
+              : noun === 'roof'
+                ? 'roof committed — the deck goes up'
+                : 'wall committed — the crew takes it up'
           : world.walls.length === 0 && world.fills.length === 0
             ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F)'
             : '',
@@ -592,6 +669,7 @@ async function boot(): Promise<void> {
     planner,
     people,
     fills,
+    roofs,
     farms,
     buildings,
     trees,
@@ -604,6 +682,7 @@ async function boot(): Promise<void> {
       // sync every world-driven display layer, or hidden-tab renders show stale scenes
       syncStones();
       fills.update();
+      roofs.update();
       farms.update();
       buildings.update();
       gates.update();

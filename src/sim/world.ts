@@ -33,6 +33,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
     people,
     walls: [],
     fills: [],
+    roofs: [],
     farms: [],
     buildings: [],
     stones: [],
