@@ -316,28 +316,33 @@ async function boot(): Promise<void> {
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing
     snapTargets: () => world.walls.map((w) => w.points),
-    // the gate tool: a click near a hung gate takes it down; a click near a
-    // farm's wall hangs one there — the sim validates and snaps for real
+    // the gate tool, context-aware (boss canon 2026-07-10): a click near hung
+    // furniture takes it down; a click near a FARM wall hangs a gate; near a
+    // BUILDING wall it cuts a door — the sim validates and snaps for real
     onGate: (p) => {
-      let gateFarm: number | null = null;
+      let gateWall: number | null = null;
       let gd = Infinity;
-      for (const f of world.farms) {
-        for (const g of f.gates) {
+      for (const w of world.walls) {
+        for (const g of w.gates) {
           const d = Math.hypot(p.x - g.x, p.y - g.y);
           if (d < gd) {
             gd = d;
-            gateFarm = f.wallId;
+            gateWall = w.id;
           }
         }
       }
-      if (gateFarm !== null && gd < 2.5) {
-        enqueue({ kind: 'remove_gate', tick: world.tick, wallId: gateFarm, at: { x: p.x, y: p.y } });
+      if (gateWall !== null && gd < 2.5) {
+        enqueue({ kind: 'remove_gate', tick: world.tick, wallId: gateWall, at: { x: p.x, y: p.y } });
         return;
       }
+      const owned = new Set<number>([
+        ...world.farms.map((f) => f.wallId),
+        ...world.buildings.map((b) => b.wallId),
+      ]);
       let addWall: number | null = null;
       let wd = Infinity;
-      for (const f of world.farms) {
-        const w = world.walls.find((q) => q.id === f.wallId);
+      for (const id of owned) {
+        const w = world.walls.find((q) => q.id === id);
         if (!w) continue;
         const q = nearestOnPolyline(w.points, p);
         const d = Math.hypot(p.x - q.x, p.y - q.y);
@@ -399,6 +404,13 @@ async function boot(): Promise<void> {
       stones.dispose();
       stones = makeStoneMesh(stoneCapacity);
       scene.add(stones);
+      lastStoneCount = 0;
+    }
+    if (world.stones.length < lastStoneCount) {
+      // stones were REMOVED (a gate knocked out of a built wall): the array
+      // shifted, so every surviving matrix past the cut is stale — shrinking
+      // `count` alone kept drawing the old span and vanished the tail instead
+      // (the boss's two-gates screenshot). Re-upload everything from 0.
       lastStoneCount = 0;
     }
     const matById = new Map(world.walls.map((w) => [w.id, w.material]));
@@ -528,7 +540,7 @@ async function boot(): Promise<void> {
         setText(plan, `plan: gates — ${world.farms.reduce((n, f) => n + f.gates.length, 0)} hung`);
         setText(
           hint,
-          'click a field wall: hang a gate · click a gate: take it down · Esc: put the tool down',
+          'click a field wall: hang a gate · click a building: cut a door · click one: take it down · Esc: put the tool down',
         );
       } else if (planner.mode === 'roof') {
         const poly = planner.previewPolyline();

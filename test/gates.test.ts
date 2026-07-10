@@ -165,10 +165,41 @@ describe('the gate tool', () => {
       .map((e) => (e as { reason: string }).reason);
     expect(reasons).toEqual([
       'no such wall',
-      'only a farm wall takes a gate',
+      'only a farm or building wall takes a gate',
       'a gate already stands there',
       'no gate there',
     ]);
+  });
+
+  it('the same tool cuts a DOOR on a building wall (context decides)', () => {
+    // the doorway-loop house: recognized as a building at completion
+    const loop: Vec2[] = [
+      { x: 304.55, y: 300 },
+      { x: 308, y: 300 },
+      { x: 308, y: 306 },
+      { x: 300, y: 306 },
+      { x: 300, y: 300 },
+      { x: 303.45, y: 300 },
+    ];
+    const { world, site } = run([wall(loop, 3)], 200);
+    expect(world.buildings).toHaveLength(1);
+    const w = world.walls[0]!;
+    const stonesBefore = world.stones.length;
+    // cut a back door in the north wall
+    worldStep(world, site, [
+      { kind: 'add_gate', tick: world.tick, wallId: w.id, at: { x: 304, y: 306 } },
+    ]);
+    expect(w.gates).toHaveLength(1);
+    expect(world.stones.length).toBeLessThan(stonesBefore); // the span came down
+    expect(w.stonesLaid).toBe(w.stonesTotal); // still complete, just opened
+    expect(world.farms).toHaveLength(0); // no farm mirror, no crash
+    // and it walls back up like any gate
+    worldStep(world, site, [
+      { kind: 'remove_gate', tick: world.tick, wallId: w.id, at: { x: 304, y: 306 } },
+    ]);
+    while (w.stonesLaid < w.stonesTotal) worldStep(world, site, []);
+    expect(world.stones.length).toBe(stonesBefore);
+    expect(world.buildings).toHaveLength(1); // one-shot recognition held
   });
 
   it('gate ops wait while the wall is at work (mid-infill)', () => {

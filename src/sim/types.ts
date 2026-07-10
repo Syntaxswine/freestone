@@ -9,10 +9,9 @@
  */
 import type { BuildingKind } from './classify';
 
-// 8: ramp fills (surface slopes from the first-placed edge) + roofs
-// (plan_roof spans wall corners; brick roofs are the next storey's floor)
-// — 7: real gates + gate tool; 6: gated farms; 5: fill normalization
-export const SIM_VERSION = 8;
+// 9: the gate tool opens DOORS on building walls too (same tool, context
+// decides) — 8: ramps + roofs; 7: real gates + gate tool; 6: gated farms
+export const SIM_VERSION = 9;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4

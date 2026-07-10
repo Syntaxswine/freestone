@@ -148,9 +148,14 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
           ? state.walls.find((w) => w.id === cmd.wallId)
           : undefined;
       if (!wall) return 'no such wall';
-      // gates are FARM furniture for now; gatehouses are another course (M6)
-      if (!state.farms.some((f) => f.wallId === wall.id)) {
-        return 'only a farm wall takes a gate';
+      // one tool, context decides (boss canon 2026-07-10): a farm wall takes
+      // a GATE, a building wall takes a DOOR — the mechanics are the same
+      // opening. Plain curtain walls wait for the M6 gatehouse course.
+      if (
+        !state.farms.some((f) => f.wallId === wall.id) &&
+        !state.buildings.some((b) => b.wallId === wall.id)
+      ) {
+        return 'only a farm or building wall takes a gate';
       }
       // gate ops only on an idle, complete wall: the slot mapping that placed
       // every laid stone must never shift under a build in progress
@@ -341,8 +346,9 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       state.stones = keep;
       wall.stonesTotal = after.stonesTotal;
       wall.stonesLaid -= removed;
-      const farm = state.farms.find((f) => f.wallId === wall.id)!; // validated
-      farm.gates.push({ x: at.x, y: at.y });
+      // a farm mirrors its gates; a building's door lives on the wall alone
+      const farm = state.farms.find((f) => f.wallId === wall.id);
+      if (farm) farm.gates.push({ x: at.x, y: at.y });
       state.events.push({
         kind: 'gate_added',
         tick: state.tick,
@@ -376,9 +382,11 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         for (const s of reopened) wall.infill.push({ course: c, slot: s });
       }
       wall.stonesTotal = after.stonesTotal;
-      const farm = state.farms.find((f) => f.wallId === wall.id)!;
-      const fi = farm.gates.findIndex((g) => g.x === gate.x && g.y === gate.y);
-      if (fi >= 0) farm.gates.splice(fi, 1);
+      const farm = state.farms.find((f) => f.wallId === wall.id);
+      if (farm) {
+        const fi = farm.gates.findIndex((g) => g.x === gate.x && g.y === gate.y);
+        if (fi >= 0) farm.gates.splice(fi, 1);
+      }
       state.events.push({
         kind: 'gate_removed',
         tick: state.tick,

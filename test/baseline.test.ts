@@ -177,6 +177,12 @@ const CANON_COMMANDS: Command[] = [
     at: { x: 2014, y: 1912 }, // taken down again: the masons wall it back up
   },
   {
+    kind: 'add_gate',
+    tick: 350,
+    wallId: 5444, // the tick-150 house — SIM 9: the same tool cuts a DOOR
+    at: { x: 2044, y: 1966 }, // a back door in the north wall
+  },
+  {
     kind: 'plan_roof',
     tick: 100,
     points: [
