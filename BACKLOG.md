@@ -113,10 +113,14 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   (stacked mottes); cut as well as fill (ditches — the spoil feeds the rampart, one
   command's dirt is the other's); building-footprint auto-fill ("fill the squares" —
   click inside a shell); material picker grows real stone kinds from the bed model.
-- Farms/houses follow-ons (SIM 3 shipped 2026-07-10): crops + the farming year belong
-  to M4 (a farm today is recognition + tillage look; harvest/sheaves/gleaning wire in
-  there); building OCCUPANCY belongs to M3 people; gates for farms (a low ring with a
-  gated gap — today only fully-closed rings farm); gradual field clearing + grubbing
+- Farms/houses follow-ons (SIM 3 shipped 2026-07-10): crop ECONOMY belongs to M4
+  (harvest/sheaves/gleaning; the seasonal field LOOK shipped render-only 2026-07-10 —
+  PARTLY: precise Durham crop calendar, oats/barley weighting, two- vs three-field
+  course are M4 research; also work honesty — winter is hedging/ditching, not arable
+  tending year-round); gates SHIPPED (SIM 6, Farm.gate) — next: field hands and later
+  herds path THROUGH the gate, hurdle-gate render at the gap, animals kept in/out;
+  a plough team (oxen!) for the spring band is the big theater upgrade; building
+  OCCUPANCY belongs to M3 people; gradual field clearing + grubbing
   labor when the timber economy lands (today trees vanish on establishment);
   roof CARPENTRY as a real timber phase with days and materials (today the roof pops at
   wall completion); roofs for irregular (non-4-corner) shells — hip/straight-skeleton;

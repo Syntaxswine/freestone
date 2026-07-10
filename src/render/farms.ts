@@ -1,6 +1,8 @@
 /**
- * Farm fields: when the sim establishes a farm (a completed closed low ring —
- * SIM 3), the land inside turns to tilled strips. Render reads, never writes.
+ * Farm fields: when the sim establishes a farm (a completed closed or gated
+ * low ring — SIM 3/6), the land inside turns to tilled strips, and the strips
+ * FOLLOW THE YEAR. Render reads, never writes: every color here is a pure
+ * function of world.tick and the farm's establishment day.
  *
  * The field is a quad grid clipped to the enclosure ring — a quad is included
  * only when all four corners are inside, so a strip of green survives between
@@ -8,15 +10,30 @@
  * turned; the geometry's conservatism is historically honest for free.
  * Furrow bands run along the ring's longest edge (strips follow the plough
  * line, not the compass), colored per-quad for a chunky Townscaper read.
+ *
+ * The year (generic northern-England arable, ~1200s: winter ploughland,
+ * spring sowing, August harvest, autumn stubble; a NEW field shows fresh
+ * tillage for its first weeks whatever the month). PARTLY watchlist: the
+ * precise Durham crop calendar — oats/barley weighting, two- vs three-field
+ * course — is M4's research; today the year is dressing, not economy.
  */
 import * as THREE from 'three';
 import { pointInPolygon } from '../sim/step';
-import type { WorldState } from '../sim/types';
+import { TICKS_PER_YEAR, type WorldState } from '../sim/types';
 
 const CELL = 1.5; // meters per tillage quad
 const STRIP_W = 2.0; // meters per furrow strip
 const LIFT = 0.06; // above terrain, below the wall's first course
 const MAX_QUADS = 60000; // absurd rings get coarser tillage, never a stall
+const FRESH_DAYS = 45; // a new field reads as raw tillage this long
+
+/** the year's look, in band order; FRESH overrides by age */
+const FRESH = 0;
+const WINTER = 1;
+const SPRING = 2;
+const SUMMER = 3;
+const GOLD = 4;
+const STUBBLE = 5;
 
 function hash1(a: number): number {
   let x = Math.imul(a + 1, 0x85ebca6b) >>> 0;
@@ -24,9 +41,44 @@ function hash1(a: number): number {
   return ((x ^ (x >>> 15)) >>> 0) / 4294967296;
 }
 
+function seasonBand(dayOfYear: number): number {
+  if (dayOfYear < 60 || dayOfYear >= 305) return WINTER;
+  if (dayOfYear < 121) return SPRING;
+  if (dayOfYear < 213) return SUMMER;
+  if (dayOfYear < 244) return GOLD;
+  return STUBBLE;
+}
+
+/** the two furrow tones for a band, tinted per-farm by jitter j */
+function bandTones(band: number, j: number): [THREE.Color, THREE.Color] {
+  const c = (h: number, s: number, l: number): THREE.Color => new THREE.Color().setHSL(h, s, l);
+  switch (band) {
+    case WINTER: // bare ploughland under a grey sky
+      return [c(0.06 + j * 0.02, 0.26, 0.3 + j * 0.05), c(0.075 + j * 0.02, 0.22, 0.36 + j * 0.05)];
+    case SPRING: // brown earth, the first green rows
+      return [c(0.07 + j * 0.02, 0.28, 0.36 + j * 0.05), c(0.25 + j * 0.04, 0.38, 0.44 + j * 0.06)];
+    case SUMMER: // full growth, two greens
+      return [c(0.22 + j * 0.03, 0.36, 0.4 + j * 0.06), c(0.24 + j * 0.04, 0.4, 0.46 + j * 0.06)];
+    case GOLD: // August — the harvest standing
+      return [c(0.11 + j * 0.02, 0.48, 0.52 + j * 0.06), c(0.125 + j * 0.02, 0.52, 0.58 + j * 0.06)];
+    case STUBBLE: // cut straw and bared earth
+      return [c(0.11 + j * 0.02, 0.3, 0.55 + j * 0.05), c(0.08 + j * 0.02, 0.25, 0.4 + j * 0.05)];
+    default: // FRESH — just tilled, first sowing (the founding look)
+      return [c(0.07 + j * 0.02, 0.3, 0.34 + j * 0.06), c(0.23 + j * 0.05, 0.3, 0.4 + j * 0.08)];
+  }
+}
+
+interface FarmView {
+  colorAttr: THREE.BufferAttribute;
+  parities: Uint8Array; // one per quad: which furrow tone
+  establishedTick: number;
+  jitter: number;
+  shownBand: number;
+}
+
 export class FarmLayer {
   private built = 0;
-  private meshes: THREE.Mesh[] = [];
+  private views: FarmView[] = [];
   private mat = new THREE.MeshLambertMaterial({ vertexColors: true });
 
   constructor(
@@ -40,6 +92,33 @@ export class FarmLayer {
       this.build(this.built);
       this.built += 1;
     }
+    // the year turns: recolor any field whose band moved (cheap check per frame)
+    for (let i = 0; i < this.views.length; i++) {
+      const v = this.views[i]!;
+      const band = this.bandFor(v);
+      if (band !== v.shownBand) this.colorize(v, band);
+    }
+  }
+
+  private bandFor(v: FarmView): number {
+    if (this.world.tick - v.establishedTick < FRESH_DAYS) return FRESH;
+    return seasonBand(this.world.tick % TICKS_PER_YEAR);
+  }
+
+  private colorize(v: FarmView, band: number): void {
+    const [a, b] = bandTones(band, v.jitter);
+    const arr = v.colorAttr.array as Float32Array;
+    for (let q = 0; q < v.parities.length; q++) {
+      const c = v.parities[q] === 0 ? a : b;
+      for (let k = 0; k < 6; k++) {
+        const o = (q * 6 + k) * 3;
+        arr[o] = c.r;
+        arr[o + 1] = c.g;
+        arr[o + 2] = c.b;
+      }
+    }
+    v.colorAttr.needsUpdate = true;
+    v.shownBand = band;
   }
 
   private build(index: number): void {
@@ -80,12 +159,8 @@ export class FarmLayer {
     const bboxQuads = ((maxX - minX) / CELL) * ((maxY - minY) / CELL);
     const cell = bboxQuads > MAX_QUADS ? Math.sqrt(((maxX - minX) * (maxY - minY)) / MAX_QUADS) : CELL;
 
-    const j = hash1(farm.id);
-    const tilled = new THREE.Color().setHSL(0.07 + j * 0.02, 0.3, 0.34 + j * 0.06);
-    const sown = new THREE.Color().setHSL(0.23 + j * 0.05, 0.3, 0.4 + j * 0.08);
-
     const positions: number[] = [];
-    const colors: number[] = [];
+    const parities: number[] = [];
     const g = this.terrainGroundAt;
     const gx0 = Math.floor(minX / cell);
     const gx1 = Math.ceil(maxX / cell);
@@ -109,7 +184,7 @@ export class FarmLayer {
         const cxq = (x0 + x1) / 2;
         const cyq = (y0 + y1) / 2;
         const strip = Math.floor((px * (cxq - ring[0]!.x) + py * (cyq - ring[0]!.y)) / STRIP_W);
-        const c = (strip & 1) === 0 ? tilled : sown;
+        parities.push(strip & 1);
         const z00 = g(x0, y0) + LIFT;
         const z10 = g(x1, y0) + LIFT;
         const z11 = g(x1, y1) + LIFT;
@@ -117,18 +192,36 @@ export class FarmLayer {
         // two triangles, wound +Y-up per the terrain convention (a,c,b)(b,c,d)
         positions.push(x0, z00, y0, x0, z01, y1, x1, z10, y0);
         positions.push(x1, z10, y0, x0, z01, y1, x1, z11, y1);
-        for (let k = 0; k < 6; k++) colors.push(c.r, c.g, c.b);
       }
     }
     if (positions.length === 0) return; // a farm thinner than a quad shows no tillage
 
+    // the chronicle knows the day the field came to be; the render asks it
+    let established = 0;
+    for (const e of this.world.events) {
+      if (e.kind === 'farm_established' && e.farmId === farm.id) {
+        established = e.tick;
+        break;
+      }
+    }
+
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
+    const colorAttr = new THREE.BufferAttribute(new Float32Array(positions.length), 3);
+    geo.setAttribute('color', colorAttr);
     geo.computeVertexNormals();
     const mesh = new THREE.Mesh(geo, this.mat);
     mesh.frustumCulled = false;
-    this.meshes.push(mesh);
     this.scene.add(mesh);
+
+    const view: FarmView = {
+      colorAttr,
+      parities: Uint8Array.from(parities),
+      establishedTick: established,
+      jitter: hash1(farm.id),
+      shownBand: -1,
+    };
+    this.views.push(view);
+    this.colorize(view, this.bandFor(view));
   }
 }
