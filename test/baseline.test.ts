@@ -152,6 +152,18 @@ const CANON_COMMANDS: Command[] = [
     ], //                        and tending must pause for it then resume
     height: 0.5,
   },
+  {
+    kind: 'plan_wall',
+    tick: 340,
+    points: [
+      { x: 1930, y: 2035 },
+      { x: 1946, y: 2035 },
+      { x: 1946, y: 2051 },
+      { x: 1930, y: 2051 },
+      { x: 1930, y: 2036.5 }, // a 1.5 m gateway — SIM 6 must farm it WITH a gate
+    ],
+    height: 0.5,
+  },
 ];
 
 interface Milestone {

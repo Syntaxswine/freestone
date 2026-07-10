@@ -9,9 +9,9 @@
  */
 import type { BuildingKind } from './classify';
 
-// 5: fill closure normalized before the guards (a hand-closed ring's trailing
-// near-duplicate vertex is a gesture, not geometry — 4: field work + overlap guard)
-export const SIM_VERSION = 5;
+// 6: gated farms (a low ring with a person-width gap farms, gate recorded)
+// — 5: fill closure normalized; 4: field work + overlap guard
+export const SIM_VERSION = 6;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -78,6 +78,12 @@ export interface Farm {
   /** the enclosure ring (open form — no duplicate closing vertex) */
   points: Vec2[];
   area: number; // m², shoelace of the ring
+  /**
+   * Where the gateway sits (midpoint of the wall's open gap), or null for a
+   * fully closed step-over ring. Recorded now — cheap to found — so the herd,
+   * the harvest cart and the hurdle-gate mechanics land on real geometry later.
+   */
+  gate: Vec2 | null;
   /**
    * Person-days of tending. A laborer with no earth to move works the farm
    * with the fewest workdays (boss canon 2026-07-10: recognized farms put

@@ -1,4 +1,4 @@
-import { classifyFootprint, reduceCorners } from './classify';
+import { classifyFootprint, reduceCorners, type BuildingKind } from './classify';
 import { Rng } from './rng';
 import type { SiteData } from './site';
 import {
@@ -393,42 +393,101 @@ function layOneStone(
   }
 }
 
+/** What a completed ring's geometry declares — see classifyRing. */
+export type RingClass =
+  | { kind: 'farm'; ring: Vec2[]; area: number; gate: Vec2 | null }
+  | { kind: 'building'; area: number; buildingKind: BuildingKind }
+  | null;
+
 /**
- * The plot is the plan (SCOPE §6): when a wall completes, its GEOMETRY declares
- * what it made. A closed low ring around land is a farm (boss canon 2026-07-09:
- * "farms are made by building a low wall, .5m around a piece of land"); a
- * near-closed tall ring whose gap is a doorway is a building. The pencil mode
- * is not sim data — a hand-drawn wall that closes IS an enclosure.
+ * THE enclosure predicate (SCOPE §6 — the plot is the plan), in one exported
+ * pure function so the sim's recognition and the pencil's HUD promise can
+ * never drift (the second fleet's parity law: every HUD promise is the sim's
+ * own predicate, imported, never re-derived).
  *
- * Recognition happens at COMPLETION, not planning: the field exists when the
- * wall stands, and the chronicle records the day. A self-crossing ring is
- * recognized as nothing (the fill validator's bowtie lesson: shoelace area and
- * even-odd containment disagree on crossed rings — such geometry may be built
- * as a wall, but it encloses no field and shelters no one). Comparisons,
- * multiplies and Math.sqrt only; kind strings are constants.
+ * - closed low ring (gap ≤ 0.45 m, ≤ 1 m tall, ≥ 25 m²) → a farm
+ * - low ring with a person-width gap (≤ 2 m) → a farm WITH A GATE (fields
+ *   need gateways; the gate is the gap's midpoint — today recognition, later
+ *   the herd's way in and out)
+ * - tall ring (≥ 2 m) with that gap → a building, kind from the footprint
+ * - between heights (1–2 m), self-crossing, self-overlapping, or too small →
+ *   nothing: legal masonry, no claim
+ * Comparisons, multiplies and Math.sqrt only; kind strings are constants.
  */
-export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
-  const pts = wall.points;
-  if (pts.length < 4) return;
+export function classifyRing(pts: readonly Vec2[], height: number): RingClass {
+  if (pts.length < 4) return null;
   const first = pts[0]!;
   const last = pts[pts.length - 1]!;
   const gap = dist(first.x, first.y, last.x, last.y);
+  if (gap > DOOR_GAP_MAX) return null;
 
   if (gap <= FARM_CLOSE_EPS) {
-    // closed ring — a farm candidate. The closing vertex is dropped whether
-    // closure is exact (the snap's copy) or within tolerance: a kept sub-stone
-    // sliver edge would sit inside the overlap guard's epsilon of the first
-    // segment and read the honest ring as degenerate.
-    if (wall.height > FARM_WALL_MAX_H) return;
+    // closed ring — the closing vertex is dropped whether closure is exact
+    // (the snap's copy) or within tolerance: a kept sub-stone sliver edge
+    // would sit inside the overlap guard's epsilon and read as degenerate.
+    if (height > FARM_WALL_MAX_H) return null; // a yard wall claims nothing
     const ring = pts.slice(0, -1);
-    if (ring.length < 3 || ringSelfIntersects(ring) || ringSelfOverlaps(ring)) return;
+    if (ring.length < 3 || ringSelfIntersects(ring) || ringSelfOverlaps(ring)) return null;
     const area = polygonArea(ring);
-    if (area < FARM_MIN_AREA) return;
+    if (area < FARM_MIN_AREA) return null;
+    return { kind: 'farm', ring: ring.map((p) => ({ x: p.x, y: p.y })), area, gate: null };
+  }
+
+  // person-width gap: a gate in a field wall, or a doorway in a shell —
+  // either way the closing edge across the gap completes the polygon
+  if (ringSelfIntersects(pts) || ringSelfOverlaps(pts)) return null;
+  const area = polygonArea(pts);
+
+  if (height <= FARM_WALL_MAX_H) {
+    if (area < FARM_MIN_AREA) return null;
+    return {
+      kind: 'farm',
+      ring: pts.map((p) => ({ x: p.x, y: p.y })),
+      area,
+      gate: { x: (first.x + last.x) / 2, y: (first.y + last.y) / 2 },
+    };
+  }
+  if (height < BUILDING_MIN_H) return null; // too tall to step over, too low to shelter
+  if (area < 4) return null; // smaller than any shed shelters nothing
+  // Reduced to 4 true corners (the doorway loop's jambs are collinear with
+  // the front edge), the footprint has honest long/span; an irregular ring
+  // is classified by area alone.
+  const corners = reduceCorners(pts);
+  let long = 0;
+  let span = 0;
+  if (corners.length === 4) {
+    const e = corners.map((c, i) => {
+      const d = corners[(i + 1) % 4]!;
+      return dist(c.x, c.y, d.x, d.y);
+    });
+    const l1 = (e[0]! + e[2]!) / 2;
+    const l2 = (e[1]! + e[3]!) / 2;
+    long = Math.max(l1, l2);
+    span = Math.min(l1, l2);
+  } else {
+    // no rectangle to measure: let area choose among the aspect-free bins
+    long = Math.sqrt(area);
+    span = long;
+  }
+  return { kind: 'building', area, buildingKind: classifyFootprint(area, long, span) };
+}
+
+/**
+ * When a wall completes, its GEOMETRY declares what it made (boss canon
+ * 2026-07-09/10) — the pencil mode is not sim data. Recognition happens at
+ * COMPLETION, not planning: the field exists when the wall stands, and the
+ * chronicle records the day.
+ */
+export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
+  const rc = classifyRing(wall.points, wall.height);
+  if (rc === null) return;
+  if (rc.kind === 'farm') {
     const farm = {
       id: state.nextId++,
       wallId: wall.id,
-      points: ring.map((p) => ({ x: p.x, y: p.y })),
-      area,
+      points: rc.ring,
+      area: rc.area,
+      gate: rc.gate,
       workdays: 0,
     };
     state.farms.push(farm);
@@ -437,53 +496,24 @@ export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
       tick: state.tick,
       farmId: farm.id,
       wallId: wall.id,
-      area,
+      area: rc.area,
     });
     return;
   }
-
-  if (gap <= DOOR_GAP_MAX) {
-    // near-closed ring, person-width gap — a building candidate. The closing
-    // edge across the doorway completes the footprint polygon.
-    if (wall.height < BUILDING_MIN_H) return;
-    if (ringSelfIntersects(pts) || ringSelfOverlaps(pts)) return;
-    const area = polygonArea(pts);
-    if (area < 4) return; // smaller than any shed shelters nothing
-    // Reduced to 4 true corners (the doorway loop's jambs are collinear with
-    // the front edge), the footprint has honest long/span; an irregular ring
-    // is classified by area alone.
-    const corners = reduceCorners(pts);
-    let long = 0;
-    let span = 0;
-    if (corners.length === 4) {
-      const e = corners.map((c, i) => {
-        const d = corners[(i + 1) % 4]!;
-        return dist(c.x, c.y, d.x, d.y);
-      });
-      const l1 = (e[0]! + e[2]!) / 2;
-      const l2 = (e[1]! + e[3]!) / 2;
-      long = Math.max(l1, l2);
-      span = Math.min(l1, l2);
-    } else {
-      // no rectangle to measure: let area choose among the aspect-free bins
-      long = Math.sqrt(area);
-      span = long;
-    }
-    const building = {
-      id: state.nextId++,
-      wallId: wall.id,
-      kind: classifyFootprint(area, long, span),
-      area,
-    };
-    state.buildings.push(building);
-    state.events.push({
-      kind: 'building_complete',
-      tick: state.tick,
-      buildingId: building.id,
-      wallId: wall.id,
-      buildingKind: building.kind,
-    });
-  }
+  const building = {
+    id: state.nextId++,
+    wallId: wall.id,
+    kind: rc.buildingKind,
+    area: rc.area,
+  };
+  state.buildings.push(building);
+  state.events.push({
+    kind: 'building_complete',
+    tick: state.tick,
+    buildingId: building.id,
+    wallId: wall.id,
+    buildingKind: building.kind,
+  });
 }
 
 /**

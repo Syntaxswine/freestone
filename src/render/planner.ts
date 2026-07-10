@@ -19,7 +19,7 @@ import * as THREE from 'three';
 import { classifyFootprint, type BuildingKind } from '../sim/classify';
 import type { SiteData } from '../sim/site';
 import { decomposeWall, polylineLength } from '../sim/step';
-import { FARM_CLOSE_EPS, MATERIALS, type Material, type Vec2 } from '../sim/types';
+import { MATERIALS, type Material, type Vec2 } from '../sim/types';
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
 const SNAP_PX = 16; // screen px: a wall click this near the FIRST point closes the ring
@@ -291,20 +291,16 @@ export class WallPlanner {
   }
 
   /**
-   * Wall mode: the ring being drawn/hovered, IF it closes the way the SIM
-   * judges closure — within FARM_CLOSE_EPS, not just startSnap's exact copy
-   * (the second fleet: a hand-closed 0.3 m ring farmed unannounced because
-   * the pencil demanded equality the sim never required). Returns the OPEN
-   * ring, closing vertex dropped exactly as recognition drops it.
+   * Wall mode: the raw polyline being drawn/hovered, once it has enough
+   * points to possibly ring. The HUD feeds this STRAIGHT into the sim's own
+   * classifyRing (the second fleet's parity law) — the planner does no gap or
+   * closure judgment of its own, so farms, gated farms and hand-drawn
+   * buildings all name themselves exactly when the sim would claim them.
    */
-  closedRing(): Vec2[] | null {
+  previewRing(): Vec2[] | null {
     if (this.mode !== 'wall') return null;
     const poly = this.rawPolyline();
-    if (poly.length < 4) return null;
-    const first = poly[0]!;
-    const last = poly[poly.length - 1]!;
-    if (dist2d(first, last) > FARM_CLOSE_EPS) return null;
-    return poly.slice(0, -1);
+    return poly.length >= 4 ? poly : null;
   }
 
   /** live building dimensions (front × depth, meters) once the loop is real */

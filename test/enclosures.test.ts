@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { classifyFootprint, reduceCorners } from '../src/sim/classify';
 import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
-import { polygonArea, worldStep } from '../src/sim/step';
+import { classifyRing, polygonArea, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
 import type { Command, Vec2 } from '../src/sim/types';
 
@@ -63,6 +63,7 @@ describe('farms', () => {
     expect(farm.wallId).toBe(w.id);
     expect(farm.area).toBe(400); // 20 × 20, shoelace-exact on the open ring
     expect(farm.points).toHaveLength(4); // duplicate closing vertex dropped
+    expect(farm.gate).toBeNull(); // fully closed — you step over 0.5 m
     const done = world.events.find((e) => e.kind === 'wall_complete')!;
     const est = world.events.find((e) => e.kind === 'farm_established')!;
     expect(est.tick).toBe(done.tick); // recognized at completion, same day
@@ -77,6 +78,39 @@ describe('farms', () => {
     // the closing vertex is ALWAYS dropped: a kept sub-stone sliver edge would
     // sit inside the overlap guard's epsilon and read as degenerate
     expect(world.farms[0]!.points).toHaveLength(4);
+  });
+
+  it('a low ring with a person-width gap is a farm WITH A GATE (SIM 6)', () => {
+    const gated = [...FIELD_RING.slice(0, 4), { x: 100, y: 101.4 }]; // 1.4 m gateway
+    const { world } = run([wall(gated, 0.5)], 100);
+    expect(world.farms).toHaveLength(1);
+    const farm = world.farms[0]!;
+    expect(farm.area).toBe(400); // the gate's closing edge completes the polygon
+    expect(farm.points).toHaveLength(5); // the gapped ring is kept as drawn
+    expect(farm.gate).toEqual({ x: 100, y: 100.7 }); // the gap's exact midpoint
+  });
+
+  it('a gapped ring between heights claims nothing (too tall to step, too low to shelter)', () => {
+    const gated = [...FIELD_RING.slice(0, 4), { x: 100, y: 101.4 }];
+    const { world } = run([wall(gated, 1.5)], 200);
+    expect(world.walls[0]!.stonesLaid).toBe(world.walls[0]!.stonesTotal);
+    expect(world.farms).toHaveLength(0);
+    expect(world.buildings).toHaveLength(0);
+  });
+
+  it('classifyRing is the one predicate: farm, gated farm, building, nothing', () => {
+    const closed = FIELD_RING;
+    const gated = [...FIELD_RING.slice(0, 4), { x: 100, y: 101.4 }];
+    expect(classifyRing(closed, 0.5)).toMatchObject({ kind: 'farm', area: 400, gate: null });
+    expect(classifyRing(gated, 1.0)).toMatchObject({
+      kind: 'farm',
+      area: 400,
+      gate: { x: 100, y: 100.7 },
+    });
+    expect(classifyRing(gated, 1.5)).toBeNull(); // the between-heights hole
+    expect(classifyRing(DOORWAY_LOOP, 3)).toMatchObject({ kind: 'building', buildingKind: 'house' });
+    expect(classifyRing(closed, 2)).toBeNull(); // a closed yard wall claims nothing
+    expect(classifyRing(closed.slice(0, 3), 0.5)).toBeNull(); // not enough points
   });
 
   it('a tall closed ring is a yard wall, not a farm', () => {
@@ -131,10 +165,12 @@ describe('buildings', () => {
     expect((evt as { buildingKind: string }).buildingKind).toBe('house');
   });
 
-  it('a low ring with a doorway gap shelters nothing and farms nothing', () => {
+  it('a low ring with a doorway gap shelters nothing — it PENS instead (SIM 6)', () => {
     const { world } = run([wall(DOORWAY_LOOP, 1)], 100);
-    expect(world.buildings).toHaveLength(0); // below headroom
-    expect(world.farms).toHaveLength(0); // the gap means it is not closed
+    expect(world.buildings).toHaveLength(0); // below headroom, no shelter
+    expect(world.farms).toHaveLength(1); // but a low gapped ring is a gated paddock
+    expect(world.farms[0]!.area).toBeCloseTo(48, 6);
+    expect(world.farms[0]!.gate).toEqual({ x: 104, y: 100 }); // mid-doorway
   });
 
   it('an irregular near-closed ring falls back to area-only classification', () => {
