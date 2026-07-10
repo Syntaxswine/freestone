@@ -15,8 +15,15 @@
  */
 import * as THREE from 'three';
 import type { SiteData } from '../sim/site';
-import { decomposeWall, pointAt, polylineLength } from '../sim/step';
-import { COURSE_HEIGHT, type Person, type WallPlan, type WorldState } from '../sim/types';
+import { decomposeWall, pointAt, pointInPolygon, polylineLength } from '../sim/step';
+import {
+  COURSE_HEIGHT,
+  type Farm,
+  type Person,
+  type Vec2,
+  type WallPlan,
+  type WorldState,
+} from '../sim/types';
 import { FRAMES, personTexture, SPRITE_H, SPRITE_W } from './pixelart';
 
 const ARRIVE = 0.35; // meters: close enough to a walk target to stop
@@ -113,6 +120,71 @@ export class PeopleLayer {
     return { wall, course, length: polylineLength(wall.points) };
   }
 
+  /**
+   * A furrow row for one field hand: runs with the plough (the ring's longest
+   * edge), offset sideways per worker, endpoints shrunk until both sit inside
+   * the enclosure. Pure theater derived from sim truth — the sim only counts
+   * the workday; where in the field it was spent is presentation.
+   */
+  private fieldRow(farm: Farm, idx: number): { a: Vec2; b: Vec2 } {
+    const ring = farm.points;
+    let ux = 1;
+    let uy = 0;
+    let best = 0;
+    for (let i = 0; i < ring.length; i++) {
+      const a = ring[i]!;
+      const b = ring[(i + 1) % ring.length]!;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const l2 = dx * dx + dy * dy;
+      if (l2 > best) {
+        best = l2;
+        const l = Math.sqrt(l2);
+        ux = dx / l;
+        uy = dy / l;
+      }
+    }
+    const px = -uy;
+    const py = ux;
+    let cx = 0;
+    let cy = 0;
+    for (const q of ring) {
+      cx += q.x;
+      cy += q.y;
+    }
+    cx /= ring.length;
+    cy /= ring.length;
+    let uMin = Infinity;
+    let uMax = -Infinity;
+    let pMin = Infinity;
+    let pMax = -Infinity;
+    for (const q of ring) {
+      const du = (q.x - cx) * ux + (q.y - cy) * uy;
+      const dp = (q.x - cx) * px + (q.y - cy) * py;
+      if (du < uMin) uMin = du;
+      if (du > uMax) uMax = du;
+      if (dp < pMin) pMin = dp;
+      if (dp > pMax) pMax = dp;
+    }
+    const off = (hash2(farm.id, idx * 13 + 1) - 0.5) * (pMax - pMin) * 0.55;
+    let sA = uMin * 0.6;
+    let sB = uMax * 0.6;
+    const mk = (s: number): Vec2 => ({ x: cx + ux * s + px * off, y: cy + uy * s + py * off });
+    let a = mk(sA);
+    let b = mk(sB);
+    for (
+      let k = 0;
+      k < 5 && !(pointInPolygon(a.x, a.y, ring) && pointInPolygon(b.x, b.y, ring));
+      k++
+    ) {
+      sA *= 0.65;
+      sB *= 0.65;
+      a = mk(sA);
+      b = mk(sB);
+    }
+    return { a, b };
+  }
+
   /** A mason's post: the midpoint of their share of the wall, offset to one side. */
   private station(ws: WorkSite, masonIndex: number): { x: number; y: number; z: number } {
     const frac = (2 * masonIndex + 1) / (2 * this.masonCount);
@@ -146,6 +218,7 @@ export class PeopleLayer {
       let tx: number;
       let ty: number;
       let tz: number | null = null; // null → stand on the ground
+      let inField = false;
       if (ws && p.person.trade === 'mason') {
         const st = this.station(ws, p.tradeIndex);
         tx = st.x;
@@ -174,6 +247,16 @@ export class PeopleLayer {
           tx = v0.x + ox * 6 + (p.tradeIndex % 2) * 2;
           ty = v0.y + oy * 6;
         }
+      } else if (p.person.trade === 'laborer' && this.world.farms.length > 0) {
+        // the fields: sim truth says an earthless laborer tends a farm
+        // (moveEarth's fallback) — walk the furrows of "their" farm,
+        // pacing row ends like the shuttle paces its two stations
+        const farm = this.world.farms[p.tradeIndex % this.world.farms.length]!;
+        const row = this.fieldRow(farm, p.tradeIndex);
+        const end = p.carrying ? row.b : row.a; // carrying doubles as "which end"
+        inField = true;
+        tx = end.x;
+        ty = end.y;
       } else if (ws && p.person.trade === 'laborer') {
         // shuttle blocks between a stockpile near the wall's start and the
         // station of "their" mason (round-robin by index)
@@ -212,12 +295,12 @@ export class PeopleLayer {
         if (Math.abs(dx) > 0.02) p.facing = dx >= 0 ? 1 : -1;
       } else if (
         d <= WORK_RADIUS &&
-        (ws !== null || fill !== null) &&
+        (ws !== null || fill !== null || inField) &&
         p.person.trade === 'laborer' &&
         simActive &&
         this.clock - p.lastToggle > TOGGLE_DWELL
       ) {
-        p.carrying = !p.carrying; // arrived: pick up or hand off
+        p.carrying = !p.carrying; // arrived: pick up / hand off / turn the row
         p.lastToggle = this.clock;
       }
 
@@ -230,8 +313,8 @@ export class PeopleLayer {
       let frame = 0;
       if (walking) {
         frame =
-          p.person.trade === 'laborer' && p.carrying
-            ? 3 // carry pose while hauling
+          p.person.trade === 'laborer' && p.carrying && !inField
+            ? 3 // carry pose while hauling — in the field there is no block
             : 1 + (Math.floor(this.clock * 4 * p.speed) % 2);
       } else if (p.person.trade === 'mason' && ws && d < WORK_RADIUS && laying && simActive) {
         frame = Math.floor(this.clock * 3) % 2 === 0 ? 3 : 0; // hammer swing
@@ -248,7 +331,7 @@ export class PeopleLayer {
 
       // carried blocks bob a little; sim → three: (x, up, north)
       const bob =
-        p.person.trade === 'laborer' && p.carrying && walking
+        p.person.trade === 'laborer' && p.carrying && walking && !inField
           ? Math.abs(Math.sin(this.clock * 6 + p.person.id)) * 0.05
           : 0;
       p.sprite.position.set(p.x, p.z + bob, p.y);
