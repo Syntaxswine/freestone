@@ -23,6 +23,8 @@ import { FARM_CLOSE_EPS, MATERIALS, type Material, type Vec2 } from '../sim/type
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
 const SNAP_PX = 16; // screen px: a wall click this near the FIRST point closes the ring
+const GEO_SNAP_PX = 16; // screen px: ⇧-snap radius for corners (wall vertices, own points)
+const EDGE_SNAP_PX = 12; // screen px: ⇧-snap radius for a point ON a wall segment
 const SAMPLE_STEP = 2; // meters between preview samples along each segment
 const MAX_SAMPLES = 2048;
 const MAX_POINTS = 128;
@@ -47,6 +49,11 @@ export interface PlannerDeps {
   /** the one exit: hand the plan to the command log; return false to keep drawing */
   onConfirm: (mode: PlannerMode, points: Vec2[], height: number, material: Material) => boolean;
   onModeChange?: (active: boolean, mode: PlannerMode) => void;
+  /**
+   * Existing geometry the ⇧-snap magnetizes to (polylines — wall plans).
+   * A getter, not a snapshot: the world grows while the pencil is out.
+   */
+  snapTargets?: () => readonly (readonly Vec2[])[];
 }
 
 export type PlannerMode = 'wall' | 'building' | 'fill';
@@ -69,6 +76,8 @@ export class WallPlanner {
   private readonly linePos: THREE.BufferAttribute;
   private readonly ribbonPos: THREE.BufferAttribute;
   private readonly markerPos: THREE.BufferAttribute;
+  /** true while the cursor sits on a snap target (drives the ring feedback) */
+  snapped = false;
   private downX = 0;
   private downY = 0;
   private downT = 0;
@@ -399,6 +408,64 @@ export class WallPlanner {
   }
 
   /**
+   * ⇧-held geometry snap (boss request 2026-07-10): while shift is down, the
+   * pick magnetizes to existing walls — CORNERS first (wall vertices, plus the
+   * points already placed this drawing), else the nearest point ON a wall
+   * segment. This is how new work joins old: a wall taken up from a corner, a
+   * building set flush against the field ring (the hollow-walls-connect canon
+   * needs walls that actually meet). Radii are SCREEN SPACE (input-guard law);
+   * a corner outranks an edge so joints land on joints. Returns the pick
+   * untouched when shift is up or nothing is in range.
+   */
+  geoSnap(ev: { clientX: number; clientY: number; shiftKey: boolean }, picked: Vec2): Vec2 {
+    this.snapped = false;
+    if (!ev.shiftKey) return picked;
+    const lines = this.deps.snapTargets?.() ?? [];
+
+    // corner pass: exact copies, so joints share coordinates, not almosts
+    let bestV: Vec2 | null = null;
+    let bestVd = GEO_SNAP_PX;
+    const tryVertex = (q: Vec2): void => {
+      const s = this.screenOf(q);
+      if (!s) return;
+      const d = Math.hypot(ev.clientX - s.x, ev.clientY - s.y);
+      if (d < bestVd) {
+        bestVd = d;
+        bestV = q;
+      }
+    };
+    for (const line of lines) for (const q of line) tryVertex(q);
+    for (const q of this.points) tryVertex(q);
+    if (bestV !== null) {
+      this.snapped = true;
+      const v: Vec2 = bestV;
+      return { x: v.x, y: v.y };
+    }
+
+    // edge pass: nearest world point on any segment, then verified in pixels
+    let bestE: Vec2 | null = null;
+    let bestEw = Infinity;
+    for (const line of lines) {
+      for (let i = 1; i < line.length; i++) {
+        const q = nearestOnSeg(picked, line[i - 1]!, line[i]!);
+        const dw = dist2d(picked, q);
+        if (dw < bestEw) {
+          bestEw = dw;
+          bestE = q;
+        }
+      }
+    }
+    if (bestE !== null) {
+      const s = this.screenOf(bestE);
+      if (s && Math.hypot(ev.clientX - s.x, ev.clientY - s.y) < EDGE_SNAP_PX) {
+        this.snapped = true;
+        return bestE;
+      }
+    }
+    return picked;
+  }
+
+  /**
    * Analytic ray-vs-heightfield: fixed march + bisection over groundAt. A stock
    * Mesh.raycast against the 125k-triangle terrain measures ~4 ms per cast and
    * pointermove fires this constantly; the march is microseconds.
@@ -509,7 +576,7 @@ export class WallPlanner {
         // (zoomed out, 8 px can be meters of depth) left the tool mute.
         const commit = this.pick(ev);
         if (commit) {
-          this.cursor = commit;
+          this.cursor = this.geoSnap(ev, commit); // ⇧ sets the back wall flush too
           this.confirm();
         }
         return;
@@ -536,8 +603,9 @@ export class WallPlanner {
       // world-space gap check cannot swallow it
       const jitter = Math.hypot(ev.clientX - this.lastAddX, ev.clientY - this.lastAddY);
       if (performance.now() - this.lastAddT < 500 && jitter < 8) return;
-      const p = this.pick(ev);
-      if (!p) return;
+      const picked = this.pick(ev);
+      if (!picked) return;
+      const p = this.geoSnap(ev, picked); // ⇧-held clicks land ON the old work
       const before = this.points.length;
       this.addPoint(p);
       if (this.points.length > before) {
@@ -553,12 +621,23 @@ export class WallPlanner {
   private onPointerMove = (ev: PointerEvent): void => {
     if (!this.active) return;
     // hovering the start point previews the closure: the cursor (and so the
-    // ribbon) snaps onto the first point, and the HUD can name the enclosure
-    this.cursor = this.startSnap(ev) ?? this.pick(ev);
+    // ribbon) snaps onto the first point, and the HUD can name the enclosure;
+    // otherwise ⇧ magnetizes the pick to existing walls (geoSnap)
+    const start = this.startSnap(ev);
+    if (start) {
+      this.cursor = start;
+      this.snapped = true;
+    } else {
+      const picked = this.pick(ev);
+      this.cursor = picked ? this.geoSnap(ev, picked) : null;
+    }
     if (this.cursor) {
       const g = this.deps.groundAt(this.cursor.x, this.cursor.y);
       this.cursorRing.position.set(this.cursor.x, g + 0.1, this.cursor.y);
       this.cursorRing.visible = true;
+      // the ring answers the held ⇧: swollen and solid while magnetized
+      this.cursorRing.scale.setScalar(this.snapped ? 1.5 : 1);
+      (this.cursorRing.material as THREE.MeshBasicMaterial).opacity = this.snapped ? 1 : 0.8;
     } else {
       this.cursorRing.visible = false;
     }
@@ -604,6 +683,15 @@ function dist2d(a: Vec2, b: Vec2): number {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   return Math.sqrt(dx * dx + dy * dy);
+}
+
+/** closest point to p on segment ab */
+function nearestOnSeg(p: Vec2, a: Vec2, b: Vec2): Vec2 {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const l2 = dx * dx + dy * dy;
+  const t = l2 === 0 ? 0 : Math.min(1, Math.max(0, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2));
+  return { x: a.x + dx * t, y: a.y + dy * t };
 }
 
 export const KIND_LABEL: Record<BuildingKind, string> = {

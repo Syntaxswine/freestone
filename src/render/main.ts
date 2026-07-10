@@ -283,6 +283,9 @@ async function boot(): Promise<void> {
       bldBtn.classList.toggle('active', active && mode === 'building');
       fillBtn.classList.toggle('active', active && mode === 'fill');
     },
+    // ⇧-snap magnetizes to every planned wall, building shell and field ring
+    // (they are all WallPlans) — a live getter, the world grows mid-drawing
+    snapTargets: () => world.walls.map((w) => w.points),
   });
   const people = new PeopleLayer(world, site, scene, groundShow);
   const paceSum = world.people
@@ -432,7 +435,7 @@ async function boot(): Promise<void> {
         }
         setText(
           hint,
-          'click: ring the ground · right-click/Backspace: undo · double-click/Enter: tip the dirt · Esc: put the pencil down',
+          'click: ring the ground · right-click/Backspace: undo · double-click/Enter: tip the dirt · hold ⇧: snap to walls · Esc: put the pencil down',
         );
       } else {
         const s = planner.stats();
@@ -467,8 +470,8 @@ async function boot(): Promise<void> {
         setText(
           hint,
           planner.mode === 'building'
-            ? 'click: two front corners · move: pull the depth · click: raise it · Esc: put the pencil down'
-            : 'click: place · right-click/Backspace: undo · double-click/Enter: lay it · Esc: put the pencil down',
+            ? 'click: two front corners · move: pull the depth · click: raise it · hold ⇧: snap to walls · Esc: put the pencil down'
+            : 'click: place · right-click/Backspace: undo · double-click/Enter: lay it · hold ⇧: snap to walls · Esc: put the pencil down',
         );
       }
     } else {
