@@ -1,9 +1,11 @@
 # Castle Cultivator backlog
 
-**New session? Read [proposals/HANDOFF-FOUNDATION-2026-07-09.md](proposals/HANDOFF-FOUNDATION-2026-07-09.md)
-first** — the laws, the traps, and the soul live there. Milestones are defined in
-[SCOPE.md](SCOPE.md) §13. Each milestone ends with a push. Session-start ritual until a
-cold-CI skill exists: `npm test` + `npm run build` green before touching anything.
+**New session? Run the `/freestone-session-start` skill** (cold CI + orientation), or by
+hand: read [proposals/HANDOFF-FOUNDATION-2026-07-09.md](proposals/HANDOFF-FOUNDATION-2026-07-09.md)
+first — the laws, the traps, and the soul live there — then `npm test` + `npm run build`
+green before touching anything (the test suite includes the determinism baseline
+instrument). Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends
+with a push.
 
 ## Now
 - [x] M0 — Scope document + research anchors (2026-07-09)

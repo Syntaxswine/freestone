@@ -175,8 +175,10 @@ public/data/site-durham/     committed terrain artifact + provenance README
 memory: project_freestone.md the session-memory index entry — keep it honest
 ```
 
-Session-start ritual until a cold-CI skill exists: `npm test` + `npm run build` before
-touching anything, and read BACKLOG's "Now" block.
+Session-start ritual: the `/freestone-session-start` skill (user-level, in
+`~/.claude/skills/`) — cold CI (`npm test` now includes the determinism baseline
+instrument, `npm run build`) + orientation, before touching anything. By hand if the
+skill is unavailable: those two commands green, then BACKLOG's "Now" block.
 
 ## 8. How canon gets made here (the ritual)
 
