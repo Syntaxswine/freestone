@@ -252,6 +252,21 @@ medieval quarry looks like: pit-and-mound ground, 58 acres of it.
   §8c building values (a barn is not a cot to a trader), M4's granary (the Great Barn is
   a footprint you draw, and the game recognizes what you drew). PARTLY watchlist:
   vernacular dimension bins should get a citation pass before they gate function.
+- **Enclosure recognition (boss canon, 2026-07-09; SHIPPED as SIM 3).** "Farms are made
+  by building a low wall, .5 m around a piece of land." The sim recognizes what a
+  completed wall's GEOMETRY declares — the pencil mode is not sim data:
+  - a **closed low ring** (≤ 1 m tall, ≥ 25 m² enclosed, not self-crossing) establishes
+    a **farm** the day the wall completes; 0.5 m is the canonical recipe, and anything
+    you can step over cordons rather than defends;
+  - a **near-closed tall ring** (gap ≤ 2 m — a doorway, not a breach; ≥ 2 m tall for
+    headroom) completes a **building**, named by the plot-is-the-plan bins above;
+  - a self-crossing ring builds legal masonry but is recognized as NOTHING (the bowtie
+    lesson: shoelace area and even-odd containment disagree on crossed rings).
+  Recognition happens at completion so the chronicle records the day the field came to
+  be. And recognition creates work (boss canon 2026-07-10, SIM 4): a laborer with no
+  earth to move tends the farm with the fewest workdays — the Lodge never puppets
+  individuals; the field exists, so hands find it. Workdays are the substrate M4's
+  granary year converts to yield; crops and occupancy wire in at M4/M3.
 - **The bell.** Ordering any construction rings a small chime — a placeholder voice. When
   the village casts its own church bell (a great work: a pit dug beside the chapel, a tense
   pour, a tone derived from the actual cast — size, metal, luck), that chime becomes *your*

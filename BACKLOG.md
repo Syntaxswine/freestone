@@ -56,6 +56,25 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
       into the standing ritual); `npm run gen-baseline` regenerates deliberately.
       Instrument proven: a 0.035→0.036 yaw-jitter mutation fails the first milestone
       with a clear message while all other tests stay green
+- [x] SIM 3 — farms + houses from enclosure geometry (2026-07-10, boss: "first things
+      first, farms and houses. farms are made by building a low wall, .5m around a piece
+      of land"): recognition at wall completion (closed low ring ≥25 m² = farm;
+      near-closed tall ring = building, kind from the shared classifier), snap-to-close
+      pencil (screen-space, closing click commits), tilled fields with honest headland,
+      gable roofs (thatch/slate), HUD names the farm before a stone is laid. Canon
+      extended + baseline regenerated (SIM 2→3). SCOPE §6 enclosure-recognition canon.
+- [x] SIM 4 — field work (2026-07-10, boss: "you can set citizens to work in the
+      fields"): a laborer with no earth to move tends the farm with the fewest
+      workdays (+1 person-day; construction outranks fields outranks idleness);
+      Farm.workdays = M4's yield substrate; field-hand theater walks the furrows.
+      Plus the review fleet's double-wound-lap exploit guarded (ringSelfOverlaps in
+      recognition + fill validation). Baseline regenerated (SIM 3→4). Review-fleet
+      fixes: snap-commit stale cursor, HUD height honesty, eave-from-as-built-stones,
+      buildings grub their interiors. SECOND fleet (6/6 confirmed by probe) → SIM 5:
+      fill closure normalized before the guards (the 3 cm knife edge; canon now also
+      fingerprints fills-outrank-fields via the tick-320 hand-closed fill), HUD gate
+      mirrors ringSelfOverlaps, fieldRow anchors on the longest edge not the centroid
+      (C-farms: 800/800 rows landed in the hollow), closedRing() tolerant like the sim.
 - [ ] M2 — Quarry loop: bed model FIRST from real logs (boss decision 2026-07-09:
       TRANSCRIBE FIRST). Census DONE: 900 boreholes in-box, 900 with scans
       (research/boreholes/index.json via tools/fetch-borehole-index.mjs); scan→PNG
@@ -94,6 +113,20 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   (stacked mottes); cut as well as fill (ditches — the spoil feeds the rampart, one
   command's dirt is the other's); building-footprint auto-fill ("fill the squares" —
   click inside a shell); material picker grows real stone kinds from the bed model.
+- Farms/houses follow-ons (SIM 3 shipped 2026-07-10): crops + the farming year belong
+  to M4 (a farm today is recognition + tillage look; harvest/sheaves/gleaning wire in
+  there); building OCCUPANCY belongs to M3 people; gates for farms (a low ring with a
+  gated gap — today only fully-closed rings farm); gradual field clearing + grubbing
+  labor when the timber economy lands (today trees vanish on establishment);
+  roof CARPENTRY as a real timber phase with days and materials (today the roof pops at
+  wall completion); roofs for irregular (non-4-corner) shells — hip/straight-skeleton;
+  LEVEL COURSING: courses ride per-column ground so wall tops are wavy on slopes under
+  a level eave — real masons build to level and step the foundation; belongs with M2's
+  wall ladder. Overlapping/nested enclosures currently both count — revisit with M4
+  land use. A hoe/tool sprite frame for field hands (today they pace the rows with
+  walk frames). One-measure invariant at M4 yield time: an OFFSET double lap (laps
+  >5 cm apart) still evades the overlap guard and inflates farm.area vs what tillage
+  draws — when yields land, pay by the tillage (even-odd) measure, not recorded area.
 - Trees → timber economy (render-side TreeLayer shipped 2026-07-09): when the wood
   material gets a cost, the gorge woods become the supply — felling as a sim command,
   cleared trees counted, regrowth over decades; coppicing is the honest medieval
