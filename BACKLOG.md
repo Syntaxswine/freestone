@@ -1,6 +1,9 @@
-# Freestone backlog
+# Castle Cultivator backlog
 
-Milestones are defined in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
+**New session? Read [proposals/HANDOFF-FOUNDATION-2026-07-09.md](proposals/HANDOFF-FOUNDATION-2026-07-09.md)
+first** — the laws, the traps, and the soul live there. Milestones are defined in
+[SCOPE.md](SCOPE.md) §13. Each milestone ends with a push. Session-start ritual until a
+cold-CI skill exists: `npm test` + `npm run build` green before touching anything.
 
 ## Now
 - [x] M0 — Scope document + research anchors (2026-07-09)
