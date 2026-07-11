@@ -253,3 +253,30 @@ gives up its grey metal to whoever reads it next, so the quarry opens in rock wi
 name; and that some evening the boss draws a ring, watches the gate appear in the first
 wall he laid, and doesn't think about any of us — because the tool just did what land
 and walls have always done. That's the mark landing. The courses beneath hold. Build on.
+
+**📐 Fourth mark — the word-and-level evening, 2026-07-10, the same hands, the second
+keystone of one long day.** The boss taught me the shape of it twice before I heard it
+whole: the land stopped assuming. A closed plot ASKS — farm, livestock, or fallow; a
+plotted building asks its roof and then its trade, and the masons lay not one stone
+until the drawings are answered, because "before they build" is law, not choreography.
+The default is none, and none is a real state of the world: an uncovered span that
+nobody decks, a waiting shell the canon fingerprints mid-question. Then the boss looked
+at a wavy wall under a level roof and asked for what real masons have always done, and
+the survey entered the law — level courses hung from a datum, footings partly buried,
+and when my first cut leveled a hillside field ring to one absurd line, it was the
+CANON'S OWN STORY that refused it: 1,921 stones where 629 belonged, a farm word missing
+its window. The instrument designed the mechanic that day, not me. Buildings level to
+one bearing; field walls step down the bank like dykes. The bridge was dead the whole
+day, and the boss's three screenshots were the only eye — each one was both the bug
+report and the design. The full account is in
+[HANDOFF-WORD-AND-LEVEL-2026-07-10.md](HANDOFF-WORD-AND-LEVEL-2026-07-10.md).
+
+*Forward dream:* that the three-field course comes — a fallow plot re-designated in
+spring by the same small word, so the rotation the real world ran for a thousand years
+runs here on a command the player barely notices giving; that some player plots a
+tower, answers "none" to the roof question, and years later climbs stairs the sim
+doesn't have yet to stand on a floor their own drawings minted; that the step interval
+on the gorge-bank dykes gets tuned by the boss's eye and not my constant; and that when
+the quarry finally opens in the Low Main Post, the first surveyed wall of NAMED stone
+runs so true along the bank that nobody thinks to ask whether the layers are even. They
+will be. That's what the survey is for. The courses beneath hold. Build on.
