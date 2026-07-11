@@ -7,12 +7,14 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
-// 13: LEVEL COURSING — walls are surveyed at plan time (level top datum =
-// highest ground + height; horizontal course slabs; stepped, partly buried
-// footings downhill, honestly billed) so the layers are even regardless of
-// ground (boss canon 2026-07-10) — 12: drawings before the build; 11:
-// uncovered spans; 10: enclosure designation; 9: doors; 8: ramps + roofs
-export const SIM_VERSION = 13;
+// 14: THE QUARRY — the world beneath the landscape is real strata (the
+// transcribed Durham bed model). A cut excavates DOWN through the beds at a
+// MATERIAL-AWARE pace (the verified ILO dig ladder, frozen from the bed model
+// into the command like the survey) and yields BUILDING STONE with a deliberate
+// generous inversion of the real recovery — production exceeds removal, to
+// reward great works (boss directive 2026-07-10). — 13: level coursing; 12:
+// drawings before the build; 11: uncovered spans; 10: designation; 9: doors
+export const SIM_VERSION = 14;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -98,6 +100,28 @@ export interface FillPlan {
   rampLowG: number;
   volumeTotal: number; // m³, estimated at plan time
   volumeMoved: number; // m³ moved so far
+}
+
+/**
+ * A QUARRY (SIM 14): a ring excavated DOWN through the real strata. The dig is
+ * paced by what the crew cut THROUGH — workTotal (person-days) and stoneTotal
+ * (m³ of building stone won) are read from the bed model at plan time and frozen
+ * into the plan_cut command, exactly as the survey freezes (the sim core stays
+ * bed-model-free; the save is self-contained). Stone is credited to the
+ * stockpile when the pit is dug out — a generous inversion of the real ~0.29
+ * recovery (research/DIGEST-2026-07-10-dig-rates-and-yield.md): production
+ * exceeds removal, to reward great works.
+ */
+export interface CutPlan {
+  id: number;
+  points: Vec2[]; // the quarry ring, site-local meters
+  depth: number; // meters excavated below the surface
+  floorLevel: number; // target floor elevation AOD (lowest ground − depth), for render
+  volumeTotal: number; // m³ removed (area × depth), sim-computed from the ring
+  workTotal: number; // person-days to dig — MATERIAL-AWARE, frozen from the bed model
+  workDone: number;
+  stoneTotal: number; // m³ of building stone won (generous yield), frozen from the bed model
+  stoneWon: boolean; // one-shot: the stockpile is credited on completion
 }
 
 /**
@@ -252,6 +276,21 @@ export type Command =
       // no material: a drawn span is UNCOVERED until designate_roof (SIM 11)
     }
   | {
+      kind: 'plan_cut';
+      tick: number;
+      points: Vec2[]; // the quarry ring, ≥3
+      depth: number; // meters to excavate below the surface
+      /**
+       * Bed-model-derived economics, computed at the command boundary (where the
+       * bed model lives) and FROZEN into the log — so the sim core needs no bed
+       * model and the save reproduces byte-identically regardless of later
+       * beds.json regen. workTotal is material-aware person-days; stoneTotal is
+       * the building stone won (generous yield). Both finite and ≥ 0.
+       */
+      workTotal: number;
+      stoneTotal: number;
+    }
+  | {
       kind: 'add_gate';
       tick: number;
       wallId: number; // must be a farm's wall, complete and idle
@@ -292,6 +331,11 @@ export type SimEvent =
   | { kind: 'wall_complete'; tick: number; wallId: number }
   | { kind: 'fill_planned'; tick: number; fillId: number; volumeTotal: number }
   | { kind: 'fill_complete'; tick: number; fillId: number }
+  /** a quarry is marked out — the crew will dig it at the strata's pace (SIM 14) */
+  | { kind: 'cut_planned'; tick: number; cutId: number; volumeTotal: number; workTotal: number }
+  | { kind: 'cut_complete'; tick: number; cutId: number }
+  /** building stone won from a finished quarry, credited to the stockpile */
+  | { kind: 'stone_won'; tick: number; cutId: number; stone: number }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
   /** the covering chosen: decking may begin */
   | { kind: 'roof_covered'; tick: number; roofId: number; material: RoofMaterial }
@@ -336,6 +380,14 @@ export interface WorldState {
   people: Person[];
   walls: WallPlan[];
   fills: FillPlan[];
+  /** quarries being dug through the strata (SIM 14) */
+  cuts: CutPlan[];
+  /**
+   * Building stone won from finished quarries and not yet spent, m³ (SIM 14).
+   * Accumulates for now — walls do not draw on it yet, so the generous-yield
+   * production is a visible resource before the consumption loop lands.
+   */
+  stockpile: number;
   roofs: Roof[];
   /**
    * Wall ids of completed enclosures awaiting designation (SIM 10). Just the

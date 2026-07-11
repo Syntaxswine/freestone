@@ -269,6 +269,8 @@ interface Milestone {
   gates: number;
   roofsUncovered: number;
   roofsComplete: number;
+  cutsComplete: number;
+  stockpile: number;
 }
 
 interface Baseline {
@@ -308,6 +310,8 @@ function runCanon(site: SiteData): Baseline {
         gates: world.farms.reduce((n, f) => n + f.gates.length, 0),
         roofsUncovered: world.roofs.filter((r) => r.material === null).length,
         roofsComplete: world.roofs.filter((r) => r.workDone >= r.workTotal).length,
+        cutsComplete: world.cuts.filter((c) => c.workDone >= c.workTotal).length,
+        stockpile: Math.round(world.stockpile),
       });
     }
   }

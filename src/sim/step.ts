@@ -22,6 +22,7 @@ import {
   type BuildingKind,
   type BuildingRoof,
   type Command,
+  type CutPlan,
   type FieldUse,
   type FillPlan,
   type PlacedStone,
@@ -109,6 +110,30 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       if (polygonArea(ring) < 1) return 'fill ring must enclose area';
       if (cmd.shape !== undefined && cmd.shape !== 'flat' && cmd.shape !== 'ramp') {
         return 'unknown fill shape';
+      }
+      return null;
+    }
+    case 'plan_cut': {
+      if (typeof cmd.depth !== 'number' || !Number.isFinite(cmd.depth) || cmd.depth <= 0) {
+        return 'depth must be a finite positive number';
+      }
+      if (!Array.isArray(cmd.points) || cmd.points.length < 3) {
+        return 'a quarry needs at least three points';
+      }
+      if (badPoints(cmd.points)) return 'quarry points must have finite x and y';
+      // the same ring hygiene as a fill (the quarry is a fill turned downward)
+      const ring = normalizedFillRing(cmd.points);
+      if (ring.length < 3) return 'a quarry needs at least three points';
+      if (ringSelfIntersects(ring)) return 'quarry ring must not cross itself';
+      if (ringSelfOverlaps(ring)) return 'quarry ring must not overlap itself';
+      if (polygonArea(ring) < 1) return 'quarry ring must enclose area';
+      // the bed-model economics are frozen into the log; guard them like any
+      // float that enters hashed state (NaN/Infinity arrive as null from a save)
+      if (typeof cmd.workTotal !== 'number' || !Number.isFinite(cmd.workTotal) || cmd.workTotal < 0) {
+        return 'quarry workTotal must be a finite non-negative number';
+      }
+      if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
+        return 'quarry stoneTotal must be a finite non-negative number';
       }
       return null;
     }
@@ -570,6 +595,47 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       });
       break;
     }
+    case 'plan_cut': {
+      // A quarry: the fill gesture turned downward. Ring hygiene matches the
+      // fill; the floor is level at the lowest sampled ground minus the depth.
+      // workTotal and stoneTotal were read from the bed model at the command
+      // boundary and are frozen here — the sim core never touches the beds.
+      const pts = normalizedFillRing(cmd.points);
+      let gMin = Infinity;
+      let cx = 0;
+      let cy = 0;
+      for (const p of pts) {
+        cx += p.x;
+        cy += p.y;
+        const g = effectiveGroundAt(state, site, p.x, p.y);
+        if (g < gMin) gMin = g;
+      }
+      cx /= pts.length;
+      cy /= pts.length;
+      const gc = effectiveGroundAt(state, site, cx, cy);
+      if (gc < gMin) gMin = gc;
+      const area = polygonArea(pts);
+      const cut: CutPlan = {
+        id: state.nextId++,
+        points: pts,
+        depth: cmd.depth,
+        floorLevel: gMin - cmd.depth,
+        volumeTotal: Math.max(1, area * cmd.depth),
+        workTotal: Math.max(1, cmd.workTotal), // at least a day's work, like fills
+        workDone: 0,
+        stoneTotal: cmd.stoneTotal,
+        stoneWon: false,
+      };
+      state.cuts.push(cut);
+      state.events.push({
+        kind: 'cut_planned',
+        tick: state.tick,
+        cutId: cut.id,
+        volumeTotal: cut.volumeTotal,
+        workTotal: cut.workTotal,
+      });
+      break;
+    }
     case 'plan_roof': {
       // the deck sits on the HIGHEST supporting wall top among the corners —
       // and since SIM 13 a wall's top IS its surveyed level datum, so the
@@ -700,6 +766,25 @@ function moveEarth(state: WorldState): void {
       quota -= m;
       if (roof.workDone >= roof.workTotal) {
         state.events.push({ kind: 'roof_complete', tick: state.tick, roofId: roof.id });
+      }
+    }
+    if (moved === 0) {
+      // a QUARRY outranks field-work (SIM 14): an idle laborer digs the oldest
+      // unfinished cut — one person-day, the strata's pace already baked into
+      // workTotal. On the day the pit is dug out, the building stone won (the
+      // generous yield) is credited to the stockpile. No cut, no digging: the
+      // field path below is untouched, so a world with no quarries is
+      // byte-identical to before SIM 14.
+      const cut = state.cuts.find((c) => c.workDone < c.workTotal);
+      if (cut) {
+        cut.workDone += 1;
+        moved = 1;
+        if (cut.workDone >= cut.workTotal && !cut.stoneWon) {
+          cut.stoneWon = true;
+          state.stockpile += cut.stoneTotal;
+          state.events.push({ kind: 'cut_complete', tick: state.tick, cutId: cut.id });
+          state.events.push({ kind: 'stone_won', tick: state.tick, cutId: cut.id, stone: cut.stoneTotal });
+        }
       }
     }
     if (moved === 0) {

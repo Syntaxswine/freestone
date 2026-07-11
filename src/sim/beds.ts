@@ -146,6 +146,38 @@ export function bedModelFromJson(json: BedsJson): BedModel {
   };
 }
 
+/**
+ * The economics of a quarry, read from the strata and FROZEN into the plan_cut
+ * command (SIM 14). Integrates the nearest hole's column from surface to `depth`:
+ *   workDays = Σ (layer thickness · area) / DIG_RATE[material]  (person-days)
+ *   stone    = Σ (layer thickness · area) · STONE_YIELD[material] (m³ won)
+ * Below the deepest logged bed, the deepest material is assumed to continue.
+ * void layers (DIG_RATE 0 — already open ground) cost no work.
+ */
+export function cutEconomics(
+  model: BedModel,
+  x: number,
+  y: number,
+  depth: number,
+  area: number,
+): { workDays: number; stone: number } {
+  const h = model.nearestHole(x, y);
+  const column = h && h.column.length ? h.column : [{ m: 'unknown' as GroundMaterial, top: 0, base: depth }];
+  let workDays = 0;
+  let stone = 0;
+  const add = (m: GroundMaterial, top: number, base: number) => {
+    const t = base - top;
+    if (t <= 0) return;
+    const r = DIG_RATE[m];
+    if (r > 0) workDays += (t * area) / r;
+    stone += t * area * STONE_YIELD[m];
+  };
+  for (const seg of column) add(seg.m, Math.max(0, seg.top), Math.min(depth, seg.base));
+  const lastBase = column[column.length - 1]!.base;
+  if (depth > lastBase) add(column[column.length - 1]!.m, lastBase, depth);
+  return { workDays, stone };
+}
+
 /** Flat placeholder — no subsurface data (tests, and the sim before beds land). */
 export function emptyBedModel(id = 'no-beds'): BedModel {
   return {
