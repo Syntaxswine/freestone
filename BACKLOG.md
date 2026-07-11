@@ -86,6 +86,15 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
       classifyFootprint demoted to the mason's advisory READING. Canon: stones
       byte-identical at every milestone; workdays −4 exact; events +3 exact;
       pending=1 fingerprinted at ticks 200/260. Baseline regen SIM 9→10. 88 tests.
+- [x] SIM 11 — roofs join the designation grammar (2026-07-10, boss: "roof type
+      should be selected like building type… with default being none"): plan_roof
+      mints the span with material NULL (uncovered — nobody decks bare air, tested
+      thirty idle days exactly); designate_roof names the covering (roof_covered
+      event); the word-card runs ONE ask queue (pending enclosures + uncovered
+      spans in creation order, span card floats at deck level); the roof-material
+      cycle button retired. Canon: span uncovered through the 260 milestone
+      (roofsUncovered=1 beside pending=1), bricked @382, 48/48 by 400; stones and
+      workdays byte-identical to SIM 10; events +1. Regen SIM 10→11. 93 tests.
 - [ ] M2 — Quarry loop: bed model FIRST from real logs (boss decision 2026-07-09:
       TRANSCRIBE FIRST). Census DONE: 900 boreholes in-box, 900 with scans
       (research/boreholes/index.json via tools/fetch-borehole-index.mjs); scan→PNG
