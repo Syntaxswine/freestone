@@ -1,9 +1,10 @@
 /**
- * Roofs: when a shell is DESIGNATED (SIM 10 — the lord's word makes it a
- * house, smithy, tower or tavern), a gable roof rises over it; towers keep
- * the sky. Render reads, never writes; the roof appears the day the word is
- * given (honest carpentry — a timber phase with real days — is a later
- * course, noted in BACKLOG).
+ * Roofs: a building wears the roof its DRAWINGS chose (SIM 12 — the roof is
+ * the plot's first answer, before the masons build): wood or straw dresses a
+ * gable in that material's tones; 'none' keeps the sky; brick is a REAL deck
+ * (a Roof record the laborers build — RoofLayer draws it, not this).
+ * Render reads, never writes; the gable appears the day the shell completes
+ * (honest gable carpentry as its own labor phase stays in BACKLOG).
  *
  * Geometry: the ring reduced to its 4 true corners (shared sim helper) gives
  * eaves; the ridge runs between the midpoints of the SHORT edges at a 45°
@@ -18,6 +19,15 @@ import { COURSE_HEIGHT, type Vec2, type WorldState } from '../sim/types';
 
 const OVERHANG = 0.35; // meters of eave past the wall face
 const PITCH = 0.5; // ridge rise per meter of half-span (0.5 = 45°)
+/**
+ * The roof GRIPS the wall (boss finding 2026-07-10 — "roofs are not sitting
+ * on the structure properly"): the eave plane sinks a course INTO the
+ * masonry (a real roof bears on the wall plate; the top course disappears
+ * under the edge), and a fascia skirt hangs below the whole perimeter so a
+ * wavy wall top on sloped ground never shows daylight under the eave.
+ */
+const EAVE_SINK = 0.25; // one course below the highest stone top
+const FASCIA = 0.55; // meters of skirt below the eave line
 
 function hash1(a: number): number {
   let x = Math.imul(a + 1, 0x85ebca6b) >>> 0;
@@ -43,9 +53,8 @@ export class BuildingLayer {
 
   private build(index: number): void {
     const b = this.world.buildings[index]!;
-    // a TOWER keeps the sky: no auto-gable — its cap is crenellation or the
-    // roof tool's honest deck, both later courses (M6)
-    if (b.kind === 'tower') return;
+    // the drawings rule: 'none' keeps the sky, brick is RoofLayer's real deck
+    if (b.roof !== 'wood' && b.roof !== 'straw') return;
     const wall = this.world.walls.find((w) => w.id === b.wallId);
     if (!wall) return;
     const corners = reduceCorners(wall.points);
@@ -61,7 +70,7 @@ export class BuildingLayer {
       if (s.wallId === wall.id && s.pos[2] > topZ) topZ = s.pos[2];
     }
     if (topZ === -Infinity) return; // no stones, no roof (unreachable past recognition)
-    const eaveZ = topZ + COURSE_HEIGHT / 2 + 0.02;
+    const eaveZ = topZ + COURSE_HEIGHT / 2 - EAVE_SINK;
 
     // overhang: push each corner outward from the footprint's center
     const cx = (corners[0]!.x + corners[1]!.x + corners[2]!.x + corners[3]!.x) / 4;
@@ -90,15 +99,15 @@ export class BuildingLayer {
         ? [mid(ov[0]!, ov[1]!), mid(ov[2]!, ov[3]!), ov[1]!, ov[2]!, ov[3]!, ov[0]!]
         : [mid(ov[1]!, ov[2]!), mid(ov[3]!, ov[0]!), ov[2]!, ov[3]!, ov[0]!, ov[1]!];
 
-    // thatch for the homely, stone slate for the smithy — sparks and straw
-    // roofs are old enemies (dressing, not canon)
+    // the chosen covering's tones: golden thatch or weathered planking
     const j = hash1(b.id);
     const color =
-      b.kind === 'blacksmith'
-        ? new THREE.Color().setHSL(0.58 + j * 0.03, 0.06, 0.5 + j * 0.08)
-        : new THREE.Color().setHSL(0.1 + j * 0.02, 0.38, 0.52 + j * 0.08);
+      b.roof === 'straw'
+        ? new THREE.Color().setHSL(0.1 + j * 0.02, 0.38, 0.52 + j * 0.08)
+        : new THREE.Color().setHSL(0.075 + j * 0.02, 0.36, 0.4 + j * 0.07);
 
-    // two slope quads + two gable triangles, non-indexed for crisp facets
+    // two slope quads + two gable triangles + a fascia skirt around the
+    // perimeter, non-indexed for crisp facets
     const v = (p: Vec2, z: number): number[] => [p.x, z, p.y];
     const positions = [
       // slope from edge s0→s1 up to the ridge g1→g0
@@ -111,6 +120,17 @@ export class BuildingLayer {
       ...v(s1, eaveZ), ...v(s2, eaveZ), ...v(g1, ridgeZ),
       ...v(s3, eaveZ), ...v(s0, eaveZ), ...v(g0, ridgeZ),
     ];
+    // the skirt: eave line down to eaveZ − FASCIA on every perimeter edge
+    const lowZ = eaveZ - FASCIA;
+    const ring = [s0, s1, s2, s3];
+    for (let i = 0; i < 4; i++) {
+      const a = ring[i]!;
+      const b = ring[(i + 1) % 4]!;
+      positions.push(
+        ...v(a, eaveZ), ...v(b, eaveZ), ...v(b, lowZ),
+        ...v(a, eaveZ), ...v(b, lowZ), ...v(a, lowZ),
+      );
+    }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
     geo.computeVertexNormals();

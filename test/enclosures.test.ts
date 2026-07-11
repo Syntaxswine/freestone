@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { classifyFootprint, reduceCorners } from '../src/sim/classify';
 import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
-import { classifyRing, polygonArea, worldStep } from '../src/sim/step';
+import { classifyRing, effectiveGroundAt, polygonArea, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
 import type { BuildingKind, Command, FieldUse, Vec2 } from '../src/sim/types';
 
@@ -64,6 +64,12 @@ const designate = (
   tick = 50, // every canonical test wall completes well inside 50 days
 ): Command => ({ kind: 'designate', tick, wallId, use });
 
+const chooseRoof = (
+  wallId: number,
+  roof: 'none' | 'wood' | 'straw' | 'brick',
+  tick = 40, // the drawings' first answer — before the trade
+): Command => ({ kind: 'choose_roof', tick, wallId, roof });
+
 function rejections(world: { events: { kind: string }[] }): string[] {
   return world.events
     .filter((e) => e.kind === 'command_rejected')
@@ -83,12 +89,22 @@ describe('pending — the completed enclosure asks', () => {
     expect((asked as { area: number }).area).toBe(400);
   });
 
-  it('a completed doorway shell pends as a shell (shell_raised)', () => {
+  it('a plotted building asks its drawings BEFORE the masons build (SIM 12)', () => {
     const { world } = run([wall(DOORWAY_LOOP, 3)], 100);
-    expect(world.pending).toEqual([W1]);
+    expect(world.pending).toEqual([W1]); // asking from the day it was plotted
     expect(world.buildings).toHaveLength(0);
-    const asked = world.events.find((e) => e.kind === 'shell_raised')!;
+    expect(world.stones).toHaveLength(0); // a hundred days and NOT ONE STONE — the crew waits
+    const asked = world.events.find((e) => e.kind === 'shell_plotted')!;
+    expect(asked.tick).toBe(0); // the ask stands the day of the plot
     expect((asked as { area: number }).area).toBeCloseTo(48, 6);
+    expect(world.walls[0]!.plans).toEqual({ roof: null, kind: null });
+  });
+
+  it('the roof answered alone still holds the crew — both answers free them', () => {
+    const { world } = run([wall(DOORWAY_LOOP, 3), chooseRoof(W1, 'straw', 10)], 60);
+    expect(world.stones).toHaveLength(0); // roof chosen, trade unnamed: still waiting
+    expect(world.walls[0]!.plans).toEqual({ roof: 'straw', kind: null });
+    expect(world.pending).toEqual([W1]); // the second question stands
   });
 
   it('between-heights, tall-closed, open, tiny and bowtie rings pend nothing', () => {
@@ -196,18 +212,54 @@ describe('designation — the word', () => {
     ]);
   });
 
-  it('the shell designates to the lord\'s kind, not the footprint\'s', () => {
-    const { world } = run([wall(DOORWAY_LOOP, 3), designate(W1, 'tavern')], 100);
+  it('drawings answered, the crew builds, and completion makes the building real', () => {
+    const { world } = run(
+      [wall(DOORWAY_LOOP, 3), chooseRoof(W1, 'straw', 10), designate(W1, 'tavern', 20)],
+      100,
+    );
+    const planned = world.events.find((e) => e.kind === 'building_planned')!;
+    expect(planned.tick).toBe(20); // the drawings settled…
+    const w = world.walls[0]!;
+    expect(w.stonesLaid).toBe(w.stonesTotal); // …and only then was it built
+    expect(world.pending).toHaveLength(0);
     expect(world.buildings).toHaveLength(1);
     const b = world.buildings[0]!;
     expect(b.kind).toBe('tavern'); // the masons read a cot; the lord keeps ale
+    expect(b.roof).toBe('straw');
     expect(b.area).toBeCloseTo(48, 6);
     expect(b.wallId).toBe(W1);
     const evt = world.events.find((e) => e.kind === 'building_complete')!;
     expect((evt as { buildingKind: string }).buildingKind).toBe('tavern');
+    // no stone predates the second answer
+    for (const s of world.stones) expect(s.tickLaid).toBeGreaterThanOrEqual(20);
   });
 
-  it('an irregular shell designates with its even-odd area intact', () => {
+  it('a BRICK roof in the drawings mints a real deck at completion — a floor above', () => {
+    const { world, site } = run(
+      [wall(DOORWAY_LOOP, 3), chooseRoof(W1, 'brick', 10), designate(W1, 'house', 20)],
+      60,
+    );
+    expect(world.buildings[0]!.roof).toBe('brick');
+    expect(world.roofs).toHaveLength(1); // the span minted the day the shell topped out
+    const roof = world.roofs[0]!;
+    expect(roof.material).toBe('brick'); // covered from birth — the drawings chose
+    expect(roof.level).toBe(3); // flat site: the wall top
+    expect(roof.points).toHaveLength(4); // the doorway loop's true corners
+    expect(roof.area).toBeCloseTo(48, 6);
+    // the laborers deck it through the ordinary loop, and it becomes ground
+    let guard = 0;
+    while (roof.workDone < roof.workTotal && guard++ < 200) worldStep(world, site, []);
+    expect(effectiveGroundAt(world, site, 104, 103)).toBeCloseTo(3.25, 9);
+    // wood and none mint nothing
+    const { world: w2 } = run(
+      [wall(DOORWAY_LOOP, 3), chooseRoof(W1, 'none', 10), designate(W1, 'house', 20)],
+      60,
+    );
+    expect(w2.roofs).toHaveLength(0);
+    expect(w2.buildings[0]!.roof).toBe('none');
+  });
+
+  it('an irregular shell keeps its even-odd area through the drawings', () => {
     const staircase: Vec2[] = [
       { x: 0, y: 0 },
       { x: 10, y: 0 },
@@ -217,7 +269,10 @@ describe('designation — the word', () => {
       { x: 0, y: 6 },
       { x: 0, y: 1.5 }, // 1.5 m doorway back to the start
     ];
-    const { world } = run([wall(staircase, 3), designate(W1, 'blacksmith', 120)], 200);
+    const { world } = run(
+      [wall(staircase, 3), chooseRoof(W1, 'none', 10), designate(W1, 'blacksmith', 20)],
+      200,
+    );
     expect(world.buildings).toHaveLength(1);
     expect(world.buildings[0]!.area).toBeCloseTo(84, 6); // 100 − the 4×4 notch
     expect(world.buildings[0]!.kind).toBe('blacksmith');
@@ -245,11 +300,45 @@ describe('designation — the palettes hold', () => {
     expect(world.farms[0]!.use).toBe('farm');
   });
 
-  it('a shell refuses a field use', () => {
-    const { world } = run([wall(DOORWAY_LOOP, 3), designate(W1, 'fallow')], 100);
-    expect(rejections(world)).toEqual(['a shell takes house, blacksmith, tower, or tavern']);
+  it('the roof is chosen before the trade, and a shell refuses a field use', () => {
+    const { world } = run(
+      [
+        wall(DOORWAY_LOOP, 3),
+        designate(W1, 'house', 5), // too eager: the roof question comes first
+        chooseRoof(W1, 'wood', 10),
+        designate(W1, 'fallow', 15), // a building is no field
+      ],
+      100,
+    );
+    expect(rejections(world)).toEqual([
+      'the roof is chosen before the trade',
+      'a shell takes house, blacksmith, tower, or tavern',
+    ]);
     expect(world.buildings).toHaveLength(0);
     expect(world.pending).toEqual([W1]); // still asking
+    expect(world.stones).toHaveLength(0); // and the crew still waits
+  });
+
+  it('the roof word has its own refusals', () => {
+    const { world } = run(
+      [
+        wall(FIELD_RING, 0.5), // a field plot — no drawings
+        wall(DOORWAY_LOOP, 3), // W2: drawings
+        { kind: 'choose_roof', tick: 5, wallId: 999, roof: 'wood' },
+        { kind: 'choose_roof', tick: 10, wallId: W1, roof: 'wood' }, // fields take no roofs
+        { kind: 'choose_roof', tick: 15, wallId: W2, roof: 'slate' as never },
+        { kind: 'choose_roof', tick: 20, wallId: W2, roof: 'straw' }, // lands
+        { kind: 'choose_roof', tick: 25, wallId: W2, roof: 'wood' }, // asked and answered
+      ],
+      40,
+    );
+    expect(rejections(world)).toEqual([
+      'no shell awaits a roof there',
+      'no shell awaits a roof there',
+      'a roof is none, wood, straw, or brick',
+      'no shell awaits a roof there',
+    ]);
+    expect(world.walls[1]!.plans).toEqual({ roof: 'straw', kind: null });
   });
 
   it('a wall that pends nothing takes no word', () => {
@@ -324,14 +413,15 @@ describe('the one predicate', () => {
 });
 
 describe('replay', () => {
-  it('pending, designations and refusals replay identically from a save', () => {
+  it('pending, drawings, designations and refusals replay identically from a save', () => {
     const site = flatSite('flat', 1000);
     const world = createWorld('enclosures-replay', site.id);
     const log: Command[] = [
       wall(FIELD_RING, 0.5),
       wall(DOORWAY_LOOP, 3),
       designate(W1, 'livestock', 40),
-      designate(W2, 'fallow', 45), // refused: a shell takes no field use
+      designate(W2, 'fallow', 45), // refused: the roof is chosen before the trade
+      { kind: 'choose_roof', tick: 50, wallId: W2, roof: 'wood' },
       designate(W2, 'house', 55),
     ];
     const byTick = new Map<number, Command[]>();

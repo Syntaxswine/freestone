@@ -4,6 +4,7 @@ import type { SiteData } from './site';
 import {
   BUILDING_KINDS,
   BUILDING_MIN_H,
+  BUILDING_ROOFS,
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
   FARM_CLOSE_EPS,
@@ -19,6 +20,7 @@ import {
   ROOF_DECK,
   STONE_LEN,
   type BuildingKind,
+  type BuildingRoof,
   type Command,
   type FieldUse,
   type FillPlan,
@@ -191,14 +193,30 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       if (!wall || !state.pending.includes(wall.id)) {
         return 'no enclosure awaits the word there';
       }
-      // pending ⇒ the wall classified at completion, and wall geometry is
-      // immutable — re-running the one predicate here cannot disagree
+      if (wall.plans !== null) {
+        // a plotted building: the trade is the drawings' SECOND answer
+        if (wall.plans.roof === null) return 'the roof is chosen before the trade';
+        if (!isBuildingKind(cmd.use)) return 'a shell takes house, blacksmith, tower, or tavern';
+        return null;
+      }
+      // no drawings ⇒ a field plot pending at completion; the one predicate
+      // re-derives its facts (wall geometry is immutable)
       const rc = classifyRing(wall.points, wall.height);
-      if (rc === null) return 'no enclosure awaits the word there'; // unreachable
-      if (rc.kind === 'farm') {
-        if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, or fallow';
-      } else if (!isBuildingKind(cmd.use)) {
-        return 'a shell takes house, blacksmith, tower, or tavern';
+      if (rc === null || rc.kind !== 'farm') return 'no enclosure awaits the word there'; // unreachable
+      if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, or fallow';
+      return null;
+    }
+    case 'choose_roof': {
+      const wall =
+        typeof cmd.wallId === 'number'
+          ? state.walls.find((w) => w.id === cmd.wallId)
+          : undefined;
+      // only drawings that still await their roof take this word
+      if (!wall || wall.plans === null || wall.plans.roof !== null) {
+        return 'no shell awaits a roof there';
+      }
+      if (!(BUILDING_ROOFS as readonly string[]).includes(cmd.roof as string)) {
+        return 'a roof is none, wood, straw, or brick';
       }
       return null;
     }
@@ -349,6 +367,9 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       // leave the opening as they build (boss canon 2026-07-10)
       const gates = planGates(cmd.points, cmd.height);
       const { stonesTotal } = decomposeWall(cmd.points, cmd.height, gates);
+      // a building-classifiable ring gets DRAWINGS (SIM 12): the roof and the
+      // trade are asked at plot time, and the masons wait on the answers
+      const rc = classifyRing(cmd.points, cmd.height);
       const wall: WallPlan = {
         id: state.nextId++,
         points: cmd.points.map((p) => ({ x: p.x, y: p.y })),
@@ -356,6 +377,7 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         material: cmd.material ?? 'sandstone', // old logs/saves carry no material
         gates,
         infill: [],
+        plans: rc?.kind === 'building' ? { roof: null, kind: null } : null,
         stonesTotal,
         stonesLaid: 0,
       };
@@ -365,6 +387,27 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         tick: state.tick,
         wallId: wall.id,
         stonesTotal,
+      });
+      if (wall.plans !== null && rc?.kind === 'building') {
+        state.pending.push(wall.id);
+        state.events.push({
+          kind: 'shell_plotted',
+          tick: state.tick,
+          wallId: wall.id,
+          area: rc.area,
+        });
+      }
+      break;
+    }
+    case 'choose_roof': {
+      // the drawings' first answer; the trade question follows
+      const wall = state.walls.find((w) => w.id === cmd.wallId)!; // validated
+      wall.plans!.roof = cmd.roof;
+      state.events.push({
+        kind: 'roof_chosen',
+        tick: state.tick,
+        wallId: wall.id,
+        roof: cmd.roof,
       });
       break;
     }
@@ -549,13 +592,23 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       break;
     }
     case 'designate': {
-      // the lord's word: the pending enclosure becomes what it is FOR. A paper
-      // act, applied the day it is given — no labor, no wall idle-check (the
-      // masonry may be mid-infill; the land's purpose is not the crew's
-      // business). Everything geometric recomputes from the one predicate.
+      // the lord's word: a paper act, applied the day it is given — no labor,
+      // no wall idle-check. For a plotted BUILDING this is the drawings'
+      // second answer (the roof came first) and it frees the masons; for a
+      // field plot it puts enclosed land to its use.
       const wall = state.walls.find((w) => w.id === cmd.wallId)!; // validated
-      const rc = classifyRing(wall.points, wall.height)!; // validated non-null
       state.pending = state.pending.filter((id) => id !== wall.id);
+      if (wall.plans !== null) {
+        wall.plans.kind = cmd.use as BuildingKind; // validated against the shell palette
+        state.events.push({
+          kind: 'building_planned',
+          tick: state.tick,
+          wallId: wall.id,
+          buildingKind: wall.plans.kind,
+        });
+        break;
+      }
+      const rc = classifyRing(wall.points, wall.height)!; // validated: a farm ring
       if (rc.kind === 'farm') {
         const farm = {
           id: state.nextId++,
@@ -577,21 +630,6 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
           wallId: wall.id,
           use: farm.use,
           area: rc.area,
-        });
-      } else {
-        const building = {
-          id: state.nextId++,
-          wallId: wall.id,
-          kind: cmd.use as BuildingKind, // validated against the shell palette
-          area: rc.area,
-        };
-        state.buildings.push(building);
-        state.events.push({
-          kind: 'building_complete',
-          tick: state.tick,
-          buildingId: building.id,
-          wallId: wall.id,
-          buildingKind: building.kind,
         });
       }
       break;
@@ -749,12 +787,19 @@ export function nearestOnPolyline(points: readonly Vec2[], p: Vec2): Vec2 {
   return best;
 }
 
+/** drawings with a null answer keep the crew off the wall (SIM 12) */
+export function awaitsDrawings(w: WallPlan): boolean {
+  return w.plans !== null && (w.plans.roof === null || w.plans.kind === null);
+}
+
 function layStones(state: WorldState, site: SiteData, rng: Rng): void {
   for (const person of state.people) {
     if (person.trade !== 'mason') continue;
     let quota = person.pace;
     while (quota > 0) {
-      const wall = state.walls.find((w) => w.stonesLaid < w.stonesTotal);
+      // the masons take the oldest wall whose drawings are settled — a
+      // plotted building waits for its roof and trade before the first stone
+      const wall = state.walls.find((w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w));
       if (!wall) return;
       layOneStone(state, site, rng, wall, person.id);
       quota -= 1;
@@ -814,7 +859,7 @@ function layOneStone(
   });
   if (wall.stonesLaid === wall.stonesTotal) {
     state.events.push({ kind: 'wall_complete', tick: state.tick, wallId: wall.id });
-    recognizeEnclosure(state, wall);
+    recognizeEnclosure(state, site, wall);
   }
 }
 
@@ -903,25 +948,72 @@ export function classifyRing(pts: readonly Vec2[], height: number): RingClass {
 
 /**
  * When a wall completes, its GEOMETRY declares what it made (boss canon
- * 2026-07-09/10) — the pencil mode is not sim data. Since SIM 10 recognition
- * ASKS rather than answers (boss canon 2026-07-10): the completed enclosure
- * goes on state.pending and waits for its lord's designate command; only the
- * class (field plot vs shell) is geometry's call. Recognition happens at
- * COMPLETION, and is ONE-SHOT per wall: a wall that re-completes after gate
- * infill must not ask twice, and a designated wall never re-pends.
+ * 2026-07-09/10) — the pencil mode is not sim data. A FIELD ring asks at
+ * completion (SIM 10): onto state.pending, awaiting its use. A BUILDING
+ * answered its drawings at PLOT time (SIM 12), so completion simply makes it
+ * real: the Building record takes the drawn kind and roof, and a BRICK roof
+ * mints a real Roof span over the footprint — the deck the laborers build
+ * and the next storey stands on. Recognition is ONE-SHOT per wall: a wall
+ * that re-completes after gate infill must not ask or claim twice.
  */
-export function recognizeEnclosure(state: WorldState, wall: WallPlan): void {
+export function recognizeEnclosure(state: WorldState, site: SiteData, wall: WallPlan): void {
   if (state.pending.includes(wall.id)) return;
   if (state.farms.some((f) => f.wallId === wall.id)) return;
   if (state.buildings.some((b) => b.wallId === wall.id)) return;
+  if (wall.plans !== null) {
+    // drawings settled long before the first stone (masons build nothing else)
+    const rc = classifyRing(wall.points, wall.height);
+    if (rc === null || rc.kind !== 'building') return; // unreachable: plans ⇒ building-class
+    const building = {
+      id: state.nextId++,
+      wallId: wall.id,
+      kind: wall.plans.kind!,
+      roof: wall.plans.roof!,
+      area: rc.area,
+    };
+    state.buildings.push(building);
+    state.events.push({
+      kind: 'building_complete',
+      tick: state.tick,
+      buildingId: building.id,
+      wallId: wall.id,
+      buildingKind: building.kind,
+    });
+    if (building.roof === 'brick') {
+      // flat brick adds another layer (boss canon 2026-07-10): the chosen
+      // roof is a REAL span over the footprint — decked by laborers through
+      // the daily loop, and ground for the next storey when complete
+      const reduced = reduceCorners(wall.points);
+      const pts = reduced.length >= 3 ? reduced : wall.points.map((p) => ({ x: p.x, y: p.y }));
+      let level = -Infinity;
+      for (const p of pts) {
+        const top = effectiveGroundAt(state, site, p.x, p.y) + wall.height;
+        if (top > level) level = top;
+      }
+      const area = polygonArea(pts);
+      const roof = {
+        id: state.nextId++,
+        points: pts,
+        level,
+        material: 'brick' as const,
+        area,
+        workTotal: Math.max(1, area),
+        workDone: 0,
+      };
+      state.roofs.push(roof);
+      state.events.push({
+        kind: 'roof_planned',
+        tick: state.tick,
+        roofId: roof.id,
+        workTotal: roof.workTotal,
+      });
+    }
+    return;
+  }
   const rc = classifyRing(wall.points, wall.height);
-  if (rc === null) return;
+  if (rc === null || rc.kind !== 'farm') return; // building-class always has plans
   state.pending.push(wall.id);
-  state.events.push(
-    rc.kind === 'farm'
-      ? { kind: 'plot_enclosed', tick: state.tick, wallId: wall.id, area: rc.area }
-      : { kind: 'shell_raised', tick: state.tick, wallId: wall.id, area: rc.area },
-  );
+  state.events.push({ kind: 'plot_enclosed', tick: state.tick, wallId: wall.id, area: rc.area });
 }
 
 /**

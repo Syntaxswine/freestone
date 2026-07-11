@@ -7,10 +7,11 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
-// 11: roofs join the designation grammar — a drawn span is COVERED BY
-// NOTHING until designate_roof names its material; no covering, no work —
-// 10: enclosure designation; 9: doors; 8: ramps + roofs; 7: real gates
-export const SIM_VERSION = 11;
+// 12: drawings before the build — a plotted building asks its ROOF then its
+// TRADE before the masons take it up (boss canon 2026-07-10: "when you plot
+// the building it should ask what the roof will be before they build") —
+// 11: uncovered spans; 10: enclosure designation; 9: doors; 8: ramps + roofs
+export const SIM_VERSION = 12;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -52,6 +53,13 @@ export interface WallPlan {
    * time. Non-empty only between a remove_gate and the wall's re-completion.
    */
   infill: { course: number; slot: number }[];
+  /**
+   * THE DRAWINGS (SIM 12): non-null exactly when the plotted ring classifies
+   * as a building. Both answers are given BEFORE the masons take the wall up
+   * (boss canon 2026-07-10): first the roof (choose_roof), then the trade
+   * (designate). A wall whose drawings hold a null waits unbuilt.
+   */
+  plans: { roof: BuildingRoof | null; kind: BuildingKind | null } | null;
   stonesTotal: number;
   stonesLaid: number;
 }
@@ -103,6 +111,15 @@ export const ROOF_DECK = 0.25; // meters: a roof plate's thickness — a brick d
  */
 export const ROOF_MATERIALS = ['wood', 'straw', 'brick'] as const;
 export type RoofMaterial = (typeof ROOF_MATERIALS)[number];
+
+/**
+ * A building's roof, chosen at PLOT time (boss canon 2026-07-10, default
+ * none): 'none' leaves the shell open to the sky; wood/straw dress the gable;
+ * brick mints a REAL Roof record at completion — the deck the next storey
+ * stands on. Constant strings; they enter hashed state.
+ */
+export const BUILDING_ROOFS = ['none', ...ROOF_MATERIALS] as const;
+export type BuildingRoof = (typeof BUILDING_ROOFS)[number];
 
 /** A roof plate spanning wall tops. Laborers build it after fills, before fields. */
 export interface Roof {
@@ -171,6 +188,8 @@ export interface Building {
   wallId: number;
   /** constant string from BUILDING_KINDS — the designation, enters hashed state */
   kind: BuildingKind;
+  /** the roof chosen at plot time — 'none' keeps the sky; brick minted a real deck */
+  roof: BuildingRoof;
   area: number; // m² enclosed (the doorway's closing edge implied)
 }
 
@@ -244,6 +263,13 @@ export type Command =
       /** an UNCOVERED roof (material null) — the drawn span awaiting its covering */
       roofId: number;
       material: RoofMaterial;
+    }
+  | {
+      kind: 'choose_roof';
+      tick: number;
+      /** a wall whose drawings await their roof (plans.roof === null) */
+      wallId: number;
+      roof: BuildingRoof;
     };
 
 export type SimEvent =
@@ -258,8 +284,12 @@ export type SimEvent =
   | { kind: 'roof_complete'; tick: number; roofId: number }
   /** a low ring closed and awaits the lord's word — the chronicle knows the day */
   | { kind: 'plot_enclosed'; tick: number; wallId: number; area: number }
-  /** a shell topped out and awaits its purpose */
-  | { kind: 'shell_raised'; tick: number; wallId: number; area: number }
+  /** a building is PLOTTED — the drawings ask their roof and trade before the build */
+  | { kind: 'shell_plotted'; tick: number; wallId: number; area: number }
+  /** the drawings' first answer */
+  | { kind: 'roof_chosen'; tick: number; wallId: number; roof: BuildingRoof }
+  /** the drawings' second answer — the masons may take the wall up */
+  | { kind: 'building_planned'; tick: number; wallId: number; buildingKind: BuildingKind }
   /** the word given: the plot is a farm, a paddock, or left fallow */
   | {
       kind: 'plot_designated';

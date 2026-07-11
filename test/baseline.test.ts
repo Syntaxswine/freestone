@@ -29,7 +29,7 @@ const TERRAIN_PATH = resolve(here, '../public/data/site-durham/heightmap.json');
 
 const SEED = 'durham-baseline-42';
 const END_TICK = 400;
-const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 400];
+const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 320, 400];
 
 /**
  * The canon must exercise every physics path the fingerprint should guard
@@ -39,10 +39,12 @@ const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 400];
  * constant rejection strings are fingerprinted too, and — SIM 3/10 — a closed
  * low ring and a doorway loop that must PEND at completion and become a farm
  * and a tavern by the lord's word, a paddock whose workdays stay zero
- * (arable-only tending in the record), a door cut on a still-PENDING shell,
- * two milestones (200, 260) that fingerprint a live pending state, and —
- * SIM 11 — a span drawn at 250 that stands UNCOVERED (material null, no
- * decking) through the 260 milestone until designate_roof bricks it at 382.
+ * (arable-only tending in the record), and — SIM 12 — the DRAWINGS: the
+ * tick-150 building plots and the masons lay nothing (the 200 milestone
+ * fingerprints the waiting shell), the roof is chosen at 205, the trade at
+ * 255 (the 260 milestone catches the crew MID-BUILD), a door is cut in the
+ * finished tavern at 350, and a span drawn at 300 stands UNCOVERED through
+ * the 320 milestone until designate_roof bricks it at 382 (SIM 11).
  */
 const CANON_COMMANDS: Command[] = [
   {
@@ -148,14 +150,22 @@ const CANON_COMMANDS: Command[] = [
       { x: 2040, y: 1960 },
       { x: 2043.45, y: 1960 },
     ],
-    height: 3, // near-closed tall ring — pends @163 and STAYS pending through the
-    //            200 and 260 milestones (the asking state is in the fingerprint)
+    height: 3, // a PLOTTED BUILDING (SIM 12): pends from this very tick, and the
+    //            masons lay NOT ONE STONE until both drawings are answered — the
+    //            waiting shell is in the 200 fingerprint (stones ~700 lower)
+  },
+  {
+    kind: 'choose_roof',
+    tick: 205,
+    wallId: 5444, // the tick-150 plot (probed) — the drawings' FIRST answer
+    roof: 'straw', // a thatched gable at completion (the dressing path)
   },
   {
     kind: 'designate',
-    tick: 370,
-    wallId: 5444, // the tick-150 shell (probed) — the masons read a cot…
-    use: 'tavern', // …the lord keeps ale. AFTER the tick-350 door: doors cut on pending shells
+    tick: 255,
+    wallId: 5444, // the second answer — the masons read a cot…
+    use: 'tavern', // …the lord keeps ale. The crew starts THIS tick: the 260
+    //                milestone catches the shell MID-BUILD (~338 stones in)
   },
   {
     kind: 'plan_fill',
@@ -184,7 +194,7 @@ const CANON_COMMANDS: Command[] = [
   {
     kind: 'designate',
     tick: 355,
-    wallId: 6224, // the tick-340 gapped ring (re-probed: the tick-250 span shifted it +1)
+    wallId: 6225, // the tick-340 gapped ring (re-probed under the SIM 12 id shifts)
     use: 'livestock', // a paddock: its workdays must stay ZERO in every milestone
   },
   {
@@ -216,18 +226,18 @@ const CANON_COMMANDS: Command[] = [
   },
   {
     kind: 'plan_roof',
-    tick: 250,
+    tick: 300, // after the tavern shell completes (~275) — spans rest on FINISHED walls
     points: [
-      { x: 2040, y: 1960 }, // the tick-150 shell's four corners — a span, drawn
-      { x: 2048, y: 1960 }, // early: it stands UNCOVERED through the 260
-      { x: 2048, y: 1966 }, // milestone (SIM 11 — the default is none, and the
-      { x: 2040, y: 1966 }, // asking state is in the fingerprint)
+      { x: 2040, y: 1960 }, // the tavern's four corners — a second, honest deck
+      { x: 2048, y: 1960 }, // over the gable's building: it stands UNCOVERED
+      { x: 2048, y: 1966 }, // through the 320 milestone (SIM 11 — the default is
+      { x: 2040, y: 1966 }, // none, and the asking state is in the fingerprint)
     ],
   },
   {
     kind: 'designate_roof',
     tick: 382,
-    roofId: 6154, // the tick-250 span (probed: minted right after wall 6153)
+    roofId: 6223, // the tick-300 span (re-probed under SIM 12's later shell build)
     material: 'brick', // the covering chosen; decking begins, a floor above
   },
   {

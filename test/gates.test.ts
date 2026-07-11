@@ -190,7 +190,14 @@ describe('the gate tool', () => {
       { x: 300, y: 300 },
       { x: 303.45, y: 300 },
     ];
-    const { world, site } = run([wall(loop, 3), designate(W1, 'house')], 200);
+    const { world, site } = run(
+      [
+        wall(loop, 3),
+        { kind: 'choose_roof', tick: 40, wallId: W1, roof: 'none' }, // drawings first (SIM 12)
+        designate(W1, 'house'),
+      ],
+      200,
+    );
     expect(world.buildings).toHaveLength(1);
     const w = world.walls[0]!;
     const stonesBefore = world.stones.length;

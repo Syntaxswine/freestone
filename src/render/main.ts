@@ -30,6 +30,7 @@ import {
   STONE_LEN,
   TICKS_PER_YEAR,
   type BuildingKind,
+  type BuildingRoof,
   type Command,
   type FieldUse,
   type RoofMaterial,
@@ -386,6 +387,13 @@ async function boot(): Promise<void> {
     { material: 'straw', label: '🌾 straw' },
     { material: 'brick', label: '🧱 brick — a floor above' },
   ];
+  // the drawings' roof palette: none stands FIRST (boss canon — the default)
+  const BUILDING_ROOF_CHOICES: { roof: BuildingRoof; label: string }[] = [
+    { roof: 'none', label: '— none (open sky)' },
+    { roof: 'wood', label: '🪵 wood' },
+    { roof: 'straw', label: '🌾 straw' },
+    { roof: 'brick', label: '🧱 brick — a floor above' },
+  ];
   const card = document.createElement('div');
   card.id = 'word-card';
   card.style.display = 'none';
@@ -394,77 +402,106 @@ async function boot(): Promise<void> {
   card.append(cardTitle, cardRow);
   document.body.appendChild(card);
   const cardAnchor = new THREE.Vector3();
-  let cardAsk = -1; // the id (wall or roof — one nextId space) the card is asking about
+  let cardAsk = ''; // stage-scoped key — a plotted building asks TWICE under one id
   let cardBaseTitle = '';
   // an ask whose word is enqueued but not yet stepped: the card moves on
   // rather than asking twice. An entry stands only while world.tick <= its
   // tick — once stepped, the live pending lists are the truth again (so a
   // rejected word can never wedge an ask).
-  const spoken = new Map<number, number>();
+  const spoken = new Map<string, number>();
 
   function updateCard(): void {
-    for (const [id, t] of spoken) {
-      if (world.tick > t) spoken.delete(id);
+    for (const [key, t] of spoken) {
+      if (world.tick > t) spoken.delete(key);
     }
-    // one queue of asks: pending enclosures AND uncovered spans, in creation
-    // order (wall and roof ids share the one nextId sequence)
-    const queue = [
-      ...world.pending.map((id) => ({ kind: 'wall' as const, id })),
-      ...world.roofs.filter((r) => r.material === null).map((r) => ({ kind: 'roof' as const, id: r.id })),
-    ]
-      .sort((a, b) => a.id - b.id)
-      .filter((a) => !spoken.has(a.id));
+    // one queue of asks in creation order (wall and roof ids share the one
+    // nextId sequence): pending walls — a plotted building asks its ROOF then
+    // its TRADE (SIM 12, before the masons build), a completed field plot
+    // asks its USE — plus uncovered spans asking their covering
+    const asks: { key: string; id: number; stage: 'roof' | 'kind' | 'use' | 'cover' }[] = [];
+    for (const id of world.pending) {
+      const w = world.walls.find((q) => q.id === id);
+      if (!w) continue;
+      const stage = w.plans === null ? 'use' : w.plans.roof === null ? 'roof' : 'kind';
+      asks.push({ key: `${id}:${stage}`, id, stage });
+    }
+    for (const r of world.roofs) {
+      if (r.material === null) asks.push({ key: `${r.id}:cover`, id: r.id, stage: 'cover' });
+    }
+    const queue = asks.sort((a, b) => a.id - b.id).filter((a) => !spoken.has(a.key));
     const target = queue[0]; // the oldest asks first
     if (target === undefined) {
       card.style.display = 'none';
-      cardAsk = -1;
+      cardAsk = '';
       return;
     }
     // the anchor polygon: the enclosure ring or the span itself
     const anchorPts =
-      target.kind === 'wall'
-        ? world.walls.find((w) => w.id === target.id)?.points
-        : world.roofs.find((r) => r.id === target.id)?.points;
+      target.stage === 'cover'
+        ? world.roofs.find((r) => r.id === target.id)?.points
+        : world.walls.find((w) => w.id === target.id)?.points;
     if (!anchorPts) return; // unreachable: an ask ⇒ its record stands
-    if (cardAsk !== target.id) {
+    if (cardAsk !== target.key) {
       cardRow.textContent = '';
-      if (target.kind === 'wall') {
+      const say = (label: string, word: () => Command): void => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.onclick = () => {
+          enqueue(word());
+          spoken.set(target.key, world.tick);
+        };
+        cardRow.appendChild(b);
+      };
+      if (target.stage === 'cover') {
+        const roof = world.roofs.find((r) => r.id === target.id)!;
+        cardBaseTitle = `the span is drawn — ${roof.area.toFixed(0)} m² · what covers it?`;
+        for (const c of ROOF_CHOICES) {
+          say(c.label, () => ({
+            kind: 'designate_roof',
+            tick: world.tick,
+            roofId: target.id,
+            material: c.material,
+          }));
+        }
+      } else {
         const wall = world.walls.find((w) => w.id === target.id)!;
         // the one predicate names the class; the card only asks the question
         const rc = classifyRing(wall.points, wall.height);
         if (!rc) return; // unreachable: pending ⇒ classifiable
-        cardBaseTitle =
-          rc.kind === 'farm'
-            ? `the plot is enclosed — ${rc.area.toFixed(0)} m² · what is it for?`
-            : `the shell stands — ${rc.area.toFixed(0)} m² · the masons read ${KIND_LABEL[rc.reading]}`;
-        for (const c of rc.kind === 'farm' ? FIELD_CHOICES : SHELL_CHOICES) {
-          const b = document.createElement('button');
-          b.textContent = c.label;
-          b.onclick = () => {
-            enqueue({ kind: 'designate', tick: world.tick, wallId: target.id, use: c.use });
-            spoken.set(target.id, world.tick);
-          };
-          cardRow.appendChild(b);
-        }
-      } else {
-        const roof = world.roofs.find((r) => r.id === target.id)!;
-        cardBaseTitle = `the span is drawn — ${roof.area.toFixed(0)} m² · what covers it?`;
-        for (const c of ROOF_CHOICES) {
-          const b = document.createElement('button');
-          b.textContent = c.label;
-          b.onclick = () => {
-            enqueue({
-              kind: 'designate_roof',
+        if (target.stage === 'use') {
+          cardBaseTitle = `the plot is enclosed — ${rc.area.toFixed(0)} m² · what is it for?`;
+          for (const c of FIELD_CHOICES) {
+            say(c.label, () => ({
+              kind: 'designate',
               tick: world.tick,
-              roofId: target.id,
-              material: c.material,
-            });
-            spoken.set(target.id, world.tick);
-          };
-          cardRow.appendChild(b);
+              wallId: target.id,
+              use: c.use,
+            }));
+          }
+        } else if (target.stage === 'roof') {
+          cardBaseTitle = `the building is plotted — ${rc.area.toFixed(0)} m² · what will the roof be?`;
+          for (const c of BUILDING_ROOF_CHOICES) {
+            say(c.label, () => ({
+              kind: 'choose_roof',
+              tick: world.tick,
+              wallId: target.id,
+              roof: c.roof,
+            }));
+          }
+        } else {
+          const reading = rc.kind === 'building' ? ` · the masons read ${KIND_LABEL[rc.reading]}` : '';
+          cardBaseTitle = `and what is it?${reading} — the crew waits on the word`;
+          for (const c of SHELL_CHOICES) {
+            say(c.label, () => ({
+              kind: 'designate',
+              tick: world.tick,
+              wallId: target.id,
+              use: c.use,
+            }));
+          }
         }
       }
-      cardAsk = target.id;
+      cardAsk = target.key;
     }
     setText(cardTitle, cardBaseTitle + (queue.length > 1 ? ` · (1 of ${queue.length})` : ''));
     // anchor over the ask's middle, reprojected every frame; clamped so the
@@ -479,7 +516,7 @@ async function boot(): Promise<void> {
     ax /= anchorPts.length;
     ay /= anchorPts.length;
     const az =
-      target.kind === 'roof'
+      target.stage === 'cover'
         ? world.roofs.find((r) => r.id === target.id)!.level + 1
         : groundSim(ax, ay) + 2.5;
     cardAnchor.set(ax, az, ay).project(camera);
@@ -742,7 +779,7 @@ async function boot(): Promise<void> {
         if (rc?.kind === 'farm') {
           name = `a gated plot — ${rc.area.toFixed(0)} m² · asks its use when it closes · `;
         } else if (rc?.kind === 'building') {
-          name = `a shell (reads ${KIND_LABEL[rc.reading]}) — ${rc.area.toFixed(0)} m² · asks its use when it tops out · `;
+          name = `a building (reads ${KIND_LABEL[rc.reading]}) — ${rc.area.toFixed(0)} m² · asks roof + trade when plotted · `;
         } else if (ring && !ringSelfIntersects(ring) && !ringSelfOverlaps(ring)) {
           // an honest near-ring the sim will NOT claim: say why, pencil in hand
           const f = ring[0]!;
@@ -784,7 +821,9 @@ async function boot(): Promise<void> {
           ? 'fill'
           : pending?.kind === 'plan_roof'
             ? 'roof'
-            : pending?.kind === 'designate' || pending?.kind === 'designate_roof'
+            : pending?.kind === 'designate' ||
+                pending?.kind === 'designate_roof' ||
+                pending?.kind === 'choose_roof'
               ? 'word'
               : 'wall';
       setText(

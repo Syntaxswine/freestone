@@ -15,7 +15,7 @@
  */
 import * as THREE from 'three';
 import type { SiteData } from '../sim/site';
-import { decomposeWall, pointAt, pointInPolygon, polylineLength } from '../sim/step';
+import { awaitsDrawings, decomposeWall, pointAt, pointInPolygon, polylineLength } from '../sim/step';
 import {
   COURSE_HEIGHT,
   type Farm,
@@ -113,7 +113,8 @@ export class PeopleLayer {
 
   /** The active wall and its current course, straight from sim truth. */
   private workSite(): WorkSite | null {
-    const wall = this.world.walls.find((w) => w.stonesLaid < w.stonesTotal);
+    // drawings-awaiting walls draw no masons (layStones' own filter)
+    const wall = this.world.walls.find((w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w));
     if (!wall) return null;
     const { stonesPerCourse } = decomposeWall(wall.points, wall.height, wall.gates);
     const course = Math.floor(wall.stonesLaid / stonesPerCourse);

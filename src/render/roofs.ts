@@ -61,7 +61,11 @@ export class RoofLayer {
     const top = new THREE.Mesh(topGeo, topMat);
     group.add(top);
 
-    // the edge band, wall-top to deck-top, around the ring
+    // the edge band around the ring: deck-top down PAST the wall top — the
+    // skirt grips the masonry so a level deck over wavy wall tops (sloped
+    // ground) never shows daylight under its edge (boss finding 2026-07-10:
+    // "roofs are not sitting on the structure properly")
+    const SKIRT = 0.55; // meters below the deck's bearing level
     const n = roof.points.length;
     const verts: number[] = [];
     const idx: number[] = [];
@@ -69,9 +73,9 @@ export class RoofLayer {
       const a = roof.points[i]!;
       const b = roof.points[(i + 1) % n]!;
       const o = verts.length / 3;
-      verts.push(a.x, roof.level, a.y);
+      verts.push(a.x, roof.level - SKIRT, a.y);
       verts.push(a.x, roof.level + ROOF_DECK, a.y);
-      verts.push(b.x, roof.level, b.y);
+      verts.push(b.x, roof.level - SKIRT, b.y);
       verts.push(b.x, roof.level + ROOF_DECK, b.y);
       idx.push(o, o + 2, o + 1, o + 1, o + 2, o + 3);
     }
