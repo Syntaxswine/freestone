@@ -55,6 +55,7 @@ Framwellgate 1839, Houghall 1880 — shaft-sinkings that cross and NAME the seam
   "surface_od_ft": { "value": 145, "qualifier": "as written" },
   "year": 1874,
   "pages": 4,
+  "units_system": "ffi",
   "units": "fathoms/feet/inches, transcribed verbatim — convert ONLY downstream",
   "intervals": [
     {
@@ -78,10 +79,25 @@ Framwellgate 1839, Houghall 1880 — shaft-sinkings that cross and NAME the seam
 - `confidence`: `clear` | `probable` (best reading given) | `illegible` (interval kept,
   reading null). Never guess silently.
 - `depth_ffi` as written even when the clerk's arithmetic is wrong; put the discrepancy
-  in `notes`.
-- A checker tool (`tools/transcription-check.mjs`, to build with the first batch) will
-  verify: running thickness sum vs stated depths, monotonic depth, final depth vs the
-  index's `depth_m` (× 1 fathom = 1.8288 m), and every interval classified or flagged.
+  in the interval's `notes` (the checker treats an unacknowledged sum-slip as a
+  transcription error).
+- **`units_system` (added with the first batch): `"ffi"` or `"m"`.** The Victorian logs
+  are fathoms/feet/inches (`thickness_ffi`/`depth_ffi`); the modern site-investigation
+  logs (1974–2021, typed) are metric — their intervals carry `thickness_m`/`depth_m`
+  (numbers, metres) instead, and the header datum is `surface_od_m` (value + qualifier,
+  from the "Ground Level (m AOD)" box) rather than `surface_od_ft`. One schema, two
+  honest unit systems; convert ONLY downstream.
+- **Classes (full set, first batch):** `drift` (soil/sand/gravel/clay/made ground) ·
+  `sandstone` (post) · `mudstone` (metal/shale/bind) · `siltstone` · `limestone` ·
+  `coal` · `seatearth` (seggar/fireclay/thill) · `ironstone` · `band` (thin unnamed
+  girdle) · `void` (old workings) · `unknown` (must not be confidence `clear`).
+- The checker (`tools/transcription-check.mjs`, built with the first batch) verifies:
+  identity vs index.json, running thickness sum vs stated depths (one-inch/one-cm
+  tolerance; clerk slips pass only if acknowledged in notes), monotonic depth, final
+  depth vs the index's `depth_m` (± max(2 m, 2%); shortfalls pass if acknowledged),
+  every interval classified or flagged, ffi digit ranges, seam marks pointing at real
+  intervals. It is a QA gate (exit 1), not a passive instrument — a bad record must
+  not feed the bed model.
 
 ## Batch plan
 
