@@ -95,6 +95,20 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
       cycle button retired. Canon: span uncovered through the 260 milestone
       (roofsUncovered=1 beside pending=1), bricked @382, 48/48 by 400; stones and
       workdays byte-identical to SIM 10; events +1. Regen SIM 10→11. 93 tests.
+- [x] SIM 12 — drawings before the build (2026-07-10, boss: "when you plot the
+      building it should ask what the roof will be before they build, after you
+      select the roof then it asks you to select building type"): a plotted
+      building pends from the PLOT (WallPlan.plans {roof, kind}); masons lay
+      nothing until BOTH answers land, in order (choose_roof none-first, then
+      designate the trade — 'the roof is chosen before the trade'); wood/straw
+      dress the gable in the choice's tones, none keeps the sky, BRICK mints a
+      REAL Roof span at completion (a floor above, tested at 3+0.25 exactly);
+      tower/blacksmith render special-cases retired. Plus the FIT (boss
+      screenshot: "roofs are not sitting on the structure properly"): eave sinks
+      a course into the masonry + 0.55 m fascia skirt; the flat deck's band
+      skirts down likewise. Canon: milestone 320 added; 200 fingerprints the
+      WAITING shell (stones −708), 260 the crew MID-BUILD, 320 the uncovered
+      span. Regen SIM 11→12. 96 tests.
 - [ ] M2 — Quarry loop: bed model FIRST from real logs (boss decision 2026-07-09:
       TRANSCRIBE FIRST). Census DONE: 900 boreholes in-box, 900 with scans
       (research/boreholes/index.json via tools/fetch-borehole-index.mjs); scan→PNG
