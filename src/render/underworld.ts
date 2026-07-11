@@ -22,16 +22,12 @@ import * as THREE from 'three';
 import type { GroundMaterial } from '../sim/beds';
 import type { BedModel } from '../sim/beds';
 import type { SiteData } from '../sim/site';
+import type { WaterModel } from '../sim/water';
 
 const FATHOM = 1.8288; // m — the miners' unit; every Durham log is written in it
 const STEP = 4 * FATHOM; // default page step ≈ 7.32 m (the boss's 25', to a round 4 fm)
 const SNAP_TOL = 2.5; // m — a page that lands this near a horizon grabs it
 const GRID = 64; // working-plane tiles per axis (coarse: the strata are nearest-hole)
-// The water table is a SUBDUED copy of the topography (textbook first-order
-// hydrogeology): it rides at baseLevel + WATER_SUBDUED·(surface − baseLevel), so it
-// sits high under the hills and shallow in the valleys, grading toward the river base
-// level. Below it the ground is DROWNED — unworkable without drainage. Tunable by eye.
-const WATER_SUBDUED = 0.5;
 
 /** Naturalistic, low-saturation earth tones (field-guide aesthetic): the science is
  *  the spectacle, the chrome restrained. Sandstone — the building "post" — reads a
@@ -64,7 +60,6 @@ export class UnderworldLayer {
   private snaps: SnapLevel[] = [];
   private elevation: number;
   private crownZ = 0;
-  private baseLevel = 0; // lowest surface on the site — the river base level for water
   private minZ = 0;
   private maxZ = 0;
   private snappedLabel: string | null = null;
@@ -74,6 +69,7 @@ export class UnderworldLayer {
     private scene: THREE.Scene,
     private site: SiteData,
     private model: BedModel,
+    private water: WaterModel,
   ) {
     const tileW = site.extentX / GRID;
     const tileH = site.extentY / GRID;
@@ -92,14 +88,11 @@ export class UnderworldLayer {
     for (let k = 0; k < this.cxs.length; k++) this.tiles.setColorAt(k, this.col.set(0xffffff));
     this.group.add(this.tiles);
 
-    // crown = the highest ground the plane can start under; base = the lowest (the
-    // river) — the water table grades toward it. Sample the grid once for both.
+    // crown = the highest ground the plane can start under; sample the grid once
     this.crownZ = -Infinity;
-    this.baseLevel = Infinity;
     for (let k = 0; k < this.cxs.length; k++) {
       const s = site.heightAt(this.cxs[k]!, this.cys[k]!);
       if (s > this.crownZ) this.crownZ = s;
-      if (s < this.baseLevel) this.baseLevel = s;
     }
 
     // snap horizons: the crown, then every named seam at the site centre (the seam
@@ -163,11 +156,6 @@ export class UnderworldLayer {
     this.group.add(sheet);
   }
 
-  /** AOD elevation of the water table at (x, y) — a subdued copy of the surface */
-  private waterTableAt(x: number, y: number, surf = this.site.heightAt(x, y)): number {
-    return this.baseLevel + WATER_SUBDUED * (surf - this.baseLevel);
-  }
-
   /** repaint every tile for the current plane elevation */
   private resample(): void {
     for (let k = 0; k < this.cxs.length; k++) {
@@ -184,7 +172,7 @@ export class UnderworldLayer {
         // below the water table the rock is DROWNED — wash it blue: unworkable without
         // drainage. This is what turns the strata map into a mining decision — the dry
         // wedge is winnable now, the blue wants an adit or a pump.
-        if (this.elevation < this.waterTableAt(x, y, surf)) this.col.lerp(DROWNED, 0.5);
+        if (this.elevation < this.water.tableAt(x, y)) this.col.lerp(DROWNED, 0.5);
         this.tiles.setColorAt(k, this.col);
         this.dummy.position.set(x, this.elevation, y);
         this.dummy.scale.set(1, 1, 1);
@@ -251,7 +239,7 @@ export class UnderworldLayer {
     const surf = this.site.heightAt(cx, cy);
     const material: GroundMaterial | 'open air' =
       this.elevation >= surf ? 'open air' : this.model.strataAt(cx, cy, surf - this.elevation);
-    const wt = this.waterTableAt(cx, cy, surf);
+    const wt = this.water.tableAt(cx, cy);
     return {
       fathoms: (this.crownZ - this.elevation) / FATHOM,
       elevationAOD: this.elevation,

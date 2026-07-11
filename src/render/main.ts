@@ -16,6 +16,7 @@ import {
   type BedModel,
   type BedsJson,
 } from '../sim/beds';
+import { waterModelFromSite } from '../sim/water';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
 import {
   classifyRing,
@@ -167,6 +168,9 @@ function terrainMesh(site: SiteData): TerrainDisplay {
 async function boot(): Promise<void> {
   const site = await loadSite();
   const beds = await loadBeds();
+  // the water table (boundary input, like the beds): shades the underground view AND
+  // gates the workings, so the blue on the map and the stone in the ground agree
+  const water = waterModelFromSite(site);
   const world = createWorld(SEED, site.id);
 
   // The command log starts EMPTY: the groundwork demo is gone, and the first
@@ -316,7 +320,7 @@ async function boot(): Promise<void> {
   const cuts = new CutLayer(world, scene, terrain.groundAt);
   // the underworld made VISIBLE (2026-07-11): a toggle-on strata map + working
   // plane the tunnel tool will draw on. View/input only — the sim never sees it.
-  const underworld = new UnderworldLayer(scene, site, beds);
+  const underworld = new UnderworldLayer(scene, site, beds, water);
   // masonry grounds on COMPLETED fills (matches the sim's effectiveGroundAt);
   // feet may climb the rising mound
   const groundSim = (x: number, y: number): number =>
@@ -330,21 +334,55 @@ async function boot(): Promise<void> {
   const buildings = new BuildingLayer(world, scene);
   const gates = new GateLayer(world, scene, groundSim);
   const roofs = new RoofLayer(world, scene);
-  // a quarry command carries the strata economics FROZEN at plan time: the ring's
-  // centroid reads the bed model for material-aware work + generous stone yield,
-  // and the sim core never touches the beds (SIM 14). Hoisted so onConfirm sees it.
-  function cutCommand(points: Vec2[], depth: number): Command {
+  // MINING (2026-07-11): a working is WATER- and BED-gated at the command boundary.
+  // The OUTCROP QUARRY wins the DRY building stone within a shallow open-cut reach; if
+  // the post at the ring is drowned or too deep, the land doesn't afford an open cut
+  // (drive an adit later). The economics freeze into plan_cut — the sim never sees
+  // water or beds, so a save replays byte-identically (the SIM 14 freeze law, now with
+  // the water lever too). The height slider no longer sets quarry depth: the WATER does.
+  const MAX_OPEN_REACH = 12; // m — an open cut only strips so much overburden
+  type QuarryPlan =
+    | { ok: true; depth: number; workDays: number; stone: number; reach: number }
+    | { ok: false; reason: string };
+  function centroid(points: Vec2[]): { cx: number; cy: number } {
     let cx = 0;
     let cy = 0;
     for (const p of points) {
       cx += p.x;
       cy += p.y;
     }
-    cx /= points.length;
-    cy /= points.length;
-    const area = Math.max(1, polygonArea(points));
-    const { workDays, stone } = cutEconomics(beds, cx, cy, depth, area);
-    return { kind: 'plan_cut', tick: world.tick, points, depth, workTotal: workDays, stoneTotal: stone };
+    return { cx: cx / points.length, cy: cy / points.length };
+  }
+  function quarryPlanAt(cx: number, cy: number, area: number): QuarryPlan {
+    const dryDepth = water.dryDepthAt(cx, cy);
+    const reach = Math.min(dryDepth, MAX_OPEN_REACH); // dry AND within open-cut reach
+    const { workDays, stone } = cutEconomics(beds, cx, cy, Math.max(0, reach), Math.max(1, area));
+    if (stone > 0.5 && reach > 0.5) return { ok: true, depth: reach, workDays, stone, reach };
+    // not afforded — name why, from the shallowest building stone in the column
+    const post = beds.nearestHole(cx, cy)?.column.find((s) => s.m === 'sandstone' || s.m === 'limestone');
+    if (!post) return { ok: false, reason: 'no building stone in the ground here — only drift and metal' };
+    if (post.top >= dryDepth)
+      return {
+        ok: false,
+        reason: `the post here is drowned — ${post.top.toFixed(0)} m down, the water table at ${dryDepth.toFixed(0)} m · drive an adit`,
+      };
+    return {
+      ok: false,
+      reason: `the post here lies ${post.top.toFixed(0)} m down — too deep for an open cut · drive an adit`,
+    };
+  }
+  function cutCommand(points: Vec2[]): Command | null {
+    const { cx, cy } = centroid(points);
+    const plan = quarryPlanAt(cx, cy, Math.max(1, polygonArea(points)));
+    if (!plan.ok) return null; // onConfirm refuses; the plan row already says why
+    return {
+      kind: 'plan_cut',
+      tick: world.tick,
+      points,
+      depth: plan.depth,
+      workTotal: plan.workDays,
+      stoneTotal: plan.stone,
+    };
   }
 
   // explicit annotation: onConfirm's closure reads planner.fillShape /
@@ -359,16 +397,19 @@ async function boot(): Promise<void> {
     countGround: (x, y) => effectiveGroundAt(world, site, x, y),
     heightBounds: { min: terrain.minH, max: terrain.maxH + 10 }, // fills raise the roof
     dom: renderer.domElement,
-    onConfirm: (mode, points, height, material) =>
-      enqueue(
+    onConfirm: (mode, points, height, material) => {
+      if (mode === 'cut') {
+        const cmd = cutCommand(points);
+        return cmd ? enqueue(cmd) : false; // the land didn't afford an open cut — the plan row says why
+      }
+      return enqueue(
         mode === 'fill'
           ? { kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape }
           : mode === 'roof'
             ? { kind: 'plan_roof', tick: world.tick, points } // covering asked after
-            : mode === 'cut'
-              ? cutCommand(points, height)
-              : { kind: 'plan_wall', tick: world.tick, points, height, material },
-      ),
+            : { kind: 'plan_wall', tick: world.tick, points, height, material },
+      );
+    },
     onModeChange: (active, mode) => {
       wallBtn.classList.toggle('active', active && mode === 'wall');
       bldBtn.classList.toggle('active', active && mode === 'building');
@@ -866,29 +907,23 @@ async function boot(): Promise<void> {
         if (ring.length >= 4) {
           const open = ring.slice(0, -1);
           const area = polygonArea(open);
-          let cx = 0;
-          let cy = 0;
-          for (const p of open) {
-            cx += p.x;
-            cy += p.y;
+          const { cx, cy } = centroid(open);
+          const q = quarryPlanAt(cx, cy, Math.max(1, area));
+          if (q.ok) {
+            setText(
+              plan,
+              `plan: outcrop quarry ${area.toFixed(0)} m² · win the dry post to ${q.reach.toFixed(1)} m · ` +
+                `~${Math.ceil(q.workDays)} person-days · wins ≈${Math.round(q.stone)} m³ of stone`,
+            );
+          } else {
+            setText(plan, `plan: ✗ ${q.reason}`);
           }
-          cx /= open.length;
-          cy /= open.length;
-          const depth = planner.height; // the height slider sets quarry DEPTH
-          const { workDays, stone } = cutEconomics(beds, cx, cy, depth, Math.max(1, area));
-          // what the crew cuts INTO at the floor — the honest bed name
-          const floorMat = beds.strataAt(cx, cy, depth);
-          setText(
-            plan,
-            `plan: quarry ${area.toFixed(0)} m² · ${depth.toFixed(1)} m deep into ${floorMat} · ` +
-              `~${Math.ceil(workDays)} person-days of digging · wins ≈${Math.round(stone)} m³ of stone`,
-          );
         } else {
-          setText(plan, 'plan: click the ground to ring the quarry (h sets the depth)');
+          setText(plan, 'plan: ring the ground for an outcrop quarry — win the dry building stone (the water sets the floor)');
         }
         setText(
           hint,
-          'click: ring the ground · ± : set the depth · right-click/Backspace: undo · double-click/Enter: open the quarry · Esc: put the tool down',
+          'click: ring the ground · right-click/Backspace: undo · double-click/Enter: open the quarry · Esc: put the tool down',
         );
       } else if (planner.mode === 'roof') {
         const poly = planner.previewPolyline();
@@ -1053,6 +1088,8 @@ async function boot(): Promise<void> {
     buildings,
     trees,
     underworld,
+    water,
+    quarryPlanAt,
     renderer,
     scene, // renderer+scene exposed so a hidden tab can render one frame on demand
     enqueue, // pushing to __cc.commandLog directly does nothing — this is the way in
