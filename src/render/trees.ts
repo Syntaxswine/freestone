@@ -116,6 +116,13 @@ export class TreeLayer {
     scene.add(this.canopies, this.trunks);
   }
 
+  /** hide the woods while the eye is underground (surface clutter over a ghosted
+   *  hill), and bring them back on the surface. Pure display — the sim is untouched. */
+  setVisible(on: boolean): void {
+    this.canopies.visible = on;
+    this.trunks.visible = on;
+  }
+
   private removeTree(i: number): void {
     const t = this.trees[i]!;
     if (!t.alive) return;

@@ -102,6 +102,10 @@ export interface BedModel {
   strataAt(x: number, y: number, depthBelow: number): GroundMaterial;
   /** metres of drift/overburden before rock at (x, y) */
   rockheadAt(x: number, y: number): number;
+  /** AOD elevation (three-space Y) of a named seam at site-local (x, y), or null if
+   *  the seam has no fitted plane. The plane is stored in absolute E/N, so this folds
+   *  in the frame origin the render layer would otherwise have to carry itself. */
+  seamElevationAt(name: string, x: number, y: number): number | null;
 }
 
 function nearest(holes: readonly BedHole[], x: number, y: number): BedHole | null {
@@ -123,6 +127,8 @@ export function bedModelFromJson(json: BedsJson): BedModel {
   for (const [name, s] of Object.entries(json.seams ?? {})) {
     if (s.plane) seams[name] = s.plane;
   }
+  const originE = json.frame?.originE ?? 0;
+  const originN = json.frame?.originN ?? 0;
   return {
     id: json.site,
     holes,
@@ -142,6 +148,11 @@ export function bedModelFromJson(json: BedsJson): BedModel {
     rockheadAt: (x, y) => {
       const h = nearest(holes, x, y);
       return h ? h.rockhead : 0;
+    },
+    seamElevationAt: (name, x, y) => {
+      const p = seams[name];
+      if (!p) return null;
+      return p.a * (x + originE - p.cE) + p.b * (y + originN - p.cN) + p.c;
     },
   };
 }
@@ -187,5 +198,6 @@ export function emptyBedModel(id = 'no-beds'): BedModel {
     nearestHole: () => null,
     strataAt: () => 'unknown',
     rockheadAt: () => 0,
+    seamElevationAt: () => null,
   };
 }

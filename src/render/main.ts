@@ -46,6 +46,7 @@ import {
 } from '../sim/types';
 import { BuildingLayer } from './buildings';
 import { CutLayer } from './cuts';
+import { UnderworldLayer } from './underworld';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
 import { GateLayer } from './gates';
@@ -304,13 +305,18 @@ async function boot(): Promise<void> {
   shapeBtn.textContent = '⬓ flat fill';
   // no roof-material picker: the covering is chosen on the card AFTER the
   // span is drawn, like every designation (boss canon 2026-07-10 — default none)
-  build3.append(roofBtn, quarryBtn, shapeBtn);
+  const undergroundBtn = document.createElement('button');
+  undergroundBtn.textContent = '☷ underground (U)';
+  build3.append(roofBtn, quarryBtn, shapeBtn, undergroundBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
   const trees = new TreeLayer(site, terrain.groundAt, scene);
   const fills = new FillLayer(world, scene, terrain.groundAt);
   const cuts = new CutLayer(world, scene, terrain.groundAt);
+  // the underworld made VISIBLE (2026-07-11): a toggle-on strata map + working
+  // plane the tunnel tool will draw on. View/input only — the sim never sees it.
+  const underworld = new UnderworldLayer(scene, site, beds);
   // masonry grounds on COMPLETED fills (matches the sim's effectiveGroundAt);
   // feet may climb the rising mound
   const groundSim = (x: number, y: number): number =>
@@ -612,6 +618,80 @@ async function boot(): Promise<void> {
   function setText(el: HTMLElement, text: string): void {
     if (el.textContent !== text) el.textContent = text;
   }
+
+  // --- underground mode (SimCity-plumbing): ghost the hill, page the working
+  //     plane through the strata. Presentation + input; the sim never sees it. ---
+  const depthRuler = document.createElement('div');
+  depthRuler.className = 'hint';
+  depthRuler.style.display = 'none';
+  hud.append(depthRuler);
+  const terrainMat = (
+    Array.isArray(terrain.mesh.material) ? terrain.mesh.material[0] : terrain.mesh.material
+  ) as THREE.Material;
+  const terrainGhost = {
+    transparent: terrainMat.transparent,
+    opacity: terrainMat.opacity,
+    depthWrite: terrainMat.depthWrite,
+  };
+  function updateDepthRuler(): void {
+    if (!underworld.active()) {
+      depthRuler.style.display = 'none';
+      return;
+    }
+    const r = underworld.readout();
+    const where = r.label ? `· ${r.label} seam` : r.material === 'open air' ? '· open air' : `· ${r.material}`;
+    depthRuler.style.display = '';
+    setText(
+      depthRuler,
+      `underground — ▼ ${r.fathoms.toFixed(1)} fathoms below the crown ${where} · Page↑/↓ or wheel changes depth · U surfaces`,
+    );
+  }
+  function setUnderground(on: boolean): void {
+    if (on === underworld.active()) return;
+    if (on) planner.exit(); // a surface pencil and the underground view don't mix yet
+    underworld.setActive(on);
+    controls.enableZoom = !on; // the wheel drives DEPTH underground, zoom on the surface
+    if (on) {
+      terrainMat.transparent = true;
+      terrainMat.opacity = 0.16;
+      terrainMat.depthWrite = false;
+    } else {
+      terrainMat.transparent = terrainGhost.transparent;
+      terrainMat.opacity = terrainGhost.opacity;
+      terrainMat.depthWrite = terrainGhost.depthWrite;
+    }
+    terrainMat.needsUpdate = true;
+    trees.setVisible(!on); // the woods are surface clutter over a ghosted hill
+    undergroundBtn.classList.toggle('active', on);
+    updateDepthRuler();
+  }
+  undergroundBtn.onclick = () => setUnderground(!underworld.active());
+  window.addEventListener('keydown', (ev) => {
+    if ((ev.key === 'u' || ev.key === 'U') && !ev.ctrlKey && !ev.metaKey && !ev.altKey && !ev.repeat) {
+      setUnderground(!underworld.active());
+      return;
+    }
+    if (!underworld.active()) return;
+    if (ev.key === 'PageDown') {
+      ev.preventDefault();
+      underworld.stepDepth(-1);
+      updateDepthRuler();
+    } else if (ev.key === 'PageUp') {
+      ev.preventDefault();
+      underworld.stepDepth(1);
+      updateDepthRuler();
+    }
+  });
+  renderer.domElement.addEventListener(
+    'wheel',
+    (ev) => {
+      if (!underworld.active()) return; // surface: OrbitControls owns the wheel (zoom)
+      ev.preventDefault();
+      underworld.stepDepth(ev.deltaY > 0 ? -1 : 1); // scroll down digs deeper
+      updateDepthRuler();
+    },
+    { passive: false },
+  );
 
   // --- sim/render loop; speed is transport only ---
   const dummy = new THREE.Object3D();
@@ -971,6 +1051,7 @@ async function boot(): Promise<void> {
     farms,
     buildings,
     trees,
+    underworld,
     renderer,
     scene, // renderer+scene exposed so a hidden tab can render one frame on demand
     enqueue, // pushing to __cc.commandLog directly does nothing — this is the way in
