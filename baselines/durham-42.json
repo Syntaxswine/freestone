@@ -386,6 +386,31 @@
         ],
         "height": 1,
         "shape": "ramp"
+      },
+      {
+        "kind": "plan_cut",
+        "tick": 300,
+        "points": [
+          {
+            "x": 1755,
+            "y": 1567
+          },
+          {
+            "x": 1761,
+            "y": 1567
+          },
+          {
+            "x": 1761,
+            "y": 1573
+          },
+          {
+            "x": 1755,
+            "y": 1573
+          }
+        ],
+        "depth": 3,
+        "workTotal": 135,
+        "stoneTotal": 135
       }
     ]
   },
@@ -494,15 +519,15 @@
     },
     {
       "tick": 320,
-      "hash": "3f7e1839",
+      "hash": "7dfe22ab",
       "stones": 6894,
-      "events": 6917,
+      "events": 6918,
       "wallsComplete": 5,
       "fillsComplete": 1,
       "pending": 0,
       "farms": 1,
       "buildings": 1,
-      "farmWorkdays": 350,
+      "farmWorkdays": 310,
       "gates": 1,
       "roofsUncovered": 1,
       "roofsComplete": 0,
@@ -511,20 +536,20 @@
     },
     {
       "tick": 400,
-      "hash": "a711702b",
+      "hash": "b471cf2c",
       "stones": 7262,
-      "events": 7356,
+      "events": 7359,
       "wallsComplete": 6,
       "fillsComplete": 3,
-      "pending": 0,
-      "farms": 2,
+      "pending": 1,
+      "farms": 1,
       "buildings": 1,
-      "farmWorkdays": 463,
-      "gates": 2,
+      "farmWorkdays": 328,
+      "gates": 1,
       "roofsUncovered": 0,
       "roofsComplete": 1,
-      "cutsComplete": 0,
-      "stockpile": 0
+      "cutsComplete": 1,
+      "stockpile": 135
     }
   ]
 }

@@ -253,6 +253,27 @@ const CANON_COMMANDS: Command[] = [
     height: 1,
     shape: 'ramp', // SIM 8: the wedge in the record
   },
+  {
+    kind: 'plan_cut',
+    tick: 300, // SIM 14: a quarry into the bare Low Main Post — the hole at this
+    //            spot (NZ24SE109) logs sandstone from the surface, rockhead 0. The
+    //            economics are FROZEN as the render would freeze them from the bed
+    //            model: 3 m × 36 m² of post at the ILO rock rate (0.8 m³/person-day)
+    //            = 135 person-days; 108 m³ removed → 135 m³ buildable (generous
+    //            1.25). ~68 ticks with 2 laborers, so it digs 300→~368 and the 400
+    //            fingerprint catches cutsComplete=1, stockpile 135. It pulls the
+    //            idle hands off the fields while it runs (the quarry-before-field
+    //            law), so farmWorkdays at 320/400 fall below the no-quarry run.
+    points: [
+      { x: 1755, y: 1567 },
+      { x: 1761, y: 1567 },
+      { x: 1761, y: 1573 },
+      { x: 1755, y: 1573 },
+    ],
+    depth: 3,
+    workTotal: 135,
+    stoneTotal: 135,
+  },
 ];
 
 interface Milestone {

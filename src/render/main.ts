@@ -9,6 +9,13 @@
  */
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import {
+  bedModelFromJson,
+  cutEconomics,
+  emptyBedModel,
+  type BedModel,
+  type BedsJson,
+} from '../sim/beds';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
 import {
   classifyRing,
@@ -35,8 +42,10 @@ import {
   type Command,
   type FieldUse,
   type RoofMaterial,
+  type Vec2,
 } from '../sim/types';
 import { BuildingLayer } from './buildings';
+import { CutLayer } from './cuts';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
 import { GateLayer } from './gates';
@@ -58,6 +67,17 @@ async function loadSite(): Promise<SiteData> {
   } catch (err) {
     console.warn('site data unavailable, using flat placeholder:', err);
     return flatSite('flat-placeholder', 1000);
+  }
+}
+
+async function loadBeds(): Promise<BedModel> {
+  try {
+    const res = await fetch('/data/site-durham/beds.json');
+    if (!res.ok) throw new Error(`${res.status}`);
+    return bedModelFromJson((await res.json()) as BedsJson);
+  } catch (err) {
+    console.warn('bed model unavailable — quarries will find unknown ground:', err);
+    return emptyBedModel();
   }
 }
 
@@ -145,6 +165,7 @@ function terrainMesh(site: SiteData): TerrainDisplay {
 
 async function boot(): Promise<void> {
   const site = await loadSite();
+  const beds = await loadBeds();
   const world = createWorld(SEED, site.id);
 
   // The command log starts EMPTY: the groundwork demo is gone, and the first
@@ -271,16 +292,19 @@ async function boot(): Promise<void> {
   const build3 = document.createElement('div');
   const roofBtn = document.createElement('button');
   roofBtn.textContent = '⛉ roof (R)';
+  const quarryBtn = document.createElement('button');
+  quarryBtn.textContent = '⛏ quarry (Q)';
   const shapeBtn = document.createElement('button');
   shapeBtn.textContent = '⬓ flat fill';
   // no roof-material picker: the covering is chosen on the card AFTER the
   // span is drawn, like every designation (boss canon 2026-07-10 — default none)
-  build3.append(roofBtn, shapeBtn);
+  build3.append(roofBtn, quarryBtn, shapeBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
   const trees = new TreeLayer(site, terrain.groundAt, scene);
   const fills = new FillLayer(world, scene, terrain.groundAt);
+  const cuts = new CutLayer(world, scene, terrain.groundAt);
   // masonry grounds on COMPLETED fills (matches the sim's effectiveGroundAt);
   // feet may climb the rising mound
   const groundSim = (x: number, y: number): number =>
@@ -294,6 +318,23 @@ async function boot(): Promise<void> {
   const buildings = new BuildingLayer(world, scene);
   const gates = new GateLayer(world, scene, groundSim);
   const roofs = new RoofLayer(world, scene);
+  // a quarry command carries the strata economics FROZEN at plan time: the ring's
+  // centroid reads the bed model for material-aware work + generous stone yield,
+  // and the sim core never touches the beds (SIM 14). Hoisted so onConfirm sees it.
+  function cutCommand(points: Vec2[], depth: number): Command {
+    let cx = 0;
+    let cy = 0;
+    for (const p of points) {
+      cx += p.x;
+      cy += p.y;
+    }
+    cx /= points.length;
+    cy /= points.length;
+    const area = Math.max(1, polygonArea(points));
+    const { workDays, stone } = cutEconomics(beds, cx, cy, depth, area);
+    return { kind: 'plan_cut', tick: world.tick, points, depth, workTotal: workDays, stoneTotal: stone };
+  }
+
   // explicit annotation: onConfirm's closure reads planner.fillShape /
   // roofMaterial, so inference would otherwise chase its own tail
   const planner: WallPlanner = new WallPlanner({
@@ -312,7 +353,9 @@ async function boot(): Promise<void> {
           ? { kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape }
           : mode === 'roof'
             ? { kind: 'plan_roof', tick: world.tick, points } // covering asked after
-            : { kind: 'plan_wall', tick: world.tick, points, height, material },
+            : mode === 'cut'
+              ? cutCommand(points, height)
+              : { kind: 'plan_wall', tick: world.tick, points, height, material },
       ),
     onModeChange: (active, mode) => {
       wallBtn.classList.toggle('active', active && mode === 'wall');
@@ -320,6 +363,7 @@ async function boot(): Promise<void> {
       fillBtn.classList.toggle('active', active && mode === 'fill');
       gateBtn.classList.toggle('active', active && mode === 'gate');
       roofBtn.classList.toggle('active', active && mode === 'roof');
+      quarryBtn.classList.toggle('active', active && mode === 'cut');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing;
@@ -547,6 +591,7 @@ async function boot(): Promise<void> {
   fillBtn.onclick = () => planner.toggle('fill');
   gateBtn.onclick = () => planner.toggle('gate');
   roofBtn.onclick = () => planner.toggle('roof');
+  quarryBtn.onclick = () => planner.toggle('cut');
   shapeBtn.onclick = () => {
     shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
   };
@@ -640,6 +685,7 @@ async function boot(): Promise<void> {
     }
     syncStones();
     fills.update();
+    cuts.update();
     roofs.update();
     farms.update();
     buildings.update();
@@ -657,11 +703,14 @@ async function boot(): Promise<void> {
     const nFallow = world.farms.filter((f) => f.use === 'fallow').length;
     const nAsks =
       world.pending.length + world.roofs.filter((r) => r.material === null).length;
+    const nQuarries = world.cuts.length;
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
       (nFallow ? ` — fallow ${nFallow}` : '') +
       (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
+      (nQuarries ? ` — quarries ${nQuarries}` : '') +
+      (world.stockpile >= 1 ? ` — stone ${Math.round(world.stockpile)} m³` : '') +
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,
@@ -724,6 +773,35 @@ async function boot(): Promise<void> {
         setText(
           hint,
           'click a field wall: hang a gate · click a building: cut a door · click one: take it down · Esc: put the tool down',
+        );
+      } else if (planner.mode === 'cut') {
+        const ring = planner.previewPolyline();
+        if (ring.length >= 4) {
+          const open = ring.slice(0, -1);
+          const area = polygonArea(open);
+          let cx = 0;
+          let cy = 0;
+          for (const p of open) {
+            cx += p.x;
+            cy += p.y;
+          }
+          cx /= open.length;
+          cy /= open.length;
+          const depth = planner.height; // the height slider sets quarry DEPTH
+          const { workDays, stone } = cutEconomics(beds, cx, cy, depth, Math.max(1, area));
+          // what the crew cuts INTO at the floor — the honest bed name
+          const floorMat = beds.strataAt(cx, cy, depth);
+          setText(
+            plan,
+            `plan: quarry ${area.toFixed(0)} m² · ${depth.toFixed(1)} m deep into ${floorMat} · ` +
+              `~${Math.ceil(workDays)} person-days of digging · wins ≈${Math.round(stone)} m³ of stone`,
+          );
+        } else {
+          setText(plan, 'plan: click the ground to ring the quarry (h sets the depth)');
+        }
+        setText(
+          hint,
+          'click: ring the ground · ± : set the depth · right-click/Backspace: undo · double-click/Enter: open the quarry · Esc: put the tool down',
         );
       } else if (planner.mode === 'roof') {
         const poly = planner.previewPolyline();
@@ -829,11 +907,13 @@ async function boot(): Promise<void> {
           ? 'fill'
           : pending?.kind === 'plan_roof'
             ? 'roof'
-            : pending?.kind === 'designate' ||
-                pending?.kind === 'designate_roof' ||
-                pending?.kind === 'choose_roof'
-              ? 'word'
-              : 'wall';
+            : pending?.kind === 'plan_cut'
+              ? 'quarry'
+              : pending?.kind === 'designate' ||
+                  pending?.kind === 'designate_roof' ||
+                  pending?.kind === 'choose_roof'
+                ? 'word'
+                : 'wall';
       setText(
         hint,
         pending
@@ -845,11 +925,13 @@ async function boot(): Promise<void> {
               ? 'fill committed — the barrows roll'
               : noun === 'roof'
                 ? 'roof committed — the deck goes up'
-                : noun === 'word'
-                  ? 'the word is given'
-                  : 'wall committed — the crew takes it up'
-          : world.walls.length === 0 && world.fills.length === 0
-            ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F)'
+                : noun === 'quarry'
+                  ? 'quarry committed — the crew digs into the rock'
+                  : noun === 'word'
+                    ? 'the word is given'
+                    : 'wall committed — the crew takes it up'
+          : world.walls.length === 0 && world.fills.length === 0 && world.cuts.length === 0
+            ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F) · ⛏ quarry (Q)'
             : '',
       );
     }
@@ -892,6 +974,7 @@ async function boot(): Promise<void> {
       // sync every world-driven display layer, or hidden-tab renders show stale scenes
       syncStones();
       fills.update();
+      cuts.update();
       roofs.update();
       farms.update();
       buildings.update();
