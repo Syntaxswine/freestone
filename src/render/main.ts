@@ -214,6 +214,12 @@ async function boot(): Promise<void> {
   controls.maxDistance = 1500;
   controls.maxPolarAngle = Math.PI * 0.47; // keep the eye above the hill
   controls.screenSpacePanning = false; // pan rides the ground plane; target.y never drifts
+  // input split (2026-07-11): the LEFT button is the player's pencil ONLY. Orbit moved
+  // to right-drag, pan to middle-drag, so a placement click can never be mistaken for a
+  // camera drag (the boss's "rotate and place are the same button") — and left-drag is
+  // freed for a future marquee select. Omitting LEFT disables its camera action (the
+  // mousedown switch falls through to STATE.NONE). Wheel stays zoom in surface mode.
+  controls.mouseButtons = { MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE };
   controls.update();
 
   scene.add(new THREE.HemisphereLight(0xdcebf2, 0x8a9a6f, 1.0));
@@ -931,7 +937,7 @@ async function boot(): Promise<void> {
                     ? 'the word is given'
                     : 'wall committed — the crew takes it up'
           : world.walls.length === 0 && world.fills.length === 0 && world.cuts.length === 0
-            ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F) · ⛏ quarry (Q)'
+            ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F) · ⛏ quarry (Q) · right-drag to look, wheel to zoom'
             : '',
       );
     }

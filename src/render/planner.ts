@@ -680,7 +680,12 @@ export class WallPlanner {
     if (!this.active || ev.button !== this.downButton) return;
     const moved = Math.hypot(ev.clientX - this.downX, ev.clientY - this.downY);
     const held = performance.now() - this.downT;
-    if (moved >= 6 || held >= 500) return; // that was a camera drag, not a click
+    // the LEFT button no longer drives the camera (orbit is right-drag now), so a
+    // placement press can be generous — only a real drag is rejected, and holding
+    // still reads as a deliberate place. The RIGHT button DOES orbit, so its
+    // tap-to-undo must still reject any drag, or a look-around would delete a point.
+    const dragReject = ev.button === 0 ? moved >= 14 : moved >= 6 || held >= 500;
+    if (dragReject) return;
     if (ev.button === 0) {
       if (this.mode === 'gate') {
         // the gate tool places no points: a click is the whole gesture
