@@ -133,9 +133,11 @@ describe('real beds.json artifact', () => {
     const px = 427420 - json.frame.originE;
     const py = 542150 - json.frame.originN;
     expect(m.nearestHole(px, py)).not.toBeNull();
-    // shallow is overburden, deep is rock somewhere in the column
-    expect(m.strataAt(px, py, 0)).toBe('drift');
-    const deep = m.strataAt(px, py, 40);
-    expect(GROUND_MATERIALS).toContain(deep);
+    // every depth reads a valid ground material (the peninsula scarp can be bare
+    // rock at the surface — rockhead 0 — so don't assume drift on top)
+    expect(GROUND_MATERIALS).toContain(m.strataAt(px, py, 0));
+    expect(GROUND_MATERIALS).toContain(m.strataAt(px, py, 40));
+    // rockhead is a sane, non-negative overburden depth
+    expect(m.rockheadAt(px, py)).toBeGreaterThanOrEqual(0);
   });
 });

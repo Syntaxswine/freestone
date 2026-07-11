@@ -1,0 +1,85 @@
+{
+  "bgs_id": 848164,
+  "reference": "NZ24SE232",
+  "name": "A167 DURHAM WESTERN BY PASS 77",
+  "easting": 425849,
+  "northing": 540962,
+  "surface_od_m": { "value": 75.80, "qualifier": "as written (Ground level 75.80 m O D)" },
+  "year": 1990,
+  "pages": 4,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from a typed Wimpey Geotech cable-percussion log (scale 1:50); depth = base below ground level",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "TOPSOIL",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 0.50,
+      "depth_m": 0.50,
+      "seam": null,
+      "annotations": ["OD level of base: 75.30 m O D (checks: 75.80 - 0.50)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "Stiff mottled orange brown and grey sandy silty CLAY with some fine and medium angular to sub-rounded gravel",
+      "class": "drift",
+      "modifiers": ["stiff"],
+      "thickness_m": 2.50,
+      "depth_m": 3.00,
+      "seam": null,
+      "annotations": ["OD level of base: 72.80 m O D (checks: 75.80 - 3.00)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "Medium dense orange brown silty fine and medium SAND",
+      "class": "drift",
+      "modifiers": ["medium dense"],
+      "thickness_m": 2.00,
+      "depth_m": 5.00,
+      "seam": null,
+      "annotations": [
+        "OD level of base: 70.80 m O D (checks: 75.80 - 5.00)",
+        "water: 'DRY' recorded at casing 3.00m, then '3.10 GWe' and '4.50 GWe' logged near this base",
+        "with water: seepage of ground-water encountered overnight 23-24/3/90, level rose to a depth of 3.10m; cut off by the casing at a depth of 4.50m (per Remarks, sheet 4)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 4,
+      "verbatim": "Loose to medium dense brown clayey silty becoming very silty fine and medium SAND with bands of clayey silt throughout",
+      "class": "drift",
+      "modifiers": ["loose to medium dense"],
+      "thickness_m": 9.00,
+      "depth_m": 14.00,
+      "seam": null,
+      "annotations": [
+        "OD level of base: 61.80 m O D (checks: 75.80 - 14.00)",
+        "water: '11.70 GWe' logged in this interval",
+        "with water: second seepage of ground-water encountered at a depth of 11.70m (per Remarks, sheet 4)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 5,
+      "verbatim": "Dense brown clayey silty fine to coarse SAND and fine to coarse angular to subrounded GRAVEL with some cobbles and boulders: layers of silty clay and bands of silty fine sand throughout",
+      "class": "drift",
+      "modifiers": ["dense"],
+      "thickness_m": 16.45,
+      "depth_m": 30.45,
+      "seam": null,
+      "annotations": [
+        "OD level of base: 45.35 m O D (checks: 75.80 - 30.45)",
+        "water: '13.20' / '14.50' logged in water-depth column at 24.95m (27/3)",
+        "borehole advanced by chiselling through this interval: 14.70-14.90m, 16.20-17.00m, 19.50-20.00m, 21.20-21.30m, 21.70-22.00m, 24.95-26.50m, 27.00-28.00m, 29.20-29.80m (per Remarks, sheet 4) — consistent with cobbles/boulders",
+        "END OF BOREHOLE at 30.45m; boring 200mm to 30.45m, casing 200mm to 26.40m; no bedrock reached"
+      ],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Modern metric log (Wimpey Geotech, cable percussion, Dando 150), Sheet 1-4 of 4, Fig. 84; originator DJM 28/3/90, checked/approved AMcL 3/7/90; commenced 23/3/90. Entirely Quaternary drift (glacial / glaciofluvial): topsoil over sandy silty clay, sand, then a thick sequence of clayey silty sand and gravel with cobbles and boulders. NO bedrock, Coal Measures, or coal seams reached; hole terminated in the sand-and-gravel at 30.45m, index depth 30.45m matched exactly. Reduced levels (O D column) cross-check cleanly against ground level 75.80 m O D at every boundary (75.30, 72.80, 70.80, 61.80, 45.35) - no clerk arithmetic slips. No pencil seam marginalia present (drift-only hole). Handwritten 'NZ24SE/232' at the top of each sheet is the BGS accession/reference number, not log content. Groundwater: overnight seepage rose to 3.10m (23-24/3/90), cut off by casing at 4.50m; second seepage at 11.70m. Chiselling required repeatedly below 14.70m through the bouldery gravel. Full descriptions are typed and legible; all intervals confidence 'clear'."
+}

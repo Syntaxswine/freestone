@@ -1,0 +1,160 @@
+{
+  "bgs_id": 12840972,
+  "reference": "NZ24SE393",
+  "name": "DURHAM LAND REGISTRY 5",
+  "easting": 426305,
+  "northing": 543491,
+  "surface_od_m": { "value": 92.61, "qualifier": "as written (GROUND LEVEL 92.61m)" },
+  "year": 1978,
+  "pages": 6,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from a 1:50 metric log — depth = base of interval below ground level",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "0 to 0.35m TOPSOIL.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 0.35,
+      "depth_m": 0.35,
+      "seam": null,
+      "annotations": ["interface level 92.26 m at base (92.61 - 0.35 = 92.26, checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "0.35 to 1.70m Stiff to firm yellowish and orangy brown/grey mottled SANDY CLAY with coarse angular sandstone fragments and fine coal particles, together with occasional hair roots.",
+      "class": "drift",
+      "modifiers": ["stiff to firm", "mottled"],
+      "thickness_m": 1.35,
+      "depth_m": 1.70,
+      "seam": null,
+      "annotations": ["interface level 90.91 m at base (checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "1.70 to 2.80m Mod compact grey/brown SILTY fine to medium grained SAND with occasional fine to coarse sub rounded and angular gravel.",
+      "class": "drift",
+      "modifiers": ["mod compact", "silty"],
+      "thickness_m": 1.10,
+      "depth_m": 2.80,
+      "seam": null,
+      "annotations": ["interface level 89.81 m at base (checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 4,
+      "verbatim": "2.80 to 3.30m Firm reddish brown laminated SILTY CLAY with lenses of fine/medium sand.",
+      "class": "drift",
+      "modifiers": ["firm", "laminated"],
+      "thickness_m": 0.50,
+      "depth_m": 3.30,
+      "seam": null,
+      "annotations": ["interface level 89.31 m at base (checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 5,
+      "verbatim": "3.30 to 7.60m Mod compact grey/brown slightly silty medium to coarse grained SAND with occasional coal washings of coarse sand/fine gravel size.",
+      "class": "drift",
+      "modifiers": ["mod compact", "slightly silty"],
+      "thickness_m": 4.30,
+      "depth_m": 7.60,
+      "seam": null,
+      "annotations": ["interface level 85.01 m at base (checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 6,
+      "verbatim": "7.60 to 10.00m Mod compact brown/grey slightly silty fine to medium grained SAND with occasional thin bands of brown CLAYEY SILT.",
+      "class": "drift",
+      "modifiers": ["mod compact", "slightly silty"],
+      "thickness_m": 2.40,
+      "depth_m": 10.00,
+      "seam": null,
+      "annotations": ["page 1 -> page 2 boundary; interval continues across pages"],
+      "confidence": "clear"
+    },
+    {
+      "i": 7,
+      "verbatim": "10.00 to 12.20m Mod compact brown/grey slightly silty fine to medium grained SAND with occasional coal washings.",
+      "class": "drift",
+      "modifiers": ["mod compact", "slightly silty"],
+      "thickness_m": 2.20,
+      "depth_m": 12.20,
+      "seam": null,
+      "annotations": ["interface level 80.41 m at base (checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 8,
+      "verbatim": "12.20 to 16.90m Firm to stiff grey laminated SILTY CLAY with wet silt and sand partings. Texture appears disturbed.",
+      "class": "drift",
+      "modifiers": ["firm to stiff", "laminated"],
+      "thickness_m": 4.70,
+      "depth_m": 16.90,
+      "seam": null,
+      "annotations": ["water: verbatim notes 'wet silt and sand partings'", "interface level 75.71 m at base (checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 9,
+      "verbatim": "16.90 to 18.80m Compact grey slightly sandy coarse rounded GRAVEL with cobbles.",
+      "class": "drift",
+      "modifiers": ["compact", "slightly sandy"],
+      "thickness_m": 1.90,
+      "depth_m": 18.80,
+      "seam": null,
+      "annotations": ["SPT N = 31 recorded in this unit", "interface level slip: log reads 73.71 m at the 18.80 m base, but 92.61 - 18.80 = 73.81, so the clerk's reduced level is 0.10 m low; depth below ground (18.80 m) transcribed from the description is unaffected"],
+      "confidence": "clear"
+    },
+    {
+      "i": 10,
+      "verbatim": "18.80 to 20.00m Firm grey SANDY and SILTY CLAY with numerous fine to coarse sub rounded and angular gravel.",
+      "class": "drift",
+      "modifiers": ["firm"],
+      "thickness_m": 1.20,
+      "depth_m": 20.00,
+      "seam": null,
+      "annotations": ["interface level 72.61 m at base (checks); page 2 -> page 3 boundary, interval continues across pages"],
+      "confidence": "clear"
+    },
+    {
+      "i": 11,
+      "verbatim": "20.00 to 21.30m Very stiff to hard grey/brown brittle SILTY CLAY with occasional fine gravel and silt partings.",
+      "class": "drift",
+      "modifiers": ["very stiff to hard", "brittle"],
+      "thickness_m": 1.30,
+      "depth_m": 21.30,
+      "seam": null,
+      "annotations": ["SPT N = 72 at base; stiff drift clay immediately above weathered-sandstone rockhead", "interface level 71.31 m at base (checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 12,
+      "verbatim": "21.30 to 23.00m Very dense yellowish brown platy fragments of fine to medium sandstone, with traces of friable micaceous clay. Highly weathered Sandstone.",
+      "class": "sandstone",
+      "modifiers": ["very dense", "highly weathered"],
+      "thickness_m": 1.70,
+      "depth_m": 23.00,
+      "seam": null,
+      "annotations": ["rockhead: top of weathered Coal Measures sandstone at 21.30 m (RL 71.31 m)", "SPT N = +200 (refusal)", "interface level 69.61 m at base (checks); percussion (shell & claycutter) hole terminated at 23.00 m"],
+      "confidence": "clear"
+    },
+    {
+      "i": 13,
+      "verbatim": "23.00 to 33.00m Yellow/brown and grey/brown fine to medium grained generally thin to medium bedded moderately weathered weak to moderately strong SANDSTONE. Locally jointed and highly weathered recovered as angular fragments in a sand matrix from 23.9 to 24.1m and 31.0 to 31.1m. Thin bands of black very weak very thinly laminated carbonaceous siltstone from 24.80 to 24.84m, 27.40 to 27.55m, 28.25 to 28.35m, 30.20 to 30.25m. Local 45 degree inclined joints from 31.0 to 31.4m.",
+      "class": "sandstone",
+      "modifiers": ["moderately weathered", "weak to moderately strong", "thin to medium bedded"],
+      "thickness_m": 10.00,
+      "depth_m": 33.00,
+      "seam": null,
+      "annotations": ["cored interval (rotary, air flush, 152/76mm), 23.0-33.0m; open-hole above, cased to 22.0m; dated 19/20.12.78", "core runs TCR/SCR/RQD: 100/50/50, 100/80/59, 100/89/43, 100/74/47 - low RQD reflects the local jointing and weathered fragment zones", "contains four thin carbonaceous siltstone bands (24.80-24.84, 27.40-27.55, 28.25-28.35, 30.20-30.25 m) logged within the sandstone unit; not classed separately", "interface level 59.61 m at base (checks); hole terminated at 33.0 m"],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Two-part record for a single borehole (No. 5, job ref FGE/811, Geological Investigations Ltd.). Pages 1-3 are the shell-and-claycutter (percussion) log, 0-23.00 m, terminated at 23.00 m. Pages 4-5 are the rotary core log; header notes: 'Open hole drilling from 0 to 23.0m ROTARY, Air Flush. Core drilling from 23.0 to 33.0m. Hole cased to 22.0m'; method/size 'Rotary 152/76mm'; date 19/20.12.78. The rotary page carries the reference line '0 to 23.0m Open hole drilling. See Record of shell and claycutter borehole.' (not a strata interval - the same ground is logged on pp.1-3), then cores 23.00-33.00 m SANDSTONE; hole terminated at 33.00 m. Intervals numbered continuously across both parts (1-12 percussion, 13 rotary core); the two parts meet cleanly at 23.00 m with no depth overlap. All depths are internally consistent (base_prev + thickness = base_this) from 0 to 33 m. One clerk slip: reduced level at the 18.80 m base reads 73.71 m where the arithmetic gives 73.81 m (0.10 m low); transcribed as written, depth unaffected. Water: percussion sheet says 'Please refer to Section 5 of the written text' (written text not supplied); rotary sheet says 'No noticeable water seepage whilst drilling.' No named coal seams and no pencil seam marginalia present (deep SPT/RQD digits in the sample columns are blow counts/recovery, not seam correlations). Sequence is glacial drift (topsoil, sandy clay, sand, silty clay, gravel) over weathered Coal Measures sandstone; rockhead at 21.30 m. Page 6 is a 1:500 Sketch Location Plan (Appendix B, Sheet No.2, DRG FGE/811/1) with no strata - not transcribed as intervals."
+}

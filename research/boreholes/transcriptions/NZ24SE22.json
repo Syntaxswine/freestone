@@ -68,7 +68,7 @@
       "thickness_ffi": [1, 5, 0], "depth_ffi": [32, 0, 6], "seam": null, "annotations": [], "confidence": "clear" },
     { "i": 25, "verbatim": "Brown clay, into", "class": "drift", "modifiers": [],
       "thickness_ffi": [1, 2, 6], "depth_ffi": [33, 3, 0], "seam": null,
-      "annotations": ["entry ends mid-phrase ('into') — boring terminated in brown clay; the continuation sheet (page 2) is ruled but blank", "pencil right of description: best reading '201'' i.e. 201 feet — a later checker's total-depth jotting (33-3-0 fathoms = 201 ft exactly); reading of the scrawl is probable, not certain"], "confidence": "clear" }
+      "annotations": ["entry ends mid-phrase ('into') — boring terminated in brown clay; the continuation sheet (page 2) is ruled but blank", "illegible pencil scrawl right of the description column: best-read fragment '1 2g/' (a small mark, then '2g' with a clear looping descender and a trailing vertical stroke); NOT a recognisable seam abbreviation (no LM/HM/BLM/Md/HTN/TGT). Could conceivably be a '201' total-depth jotting since 33-3-0 fathoms = 201 ft exactly, but the descender-loop glyph argues against three digits — recorded as uncertain"], "confidence": "clear" }
   ],
   "seam_marks": [],
   "transcriber": "workflow agent, 2026-07-10",

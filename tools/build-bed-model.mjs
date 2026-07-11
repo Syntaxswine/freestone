@@ -121,25 +121,40 @@ function parseHole(rec) {
     const c = canonSeam(m.seam);
     if (c && !/\?|queried/.test(m.how ?? '')) marks.set(m.at_interval, c);
   }
+  const push = (material, top, base) => {
+    if (base <= top + 1e-9) return;
+    const last = col[col.length - 1];
+    if (last && last.material === material && Math.abs(last.baseBelow - top) < 1e-6) last.baseBelow = base;
+    else col.push({ material, topBelow: top, baseBelow: base });
+  };
   for (const iv of rec.intervals ?? []) {
     const baseBelow = ffi
       ? Array.isArray(iv.depth_ffi) ? ffiToM(iv.depth_ffi) : null
       : typeof iv.depth_m === 'number' ? iv.depth_m : null;
     if (baseBelow === null) continue;
-    const topBelow = prevBase;
+    const thick = ffi
+      ? Array.isArray(iv.thickness_ffi) ? ffiToM(iv.thickness_ffi) : 0
+      : typeof iv.thickness_m === 'number' ? iv.thickness_m : 0;
     const material = MATERIAL[iv.class] ?? 'unknown';
-    // merge micro-thin runs of the same material as we register the column
-    const last = col[col.length - 1];
-    if (last && last.material === material && Math.abs(last.baseBelow - topBelow) < 1e-6) {
-      last.baseBelow = baseBelow;
-    } else if (baseBelow > topBelow + 1e-9) {
-      col.push({ material, topBelow, baseBelow });
+    // An interval occupies [depth - thickness, depth]. When thickness is
+    // recorded and the log is contiguous, depth-thickness == prevBase (no gap).
+    // In a SUMMARY section (only marker seams logged) thickness << depth-delta,
+    // so the strata ABOVE the seam are UNRECORDED — fill the gap with 'unknown',
+    // never smear the seam material across it. Blank thickness (depth-primary
+    // logs) falls back to a contiguous [prevBase, depth] segment.
+    let top;
+    if (thick > 1e-6 && baseBelow - thick > prevBase + INCH_M) {
+      push('unknown', prevBase, baseBelow - thick); // the unrecorded gap
+      top = baseBelow - thick;
+    } else {
+      top = prevBase;
     }
+    push(material, top, baseBelow);
     // seam observation (for the plane fit): a coal interval named on the ladder
     if (material === 'coal' && surfOd !== null) {
       const seam = canonSeam(iv.seam) ?? marks.get(iv.i) ?? null;
       if (seam) {
-        const mid = (topBelow + baseBelow) / 2;
+        const mid = (top + baseBelow) / 2;
         seamObs.push({ seam, midBelow: mid, midAOD: surfOd - mid });
       }
     }

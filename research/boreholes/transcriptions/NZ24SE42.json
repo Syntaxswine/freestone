@@ -1,0 +1,56 @@
+{
+  "bgs_id": 847823,
+  "reference": "NZ24SE42",
+  "name": "OLD SHAFT ELVET COLLIERY",
+  "easting": 427294,
+  "northing": 541652,
+  "surface_od_ft": {
+    "value": 165,
+    "qualifier": "cc. (circa); value heavily overwritten/corrected, a subscript reads ~138 — reading uncertain"
+  },
+  "year": null,
+  "pages": 2,
+  "units_system": "ffi",
+  "units": "fathoms/feet/inches, transcribed verbatim — convert ONLY downstream",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "Drift",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_ffi": [5, 4, 6],
+      "depth_ffi": [5, 4, 6],
+      "seam": null,
+      "annotations": ["base of drift; depth equals thickness (unit starts at surface): 5fa 4ft 6in = 34ft 6in"],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "L. Main",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [0, 2, 6],
+      "depth_ffi": [14, 5, 0],
+      "seam": "Low Main",
+      "annotations": ["seam name 'L. Main' = Low Main seam (Durham), named in original ink", "marker horizon: base 14fa 5ft = 89ft; NOT contiguous with the drift above (seam top ~86ft 6in) — intervening strata are unrecorded in this summary section"],
+      "confidence": "probable"
+    },
+    {
+      "i": 3,
+      "verbatim": "Hutton",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [0, 2, 11],
+      "depth_ffi": [27, 5, 2],
+      "seam": "Hutton",
+      "annotations": ["seam glyph reads 'Hulton' but is the Durham Hutton seam; named in original ink", "marker horizon: base 27fa 5ft 2in = 167ft 2in; NOT contiguous with Low Main above — intervening strata unrecorded", "'167' written in ink below the depth column = total depth in feet (167ft 2in ~= 50.9 m), confirms the fathoms figure reads 27 (not 21)"],
+      "confidence": "probable"
+    }
+  ],
+  "seam_marks": [
+    { "seam": "Low Main", "at_interval": 2, "how": "named in original: L. Main (Low Main seam)" },
+    { "seam": "Hutton", "at_interval": 3, "how": "named in original: Hutton (glyph reads 'Hulton'; Durham Hutton seam)" }
+  ],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Printed BGS 'Section of' form used as a summary shaft section, NOT a continuous bed-by-bed log. Header: 'SECTION OF Old shaft near Elvet Colliery.' Communicated Sept 1947 by NCB (parenthetical illegible, possibly 'Brancepeth'). Date of boring/sinking blank (old shaft). One-inch Map 27; Six-inch Map 'Durham 27 NE/W'. Only three marker horizons are recorded (base of Drift, Low Main seam, Hutton seam), so the intervals are deliberately non-contiguous — do NOT expect previous depth + thickness to equal next depth; unrecorded strata lie between the seams. Surface level heavily overwritten (best reading 'cc.165' O.D. with a smaller subscript ~138, uncertain). Total depth '167' (feet) inked below the depth column; 27fa 5ft 2in = 167ft 2in = 50.95 m, matching the index depth 50.91 m. Page 2 is blank apart from a repeated printed table header ('Thickness / Depth from Surface: Fathoms feet ins') — no strata. Top-of-page marginalia ('79 42 46 / 46', 'NZ/24/SE') are filing/registration marks, not log content — ignored per rules."
+}

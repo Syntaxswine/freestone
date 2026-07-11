@@ -109,7 +109,7 @@ for (const f of files) {
   // A depth-datum discontinuity the transcriber described (shaft→boring brought
   // forward from a shallower horizon, page carry-forward, re-hung datum) means
   // the running-sum cross-check is expected to break at that seam. Honor it.
-  const recAckRestart = /overlap|brought forward|double.?count|re-?hung|datum|restart|carry-?forward|below the .* [Ss]eam/.test(
+  const recAckRestart = /overlap|brought forward|double.?count|re-?hung|datum|restart|carry-?forward|below the .* [Ss]eam|non-?contiguous|marker horizon|unrecorded strata|summary (shaft )?section/.test(
     rec.notes ?? '',
   );
   let prevDepthM = 0;

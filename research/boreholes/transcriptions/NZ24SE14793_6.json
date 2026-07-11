@@ -1,0 +1,31 @@
+{
+  "bgs_id": 848374,
+  "reference": "NZ24SE14793/6",
+  "name": "HOWLANDS FARM DURHAM 6",
+  "easting": 427000,
+  "northing": 540570,
+  "surface_od_m": { "value": 89.33, "qualifier": "89.33 m AOD (from Ground Level(m(AOD)) box, as written)" },
+  "year": 1995,
+  "pages": 5,
+  "units_system": "m",
+  "units": "metres (typed site-investigation record, Allied Exploration & Geotechnics Form AEG21/2); depth = BASE of interval below ground level. Reduced Level column cross-checked against 89.33 m AOD.",
+  "intervals": [
+    { "i": 1, "verbatim": "TOPSOIL", "class": "drift", "modifiers": [],
+      "thickness_m": 0.40, "depth_m": 0.40, "seam": null, "annotations": ["reduced level 88.93 m AOD"], "confidence": "clear" },
+    { "i": 2, "verbatim": "Stiff to very stiff brown veined mottled grey sandy CLAY with occasional gravel. Gravel is fine to medium subangular to subrounded consisting of sandstone, coal and mudstone.", "class": "drift", "modifiers": ["stiff to very stiff"],
+      "thickness_m": 1.60, "depth_m": 2.00, "seam": null, "annotations": ["reduced level 87.33 m AOD", "detrital coal clasts in gravel, not a seam"], "confidence": "clear" },
+    { "i": 3, "verbatim": "Very stiff closely fissured brown occasionally veined dark grey sandy gravelly CLAY. Gravel is fine to coarse subangular to subrounded consisting of sandstone and coal.", "class": "drift", "modifiers": ["very stiff", "closely fissured"],
+      "thickness_m": 3.20, "depth_m": 5.20, "seam": null, "annotations": ["between c.5.00-6.00m BGL ... becoming sandy silt.", "reduced level 84.13 m AOD", "detrital coal clasts in gravel, not a seam"], "confidence": "clear" },
+    { "i": 4, "verbatim": "Medium dense to dense yellow brown silty fine to medium SAND.", "class": "drift", "modifiers": ["medium dense to dense"],
+      "thickness_m": 8.30, "depth_m": 13.50, "seam": null, "annotations": ["at c. 6.00m BGL ... Occasionally soft brown sandy clay pockets.", "from c. 7.00m BGL ... occasional black sand and fine gravel sized coal.", "from c.9.80m BGL ... becoming dense.", "at 11.80m BGL ... fine sandy silt.", "reduced level 75.83 m AOD", "detrital coal in sand, not a seam"], "confidence": "clear" },
+    { "i": 5, "verbatim": "Dense yellow brown silty fine SAND with bands of soft brown clay and silt.", "class": "drift", "modifiers": ["dense"],
+      "thickness_m": 1.50, "depth_m": 15.00, "seam": null, "annotations": ["reduced level 74.33 m AOD"], "confidence": "clear" },
+    { "i": 6, "verbatim": "Firm dark brown to grey brown thinly to thickly laminated CLAY with interlaminated fine sandy SILT.", "class": "drift", "modifiers": ["firm"],
+      "thickness_m": 8.00, "depth_m": 23.00, "seam": null, "annotations": ["laminated clay/silt (glaciolacustrine drift), not bedrock mudstone", "reduced level 66.33 m AOD"], "confidence": "clear" },
+    { "i": 7, "verbatim": "Stiff thinly to thickly laminated brown CLAY interlaminated with fine sandy SILT. Some bands of yellow brown slightly silty fine to medium sand.", "class": "drift", "modifiers": ["stiff"],
+      "thickness_m": 7.00, "depth_m": 30.00, "seam": null, "annotations": ["Borehole complete at 30.00m BGL.", "laminated clay/silt (glaciolacustrine drift), not bedrock mudstone", "reduced level 59.33 m AOD"], "confidence": "clear" }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Clean typed 1995 metric log (Allied Exploration & Geotechnics Ltd, Borehole BH-06, Contract 1535, logged A. Latimer, cable percussion Pilcon Wayfarer 1500). Strata on sheets 1-4 of 4 (pages 1-4); page 5 is a site location plan (borehole/trial-pit layout with contours) carrying no strata. Entire 30 m section is superficial DRIFT (glacial/glaciolacustrine clays and sands) - no bedrock reached, no coal seams; the word 'coal' appears only as detrital clasts within drift (gravel-sized coal in the upper clays, black sand and fine-gravel coal in the SAND at 5.20-13.50 m), which are NOT recorded as seam_marks. No pencil marginalia present on any sheet. Reduced-Level column checks exactly against 89.33 m AOD ground level at every boundary (88.93/87.33/84.13/75.83/74.33/66.33/59.33) - no arithmetic slips. Description noted as derived from driller's daily report (General Remark 1). Water observations (Boring Progress table, identical on all sheets): 24.03.95 water 0.00 at 0.00 m then 1.60 at 8.50 m; 27.03.95 water 4.10 at 8.50 m then 16.90 at 20.00 m; 28.03.95 water 16.30 at 20.00 m then 'Moist' at 30.00 m; casing 200 mm to 20.00 m, reduced to 150 mm (to 29.45 m) at final depth. Water Added: 5.20-8.50 m and 8.50-15.00 m. Header spellings as scanned: project 'New College, Howlands Farm, Durham'; client 'Durham University Developments Limited'; location 'Durham E N'; Status FINAL 10.08.95; drilled 24-03-95; printed 12/08/95."
+}

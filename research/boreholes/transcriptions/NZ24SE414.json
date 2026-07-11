@@ -1,0 +1,41 @@
+{
+  "bgs_id": 12840993,
+  "reference": "NZ24SE414",
+  "name": "Fullingmill Cottage Borehole",
+  "easting": 427210,
+  "northing": 542070,
+  "surface_od_m": { "value": 32.50, "qualifier": "as written: 32.50 m AOD (Height box)" },
+  "year": 1965,
+  "pages": 1,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from a typed 1965 log; depth = base of interval below ground level",
+  "intervals": [
+    { "i": 1, "verbatim": "Drift and fill rockhead at 4.30 m.", "class": "drift", "modifiers": [], "thickness_m": 4.30, "depth_m": 4.30, "seam": null, "annotations": ["rockhead recorded at 4.30 m"], "confidence": "clear" },
+    { "i": 2, "verbatim": "Interbedded sandstone and shale.", "class": "sandstone", "modifiers": ["interbedded"], "thickness_m": 0.98, "depth_m": 5.28, "seam": null, "annotations": ["mixed lithology; classed by first-named component (sandstone) - shale interbeds present"], "confidence": "clear" },
+    { "i": 3, "verbatim": "Shale.", "class": "mudstone", "modifiers": [], "thickness_m": 0.25, "depth_m": 5.53, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 4, "verbatim": "White sandstone.", "class": "sandstone", "modifiers": ["white"], "thickness_m": 0.15, "depth_m": 5.68, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 5, "verbatim": "Interbedded black shale and white sandstone.", "class": "mudstone", "modifiers": ["interbedded", "black"], "thickness_m": 3.77, "depth_m": 9.45, "seam": null, "annotations": ["mixed lithology; classed by first-named component (black shale) - white sandstone interbeds present"], "confidence": "clear" },
+    { "i": 6, "verbatim": "Black shale.", "class": "mudstone", "modifiers": ["black"], "thickness_m": 1.39, "depth_m": 10.84, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 7, "verbatim": "Interbedded shale and sandstone.", "class": "mudstone", "modifiers": ["interbedded"], "thickness_m": 2.27, "depth_m": 13.11, "seam": null, "annotations": ["mixed lithology; classed by first-named component (shale) - sandstone interbeds present"], "confidence": "clear" },
+    { "i": 8, "verbatim": "Coal, Hutton seam (L).", "class": "coal", "modifiers": [], "thickness_m": 0.91, "depth_m": 14.02, "seam": "Hutton", "annotations": ["seam named in typed original; trailing '(L)' correlation letter typed inline after the seam name"], "confidence": "clear" },
+    { "i": 9, "verbatim": "Seatearth and black shale.", "class": "seatearth", "modifiers": [], "thickness_m": 1.93, "depth_m": 15.95, "seam": null, "annotations": ["black shale component below the seatearth"], "confidence": "clear" },
+    { "i": 10, "verbatim": "Coal.", "class": "coal", "modifiers": [], "thickness_m": 0.20, "depth_m": 16.15, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 11, "verbatim": "Seatearth.", "class": "seatearth", "modifiers": [], "thickness_m": 0.33, "depth_m": 16.48, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 12, "verbatim": "Shale and sandy shale.", "class": "mudstone", "modifiers": ["sandy"], "thickness_m": 1.81, "depth_m": 18.29, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 13, "verbatim": "White sandstone.", "class": "sandstone", "modifiers": ["white"], "thickness_m": 0.30, "depth_m": 18.59, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 14, "verbatim": "Black Shale.", "class": "mudstone", "modifiers": ["black"], "thickness_m": 0.92, "depth_m": 19.51, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 15, "verbatim": "Coal.", "class": "coal", "modifiers": [], "thickness_m": 0.07, "depth_m": 19.58, "seam": null, "annotations": ["thin 7 cm coal streak"], "confidence": "clear" },
+    { "i": 16, "verbatim": "Shale with plants and ironstone nodules.", "class": "mudstone", "modifiers": [], "thickness_m": 0.30, "depth_m": 19.88, "seam": null, "annotations": ["plant remains and ironstone nodules noted in original"], "confidence": "clear" },
+    { "i": 17, "verbatim": "Black shale.", "class": "mudstone", "modifiers": ["black"], "thickness_m": 6.76, "depth_m": 26.64, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 18, "verbatim": "White sandstone.", "class": "sandstone", "modifiers": ["white"], "thickness_m": 5.36, "depth_m": 32.00, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 19, "verbatim": "Shale.", "class": "mudstone", "modifiers": [], "thickness_m": 0.76, "depth_m": 32.76, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 20, "verbatim": "Coal, Ruler Seam (M).", "class": "coal", "modifiers": [], "thickness_m": 0.46, "depth_m": 33.22, "seam": "Ruler", "annotations": ["seam named in typed original; trailing '(M)' correlation letter typed inline after the seam name"], "confidence": "clear" },
+    { "i": 21, "verbatim": "Shale.", "class": "mudstone", "modifiers": [], "thickness_m": 0.31, "depth_m": 33.53, "seam": null, "annotations": ["final logged interval; base at 33.53 m matches index depth"], "confidence": "clear" }
+  ],
+  "seam_marks": [
+    { "seam": "Hutton", "at_interval": 8, "how": "named in original: Coal, Hutton seam (L)." },
+    { "seam": "Ruler", "at_interval": 20, "how": "named in original: Coal, Ruler Seam (M)." }
+  ],
+  "transcriber": "workflow agent, 2026-07-11",
+  "notes": "Typed 1965 metric log, single page (BGS registration handwritten 'NZ 24 SE 1/28', 'PAGE NO. 2'; printed page number 6 at foot). Header details: Drilled 1965; Position 'East bank of the River Wear and 10 m south of Fullingmill Cottage, below the Cathedral, Durham City. Grid Reference NZ 27214207'; Height 32.50 m AOD; Direction Vertical; Driller Mr. C. Chaplin, Geology Department, University of Durham; Rig Boyles X-ray; Cores examined by William Hopkins. All 21 intervals fully legible; depth arithmetic cross-checks cleanly at every step (no clerk slips) and the final base of 33.53 m matches the index depth exactly. Two named coal seams: Hutton (interval 8, with typed '(L)' correlation letter) and Ruler (interval 20, with typed '(M)' correlation letter) - these letters appear typed inline in the original, not as later pencil marginalia. Seven 'interbedded'/mixed-lithology intervals were each classed by their first-named (dominant) component with a note, since the schema allows only one class per interval. BGS blue banner and page watermarks ignored as non-log content."
+}

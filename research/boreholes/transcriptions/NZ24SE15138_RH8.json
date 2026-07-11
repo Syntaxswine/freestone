@@ -1,0 +1,25 @@
+{
+  "bgs_id": 848445,
+  "reference": "NZ24SE15138/RH8",
+  "name": "DURHAM, JOHNSTONE SCHOOL RH8",
+  "easting": 428013,
+  "northing": 541832,
+  "surface_od_m": { "value": null, "qualifier": "absent — no AOD/Ground Level datum given; depths measured from G.L." },
+  "year": 1995,
+  "pages": 2,
+  "units_system": "m",
+  "units": "metres below ground level, transcribed verbatim from a typed summary strata log — depth = base of interval below ground",
+  "intervals": [
+    { "i": 1, "verbatim": "Boulder Clay", "class": "drift", "modifiers": [],
+      "thickness_m": 1.30, "depth_m": 1.30, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 2, "verbatim": "Sand / Clay Traces", "class": "drift", "modifiers": [],
+      "thickness_m": 9.15, "depth_m": 10.45, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 3, "verbatim": "Sand / Coal Traces", "class": "drift", "modifiers": [],
+      "thickness_m": 19.55, "depth_m": 30.00, "seam": null,
+      "annotations": ["'Coal Traces' = coal fragments within the glacial sand, not an in-situ seam; the borehole bottoms in drift. Adjacent RH9 on the same sheet logs a thin in-situ 'Coal' at 12.20-12.30 m."],
+      "confidence": "clear" }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Page 1 = typed summary strata log (Durham Johnston School, Whinney Hill, Durham, Co. Durham; job 950197) covering three light-cable-percussion / rotary-open holes RH2, RH8, RH9; only RH8 transcribed here. Page 2 = HJT Solmek borehole location plan (dwg 950197/L1, dated FEB 96) with no strata — used only to confirm hole positions. RH8 is a shallow all-drift hole: boulder clay over glacial sand, bottoming at 30.00 m; no bedrock, no seatearth, no named coal seam reached. No AOD datum on the sheet, so surface_od_m is absent. No pencil marginalia or water observations on this typed record. Depths run continuously (1.30 / 10.45 / 30.00) with no arithmetic slips. Sheet header spells it 'JOHNSTON' (no final e); the record name 'JOHNSTONE' is retained per the task's hole identity."
+}

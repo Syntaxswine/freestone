@@ -1,0 +1,83 @@
+{
+  "bgs_id": 848376,
+  "reference": "NZ24SE14793/8",
+  "name": "HOWLANDS FARM DURHAM 8",
+  "easting": 427080,
+  "northing": 540680,
+  "surface_od_m": { "value": 84.06, "qualifier": "as written (Ground Level 84.06 m AOD)" },
+  "year": 1995,
+  "pages": 5,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from a typed cable-percussion site-investigation log (AEG / Allied Exploration & Geotechnics Ltd, borehole BH-08); depth = base of interval below ground level",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "TOPSOIL",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 0.25,
+      "depth_m": 0.25,
+      "seam": null,
+      "annotations": ["reduced level 83.81 m AOD at base"],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "Stiff to very stiff occasionally closely fissured orange brown veined mottled grey sandy CLAY with occasional gravel. Gravel is fine to medium subangular to subrounded consisting of sandstone, mudstone and coal. from c. 1.30m BGL ... occasional pockets of orange brown silty fine to medium sand. from c. 3.00m BGL ... becoming very stiff closely fissured brown sandy clay with occasional gravel.",
+      "class": "drift",
+      "modifiers": ["stiff to very stiff", "occasionally closely fissured", "very stiff (from 3.00m)"],
+      "thickness_m": 3.95,
+      "depth_m": 4.20,
+      "seam": null,
+      "annotations": ["reduced level 79.86 m AOD at base", "sub-notes recorded in original as separate BGL entries at c.1.30m and c.3.00m"],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "Medium dense yellow brown silty fine to medium SAND with occasional black fine coal sand. between c.4.20-6.50m BGL ... medium dense yellow brown fine sandy silt.",
+      "class": "drift",
+      "modifiers": ["medium dense"],
+      "thickness_m": 9.75,
+      "depth_m": 13.95,
+      "seam": null,
+      "annotations": ["spans sheets 1 of 4 and 2 of 4; continuation marked '(As sheet 1 of 4)'", "reduced level 70.11 m AOD at base"],
+      "confidence": "clear"
+    },
+    {
+      "i": 4,
+      "verbatim": "Firm to stiff thinly interlaminated brown and grey fine sandy CLAY and SILT. at c. 21.00m BGL ... becoming grey silt. from 21.20m BGL ... bands of silty sand.",
+      "class": "drift",
+      "modifiers": ["firm to stiff"],
+      "thickness_m": 11.05,
+      "depth_m": 25.00,
+      "seam": null,
+      "annotations": ["spans sheets 2 of 4 and 3 of 4; continuation marked '(As sheet 2 of 4)'", "reduced level 59.06 m AOD at base", "sub-notes at c.21.00m (grey silt) and 21.20m (bands of silty sand)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 5,
+      "verbatim": "Grey to grey brown silty fine to medium SAND.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 0.10,
+      "depth_m": 25.10,
+      "seam": null,
+      "annotations": ["thin parting, 25.00-25.10m BGL", "reduced level 58.96 m AOD at base", "thickness label in original is faint but confirmed by reduced levels 59.06 to 58.96 (0.10m)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 6,
+      "verbatim": "Firm to stiff thinly to thickly laminated brown CLAY with occasional grey silt dusting on laminae surfaces.",
+      "class": "drift",
+      "modifiers": ["firm to stiff"],
+      "thickness_m": 4.90,
+      "depth_m": 30.00,
+      "seam": null,
+      "annotations": ["reduced level 54.06 m AOD at base", "'Borehole completed at 30.00m BGL' noted in original below this interval"],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Modern typed AEG (Allied Exploration & Geotechnics Ltd) cable-percussion borehole record, borehole BH-08, project 'New College, Howlands Farm, Durham', client Durham University Developments Limited, contract 1535, logged by A. Latimer, Final status dated 10.08.95, drilled 21-24.03.95. Method: Cable Percussion using a Pilcon Wayfarer 1500. Note 'Description derived from driller's daily report.' Six strata across four log sheets (sheets 1-4 of 4); entirely Quaternary superficial/drift deposits (topsoil, glacial sandy clay, sand, interlaminated clay/silt, thin sand parting, laminated clay). No bedrock and no coal seams were reached; borehole completed in drift at 30.00m BGL. All six interval thicknesses sum to 30.00m and every base reduced level cross-checks exactly against the 84.06 m AOD ground level (84.06-depth): 83.81, 79.86, 70.11, 59.06, 58.96, 54.06 - no clerk arithmetic slips found. Water observations in the Boring Progress table: water depth first recorded 12.80m on 22.03.95 (at 19.50m bore depth), later 12.10/12.30/11.30/19.30m; water added 7.00-19.50. Page 5 is a site location plan (South Road, Howlands Farm buildings, numbered trial pits TP, boreholes BH and cable-percussion/C points with spot heights and contours) with no strata data; not transcribed as intervals. BGS blue banner, watermarks and registration marks ignored per instructions."
+}

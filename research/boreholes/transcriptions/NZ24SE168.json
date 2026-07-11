@@ -1,0 +1,171 @@
+{
+  "bgs_id": 848100,
+  "reference": "NZ24SE168",
+  "name": "A167 DURHAM WESTERN BY PASS 18",
+  "easting": 425726,
+  "northing": 544004,
+  "surface_od_m": { "value": 111.45, "qualifier": "as written (Ground level 111.45 m O D)" },
+  "year": 1990,
+  "pages": 4,
+  "units_system": "m",
+  "units": "metres below ground level, transcribed verbatim from a typed Wimpey Geotech log; depth = base of interval below GL; Reduced Levels in the O D column cross-checked and all consistent",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "TOPSOIL",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 0.80,
+      "depth_m": 0.80,
+      "seam": null,
+      "annotations": ["RL 111.45 to 110.65 m O D (cross-checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "Medium dense light brown occasionally light orangeish brown slightly clayey slightly silty fine SAND. Traces of black coal dust throughout",
+      "class": "drift",
+      "modifiers": ["medium dense"],
+      "thickness_m": 1.65,
+      "depth_m": 2.45,
+      "seam": null,
+      "annotations": ["RL 110.65 to 109.00 m O D (cross-checks)", "black coal dust traces are detrital, not a seam"],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "Firm dark brown sandy silty CLAY and beds of light brown slightly clayey silty fine SAND with some fine to coarse subangular and subrounded gravel",
+      "class": "drift",
+      "modifiers": ["firm"],
+      "thickness_m": 1.00,
+      "depth_m": 3.45,
+      "seam": null,
+      "annotations": ["RL 109.00 to 108.00 m O D (cross-checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 4,
+      "verbatim": "Medium dense dark and light brown clayey silty becoming silty fine and medium SAND with very occasional fine to medium subrounded gravel near top",
+      "class": "drift",
+      "modifiers": ["medium dense"],
+      "thickness_m": 2.95,
+      "depth_m": 6.40,
+      "seam": null,
+      "annotations": ["RL 108.00 to 105.05 m O D (cross-checks)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 5,
+      "verbatim": "Soft dark greyish brown sandy becoming slightly sandy silty CLAY with some fine to coarse subangular and subrounded gravel",
+      "class": "drift",
+      "modifiers": ["soft"],
+      "thickness_m": 1.10,
+      "depth_m": 7.50,
+      "seam": null,
+      "annotations": ["RL 105.05 to 103.95 m O D (cross-checks)", "with water: groundwater strike at 6.40m (GWs/GWe in water column); per remarks the level rose 0.50m in 30 min (to ~5.90m)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 6,
+      "verbatim": "Loose to medium dense dark greyish brown clayey silty fine to medium SAND with occasional fine and medium gravel",
+      "class": "drift",
+      "modifiers": ["loose to medium dense"],
+      "thickness_m": 1.80,
+      "depth_m": 9.30,
+      "seam": null,
+      "annotations": ["RL 103.95 to 102.15 m O D (cross-checks)", "'See next sheet' at base of Sheet 1"],
+      "confidence": "clear"
+    },
+    {
+      "i": 7,
+      "verbatim": "Medium dense brown silty fine and medium SAND with occasional lenses of soft dark greyish brown silty clay near top. Traces of black coal dust throughout",
+      "class": "drift",
+      "modifiers": ["medium dense"],
+      "thickness_m": 2.90,
+      "depth_m": 12.20,
+      "seam": null,
+      "annotations": ["RL 102.15 to 99.25 m O D (cross-checks)", "top of Sheet 2", "black coal dust traces are detrital, not a seam"],
+      "confidence": "clear"
+    },
+    {
+      "i": 8,
+      "verbatim": "Dense light and dark brown fine to coarse SAND and fine to coarse subangular and subrounded GRAVEL sized fragments of weathered sandstone",
+      "class": "drift",
+      "modifiers": ["dense"],
+      "thickness_m": 2.70,
+      "depth_m": 14.90,
+      "seam": null,
+      "annotations": ["RL 99.25 to 96.55 m O D (cross-checks)", "weathered-sandstone gravel just above rockhead; base 14.90m coincides with change from cable percussion to rotary core drilling (effective rockhead)", "advanced by chiselling 12.30-13.20m and 13.20-14.80m (see remarks); DRY at 14.80/14.90"],
+      "confidence": "clear"
+    },
+    {
+      "i": 9,
+      "verbatim": "Dark grey fine grained highly weathered highly fractured silty MUDSTONE - weak and moderately weak",
+      "class": "mudstone",
+      "modifiers": ["weak", "moderately weak"],
+      "thickness_m": 1.50,
+      "depth_m": 16.40,
+      "seam": null,
+      "annotations": ["RL 96.55 to 95.05 m O D (cross-checks)", "first solid (rotary core); Pennine Coal Measures", "core run 14.90-15.50 TCR94 SCR10 RQD0; If >20"],
+      "confidence": "clear"
+    },
+    {
+      "i": 10,
+      "verbatim": "Dark grey fine grained moderately occasionally highly weathered thinly planar laminated muddy SILTSTONE - moderately weak to moderately strong locally weak. Core predominantly highly and very highly fractured. Many thin sandy laminae",
+      "class": "siltstone",
+      "modifiers": ["moderately weak", "moderately strong", "locally weak"],
+      "thickness_m": 3.10,
+      "depth_m": 19.50,
+      "seam": null,
+      "annotations": ["RL 95.05 to 91.95 m O D (cross-checks)", "core runs 16.40-18.50 TCR100 SCR7 RQD0 and 18.50-19.50 TCR100 SCR27 RQD10; If >20", "'See next sheet' at base of Sheet 2"],
+      "confidence": "clear"
+    },
+    {
+      "i": 11,
+      "verbatim": "Grey fine grained slightly to moderately weathered thinly ripple interlaminated silty SANDSTONE and muddy SILTSTONE - moderately strong, occasionally strong. Some weak bands of predominantly siltstone. Very closely spaced subhorizontal to 10 degree bedding fractures. Some subvertical orange iron-stained fractures. Some highly fractured bands",
+      "class": "sandstone",
+      "modifiers": ["moderately strong", "occasionally strong"],
+      "thickness_m": 2.70,
+      "depth_m": 22.20,
+      "seam": null,
+      "annotations": ["RL 91.95 to 89.25 m O D (cross-checks)", "top of Sheet 3", "interlaminated silty SANDSTONE and muddy SILTSTONE with weak predominantly-siltstone bands; classed sandstone (named first, dominant)", "core run 19.50-22.20 within TCR100 SCR46 RQD14"],
+      "confidence": "clear"
+    },
+    {
+      "i": 12,
+      "verbatim": "Grey fine grained slightly locally moderately weathered thinly convolute laminated very silty micaceous SANDSTONE - strong. Closely spaced subhorizontal pervasively discoloured orange bedding fractures. Some subvertical ironstained fractures. Occasional moderately weathered highly fractured bands",
+      "class": "sandstone",
+      "modifiers": ["strong"],
+      "thickness_m": 2.30,
+      "depth_m": 24.50,
+      "seam": null,
+      "annotations": ["RL 89.25 to 86.95 m O D (cross-checks)", "core run to 24.50 TCR100 SCR46 RQD14 (upper), If >20 then 12"],
+      "confidence": "clear"
+    },
+    {
+      "i": 13,
+      "verbatim": "Orange completely weathered disintegrated SANDSTONE - very weak",
+      "class": "sandstone",
+      "modifiers": ["completely weathered", "very weak"],
+      "thickness_m": 0.30,
+      "depth_m": 24.80,
+      "seam": null,
+      "annotations": ["RL 86.95 to 86.65 m O D (cross-checks)", "thin weathered-sandstone band"],
+      "confidence": "clear"
+    },
+    {
+      "i": 14,
+      "verbatim": "Grey fine grained slightly and slightly to moderately weathered thinly planar and convolute laminated sandy micaceous SILTSTONE - strong, occasionally moderately strong. Very closely spaced discoloured orange subhorizontal bedding fractures. Some ironstained subvertical fractures. Many extremely closely spaced sandy laminae. Highly fractured moderately weak siltstone without sandstone laminae from 27.30m to 28.60m. Highly fractured and disintegrated from 28.60m to 28.80m. Bed of highly fractured mudstone from 26.10m to 26.55m",
+      "class": "siltstone",
+      "modifiers": ["strong", "occasionally moderately strong"],
+      "thickness_m": 5.75,
+      "depth_m": 30.55,
+      "seam": null,
+      "annotations": ["RL 86.65 to 80.90 m O D (cross-checks)", "internal subordinate bed: highly fractured mudstone 26.10-26.55m (noted in original text)", "highly fractured siltstone without sandstone laminae 27.30-28.60m; disintegrated 28.60-28.80m", "core runs 24.80-27.30 TCR93 SCR29 RQD12, 27.30-28.80 TCR93 SCR0 RQD0, 28.80-30.55 TCR100 SCR57 RQD0; If mixed >20/17/13", "END OF BOREHOLE at 30.55m (Sheet 4), DRY"],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Clean typed Wimpey Geotech log (Fig. 20, Sheets 1-4 of 4); manuscript BGS index number 'NZ24SE/168' pencilled at top of each sheet. Ground level 111.45 m O D; every Reduced Level in the O D column cross-checks against depth (no clerk arithmetic slips). Boring: Cable Percussion to 14.90m (Dando 150; Hands England 36/80 tractor-mounted), then Rotary Core Drilling to 30.55m (412 core barrel, air flush). Drift (soil/sand/clay/gravel) to 14.90m over Pennine Coal Measures mudstone/siltstone/sandstone; effective rockhead ~14.90m (base of weathered-sandstone gravel = change of method). NO coal seams encountered, no seatearth, no pencil seam-correlation marginalia. Remarks (Sheet 4): borehole advanced by chiselling 12.30-13.20m (2.5h) and 13.20-14.80m (4h); water added to assist boring at 11.00m may have masked ground-water; ground-water encountered at 6.40m, level rose 0.50m in 30 min; full return of circulation air throughout rotary drilling. A piezometer was installed at 11.50m; backfill 30.55-12.70m bentonite/cement grout, 12.70-12.20m bentonite, 12.20-6.40m gravel, 6.40-5.90m bentonite, 5.90-0.50m bentonite/cement grout, 0.50m-GL concrete, stopcock cover concreted over. Dates: commenced 20/4/90; drilled 20-24/4/90; originator MRW 23/4/90-23/5/90; checked/approved AMcL 22/6/90. BGS S/ No 26290."
+}

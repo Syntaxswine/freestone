@@ -1,0 +1,30 @@
+{
+  "bgs_id": 848446,
+  "reference": "NZ24SE15138/RH9",
+  "name": "DURHAM, JOHNSTONE SCHOOL RH9",
+  "easting": 428045,
+  "northing": 541907,
+  "surface_od_m": { "value": null, "qualifier": "absent — no Ground Level (m AOD) box; depth column datum is G.L. (ground level)" },
+  "year": 1995,
+  "pages": 2,
+  "units_system": "m",
+  "units": "metres below ground level, transcribed verbatim from typed log — depth = base of interval",
+  "intervals": [
+    { "i": 1, "verbatim": "Boulder Clay", "class": "drift", "modifiers": [],
+      "thickness_m": 1.95, "depth_m": 1.95, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 2, "verbatim": "Sand / Soft", "class": "drift", "modifiers": ["Soft"],
+      "thickness_m": 10.25, "depth_m": 12.20, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 3, "verbatim": "Coal", "class": "coal", "modifiers": [],
+      "thickness_m": 0.10, "depth_m": 12.30, "seam": null,
+      "annotations": ["thin 0.10 m coal band within the sand-dominated drift; no seam name given in original"], "confidence": "clear" },
+    { "i": 4, "verbatim": "Sand / Soft", "class": "drift", "modifiers": ["Soft"],
+      "thickness_m": 11.15, "depth_m": 23.45, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 5, "verbatim": "Coal Traces", "class": "drift", "modifiers": [],
+      "thickness_m": 6.55, "depth_m": 30.00, "seam": null,
+      "annotations": ["description reads only 'Coal Traces'; cf. RH8's parallel basal entry 'Sand / Coal Traces' — interpreted as sand with disseminated coal traces within the drift, not a coal seam; classed drift"],
+      "confidence": "clear" }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Page 1 is a typed multi-hole strata sheet (job no. 950197) listing three rotary open holes RH2, RH8 and RH9 in a single Depth(m)/Description table; only RH9 is transcribed in this record. Header title reads 'DURHAM JOHNSTON SCHOOL, WHINNEY HILL, DURHAM, CO. DURHAM' — spells the school 'JOHNSTON' (no final E), whereas the BGS reference/name supplied for this hole is 'JOHNSTONE'; task-supplied name kept. No Ground Level (m AOD) datum given; depths are below G.L. Per the page-2 key this is a rotary open hole; the full 30.00 m is glacial drift (boulder clay over sand) with no bedrock rockhead proved — the thin 0.10 m 'Coal' (12.20-12.30) and the basal 'Coal Traces' (23.45-30.00) sit within the sand. Depth column is fully self-consistent, no clerk arithmetic slips. Page 2 is the 'Borehole Location Plan — Durham Johnston School' (HJT Solmek, drawing no. 950197/L1, dated FEB. 96, drawn A.C., checked D.B.), a location plan only with no strata."
+}

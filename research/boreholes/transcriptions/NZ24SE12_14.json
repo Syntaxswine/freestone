@@ -1,0 +1,31 @@
+{
+  "bgs_id": 847787,
+  "reference": "NZ24SE12/14",
+  "name": "KEPIER 14",
+  "easting": 428355,
+  "northing": 543658,
+  "surface_od_ft": { "value": 98, "qualifier": "c. 98 (pencil marginalia 'c 98 AOD' beside the No.14 Hole heading; printed 'Surface Level ___ O.D.' box left blank in original)" },
+  "year": 1945,
+  "pages": 1,
+  "units_system": "ffi",
+  "units": "fathoms/feet/inches, transcribed verbatim — convert ONLY downstream. NOTE: clerk logged in feet & inches with the Fathoms columns left blank throughout; recorded as [0, feet, ins].",
+  "intervals": [
+    { "i": 1, "verbatim": "Loamy Soil.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 1, 10], "depth_ffi": [0, 1, 10], "seam": null, "annotations": ["depth-from-surface column left blank in original for this first row; running depth = thickness = 1'10\""], "confidence": "clear" },
+    { "i": 2, "verbatim": "Loamy Clay with Sand Partings.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 5, 0], "depth_ffi": [0, 6, 10], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 3, "verbatim": "Loamy Sand & Clay.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 3, 0], "depth_ffi": [0, 9, 10], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 4, "verbatim": "Silty Sand.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 5, 2], "depth_ffi": [0, 15, 0], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 5, "verbatim": "Sand with Decayed Timber & Small Coal. Water.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 3, 3], "depth_ffi": [0, 18, 3], "seam": null, "annotations": ["with water", "decayed timber & small coal are drift debris (not an in-situ coal seam)"], "confidence": "clear" },
+    { "i": 6, "verbatim": "Gravel & Sand. Water.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 8, 9], "depth_ffi": [0, 27, 0], "seam": null, "annotations": ["with water"], "confidence": "clear" },
+    { "i": 7, "verbatim": "Hard Bound Gravel. Water.", "class": "drift", "modifiers": ["hard", "bound"], "thickness_ffi": [0, 2, 1], "depth_ffi": [0, 29, 1], "seam": null, "annotations": ["with water"], "confidence": "clear" },
+    { "i": 8, "verbatim": "Leafy Clay.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 1, 4], "depth_ffi": [0, 30, 5], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 9, "verbatim": "Boulder Clay.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 4, 1], "depth_ffi": [0, 34, 6], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 10, "verbatim": "Hard Bound Gravel. Water.", "class": "drift", "modifiers": ["hard", "bound"], "thickness_ffi": [0, 6, 6], "depth_ffi": [0, 41, 0], "seam": null, "annotations": ["with water"], "confidence": "clear" },
+    { "i": 11, "verbatim": "Boulder Clay with Sand Partings.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 5, 6], "depth_ffi": [0, 46, 6], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 12, "verbatim": "Hard Bound Gravel & Sand. Water.", "class": "drift", "modifiers": ["hard", "bound"], "thickness_ffi": [0, 15, 10], "depth_ffi": [0, 62, 4], "seam": null, "annotations": ["with water"], "confidence": "clear" },
+    { "i": 13, "verbatim": "Large Sandstone Boulders with Gravel. Coal Traces near Bottom.", "class": "drift", "modifiers": [], "thickness_ffi": [0, 21, 8], "depth_ffi": [0, 84, 0], "seam": null, "annotations": ["glacial sandstone boulders in a gravel matrix (base of drift), not in-situ bedrock", "coal traces near bottom = reworked fragments, not an in-situ seam"], "confidence": "clear" },
+    { "i": 14, "verbatim": "Soft Grey Sandy Shale and Soft Shale with Ironstone Nodules. into", "class": "mudstone", "modifiers": ["soft", "grey", "sandy"], "thickness_ffi": [0, 16, 0], "depth_ffi": [0, 100, 0], "seam": null, "annotations": ["with ironstone nodules", "first bedrock beneath the drift", "'into' written in the original = hole bottomed still penetrating this bed at total depth (100'0\" = 30.48 m)"], "confidence": "clear" }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Sheet 'SECTION OF BOREHOLES AT KEPIER POWER STATION, DURHAM' for North-Eastern Electric Supply Co. Ltd; communicated by / borer WM. COULSON LTD; One-inch Map 27, Six-inch Map Durham. DATE DISCREPANCY: printed date reads verbatim 'January, 1945', but the workflow index for this hole gives 1939 — 1945 recorded per source. This single page carries TWO holes: 'No.14 Hole' (this record, BGS reg NZ 24 SE 12-14, PAGE NO. 1) and, below it, 'No.15 Hole' (a separate borehole, BGS reg NZ 24 SE 12-15, PAGE NO. 1) which is NOT transcribed here. The clerk logged all figures in feet & inches with the Fathoms columns blank (recorded as [0, ft, in]). Clerk arithmetic is clean throughout: previous depth + thickness = stated depth on every row. Row 1 (Loamy Soil) has a blank depth-from-surface cell in the original; running depth = 1'10\". Surface level: printed 'Surface Level ___ O.D.' box left blank; later BGS pencil beside the heading reads 'c 98 AOD' (a matching 'c 98' also pencilled on No.15). Total depth 100'0\" = 30.48 m, matching the index depth. Ignored as non-content: BGS blue banner/watermarks/registration stamps, and the top-right filing marks (struck-through 'NZ 24 SE 12', pencil '12' / '38')."
+}

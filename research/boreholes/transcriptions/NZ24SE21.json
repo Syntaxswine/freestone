@@ -1,0 +1,40 @@
+{
+  "bgs_id": 847800,
+  "reference": "NZ24SE21",
+  "name": "Langley Paper Mills",
+  "easting": 425754,
+  "northing": 540688,
+  "surface_od_ft": { "value": 190, "qualifier": "as written 'ca 190·00 ... O.D.' — 'ca 190' clear, trailing figures read '·00'" },
+  "year": null,
+  "pages": 2,
+  "units_system": "ffi",
+  "units": "fathoms/feet/inches, transcribed verbatim — convert ONLY downstream",
+  "intervals": [
+    { "i": 1, "verbatim": "Soil etc.", "class": "drift", "modifiers": [],
+      "thickness_ffi": [0, 3, 0], "depth_ffi": [0, 3, 0], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 2, "verbatim": "Sand", "class": "drift", "modifiers": [],
+      "thickness_ffi": [0, 3, 0], "depth_ffi": [1, 0, 0], "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 3, "verbatim": "Clay", "class": "drift", "modifiers": [],
+      "thickness_ffi": [6, 0, 0], "depth_ffi": [7, 0, 0], "seam": null, "annotations": ["depth cell printed '7 0, 0' — stray comma/ink dot; reads 7-0-0"], "confidence": "clear" },
+    { "i": 4, "verbatim": "Black metal", "class": "mudstone", "modifiers": ["black"],
+      "thickness_ffi": [5, 0, 0], "depth_ffi": [12, 0, 0], "seam": null, "annotations": ["'metal' = argillaceous shale/mudstone; sits within the superficial-to-bedrock passage of this shallow hole"], "confidence": "clear" },
+    { "i": 5, "verbatim": "Quicksand", "class": "drift", "modifiers": [],
+      "thickness_ffi": [0, 4, 0], "depth_ffi": [12, 4, 0], "seam": null, "annotations": ["waterlogged sand (implies water at ~72-76 ft)"], "confidence": "clear" },
+    { "i": 6, "verbatim": "Ramble", "class": "mudstone", "modifiers": [],
+      "thickness_ffi": [0, 3, 0], "depth_ffi": [13, 1, 0], "seam": null, "annotations": ["'ramble' = soft crumbly roof shale, argillaceous"], "confidence": "clear" },
+    { "i": 7, "verbatim": "Rotten stone", "class": "sandstone", "modifiers": ["rotten"],
+      "thickness_ffi": [2, 5, 0], "depth_ffi": [16, 0, 0], "seam": null, "annotations": ["'rotten' = decomposed/weathered; directly overlies the coal; clerk used 'stone' (not 'post'=sandstone nor 'metal'=shale) so sandstone-vs-mudstone is genuinely ambiguous"], "confidence": "probable" },
+    { "i": 8, "verbatim": "COAL", "class": "coal", "modifiers": [],
+      "thickness_ffi": [0, 2, 4], "depth_ffi": [16, 2, 4], "seam": "Low Main", "annotations": ["typed seam name beside COAL: 'Low Main Swam' (Seam — clerk typo 'Swam' for 'Seam')", "handwritten ink marginalia: 'Brass Thill' — a later correlation note (Brass Thill is a separate named Durham seam)"], "confidence": "clear" },
+    { "i": 9, "verbatim": "Stone", "class": "sandstone", "modifiers": [],
+      "thickness_ffi": [0, 3, 0], "depth_ffi": [16, 5, 4], "seam": null, "annotations": ["coal floor; generic 'stone' (not 'post'/'metal'/'thill') — sandstone-vs-mudstone ambiguous"], "confidence": "probable" },
+    { "i": 10, "verbatim": "Hard stone", "class": "sandstone", "modifiers": ["hard"],
+      "thickness_ffi": [0, 3, 0], "depth_ffi": [17, 2, 4], "seam": null, "annotations": ["'hard' = competent bed; generic 'stone' — sandstone-vs-mudstone ambiguous; bottom of hole"], "confidence": "probable" }
+  ],
+  "seam_marks": [
+    { "seam": "Low Main", "at_interval": 8, "how": "named in original: typed 'Low Main Swam' (Seam) beside COAL" },
+    { "seam": "Brass Thill", "at_interval": 8, "how": "handwritten (ink) marginalia beside COAL — later BGS correlation note" }
+  ],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Header: 'SECTION OF borehole at Langley Paper Mills'; BGS index lists name as 'LNAGLEY PAPER MILLS' (apparent index typo). NGR NZ 2575 4068; Communicated by 'B & S. 1273'; One-inch Map 26, Six-inch Map Durham 26 NE. BGS registration stamp 'NZ 24 SE 21 PAGE NO. 1'. Date of boring/Borer blank; year null (the form's printed code '(68/4028) Wt.74179/81 3000 2/49' is a stationery date, not the boring date). All ten depths reconcile exactly with running thickness sums — no clerk arithmetic slips. Final depth 17 fathoms 2 ft 4 in = 104.333 ft = 31.80 m (near index 31.71). Lithology terms are pit-sinker vernacular: 'metal'=shale, 'ramble'=roof shale, 'stone'/'rotten stone'/'hard stone' left as sandstone (probable) because the clerk avoided both 'post' and 'metal'. A faint pencil scrawl (reads like '128'/'l28') sits in the blank area well below the table — not a seam correlation, not transcribed as an interval. Page 2 is a continuation sheet showing only the printed column header (Thickness / Depth from Surface) with no strata — no log content."
+}
