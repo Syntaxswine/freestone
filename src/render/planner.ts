@@ -18,7 +18,7 @@
 import * as THREE from 'three';
 import { classifyFootprint, type FootprintKind } from '../sim/classify';
 import type { SiteData } from '../sim/site';
-import { decomposeWall, polylineLength } from '../sim/step';
+import { polylineLength, surveyWall } from '../sim/step';
 import { MATERIALS, ROOF_DECK, ROOF_SNAP, type Material, type Vec2 } from '../sim/types';
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
@@ -44,6 +44,13 @@ export interface PlannerDeps {
    * still lays stones from its own full-res heights.
    */
   groundAt: (x: number, y: number) => number;
+  /**
+   * The SIM's own ground (effectiveGroundAt), for the survey that counts
+   * stones (SIM 13 parity law: the promised count is the record's, and the
+   * record is surveyed on full-res sim ground, not the decimated display).
+   * Absent (tests), the display ground serves.
+   */
+  countGround?: (x: number, y: number) => number;
   heightBounds: { min: number; max: number };
   dom: HTMLElement;
   /** the one exit: hand the plan to the command log; return false to keep drawing */
@@ -334,11 +341,20 @@ export class WallPlanner {
     return { front: f.len, depth: Math.abs(f.depth) };
   }
 
-  /** pass the plan's auto-gates so the promised stone count is the sim's own */
-  stats(gates: readonly Vec2[] = []): { length: number; courses: number; stonesTotal: number } | null {
+  /**
+   * Pass the plan's auto-gates so the promised stone count is the sim's own:
+   * the SAME survey the sim will freeze at plan time (SIM 13), run on the
+   * sim's own ground — level courses, stepped footings, honest extra stones
+   * downhill.
+   */
+  stats(
+    gates: readonly Vec2[] = [],
+    datum: 'level' | 'stepped' = 'stepped',
+  ): { length: number; courses: number; stonesTotal: number } | null {
     const poly = this.previewPolyline();
     if (poly.length < 2) return null;
-    const { courses, stonesTotal } = decomposeWall(poly, this.height, gates);
+    const ground = this.deps.countGround ?? this.deps.groundAt;
+    const { courses, stonesTotal } = surveyWall(poly, this.height, gates, ground, datum);
     return { length: polylineLength(poly), courses, stonesTotal };
   }
 
@@ -616,14 +632,21 @@ export class WallPlanner {
         : null;
     // a roof previews as a thin deck band, not a wall body
     const bandTop = this.mode === 'roof' ? ROOF_DECK : this.height;
+    // a BUILDING ribbon tops out at the SURVEYED level datum (SIM 13): the
+    // pencil promises the one flat bearing its roof will need. Plain walls
+    // STEP with the land, which the old per-column ribbon already reads as.
+    const levelTop =
+      this.mode === 'building' && poly.length >= 2
+        ? surveyWall(poly, this.height, [], this.deps.groundAt, 'level').levelTop
+        : null;
 
     for (let i = 0; i < samples.length; i++) {
       const s = samples[i]!;
       const g = roofLevel ?? groundAt(s.x, s.y);
       this.linePos.setXYZ(i, s.x, g + LINE_LIFT, s.y);
-      // ribbon top follows the terrain the way the sim lays courses: per-column ground
+      // ribbon base follows the terrain (the stepped footing); the top is level
       this.ribbonPos.setXYZ(i * 2, s.x, g + 0.05, s.y);
-      this.ribbonPos.setXYZ(i * 2 + 1, s.x, g + bandTop, s.y);
+      this.ribbonPos.setXYZ(i * 2 + 1, s.x, levelTop ?? g + bandTop, s.y);
     }
     this.linePos.needsUpdate = true;
     this.ribbonPos.needsUpdate = true;

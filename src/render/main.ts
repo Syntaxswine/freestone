@@ -12,6 +12,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
 import {
   classifyRing,
+  effectiveGroundAt,
   nearestOnPolyline,
   planGates,
   polygonArea,
@@ -300,6 +301,9 @@ async function boot(): Promise<void> {
     camera,
     site,
     groundAt: groundSim,
+    // the survey that COUNTS stones runs on the sim's own ground (SIM 13
+    // parity law): the pencil's promise is the record's number exactly
+    countGround: (x, y) => effectiveGroundAt(world, site, x, y),
     heightBounds: { min: terrain.minH, max: terrain.maxH + 10 }, // fills raise the roof
     dom: renderer.domElement,
     onConfirm: (mode, points, height, material) =>
@@ -762,7 +766,11 @@ async function boot(): Promise<void> {
         const ring = planner.previewRing();
         const rc = ring ? classifyRing(ring, planner.height) : null;
         const autoGates = ring ? planGates(ring, planner.height) : [];
-        const s = planner.stats(autoGates);
+        // the count's datum follows the class: buildings level, walls step
+        const s = planner.stats(
+          autoGates,
+          planner.mode === 'building' || rc?.kind === 'building' ? 'level' : 'stepped',
+        );
         const fp = planner.footprint();
         const what = fp ? describeFootprint(fp.front, fp.depth) : null;
         let name = what && fp ? `${what.label} — ${fp.front.toFixed(0)}×${fp.depth.toFixed(0)} m · ` : '';

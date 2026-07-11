@@ -63,7 +63,7 @@ describe('ramps', () => {
     expect(effectiveGroundAt(world, site, 5, 9.99)).toBeCloseTo(1.998, 3);
   });
 
-  it('masonry grounds per-column on the slope', () => {
+  it('courses are LEVEL on the slope — the survey steps the footing (SIM 13)', () => {
     const { world, site } = run(
       [{ kind: 'plan_fill', tick: 0, points: RAMP_RING, height: 2, shape: 'ramp' }],
       1,
@@ -80,15 +80,76 @@ describe('ramps', () => {
         height: 0.5,
       },
     ]);
-    while (world.walls[0]!.stonesLaid < world.walls[0]!.stonesTotal) worldStep(world, site, []);
-    const low = world.stones.filter((s) => s.pos[1] < 3);
-    const high = world.stones.filter((s) => s.pos[1] > 7);
-    expect(low.length).toBeGreaterThan(0);
-    expect(high.length).toBeGreaterThan(0);
-    // same course, higher ground: the wall follows the ramp up
-    expect(Math.min(...high.map((s) => s.pos[2]))).toBeGreaterThan(
-      Math.max(...low.map((s) => s.pos[2])) - 0.25,
+    const w = world.walls[0]!;
+    while (w.stonesLaid < w.stonesTotal) worldStep(world, site, []);
+    const stones = world.stones.filter((s) => s.wallId === w.id);
+    const cols = new Map<string, { x: number; y: number; zs: number[] }>();
+    for (const s of stones) {
+      const key = `${s.pos[0].toFixed(6)}:${s.pos[1].toFixed(6)}`;
+      const col = cols.get(key) ?? { x: s.pos[0], y: s.pos[1], zs: [] };
+      col.zs.push(s.pos[2]);
+      cols.set(key, col);
+    }
+    const tops: number[] = [];
+    for (const col of cols.values()) {
+      // every stone sits on the ONE shared slab grid — the layers are even
+      for (const z of col.zs) {
+        const k = (w.levelTop - 0.125 - z) / 0.25;
+        expect(Math.abs(k - Math.round(k))).toBeLessThan(1e-9);
+      }
+      // a plain wall STEPS: each column's top covers its own ground + height
+      // within one slab (hillside practice — not one datum for 80 m of ring)
+      const g = effectiveGroundAt(world, site, col.x, col.y);
+      const top = Math.max(...col.zs) + 0.125; // the slab line the column reaches
+      expect(top).toBeGreaterThanOrEqual(g + 0.5 - 1e-9);
+      expect(top).toBeLessThan(g + 0.5 + 0.25);
+      tops.push(top);
+    }
+    // and on a 1.2 m bank the top genuinely steps rather than leveling
+    expect(Math.max(...tops) - Math.min(...tops)).toBeGreaterThan(0.5);
+    expect(w.stonesTotal).toBe(stones.length);
+  });
+
+  it("a BUILDING on the slope levels to ONE datum — the roof's flat bearing (SIM 13)", () => {
+    const { world, site } = run(
+      [{ kind: 'plan_fill', tick: 0, points: RAMP_RING, height: 2, shape: 'ramp' }],
+      1,
     );
+    while (world.fills[0]!.volumeMoved < world.fills[0]!.volumeTotal) worldStep(world, site, []);
+    // the doorway loop, set on the ramp's slope (ground 0.2 → 1.4 beneath it)
+    const loop: Vec2[] = [
+      { x: 5.55, y: 1 },
+      { x: 9, y: 1 },
+      { x: 9, y: 7 },
+      { x: 1, y: 7 },
+      { x: 1, y: 1 },
+      { x: 4.45, y: 1 },
+    ];
+    worldStep(world, site, [{ kind: 'plan_wall', tick: world.tick, points: loop, height: 3 }]);
+    const w = world.walls[0]!;
+    worldStep(world, site, [
+      { kind: 'choose_roof', tick: world.tick, wallId: w.id, roof: 'none' },
+    ]);
+    worldStep(world, site, [
+      { kind: 'designate', tick: world.tick, wallId: w.id, use: 'house' },
+    ]);
+    while (w.stonesLaid < w.stonesTotal) worldStep(world, site, []);
+    const cols = new Map<string, number[]>();
+    for (const s of world.stones) {
+      if (s.wallId !== w.id) continue;
+      const key = `${s.pos[0].toFixed(6)}:${s.pos[1].toFixed(6)}`;
+      const arr = cols.get(key) ?? [];
+      arr.push(s.pos[2]);
+      cols.set(key, arr);
+    }
+    // ONE flat datum: every column tops out at the same height, regardless
+    // of the ramp beneath (boss canon 2026-07-10 — leveled before the roof)
+    for (const zs of cols.values()) {
+      expect(Math.max(...zs)).toBeCloseTo(w.levelTop - 0.125, 9);
+    }
+    // and the downhill footing carries more stones, honestly billed
+    const counts = [...cols.values()].map((zs) => zs.length);
+    expect(Math.max(...counts)).toBeGreaterThan(Math.min(...counts));
   });
 
   it('an unknown fill shape is rejected with a constant reason', () => {

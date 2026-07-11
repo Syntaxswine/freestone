@@ -7,11 +7,12 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
-// 12: drawings before the build — a plotted building asks its ROOF then its
-// TRADE before the masons take it up (boss canon 2026-07-10: "when you plot
-// the building it should ask what the roof will be before they build") —
-// 11: uncovered spans; 10: enclosure designation; 9: doors; 8: ramps + roofs
-export const SIM_VERSION = 12;
+// 13: LEVEL COURSING — walls are surveyed at plan time (level top datum =
+// highest ground + height; horizontal course slabs; stepped, partly buried
+// footings downhill, honestly billed) so the layers are even regardless of
+// ground (boss canon 2026-07-10) — 12: drawings before the build; 11:
+// uncovered spans; 10: enclosure designation; 9: doors; 8: ramps + roofs
+export const SIM_VERSION = 13;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -60,6 +61,19 @@ export interface WallPlan {
    * (designate). A wall whose drawings hold a null waits unbuilt.
    */
   plans: { roof: BuildingRoof | null; kind: BuildingKind | null } | null;
+  /**
+   * THE SURVEY (SIM 13), frozen at plan time from the sim's own ground:
+   * courses are LEVEL slabs on one shared grid hung from levelTop (highest
+   * ground + height — boss canon 2026-07-10, "regardless of height the
+   * layers are even"). A column occupies courses slotStarts[s] ≤ c <
+   * slotEnds[s] (raw-slot indexed): building-class walls rise to ONE datum
+   * (a roof needs one flat bearing); plain walls STEP their tops with the
+   * land like hillside masonry, layers even throughout.
+   */
+  levelTop: number;
+  courses: number;
+  slotStarts: number[];
+  slotEnds: number[];
   stonesTotal: number;
   stonesLaid: number;
 }

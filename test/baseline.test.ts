@@ -135,8 +135,9 @@ const CANON_COMMANDS: Command[] = [
   },
   {
     kind: 'designate',
-    tick: 140,
-    wallId: 5022, // the tick-130 ring — deterministic id, probed
+    tick: 145, // the ring completes ~141 now — stepped footings on the bank
+    //           bill 629 stones where flat-count billed 420 (SIM 13, honest)
+    wallId: 5375, // the tick-130 ring — deterministic id, re-probed
     use: 'farm', // the word makes it arable; tending begins this very tick
   },
   {
@@ -157,13 +158,13 @@ const CANON_COMMANDS: Command[] = [
   {
     kind: 'choose_roof',
     tick: 205,
-    wallId: 5444, // the tick-150 plot (probed) — the drawings' FIRST answer
+    wallId: 6006, // the tick-150 plot (re-probed) — the drawings' FIRST answer
     roof: 'straw', // a thatched gable at completion (the dressing path)
   },
   {
     kind: 'designate',
     tick: 255,
-    wallId: 5444, // the second answer — the masons read a cot…
+    wallId: 6006, // the second answer — the masons read a cot…
     use: 'tavern', // …the lord keeps ale. The crew starts THIS tick: the 260
     //                milestone catches the shell MID-BUILD (~338 stones in)
   },
@@ -194,25 +195,25 @@ const CANON_COMMANDS: Command[] = [
   {
     kind: 'designate',
     tick: 355,
-    wallId: 6225, // the tick-340 gapped ring (re-probed under the SIM 12 id shifts)
+    wallId: 6909, // the tick-340 gapped ring (re-probed under the SIM 13 id shifts)
     use: 'livestock', // a paddock: its workdays must stay ZERO in every milestone
   },
   {
     kind: 'add_gate',
     tick: 360,
-    wallId: 5022, // the tick-130 farm ring's wall — deterministic id, probed
+    wallId: 5375, // the tick-130 farm ring's wall — deterministic id, re-probed
     at: { x: 2014, y: 1912 }, // a second gate knocked into the east wall
   },
   {
     kind: 'remove_gate',
     tick: 375,
-    wallId: 5022,
+    wallId: 5375,
     at: { x: 2014, y: 1912 }, // taken down again: the masons wall it back up
   },
   {
     kind: 'add_gate',
     tick: 350,
-    wallId: 5444, // the tick-150 house — SIM 9: the same tool cuts a DOOR
+    wallId: 6006, // the tick-150 tavern — SIM 9: the same tool cuts a DOOR
     at: { x: 2044, y: 1966 }, // a back door in the north wall
   },
   {
@@ -237,7 +238,7 @@ const CANON_COMMANDS: Command[] = [
   {
     kind: 'designate_roof',
     tick: 382,
-    roofId: 6223, // the tick-300 span (re-probed under SIM 12's later shell build)
+    roofId: 6907, // the tick-300 span (re-probed under SIM 13's footing bills)
     material: 'brick', // the covering chosen; decking begins, a floor above
   },
   {

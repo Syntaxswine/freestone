@@ -366,10 +366,19 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       // a plan that closes into a farm carves its gateway NOW: the builders
       // leave the opening as they build (boss canon 2026-07-10)
       const gates = planGates(cmd.points, cmd.height);
-      const { stonesTotal } = decomposeWall(cmd.points, cmd.height, gates);
       // a building-classifiable ring gets DRAWINGS (SIM 12): the roof and the
       // trade are asked at plot time, and the masons wait on the answers
       const rc = classifyRing(cmd.points, cmd.height);
+      // THE SURVEY (SIM 13): level courses off the sim's own ground, frozen
+      // here — buildings rise to ONE datum (a roof needs one flat bearing),
+      // plain walls step their tops with the land, layers even either way
+      const survey = surveyWall(
+        cmd.points,
+        cmd.height,
+        gates,
+        (x, y) => effectiveGroundAt(state, site, x, y),
+        rc?.kind === 'building' ? 'level' : 'stepped',
+      );
       const wall: WallPlan = {
         id: state.nextId++,
         points: cmd.points.map((p) => ({ x: p.x, y: p.y })),
@@ -378,7 +387,11 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         gates,
         infill: [],
         plans: rc?.kind === 'building' ? { roof: null, kind: null } : null,
-        stonesTotal,
+        levelTop: survey.levelTop,
+        courses: survey.courses,
+        slotStarts: survey.slotStarts,
+        slotEnds: survey.slotEnds,
+        stonesTotal: survey.stonesTotal,
         stonesLaid: 0,
       };
       state.walls.push(wall);
@@ -386,7 +399,7 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         kind: 'wall_planned',
         tick: state.tick,
         wallId: wall.id,
-        stonesTotal,
+        stonesTotal: survey.stonesTotal,
       });
       if (wall.plans !== null && rc?.kind === 'building') {
         state.pending.push(wall.id);
@@ -429,7 +442,12 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         }
       }
       state.stones = keep;
-      wall.stonesTotal = after.stonesTotal;
+      // the survey is frozen: the new total is the surviving columns' own
+      // per-column course counts (stepped footings and tops and all)
+      wall.stonesTotal = after.slots.reduce(
+        (n, s) => n + (wall.slotEnds[s]! - wall.slotStarts[s]!),
+        0,
+      );
       wall.stonesLaid -= removed;
       // a farm mirrors its gates; a building's door lives on the wall alone
       const farm = state.farms.find((f) => f.wallId === wall.id);
@@ -460,13 +478,23 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       const after = decomposeWall(wall.points, wall.height, wall.gates);
       // the reopened slots queue as infill: the masons wall the gateway back
       // up through the ordinary daily loop — fresh stones, fresh provenance,
-      // the walling-up crew's marks in the record
+      // the walling-up crew's marks in the record. Course-major, and each
+      // column only from its own surveyed footing up (SIM 13).
       const had = new Set(before.slots);
       const reopened = after.slots.filter((s) => !had.has(s));
-      for (let c = 0; c < after.courses; c++) {
-        for (const s of reopened) wall.infill.push({ course: c, slot: s });
+      let relay = 0;
+      for (let c = 0; c < wall.courses; c++) {
+        for (const s of reopened) {
+          if (wall.slotStarts[s]! <= c && c < wall.slotEnds[s]!) {
+            wall.infill.push({ course: c, slot: s });
+            relay += 1;
+          }
+        }
       }
-      wall.stonesTotal = after.stonesTotal;
+      wall.stonesTotal = after.slots.reduce(
+        (n, s) => n + (wall.slotEnds[s]! - wall.slotStarts[s]!),
+        0,
+      );
       const farm = state.farms.find((f) => f.wallId === wall.id);
       if (farm) {
         const fi = farm.gates.findIndex((g) => g.x === gate.x && g.y === gate.y);
@@ -476,7 +504,7 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         kind: 'gate_removed',
         tick: state.tick,
         wallId: wall.id,
-        stonesToRelay: reopened.length * after.courses,
+        stonesToRelay: relay,
       });
       break;
     }
@@ -543,8 +571,9 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       break;
     }
     case 'plan_roof': {
-      // the deck sits on the HIGHEST supporting wall top among the corners;
-      // each corner's support was validated to exist
+      // the deck sits on the HIGHEST supporting wall top among the corners —
+      // and since SIM 13 a wall's top IS its surveyed level datum, so the
+      // deck meets the masonry exactly; each corner's support was validated
       const pts = cmd.points.map((p) => ({ x: p.x, y: p.y }));
       let level = -Infinity;
       for (const v of pts) {
@@ -552,8 +581,7 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
           if (w.stonesLaid < w.stonesTotal) continue;
           const q = nearestOnPolyline(w.points, v);
           if (dist(v.x, v.y, q.x, q.y) <= ROOF_SNAP) {
-            const top = effectiveGroundAt(state, site, v.x, v.y) + w.height;
-            if (top > level) level = top;
+            if (w.levelTop > level) level = w.levelTop;
           }
         }
       }
@@ -735,6 +763,81 @@ export function decomposeWall(
 }
 
 /**
+ * THE SURVEY (SIM 13, boss canon 2026-07-10: "leveled the stone wall … so
+ * regardless of height the layers are even"): real masons build LEVEL courses
+ * off a stepped footing, not courses that ride the ground. Every course is a
+ * horizontal slab on ONE shared grid hung from the wall's datum (highest
+ * ground + height), and each column's footing stone may sit partly buried,
+ * as real footings do. Two honest datums:
+ *
+ * - 'level' (building-class rings — a roof needs one flat bearing): every
+ *   column rises to THE datum. Downhill columns take extra footing courses,
+ *   honestly billed.
+ * - 'stepped' (plain walls and field rings — hillside practice): each
+ *   column's top is its own ground + height rounded UP to the shared grid,
+ *   so the layers stay even while the wall TOP steps with the land. A field
+ *   ring crossing the gorge bank costs what it always cost, not four times
+ *   more (the probe caught the single-datum bill: 420 → 1921 stones).
+ *
+ * slotStarts/slotEnds are indexed by RAW slot (gate ops never shift the
+ * alignment): a column occupies courses start ≤ c < end. The survey runs
+ * ONCE at plan time on the sim's own ground and is FROZEN on the wall — the
+ * masons set out the works from the survey, not from ground that may move.
+ * One function serves sim and pencil (the parity law), so the promised stone
+ * count is the record's.
+ */
+export function surveyWall(
+  points: readonly Vec2[],
+  height: number,
+  gates: readonly Vec2[],
+  groundAt: (x: number, y: number) => number,
+  datum: 'level' | 'stepped' = 'stepped',
+): {
+  levelTop: number;
+  courses: number;
+  slotStarts: number[];
+  slotEnds: number[];
+  slots: number[];
+  spacing: number;
+  stonesTotal: number;
+} {
+  const { slots, spacing } = decomposeWall(points, height, gates);
+  const raw = Math.max(1, Math.floor(polylineLength(points) / STONE_LEN));
+  // sample every column's ground once — the grid hangs from the highest
+  const grounds: number[] = [];
+  let gMax = -Infinity;
+  for (let s = 0; s < raw; s++) {
+    const at = pointAt(points, (s + 0.5) * spacing);
+    const g = groundAt(at.x, at.y);
+    grounds.push(g);
+    if (g > gMax) gMax = g;
+  }
+  const levelTop = gMax + height;
+  // per column: slabs below the datum where its TOP sits (0 for 'level'),
+  // and how many slabs it stacks from the one containing its ground
+  const tops = grounds.map((g) =>
+    datum === 'level'
+      ? 0
+      : Math.max(0, Math.floor((levelTop - (g + height)) / COURSE_HEIGHT + 1e-9)),
+  );
+  const counts = grounds.map((g, s) =>
+    Math.max(
+      1,
+      Math.ceil((levelTop - tops[s]! * COURSE_HEIGHT - g) / COURSE_HEIGHT - 1e-9),
+    ),
+  );
+  let courses = 1;
+  for (let s = 0; s < raw; s++) {
+    if (tops[s]! + counts[s]! > courses) courses = tops[s]! + counts[s]!;
+  }
+  const slotStarts = grounds.map((_, s) => courses - tops[s]! - counts[s]!);
+  const slotEnds = grounds.map((_, s) => courses - tops[s]!);
+  let stonesTotal = 0;
+  for (const s of slots) stonesTotal += slotEnds[s]! - slotStarts[s]!;
+  return { levelTop, courses, slotStarts, slotEnds, slots, spacing, stonesTotal };
+}
+
+/**
  * A farm always gets its gate (boss canon 2026-07-10): when a plan's ring
  * closes at farm height, a gateway is carved into the FIRST segment placed —
  * the builders leave the opening as they build; nobody knocks a hole in a
@@ -815,26 +918,48 @@ function layOneStone(
   masonId: number,
 ): void {
   const { slots, spacing } = decomposeWall(wall.points, wall.height, wall.gates);
-  let course: number;
-  let slot: number;
+  let course = -1;
+  let slot = -1;
   if (wall.infill.length > 0) {
     // walling a removed gate back up: explicit slots, bottom course first
     const job = wall.infill.shift()!;
     course = job.course;
     slot = job.slot;
   } else {
-    // the initial build: the slot list is stable for a wall's whole first
-    // life (gate ops are legal only on complete, idle walls), so the plain
-    // counter mapping stays sound
-    const i = wall.stonesLaid;
-    course = Math.floor(i / slots.length);
-    slot = slots[i % slots.length]!;
+    // the initial build walks the SURVEY's slab grid bottom-up (SIM 13): a
+    // course is laid clear across every column deep enough to hold it, so
+    // the wall rises in LEVEL layers the way real coursework does. The
+    // enumeration is stable for a wall's whole first life (gate ops are
+    // legal only on complete, idle walls).
+    let i = wall.stonesLaid;
+    for (let c = 0; c < wall.courses && slot === -1; c++) {
+      let n = 0;
+      for (const s of slots) {
+        if (wall.slotStarts[s]! <= c && c < wall.slotEnds[s]!) n += 1;
+      }
+      if (i < n) {
+        let k = -1;
+        for (const s of slots) {
+          if (wall.slotStarts[s]! <= c && c < wall.slotEnds[s]!) {
+            k += 1;
+            if (k === i) {
+              slot = s;
+              break;
+            }
+          }
+        }
+        course = c;
+      } else {
+        i -= n;
+      }
+    }
+    if (slot === -1) return; // unreachable: the caller checks laid < total
   }
 
   const at = pointAt(wall.points, (slot + 0.5) * spacing);
 
-  const ground = effectiveGroundAt(state, site, at.x, at.y);
-  const z = ground + course * COURSE_HEIGHT + COURSE_HEIGHT / 2;
+  // LEVEL courses hang from the surveyed datum — never from live ground
+  const z = wall.levelTop - (wall.courses - course) * COURSE_HEIGHT + COURSE_HEIGHT / 2;
   // The human hand: a degree or two of jitter per stone. Uses the sim rng, so the
   // determinism tests exercise the cursor path. Quantized to 1e-9 rad before it
   // enters state: Math.atan2 is implementation-approximated in ECMA-262, and ulp
@@ -982,14 +1107,11 @@ export function recognizeEnclosure(state: WorldState, site: SiteData, wall: Wall
     if (building.roof === 'brick') {
       // flat brick adds another layer (boss canon 2026-07-10): the chosen
       // roof is a REAL span over the footprint — decked by laborers through
-      // the daily loop, and ground for the next storey when complete
+      // the daily loop, and ground for the next storey when complete. It
+      // bears on the wall's surveyed level datum (SIM 13), flush by law.
       const reduced = reduceCorners(wall.points);
       const pts = reduced.length >= 3 ? reduced : wall.points.map((p) => ({ x: p.x, y: p.y }));
-      let level = -Infinity;
-      for (const p of pts) {
-        const top = effectiveGroundAt(state, site, p.x, p.y) + wall.height;
-        if (top > level) level = top;
-      }
+      const level = wall.levelTop;
       const area = polygonArea(pts);
       const roof = {
         id: state.nextId++,
