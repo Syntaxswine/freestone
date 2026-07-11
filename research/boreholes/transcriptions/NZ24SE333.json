@@ -1,0 +1,30 @@
+{
+  "bgs_id": 12698541,
+  "reference": "NZ24SE333",
+  "name": "HOUGHALL FARM , DURHAM",
+  "easting": 427890,
+  "northing": 540250,
+  "surface_od_m": { "value": null, "qualifier": "absent — 'Ground Level (if known)' box on WR-38 left blank; WR39/2 recovery sheet datum box (p5) carries 'ELV 158FT'" },
+  "year": 2002,
+  "pages": 9,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from typed/handwritten site-investigation record",
+  "intervals": [
+    { "i": 1, "verbatim": "HARDCORE", "class": "drift", "modifiers": [], "thickness_m": 0.50, "depth_m": 0.50, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 2, "verbatim": "GRAVEL", "class": "drift", "modifiers": [], "thickness_m": 7.00, "depth_m": 7.50, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 3, "verbatim": "BOULDER CLAY", "class": "drift", "modifiers": [], "thickness_m": 11.50, "depth_m": 19.00, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 4, "verbatim": "SANDSTONE WITH MUDSTONE BANDS", "class": "sandstone", "modifiers": [], "thickness_m": 12.00, "depth_m": 31.00, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 5, "verbatim": "COAL", "class": "coal", "modifiers": [], "thickness_m": 0.90, "depth_m": 31.90, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 6, "verbatim": "SHALE", "class": "mudstone", "modifiers": [], "thickness_m": 0.50, "depth_m": 32.40, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 7, "verbatim": "SANDSTONE", "class": "sandstone", "modifiers": [], "thickness_m": 2.60, "depth_m": 35.00, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 8, "verbatim": "SILTSTONE WITH MUDSTONE", "class": "siltstone", "modifiers": [], "thickness_m": 4.00, "depth_m": 39.00, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 9, "verbatim": "COAL WITH SHALE BANDS", "class": "coal", "modifiers": [], "thickness_m": 3.70, "depth_m": 42.70, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 10, "verbatim": "SILTSTONE", "class": "siltstone", "modifiers": [], "thickness_m": 3.30, "depth_m": 46.00, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 11, "verbatim": "SHALE WITH SILTSTONE BANDS", "class": "mudstone", "modifiers": [], "thickness_m": 9.50, "depth_m": 55.50, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 12, "verbatim": "GREY SANDSTONE", "class": "sandstone", "modifiers": ["grey"], "thickness_m": 2.50, "depth_m": 58.00, "seam": null, "annotations": [], "confidence": "clear" },
+    { "i": 13, "verbatim": "BROKEN SANDSTONE", "class": "sandstone", "modifiers": ["broken"], "thickness_m": 1.00, "depth_m": 59.00, "seam": null, "annotations": [], "confidence": "clear" }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Water borehole record (BGS Form WR-38, Hydrogeology Research Group) for Houghall Farm Ltd dairy farm, drilled by Dales Water Services Ltd, commenced 21/11/02 completed 26/11/02, drilled to 59 m, agricultural supply. Strata log is on page 2 only (handwritten, thickness/depth in m); all 13 intervals sum cleanly, final depth 59.00 m. No seam names and no pencil seam-correlation marginalia anywhere in the scan. Ground Level box on the WR-38 is blank; the WR39/2 recovery sheet datum box (p5) reads 'ELV 158FT' (~48.2 m), the only surface-elevation hint — datum for water levels is EDGE OF MANHOLE, 60 cm above GL. Water: no 'water struck at' recorded; test pumping (WR-38 sect. C) water level 2.85 mbd at start, 3.35 mbd at end, pumping 16.79 m3/hour for 24 hours, recovery to 3.14 mbd in 12 hrs. Casing: 150 mm plain steel GL to 19.50 m, 125 mm slotted steel 18.50 to 59 m; plain casing annulus pressure grouted. Non-strata pages: p1 WR-38 header/construction/test-pumping form; p3 EA WR39/1(A) constant-rate pumping test readings 4/2/03 (discharge to pond, overflow to River Wear, pump depth 22 m); p4 WR39/4 continuation sheet 5/2/03; p5 WR39/2 recovery readings 5/2/03; p6-7 ALcontrol Laboratories water chemistry Certificate of Analysis (ref 'Houghall College', sampled 05/12/02; iron, manganese, magnesium and total coliforms flagged Fail); p8 handwritten cover note (OUR REF C 6354, E.A. REF CON 24/5/006, 'Borehole drilled for agricultural use on a dairy farm'); p9 photo sheet (test equipment; discharge point to pond, overflow to River Wear). Strata depths assumed below ground level (log does not restate the manhole datum)."
+}

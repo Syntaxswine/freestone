@@ -1,0 +1,72 @@
+{
+  "bgs_id": 18583835,
+  "reference": "NZ24SE687",
+  "name": "LAND AT GILESGATE DURHAM X",
+  "easting": 428572,
+  "northing": 542683,
+  "surface_od_m": { "value": null, "qualifier": "absent — O D LEVEL column blank on all three sheets; no Ground Level (m AOD) box on this logsheet format" },
+  "year": 1995,
+  "pages": 4,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from typed logsheet — depth = base of interval below ground",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "MADE GROUND - Hardcore and boulder fill.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 1.5,
+      "depth_m": 1.5,
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "Soft to firm brown and grey silty laminated sandy CLAY with numerous sandy partings and sand bands.",
+      "class": "drift",
+      "modifiers": ["soft to firm"],
+      "thickness_m": 16.5,
+      "depth_m": 18.0,
+      "seam": null,
+      "annotations": ["water: 'Water struck at 9.80m. Sealed off at 12.00m.' (Water Observations box, sheet 1)"],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "Brown and grey very silty fine to medium grained SAND.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 12.2,
+      "depth_m": 30.2,
+      "seam": null,
+      "annotations": ["interval spans sheets 1-2; description repeated at top of sheet 2; base 30.20 read from sheet 2 depth column"],
+      "confidence": "clear"
+    },
+    {
+      "i": 4,
+      "verbatim": "Brown fine to medium grained slightly silty SAND with some fine to medium gravel.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 13.1,
+      "depth_m": 43.3,
+      "seam": null,
+      "annotations": ["interval spans sheets 2-3; description repeated at top of sheet 3; base 43.30 read from sheet 3 depth column"],
+      "confidence": "clear"
+    },
+    {
+      "i": 5,
+      "verbatim": "Stiff dark brown BOULDER CLAY.",
+      "class": "drift",
+      "modifiers": ["stiff"],
+      "thickness_m": 6.7,
+      "depth_m": 50.0,
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Typed Dunelm Drilling Company logsheet (TEL 091-526-2534), 3 sheets, Borehole No BH X. Client: WELSH AND BAKER; Job No C 7567; Location: CUSSINS HOMES LAND AT GILESGATE; Date: FEBRUARY 1995; Scale 1 to 100; Boring method: CABLE PERCUSSIVE/ROTARY. Remarks (sheet 1): 'Shell and auger techniques from GL to 25.00m. Rotary techniques from 25.00m to 50.00m.' and 'Cased hole to 42.00m.' Drilling & Casing Progress column shows 13TH-16TH (February 1995 shift dates). Page 4 is a 1:1250 Development Plan (location plan) with BH X marked between Gilesgate and the Bowling Green, hand-annotated '[WOOD + WATSON]'; no strata content. Road spot height 'GILESGATE + 88.8m' appears on the plan near the site but is NOT the borehole datum and was not used. Entire hole is superficial deposits (Wear buried-valley fill: made ground, laminated clay, sands, basal boulder clay); bedrock NOT reached at 50.00 m final depth. No coal, no seam marks, no pencil marginalia. No SPT values or samples recorded on any sheet. No clerk arithmetic to cross-check (thickness derived from successive depth-column figures 1.50/18.00/30.20/43.30/50.00; all consistent)."
+}

@@ -1,0 +1,16 @@
+{
+  "bgs_id": 18548281,
+  "reference": "NZ24SE679",
+  "name": "5 MAYORSWELL FIELD, DURHAM P 1",
+  "easting": 428021,
+  "northing": 542872,
+  "surface_od_m": { "value": null, "qualifier": "absent" },
+  "year": 1995,
+  "pages": 3,
+  "units_system": "m",
+  "units": "metres (dynamic probe depths, typed) — no lithological intervals present",
+  "intervals": [],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "NO STRATA LOG in this record — all three pages carry zero lithological descriptions. Page 1: 'DYNAMIC PROBE RECORD SHEET', CONTRACT C7488, SITE DURHAM, POSITION NO.1, DATE 02/02/95, SHT 1 OF 2. Columns DEPTH (m) / N100 / SPT 'N', readings at 0.3 m steps: 0.3:5/3, 0.6:3/2, 0.9:2/1, 1.2:2/1, 1.5:4/3, 1.8:9/6, 2.1:13/9, 2.4:10/7, 2.7:10/7, 3:12/8, 3.3:9/6, 3.6:10/7, 3.9:14/9, 4.2:15/10, 4.5:16/11, 4.8:16/11, 5.1:14/9, 5.4:17/11, 5.7:17/11, 6:16/11; plus N100-vs-depth bar chart. Page 2: same sheet SHT 2 OF 2, readings 6.3:18/12, 6.6:21/14, 6.9:18/12, 7.2:23/15, 7.5:26/17; depth column pre-printed on to 12 m but N100/SPT cells blank below 7.5 m — probing evidently terminated at 7.5 m. Page 3: SITE PLAN 1:100 (drawing no. JA 3368/01) showing BH1, TP1, TP2, P1, P4 positions, 'Slope of site (Approx 1 in 10)', 'LILAC M/S 2.5m high', Conc(rete) areas, RWP, SVP, gullies — no strata. No Ground Level (m AOD) box anywhere, so surface OD absent. Index depth_m of 705 does NOT match the content: deepest actual probe reading is 7.5 m; 705 is almost certainly a decimal/units slip for 7.05 m (or an index error) — nothing in these pages approaches 705 m. Name says 'P 1' (probe 1), consistent with POSITION NO.1."
+}

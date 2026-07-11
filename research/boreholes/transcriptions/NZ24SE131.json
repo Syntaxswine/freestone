@@ -1,0 +1,85 @@
+{
+  "bgs_id": 848062,
+  "reference": "NZ24SE131",
+  "name": "DURHAM UNIV SCIENCE LABS 3",
+  "easting": 427705,
+  "northing": 541188,
+  "surface_od_m": { "value": 95, "qualifier": "Height - 95 m AOD" },
+  "year": 1983,
+  "pages": 1,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from typed driller's log",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "Drift clay and sand, unstable sides and casing had to be inserted.  Rockhead into sandstone at 46.62 m.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 46.62,
+      "depth_m": 46.62,
+      "seam": null,
+      "annotations": ["entire drift logged as one 0 - 46.62 m unit (air-flush hole, unstable sides, cased)", "rockhead at 46.62 m stated in original text"],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "Sandstone.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_m": 0.49,
+      "depth_m": 47.11,
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "Shale.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_m": 0.35,
+      "depth_m": 47.46,
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 4,
+      "verbatim": "Coal believed to be the Maudlin Seam (H).",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_m": 0.44,
+      "depth_m": 47.90,
+      "seam": "Maudlin",
+      "annotations": ["seam identification is the driller's/geologist's belief, not proven ('believed to be')", "the typed '(H)' after 'Maudlin Seam' is clear on the page but its meaning is not stated; possibly an identifier code"],
+      "confidence": "clear"
+    },
+    {
+      "i": 5,
+      "verbatim": "Interbedded sandstone and shale.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_m": 2.85,
+      "depth_m": 50.75,
+      "seam": null,
+      "annotations": ["mixed lithology: interbedded sandstone and shale; no dominant stated — classed mudstone with sandstone content noted"],
+      "confidence": "clear"
+    },
+    {
+      "i": 6,
+      "verbatim": "Sandstone.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_m": 0.70,
+      "depth_m": 51.45,
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [
+    { "seam": "Maudlin", "at_interval": 4, "how": "named in original: 'Coal believed to be the Maudlin Seam (H).'" }
+  ],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Single-page typed summary log, not a tabular site-investigation sheet: header (Drilled May 1983; Position 50 m S 30 deg E of the SE corner of the Psychology Building, University Science Laboratories, Durham, on the site of the Mountjoy Research Centre, Grid Reference NZ 27714118; Height 95 m AOD; Direction Vertical; Driller Mr. P. Turner of C.H. Stevenson and Co. (Blasting) Ltd., South Shore Road, Gateshead for Soils Engineering of Middlesbrough; Rig Air flush; Cores examined by Mr. P. Turner (driller)) followed by a six-line depth-range log. Original note on page: 'This log was supplied by the driller after the hole was completed. No rock samples were seen by G.A.L.J.' — so lithologies are driller-reported. Depth ranges are given as from-to in metres; thicknesses computed from the ranges are internally consistent (each top equals the previous base), final depth 51.45 m matches the BGS index depth. No Reduced Level column, no pencil marginalia. Handwritten header scrawl reads roughly 'NZ26SE 131' but the registration stamp and BGS banner both give NZ 24 SE/131 — treated as sloppy handwriting of the same registration number, not a disagreement."
+}

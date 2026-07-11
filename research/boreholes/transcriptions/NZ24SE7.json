@@ -1,0 +1,2287 @@
+{
+  "bgs_id": 847769,
+  "reference": "NZ24SE7",
+  "name": "SNIPERLEY FARM 38",
+  "easting": 425617,
+  "northing": 544139,
+  "surface_od_ft": {
+    "value": 365.2,
+    "qualifier": "as written: +365.20 ft O.D. (commenced level; typed identically on pp.1 & 6). Site given as NZ 2561844132; sketch map labels it 'Bearpark BH.38'."
+  },
+  "year": 1957,
+  "pages": 7,
+  "units_system": "ffi",
+  "units": "feet/inches (this form has no fathoms column; [fathoms,feet,inches] arrays carry fathoms=0). Thickness DERIVED from the fully-populated depth column of the geologist's log (see notes); depths transcribed verbatim.",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "Soil.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        2,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "Sand.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        8,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        10,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "Sand and gravel.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        40,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        50,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 4,
+      "verbatim": "Sand and clay.",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        7,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        57,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 5,
+      "verbatim": "Grey shale.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        60,
+        0
+      ],
+      "seam": null,
+      "annotations": [
+        "'OPEN HOLE' (uncored) to 60 ft"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 6,
+      "verbatim": "Mudstone, grey, shaly and silty, broken.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        5,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        65,
+        0
+      ],
+      "seam": null,
+      "annotations": [
+        "cored from 60 ft; geologist note: base of unconsolidated deposits at 57 ft"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 7,
+      "verbatim": "Shale, grey, muddy with mudstone bands, Anthracosia at 67ft., broken.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        68,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 8,
+      "verbatim": "Sandstone, grey, ironstained, rooty at top, thin-bedded with frequent sandy-shale bands, micaceous partings, jointed and broken.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        64,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        132,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 9,
+      "verbatim": "Sandstone, fine to medium-grained, mainly massive, with occasional shale bands, broken.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        36,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        168,
+        3
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 10,
+      "verbatim": "Shale, grey, muddy, plant debris and ironstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        9
+      ],
+      "depth_ffi": [
+        0,
+        170,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 11,
+      "verbatim": "Shale, grey, with ironstone bands, dark at base, Anthracosia in basal 6ins.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        173,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 12,
+      "verbatim": "COAL, very broken. 100% Recovery. LOW MAIN (J)",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        176,
+        8
+      ],
+      "seam": "Low Main",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 13,
+      "verbatim": "Mudstone, grey, silty and sandy.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        177,
+        8
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 14,
+      "verbatim": "Alternating light-grey fine-grained wispy-bedded sandstone with bands of sandy-mudstone with plant debris.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        14,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        191,
+        8
+      ],
+      "seam": null,
+      "annotations": [
+        "interbedded sandstone / sandy-mudstone"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 15,
+      "verbatim": "Shale, grey, muddy, rather silty, with well-preserved plant remains, broken.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        6,
+        4
+      ],
+      "depth_ffi": [
+        0,
+        198,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 16,
+      "verbatim": "Shale, grey, with sandy partings and abundant plants.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        199,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 17,
+      "verbatim": "Sandstone, white, fine-grained, very thin-bedded, shaly with sandy-shale bands and partings.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        4,
+        8
+      ],
+      "depth_ffi": [
+        0,
+        203,
+        8
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 18,
+      "verbatim": "COAL, broken.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        4
+      ],
+      "depth_ffi": [
+        0,
+        205,
+        0
+      ],
+      "seam": "Top Brass Thill",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 19,
+      "verbatim": "Shale, dark, carbonaceous.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        205,
+        2
+      ],
+      "seam": null,
+      "annotations": [
+        "TOP BRASS THILL (K1) brackets coal(18)-shale(19)-coal(20)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 20,
+      "verbatim": "COAL, broken.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        10
+      ],
+      "depth_ffi": [
+        0,
+        206,
+        0
+      ],
+      "seam": "Top Brass Thill",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 21,
+      "verbatim": "Seat-earth-mudstone, grey with abundant roots.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        206,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 22,
+      "verbatim": "Mudstone, grey, silty, rooty, broken and shaly at base.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        4,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        211,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 23,
+      "verbatim": "Shale, grey, muddy with roots and sandy bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        212,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 24,
+      "verbatim": "Shale, grey, silty, small slickensides, roots at top.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        213,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 25,
+      "verbatim": "COAL, broken. BTM. BRASS THILL (K2)",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        8
+      ],
+      "depth_ffi": [
+        0,
+        213,
+        8
+      ],
+      "seam": "Bottom Brass Thill",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 26,
+      "verbatim": "Seat-earth-mudstone, very broken.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        214,
+        8
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 27,
+      "verbatim": "Mudstone, grey, silty with abundant roots.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        4
+      ],
+      "depth_ffi": [
+        0,
+        215,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 28,
+      "verbatim": "Sandstone, white and pale-brown, fine-grained, thin-bedded occasional sandy-shale bands at top.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        12,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        227,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 29,
+      "verbatim": "Shale, grey, silty with sandstone partings and frequent carbonaceous plant fragments.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        5,
+        11
+      ],
+      "depth_ffi": [
+        0,
+        233,
+        5
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 30,
+      "verbatim": "Mudstone, grey, shaly, occasional silty bands, scattered plant debris and ironstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        4,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        237,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 31,
+      "verbatim": "Shale, grey with silty partings and ironstone bands, scattered mussels at 240ft. and 243ft.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        11,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        248,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 32,
+      "verbatim": "Sandstone, white, fine-grained, thin-bedded.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        249,
+        8
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 33,
+      "verbatim": "Shale, grey, with silty partings and comminuted plant remains, micaceous, ironstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        9
+      ],
+      "depth_ffi": [
+        0,
+        253,
+        5
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 34,
+      "verbatim": "COAL, very broken. 100% Recovery. TOP HUTTON (L1)",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        255,
+        6
+      ],
+      "seam": "Top Hutton",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 35,
+      "verbatim": "Seat-earth-mudstone, grey, very sandy and broken, ironstone nodules.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        7,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        262,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 36,
+      "verbatim": "Mudstone, grey, rooty with abundant ironstone nodules, plant remains and coaly partings at base.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        6,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        269,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 37,
+      "verbatim": "Shale, black, with coaly films, abundant plants, slickensided.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        269,
+        2
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 38,
+      "verbatim": "Seat-earth-mudstone, black.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        8
+      ],
+      "depth_ffi": [
+        0,
+        269,
+        10
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 39,
+      "verbatim": "COAL, inferior.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        5
+      ],
+      "depth_ffi": [
+        0,
+        270,
+        3
+      ],
+      "seam": "Bottom Hutton",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 40,
+      "verbatim": "COAL, broken.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        271,
+        5
+      ],
+      "seam": "Bottom Hutton",
+      "annotations": [
+        "BTM. HUTTON SEAM (L2) brackets coal(39)-coal(40)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 41,
+      "verbatim": "Seat-earth-mudstone, light-brown.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        7
+      ],
+      "depth_ffi": [
+        0,
+        272,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 42,
+      "verbatim": "Sandstone, greyish-white, fine-grained, thin-bedded, rooty at top.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        5,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        277,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 43,
+      "verbatim": "Shale, grey, rooty with sandy and silty bands, graded, bedded.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        279,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 44,
+      "verbatim": "COAL.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        279,
+        8
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 45,
+      "verbatim": "Seat-earth-mudstone.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        8
+      ],
+      "depth_ffi": [
+        0,
+        281,
+        4
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 46,
+      "verbatim": "COAL, inferior, with small bands.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        10
+      ],
+      "depth_ffi": [
+        0,
+        282,
+        2
+      ],
+      "seam": null,
+      "annotations": [
+        "pencil marginalia on borer's-journal copy (p.7), same depth: '? PLESSEY' (uncertain)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 47,
+      "verbatim": "Seat-earth-mudstone, brown, with large ironstone nodules.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        9
+      ],
+      "depth_ffi": [
+        0,
+        282,
+        11
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 48,
+      "verbatim": "Shale, dark-grey, rooty.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        283,
+        5
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 49,
+      "verbatim": "Shale, dark-grey, with abundant Anthracosia, Naiadites and Spirorbis.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        4
+      ],
+      "depth_ffi": [
+        0,
+        283,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 50,
+      "verbatim": "Shale, dark, smooth, canneloid, with plants.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        283,
+        10
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 51,
+      "verbatim": "Shale, grey, silty with Neuropteris and Anthracosia.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        285,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 52,
+      "verbatim": "Shale, dark, muddy.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        285,
+        3
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 53,
+      "verbatim": "Seat-earth-mudstone, dark.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        285,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 54,
+      "verbatim": "Shale, grey, with few silty partings at top, ironstone bands (6ins. ironstone band at 289ft.), mussels, Anthracosia and Naiadites at 298ft., scattered plants at 295ft.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        16,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        301,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 55,
+      "verbatim": "Shale, dark, with abundant plants.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        302,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 56,
+      "verbatim": "COAL, broken. 100% Recovery.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        10
+      ],
+      "depth_ffi": [
+        0,
+        302,
+        10
+      ],
+      "seam": null,
+      "annotations": [
+        "pencil marginalia on borer's-journal copy (p.7): '? B.PL' (uncertain, possibly Bottom Plessey)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 57,
+      "verbatim": "Mudstone, grey, sandy with roots.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        9
+      ],
+      "depth_ffi": [
+        0,
+        303,
+        7
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 58,
+      "verbatim": "Alternating silty mudstone and fine white sandstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        9,
+        11
+      ],
+      "depth_ffi": [
+        0,
+        313,
+        6
+      ],
+      "seam": null,
+      "annotations": [
+        "interbedded silty mudstone / fine sandstone"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 59,
+      "verbatim": "Sandstone, white, fine-grained, thin-bedded at top, massive at base.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        6,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        319,
+        7
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 60,
+      "verbatim": "Shale, grey, muddy.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        321,
+        10
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 61,
+      "verbatim": "COAL.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        10
+      ],
+      "depth_ffi": [
+        0,
+        322,
+        8
+      ],
+      "seam": null,
+      "annotations": [
+        "pencil marginalia on borer's-journal copy (p.7): '? R. PLESSEY' (uncertain; brace groups the 322-323 ft coals)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 62,
+      "verbatim": "Shale, dark, carbonaceous.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        322,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 63,
+      "verbatim": "COAL, inferior.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        323,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 64,
+      "verbatim": "Sandstone, grey and white, fine-grained, thin-bedded, rooty at top, wispy-bedded with bands of sandy mudstone, scattered plants.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        9,
+        9
+      ],
+      "depth_ffi": [
+        0,
+        332,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 65,
+      "verbatim": "Shale, grey with silty partings and ironstone bands, scattered plant debris at top, mussel traces at base.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        11,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        343,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 66,
+      "verbatim": "Shale, grey, muddy, silty partings with scattered mussels.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        345,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 67,
+      "verbatim": "Shale, grey, with frequent mussels.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        345,
+        3
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 68,
+      "verbatim": "Shale, grey, silty with occasional sandy bands, abundant mussels, Naiadites and Anthracosia.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        5,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        350,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 69,
+      "verbatim": "Mudstone, dark-grey, broken, occasional thick ironstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        354,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 70,
+      "verbatim": "Mudstone, grey, with abundant mussels, Anthracosia, pyritised Naiadites and ironstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        4,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        358,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 71,
+      "verbatim": "Mudstone, dark-grey, silty, barren.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        359,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 72,
+      "verbatim": "Mudstone, dark-grey, shaly with abundant mussels, very broken, silty at base.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        361,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 73,
+      "verbatim": "Mudstone, grey, broken and silty, shaly at base, with scattered mussels.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        9
+      ],
+      "depth_ffi": [
+        0,
+        364,
+        3
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 74,
+      "verbatim": "Shale, grey, silty with abundant Lingulae. HARVEY MARINE BAND.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        364,
+        6
+      ],
+      "seam": null,
+      "annotations": [
+        "marine band (Lingula)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 75,
+      "verbatim": "COAL. 100% Recovery.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        5
+      ],
+      "depth_ffi": [
+        0,
+        364,
+        11
+      ],
+      "seam": null,
+      "annotations": [
+        "pencil marginalia on borer's-journal copy (p.7): 'AMB' (uncertain)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 76,
+      "verbatim": "Seat-earth-mudstone, grey, silty.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        368,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 77,
+      "verbatim": "Seat-earth-mudstone, dark, soft.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        370,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 78,
+      "verbatim": "Mudstone, dark-brown, slickensided.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        370,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 79,
+      "verbatim": "Shale, brownish-grey with plant debris.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        370,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 80,
+      "verbatim": "Sandstone, light-grey, fine-grained, thin-bedded, with shaly partings at base.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        373,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 81,
+      "verbatim": "Mudstone, grey, silty with ironstone nodules and occasional plants, sandy at base.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        376,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 82,
+      "verbatim": "Sandstone, white, fine-grained, wispy-bedded.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        378,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 83,
+      "verbatim": "Shale, grey, sandy, slightly muddy, with thin sandstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        4,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        382,
+        7
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 84,
+      "verbatim": "Mudstone, grey, shaly, dark at base, with abundant plants.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        5
+      ],
+      "depth_ffi": [
+        0,
+        383,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 85,
+      "verbatim": "COAL, broken. 60% Recovery.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        383,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 86,
+      "verbatim": "Sandstone, grey, fine-grained, thin-bedded with sandy rooty mudstone bands.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        5,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        388,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 87,
+      "verbatim": "Shale, grey, muddy with large ironstone nodules and silty bands, frequent roots at base.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        391,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 88,
+      "verbatim": "Mudstone, grey with abundant roots, silty at base.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        10
+      ],
+      "depth_ffi": [
+        0,
+        394,
+        4
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 89,
+      "verbatim": "Shale, dark-grey, silty with mussels, Spirorbis and Ostracods. HOPKINS BAND.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        394,
+        6
+      ],
+      "seam": null,
+      "annotations": [
+        "mussel/faunal band"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 90,
+      "verbatim": "COAL, bright. 100% Recovery. HARVEY SEAM (N)",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        396,
+        6
+      ],
+      "seam": "Harvey",
+      "annotations": [
+        "pencil marginalia on borer's-journal copy (p.7) beside HARVEY (N): '4.Bd. Beaumont' (uncertain)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 91,
+      "verbatim": "Seat-earth-mudstone, brownish.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        396,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 92,
+      "verbatim": "Sandstone, white, fine-grained, thin and wispy-bedded.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        397,
+        3
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 93,
+      "verbatim": "Shale, grey with silty partings.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        399,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 94,
+      "verbatim": "Shale, grey, silty with scattered roots.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        400,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 95,
+      "verbatim": "Shale, black, muddy, silty at base, slickensided, with plants.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        1
+      ],
+      "depth_ffi": [
+        0,
+        401,
+        1
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 96,
+      "verbatim": "COAL.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        2
+      ],
+      "depth_ffi": [
+        0,
+        401,
+        3
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 97,
+      "verbatim": "Seat-earth-mudstone, brown with coaly films.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        5
+      ],
+      "depth_ffi": [
+        0,
+        401,
+        8
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 98,
+      "verbatim": "Sandstone, brownish-grey, rooty.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        4
+      ],
+      "depth_ffi": [
+        0,
+        404,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 99,
+      "verbatim": "Shale, grey, rooty, with silty bands, irony at some horizons.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        4,
+        9
+      ],
+      "depth_ffi": [
+        0,
+        408,
+        9
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 100,
+      "verbatim": "Sandstone, white, fine-grained, thin-bedded, alternating with bands of grey sandy-shale.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        5,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        414,
+        3
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 101,
+      "verbatim": "COAL.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        3
+      ],
+      "depth_ffi": [
+        0,
+        414,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 102,
+      "verbatim": "Seat-earth-mudstone, grey, rooty, sandy at top.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        416,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 103,
+      "verbatim": "Mudstone, grey, silty, shaly at base, occasional sandstone bands.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        6,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        422,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 104,
+      "verbatim": "Sandstone, grey, fine-grained, thin-bedded with shaly bands and micaceous partings.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        8,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        430,
+        6
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 105,
+      "verbatim": "Mudstone, grey, silty and shaly, occasional plants.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        10
+      ],
+      "depth_ffi": [
+        0,
+        433,
+        4
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 106,
+      "verbatim": "COAL. 100% Recovery.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        9.5
+      ],
+      "depth_ffi": [
+        0,
+        434,
+        1.5
+      ],
+      "seam": "Tilley",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 107,
+      "verbatim": "Shale, dark, carbonaceous.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        2.5
+      ],
+      "depth_ffi": [
+        0,
+        434,
+        4
+      ],
+      "seam": null,
+      "annotations": [
+        "TILLEY SEAM (P) brackets coal(106)-shale(107)-coal(108); thicknesses recorded in half-inches"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 108,
+      "verbatim": "COAL. 100% Recovery.",
+      "class": "coal",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        10
+      ],
+      "depth_ffi": [
+        0,
+        435,
+        2
+      ],
+      "seam": "Tilley",
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 109,
+      "verbatim": "Seat-earth-mudstone, dark with coaly films and bands.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        5
+      ],
+      "depth_ffi": [
+        0,
+        436,
+        7
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 110,
+      "verbatim": "Mudstone, grey, silty, rooty.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        0,
+        6
+      ],
+      "depth_ffi": [
+        0,
+        437,
+        1
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 111,
+      "verbatim": "Sandstone, white, fine-grained, micaceous at top, thin-bedded.",
+      "class": "sandstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        6,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        443,
+        1
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 112,
+      "verbatim": "Shale, grey, muddy with abundant roots.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        1,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        444,
+        1
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 113,
+      "verbatim": "Seat-earth-mudstone, brownish-grey, rooty, silty bands at base.",
+      "class": "seatearth",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        2,
+        11
+      ],
+      "depth_ffi": [
+        0,
+        447,
+        0
+      ],
+      "seam": null,
+      "annotations": [],
+      "confidence": "clear"
+    },
+    {
+      "i": 114,
+      "verbatim": "Mudstone, grey, sandy, obscure roots.",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_ffi": [
+        0,
+        3,
+        0
+      ],
+      "depth_ffi": [
+        0,
+        450,
+        0
+      ],
+      "seam": null,
+      "annotations": [
+        "BASE OF HOLE at 450 ft (= 137.16 m, matches index)"
+      ],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [
+    {
+      "seam": "Low Main",
+      "at_interval": 12,
+      "how": "named in original (typed): COAL - LOW MAIN (J)"
+    },
+    {
+      "seam": "Top Brass Thill",
+      "at_interval": 19,
+      "how": "named in original (typed): TOP BRASS THILL (K1), bracketing coal(18)-shale(19)-coal(20)"
+    },
+    {
+      "seam": "Bottom Brass Thill",
+      "at_interval": 25,
+      "how": "named in original (typed): BTM. BRASS THILL (K2)"
+    },
+    {
+      "seam": "Top Hutton",
+      "at_interval": 34,
+      "how": "named in original (typed): TOP HUTTON (L1)"
+    },
+    {
+      "seam": "Bottom Hutton",
+      "at_interval": 40,
+      "how": "named in original (typed): BTM. HUTTON SEAM (L2), bracketing coal(39)-coal(40)"
+    },
+    {
+      "seam": "Harvey Marine Band",
+      "at_interval": 74,
+      "how": "named in original (typed): HARVEY MARINE BAND (abundant Lingulae)"
+    },
+    {
+      "seam": "Hopkins Band",
+      "at_interval": 89,
+      "how": "named in original (typed): HOPKINS BAND (mussels, Spirorbis, Ostracods)"
+    },
+    {
+      "seam": "Harvey",
+      "at_interval": 90,
+      "how": "named in original (typed): HARVEY SEAM (N)"
+    },
+    {
+      "seam": "Tilley",
+      "at_interval": 106,
+      "how": "named in original (typed): TILLEY SEAM (P), bracketing coal(106)-shale(107)-coal(108)"
+    },
+    {
+      "seam": "Plessey",
+      "at_interval": 46,
+      "how": "pencil marginalia on borer's-journal copy (p.7): '? PLESSEY' (uncertain)"
+    },
+    {
+      "seam": "Plessey (Bottom?)",
+      "at_interval": 56,
+      "how": "pencil marginalia on borer's-journal copy (p.7): '? B.PL' (uncertain)"
+    },
+    {
+      "seam": "Plessey (R.?)",
+      "at_interval": 61,
+      "how": "pencil marginalia on borer's-journal copy (p.7): '? R. PLESSEY' (uncertain)"
+    },
+    {
+      "seam": "AMB (pencil marker)",
+      "at_interval": 75,
+      "how": "pencil marginalia on borer's-journal copy (p.7): 'AMB' (uncertain)"
+    },
+    {
+      "seam": "Beaumont",
+      "at_interval": 90,
+      "how": "pencil marginalia on borer's-journal copy (p.7) beside HARVEY (N): '4.Bd. Beaumont' (uncertain)"
+    }
+  ],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Two logs for the same hole. Pp.1-5 = the detailed geologist's log (rich verbatim: fossils, seam names with letter codes, named marine bands); pp.6-7 = a cleaner borer's-journal summary with plainer names (Soil/Sand/Fireclay/Band) but per-bed Thickness AND Depth. This record follows the RICHER geologist's log (pp.1-5) for verbatim, classification, depths and seam names. The geologist's log leaves most THICKNESS cells blank (a few coals are written, and several beds are brace-grouped with a combined figure), while its DEPTH column is complete and reliable; thickness_ffi here is therefore DERIVED as depth[i]-depth[i-1]. Where the geologist did write a coal thickness it matches the derivation (Low Main 3-2, Top Hutton 2-1, Harvey 2-0, K1/L2/P groups), and the borer's-journal per-bed thicknesses independently corroborate. The two copies subdivide the strata slightly differently below 60 ft (e.g. geologist splits Grey shale + Mudstone where the borer lumps two grey-shale beds; base of Low Main seatearth 177-8 vs 177-0), but they agree at every major seam depth (Low Main 176-8, Brass Thill 205-206, Hutton 255-6/270-271, Harvey 396-6, Tilley 434-435) and both end at 450 ft. Final depth 450 ft 0 in = 137.16 m, matching the index. Header: cored from 60 ft; base of unconsolidated deposits at 57 ft; open hole above. Commenced 3/12/57, completed 14/1/58; borer Cementation Co. PENCIL MARGINALIA (later BGS seam correlations, in the notes column of the borer's-journal copy, p.7) recorded verbatim on the corresponding intervals and in seam_marks: '? PLESSEY' by the 282 ft coal (int.46), '? B.PL' by the 302 ft coal (int.56), '? R. PLESSEY' by the 322 ft coal (int.61), 'AMB' by the 364-11 coal below Harvey Marine Band (int.75), and '4.Bd. Beaumont' beside HARVEY (N) (int.90). A pencil line across the p.6 header reads 'This hole re-numbered by ... NZ 24 SE ...' (administrative). Faint illegible pencil also present in the p.6 notes column; not transcribable. Blue BGS banner, watermarks and registration stamps ignored per instructions. Half-inch measurements occur in the Tilley coal group (int.106 thickness 0-0-9.5 to depth 434-1.5; int.107 0-0-2.5)."
+}

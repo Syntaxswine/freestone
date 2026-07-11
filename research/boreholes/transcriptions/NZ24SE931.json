@@ -1,0 +1,86 @@
+{
+  "bgs_id": 21672703,
+  "reference": "NZ24SE931",
+  "name": "LITTLEBURN BH2A HUTTON SEAM MINE WATER BOREHOLE",
+  "easting": 425530,
+  "northing": 540242,
+  "surface_od_m": { "value": null, "qualifier": "absent" },
+  "year": 1998,
+  "pages": 6,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim from typed summary log — convert ONLY downstream",
+  "intervals": [
+    { "i": 1, "verbatim": "Log missing", "class": "unknown", "modifiers": [],
+      "thickness_m": 45.20, "depth_m": 45.20, "seam": null,
+      "annotations": [
+        "typed Comments column: 'Borehole drilled to 43.5m, casing and hole grouted and re-drill through grout'",
+        "text clearly legible; class unknown because no strata were logged 0.00-45.20",
+        "daily drilling record 27/3/98 during redrill: hit cement at 24.00, Cement to 43.50, 'Sand and Grout Soft Damp' to 45.20 (grout/backfill, not natural strata)"
+      ],
+      "confidence": "probable" },
+    { "i": 2, "verbatim": "Sandstone (damp) with poor returns", "class": "sandstone", "modifiers": ["damp"],
+      "thickness_m": 2.30, "depth_m": 47.50, "seam": null,
+      "annotations": [
+        "typed Comments column (cell spans 45.20-50.00): 'Borehole cased and grouted and redrilled to 50m'",
+        "daily record 27/3/98: 'Sandstone Damp Poor Air Return's 47.50'"
+      ],
+      "confidence": "clear" },
+    { "i": 3, "verbatim": "Mudstone (wet)", "class": "mudstone", "modifiers": ["wet"],
+      "thickness_m": 2.50, "depth_m": 50.00, "seam": null,
+      "annotations": [
+        "water observation: wet",
+        "daily record 27/3/98: 'Mudstone Wet 50.00'; engineer then had hole grouted again (28/3/98) and redrilled through cement (3/4/98, 'Cement Hard Dry 50.00')"
+      ],
+      "confidence": "clear" },
+    { "i": 4, "verbatim": "Mudstone (damp)", "class": "mudstone", "modifiers": ["damp"],
+      "thickness_m": 3.94, "depth_m": 53.94, "seam": null,
+      "annotations": [
+        "typed Comments column (cell spans 50.00-67.00): '2inch plastic pipe to 67m, with bottom 10m being slotted'"
+      ],
+      "confidence": "clear" },
+    { "i": 5, "verbatim": "Coal (Dry)", "class": "coal", "modifiers": ["dry"],
+      "thickness_m": 0.60, "depth_m": 54.54, "seam": null,
+      "annotations": [
+        "seam not named in original; 0.60 m coal above the Hutton workings horizon at 64.90"
+      ],
+      "confidence": "clear" },
+    { "i": 6, "verbatim": "Mudstone (damp)", "class": "mudstone", "modifiers": ["damp"],
+      "thickness_m": 2.40, "depth_m": 56.94, "seam": null,
+      "annotations": [],
+      "confidence": "clear" },
+    { "i": 7, "verbatim": "Sandstone (damp) with poor returns", "class": "sandstone", "modifiers": ["damp"],
+      "thickness_m": 4.20, "depth_m": 61.14, "seam": null,
+      "annotations": [],
+      "confidence": "clear" },
+    { "i": 8, "verbatim": "Mudstone (damp) with poor returns", "class": "mudstone", "modifiers": ["damp"],
+      "thickness_m": 3.76, "depth_m": 64.90, "seam": null,
+      "annotations": [],
+      "confidence": "clear" },
+    { "i": 9, "verbatim": "Soft mudstone (damp) poor returns (Hutton mine workings)", "class": "mudstone", "modifiers": ["soft", "damp"],
+      "thickness_m": 0.44, "depth_m": 65.34, "seam": "Hutton",
+      "annotations": [
+        "Hutton mine workings named in original — worked-seam horizon, logged material is soft mudstone (collapse/goaf fill), not coal",
+        "daily record 3/4/98: 'Soft Mudstone Damp Poor Air Returns 65.34'"
+      ],
+      "confidence": "clear" },
+    { "i": 10, "verbatim": "Solid (no returns)", "class": "unknown", "modifiers": [],
+      "thickness_m": 0.66, "depth_m": 66.00, "seam": null,
+      "annotations": [
+        "text clearly legible; 'Solid' is a driller's term with no lithology given and no air returns — cannot classify",
+        "daily record 3/4/98: 'Solid No Air Returns 66.00'"
+      ],
+      "confidence": "probable" },
+    { "i": 11, "verbatim": "Sandstone (wet)", "class": "sandstone", "modifiers": ["wet"],
+      "thickness_m": 1.00, "depth_m": 67.00, "seam": null,
+      "annotations": [
+        "water observation: wet",
+        "daily record 6/4/98: 'Clean Out B/H To 66.00m', 'Sandstone Wet 67.00'"
+      ],
+      "confidence": "clear" }
+  ],
+  "seam_marks": [
+    { "seam": "Hutton", "at_interval": 9, "how": "named in original: Soft mudstone (damp) poor returns (Hutton mine workings)" }
+  ],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Page 1 is a typed metric summary log (Littleburn BH2A (Hutton Seam BH), co-ords 425530mE 540242mN, drilled March 1998 to 17th April 1998) with Depth From/Depth To/Geology/Comments columns; it is the strata record transcribed above (thickness_m computed as To minus From; the sheet gives from/to depths, no thickness column, and all pairs are continuous with no gaps or arithmetic slips). Pages 2-6 are handwritten C.H. Steavenson DAILY DRILLING RECORD sheets (rig Gryphon, site Meadowfield/Medowfield) dated 27/3/98, 28/3/98, 3/4/98, 4/4/98 and 6/4/98; they are operational records (grouting, casing, pipe installation) whose lithology depths (47.50, 50.00, 53.94, 54.54, 56.94, 61.14, 64.90, 65.34, 66.00, 67.00) agree exactly with the typed log — no disagreements. Hole peculiarities from the daily records: original hole drilled to 43.5m then casing and hole grouted and redrilled through grout (hit cement at 24.00m, cement to 43.50, sand and grout to 45.20 on 27/3/98); hole grouted AGAIN above 50m on 28/3/98 (20x25kg bags cement, 60 gallons water, grout pushing water out of B/H after 15 bags) and redrilled 3/4/98 (wet grout at 7.00m to 25.00, damp grout to 41.00, cement hard dry to 50.00); 2-inch plastic pipe initially stopped at 57.00m (4/4/98), hole cleaned out and pipe lowered to 67.00m with bottom 10.00m slotted (57.00m of plain push cap on top), 10 bags pea gravel down hole, engineer wants 2 bags bentonite put down at later date (6/4/98, drilling complete); 16.00m of 8-inch casing grouted into B/H unable to pull out. No Ground Level (m AOD) box on any page — surface OD absent. No pencil marginalia. No Reduced Level column."
+}

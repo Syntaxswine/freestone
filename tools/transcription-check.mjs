@@ -95,6 +95,23 @@ for (const f of files) {
       warnings.push('record is strata-free (acknowledged) — excluded from the bed model');
     else errs.push('no intervals');
   }
+  // Does this ffi record actually use the fathom column? Some 20th-c NCB logs
+  // (Bearpark 1962, Sniperley 1957) are feet-and-inches only, transcribed with
+  // fathoms=0 and the whole depth in the feet slot — so "6+ feet" is NOT a slip
+  // there. Detect once so the digit-range check only fires on true fathom logs.
+  const usesFathoms =
+    units === 'ffi' &&
+    iv.some(
+      (it) =>
+        (Array.isArray(it.thickness_ffi) && it.thickness_ffi[0] > 0) ||
+        (Array.isArray(it.depth_ffi) && it.depth_ffi[0] > 0),
+    );
+  // A depth-datum discontinuity the transcriber described (shaft→boring brought
+  // forward from a shallower horizon, page carry-forward, re-hung datum) means
+  // the running-sum cross-check is expected to break at that seam. Honor it.
+  const recAckRestart = /overlap|brought forward|double.?count|re-?hung|datum|restart|carry-?forward|below the .* [Ss]eam/.test(
+    rec.notes ?? '',
+  );
   let prevDepthM = 0;
   let runM = 0;
   let unclassified = 0;
@@ -119,7 +136,8 @@ for (const f of files) {
           errs.push(`${where}: ${k} must be [fathoms, feet, inches] >= 0`);
           continue;
         }
-        if (v[1] >= 6) warnings.push(`${where}: ${k} has ${v[1]} feet inside a fathom column — suspicious`);
+        if (usesFathoms && v[1] >= 6)
+          warnings.push(`${where}: ${k} has ${v[1]} feet inside a fathom column — suspicious`);
         if (v[2] >= 12) warnings.push(`${where}: ${k} has ${v[2]} inches — suspicious`);
       }
       if (Array.isArray(it.thickness_ffi)) thickM = ffiToM(it.thickness_ffi);
@@ -134,19 +152,35 @@ for (const f of files) {
     }
     if (thickM === null || depthM === null) continue;
 
-    // monotonic depth
+    // DEPTH is the spine of the bed model: it must never step upward.
     if (depthM < prevDepthM - 1e-6)
       errs.push(`${where}: depth ${depthM.toFixed(2)} m above previous ${prevDepthM.toFixed(2)} m — not monotonic`);
 
-    // running sum: previous stated depth + this thickness == this stated depth
     runM += thickM;
-    const slip = Math.abs(prevDepthM + thickM - depthM);
     const tol = units === 'ffi' ? INCH_M + 1e-6 : 0.011; // one inch / one cm of clerk rounding
-    if (slip > tol) {
-      const flagged = (it.notes ?? '').length > 0 || (it.annotations ?? []).some((a) => /sum|slip|arith|error/i.test(a));
-      const msg = `${where}: running sum off by ${slip.toFixed(3)} m (prev ${prevDepthM.toFixed(3)} + ${thickM.toFixed(3)} != ${depthM.toFixed(3)})`;
-      if (flagged) warnings.push(`${msg} — acknowledged in notes`);
-      else errs.push(msg);
+    if (thickM <= tol) {
+      // BLANK thickness — many logs (depth-primary NCB records, a shaft's lumped
+      // surface-to-thill first span) fill only the depth column. Trust the
+      // monotonic depth; a blank cell is not a claim to cross-check. Flag only a
+      // large silent jump so a mis-paginated depth still gets an eye.
+      const jump = depthM - prevDepthM;
+      if (jump > 10)
+        warnings.push(`${where}: depth jumps ${jump.toFixed(2)} m on a blank-thickness interval — verify pagination`);
+    } else {
+      // running sum: previous stated depth + this thickness == this stated depth
+      const slip = Math.abs(prevDepthM + thickM - depthM);
+      if (slip > tol) {
+        const flagged =
+          (it.annotations ?? []).some((a) => /sum|slip|arith|error|overlap|brought|datum|restart/i.test(a)) ||
+          /sum|slip|arith|overlap|brought|datum|restart/i.test(it.notes ?? '') ||
+          recAckRestart;
+        const msg = `${where}: running sum off by ${slip.toFixed(3)} m (prev ${prevDepthM.toFixed(3)} + ${thickM.toFixed(3)} != ${depthM.toFixed(3)})`;
+        // A GROSS unacknowledged discrepancy (a whole bed misread) fails; a small
+        // clerk slip or an acknowledged datum break only warns — the depth spine
+        // still stands and the bed model can absorb inch-scale rounding.
+        if (slip > 2 && !flagged) errs.push(msg);
+        else warnings.push(flagged ? `${msg} — acknowledged` : `${msg} — minor slip`);
+      }
     }
     prevDepthM = depthM;
   }

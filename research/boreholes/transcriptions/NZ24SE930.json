@@ -1,0 +1,57 @@
+{
+  "bgs_id": 20950235,
+  "reference": "NZ24SE930",
+  "name": "DURHAM HISTORY CENTRE MOUNT OSWALD MANOR HOUSE",
+  "easting": 426736,
+  "northing": 540656,
+  "surface_od_m": { "value": null, "qualifier": "absent — 'Ground level (if known)' box on WR38 form left blank" },
+  "year": 2021,
+  "pages": 3,
+  "units_system": "m",
+  "units": "metres, transcribed verbatim — convert ONLY downstream",
+  "intervals": [
+    {
+      "i": 1,
+      "verbatim": "BOULDER CLAY",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 9,
+      "depth_m": 10,
+      "seam": null,
+      "annotations": [
+        "driller wrote depth range '1-10' in the Thickness column; Depth (to base of strata) column left blank throughout",
+        "borehole drilled from 0.00 m per section B construction details, so the '1' start leaves the first metre unaccounted as written; range top likely means 0 but transcribed as written (thickness 9 from 1-10 arithmetic)"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 2,
+      "verbatim": "SAND AND SILTS",
+      "class": "drift",
+      "modifiers": [],
+      "thickness_m": 14,
+      "depth_m": 24,
+      "seam": null,
+      "annotations": [
+        "written as range '10-24' in the Thickness column"
+      ],
+      "confidence": "clear"
+    },
+    {
+      "i": 3,
+      "verbatim": "MUDSTONE",
+      "class": "mudstone",
+      "modifiers": [],
+      "thickness_m": 56,
+      "depth_m": 80,
+      "seam": null,
+      "annotations": [
+        "written as range '24-80' in the Thickness column"
+      ],
+      "confidence": "clear"
+    }
+  ],
+  "seam_marks": [],
+  "transcriber": "workflow agent, 2026-07-10",
+  "notes": "Modern typed WR38 water-well borehole record form (Water Resources Act 1991), not a driller's journal. Page 1 is the header/site-details form: drilled for Durham History Centre at Mount Oswald Manor House, NGR NZ 26736 40656, drilling commenced and completed 09/06/2021, drilled 150 mm diameter 0.00 to 80 m, metal casing 203 mm 0.00 to 41 m; ground level box blank; no water-struck entries; no test-pumping data. Page 2 is the strata log: only three summary units for the whole 80 m hole, extremely coarse detail ('How long did it take you to fill in this form? 2 MINS'). Driller entered depth RANGES in the Thickness column and left the Depth column blank; depths and thicknesses here derived from those ranges as annotated — interval 1 reads '1-10' though drilling started at 0.00 m, leaving the first metre formally unaccounted. Page 3 is an aerial-photo location plan (Point E marker at Mount Oswald Manor House, South Road A177), no strata content. No pencil marginalia, no seam names, no coal encountered in the log as written."
+}
