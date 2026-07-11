@@ -109,7 +109,19 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
       skirts down likewise. Canon: milestone 320 added; 200 fingerprints the
       WAITING shell (stones −708), 260 the crew MID-BUILD, 320 the uncovered
       span. Regen SIM 11→12. 96 tests.
-- [ ] M2 — Quarry loop: bed model FIRST from real logs (boss decision 2026-07-09:
+- [x] SIM 13 — LEVEL COURSING (2026-07-10, boss: "what if we leveled the stone
+      wall before the roof is added so regardless of height the layers are
+      even"): every wall SURVEYED at plan time (surveyWall, frozen — sim +
+      pencil share it, counts exact) onto one horizontal slab grid; TWO honest
+      datums — buildings level to ONE flat bearing (stepped, partly buried
+      footings billed), plain walls STEP their tops with the land like hillside
+      dykes (the probe caught the single-datum bill: the gorge-bank field ring
+      at 1921 stones vs its honest 629). Gate ops per-column; roofs bear on
+      wall.levelTop flush by law; flat ground reduces EXACTLY to the old
+      arithmetic (flat suites untouched). Canon regen SIM 12→13 (+812 footing
+      stones site-wide; workdays 110=2×(200−145) exact). 97 tests. The old
+      "LEVEL COURSING belongs with M2's wall ladder" open thread is PAID —
+      what remains for M2 is thickness/wythes × stone demand.
       TRANSCRIBE FIRST). Census DONE: 900 boreholes in-box, 900 with scans
       (research/boreholes/index.json via tools/fetch-borehole-index.mjs); scan→PNG
       pipeline DONE (tools/fetch-borehole-scan.mjs); schema DONE from pilot reads
@@ -179,9 +191,9 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   labor when the timber economy lands (today trees vanish on establishment);
   roof CARPENTRY as a real timber phase with days and materials (today the roof pops at
   wall completion); roofs for irregular (non-4-corner) shells — hip/straight-skeleton;
-  LEVEL COURSING: courses ride per-column ground so wall tops are wavy on slopes under
-  a level eave — real masons build to level and step the foundation; belongs with M2's
-  wall ladder. Overlapping/nested enclosures currently both count — revisit with M4
+  LEVEL COURSING SHIPPED (SIM 13, 2026-07-10): buildings level to one datum, plain
+  walls step — see the SIM 13 ledger entry; M2's remaining share is thickness/wythes.
+  Overlapping/nested enclosures currently both count — revisit with M4
   land use. A hoe/tool sprite frame for field hands (today they pace the rows with
   walk frames). One-measure invariant at M4 yield time: an OFFSET double lap (laps
   >5 cm apart) still evades the overlap guard and inflates farm.area vs what tillage
