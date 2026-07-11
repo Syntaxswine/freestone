@@ -640,10 +640,11 @@ async function boot(): Promise<void> {
     }
     const r = underworld.readout();
     const where = r.label ? `· ${r.label} seam` : r.material === 'open air' ? '· open air' : `· ${r.material}`;
+    const water = r.material === 'open air' ? '' : r.drowned ? ' · DROWNED (needs drainage)' : ' · dry, workable';
     depthRuler.style.display = '';
     setText(
       depthRuler,
-      `underground — ▼ ${r.fathoms.toFixed(1)} fathoms below the crown ${where} · Page↑/↓ or wheel changes depth · U surfaces`,
+      `underground — ▼ ${r.fathoms.toFixed(1)} fathoms below the crown ${where}${water} · Page↑/↓ or wheel changes depth · U surfaces`,
     );
   }
   function setUnderground(on: boolean): void {
