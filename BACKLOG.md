@@ -123,14 +123,43 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
       stones site-wide; workdays 110=2×(200−145) exact). 97 tests. The old
       "LEVEL COURSING belongs with M2's wall ladder" open thread is PAID —
       what remains for M2 is thickness/wythes × stone demand.
-      TRANSCRIBE FIRST). Census DONE: 900 boreholes in-box, 900 with scans
-      (research/boreholes/index.json via tools/fetch-borehole-index.mjs); scan→PNG
-      pipeline DONE (tools/fetch-borehole-scan.mjs); schema DONE from pilot reads
-      (research/boreholes/TRANSCRIPTION-SCHEMA.md — pitman's vernacular dictionary,
-      ffi units verbatim, arithmetic cross-check, confidence flags). NEXT: transcribe
-      the priority tier (64 holes ≥30 m, ~200 pages — the real-hours spend); build
-      tools/transcription-check.mjs with the first batch; then bed model, then
-      mechanics. Bed exhaustion designed in from day one; Guédelon rates as calibration
+- [x] THE UNDERWORLD FOUNDATION SHIPPED (2026-07-10/11, boss: "populate the world
+      under the landscape with minerals… data for how quickly workers could dig
+      through that area. rock production should exceed what is actually removed
+      from the earth to encourage building great works"):
+      · **Transcription tier DONE** — all 64 priority holes (≥30 m) read into
+        schema JSON, 1545 intervals (research/boreholes/transcriptions/). A 64-agent
+        vision fleet (Fable limit cut it at 25, resumed on Opus); rigorous — Kepier
+        caught a missing scan page, Franwellgate a self-correcting clerk slip.
+        tools/transcription-check.mjs is the QA gate (identity, running-sum,
+        monotonic depth, final-vs-index, classification), honoring the real log
+        variants (depth-primary, feet-inches, datum restarts, summary sections).
+      · **Dig-rate research VERIFIED** — the ILO excavation ladder 5.0/3.5/3.0/2.0/
+        0.8 m³/person-day (soft→rock) extracted verbatim from source + recovery
+        ~29% verified; research/DIGEST-2026-07-10-dig-rates-and-yield.md. 7-lens
+        fleet, 126 finder claims (verifier pass died on the limit → spine
+        hand-verified; rest marked unverified).
+      · **Bed model DONE** — tools/build-bed-model.mjs → public/data/site-durham/
+        beds.json: 60 surface-registered strata columns (honest [depth−thickness,
+        depth] intervals with unknown gaps) + named coal seams fitted to dipping
+        planes (Tilley RMS 0.1 m, Busty 0.7); rockhead 0–73 m; local dip gentle
+        S-SSE. SEAM-LADDER.md is the verified correlation spine.
+      · **SIM 14 — THE QUARRY** (`02c868d` core + `0738d8c` render): plan_cut, a
+        fill turned downward. Material-aware pace + generous stone yield read from
+        the bed model and FROZEN into the command (sim core stays bed-free, saves
+        self-contained — the SIM 13 survey pattern). Idle laborers dig it (a quarry
+        outranks fields, not fills); the stockpile is credited once, on completion.
+        src/sim/beds.ts (DIG_RATE, STONE_YIELD > 1.0), src/render/cuts.ts (the pit).
+        Two-commit discipline: inert regen proved byte-identical numbers, then the
+        canon quarry (tick 300 into bare Low Main Post) fingerprints it — 400
+        milestone cutsComplete=1, stockpile 135, farmWorkdays 463→328 (the
+        quarry-before-field law). Eye-checked LIVE (bridge back). 115 tests.
+      SIM 14 follow-ons: pit reads subtly (contrast/depth cue — boss aesthetic
+      call); people stand on the rim not the pit floor (people-layer descent);
+      walls don't draw the stockpile yet (the CONSUMPTION loop — the natural next
+      course); quarry gesture/depth/yield all open to the boss's riff. Bed
+      exhaustion + per-stone provenance + wall ladder (thickness×wythes) remain
+      M2's larger arc; Guédelon rates stand as calibration.
 - [ ] M1 design data (from the honest eye-check; polish, not bugs): scaffold sprite once
       walls pass ~2 m; per-station stone piles so laborers read on long walls; billboard
       sprites don't face the work; cursor ring is world-sized (0.65 m) and vanishes at
@@ -156,10 +185,11 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   (enclosure-era image vs 1200s practice) before enclosure content ships.
 - Earthworks follow-ons (SIM 2 shipped 2026-07-09; ramps + roofs SIM 8 2026-07-10):
   true palisade geometry for wood (vertical posts, faster pace, no mortar cure) with
-  the pace/economy pass; cut as well as fill (ditches — the spoil feeds the rampart,
-  one command's dirt is the other's); building-footprint auto-fill ("fill the
-  squares" — click inside a shell); material picker grows real stone kinds from the
-  bed model. Roof follow-ons: pitched wood/straw geometry (today all decks are flat
+  the pace/economy pass; cut as well as fill — the CUT half shipped as SIM 14's
+  quarry (a ring dug down through the strata), but the SPOIL is not yet coupled to
+  fills (one command's dirt feeding the other's rampart is still open); building-
+  footprint auto-fill ("fill the squares" — click inside a shell); material picker
+  grows real stone kinds from the bed model (now that beds.json holds them). Roof follow-ons: pitched wood/straw geometry (today all decks are flat
   plates; the auto-gable on recognized buildings stays separate), roof-on-roof for
   towers, carpenters as a trade distinct from laborers, deck timber from the woods
   when the timber economy lands, span honesty (>6.5 m wants posts — the aisle rule
