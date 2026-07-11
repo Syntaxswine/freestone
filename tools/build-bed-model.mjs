@@ -247,7 +247,11 @@ function fitPlaneLS(pts) {
   // down-dip azimuth: direction of decreasing z = -(a,b); az from north, clockwise
   let az = (Math.atan2(-a, -b) * 180) / Math.PI;
   if (az < 0) az += 360;
-  return { a, b, c, cE, cN, rmsM: rms, maxResidM: mx, n, dipDeg, downDipAzimuthDeg: az };
+  // observed elevation range of the fitted points — the leverage guard reads it to
+  // reject a plane that extrapolates far beyond any real control
+  let zMin = Infinity, zMax = -Infinity;
+  for (const p of pts) { if (p.z < zMin) zMin = p.z; if (p.z > zMax) zMax = p.z; }
+  return { a, b, c, cE, cN, rmsM: rms, maxResidM: mx, n, dipDeg, downDipAzimuthDeg: az, zMin, zMax };
 }
 
 // ---- build ----
@@ -275,9 +279,29 @@ for (const name of SEAM_LADDER) {
     continue;
   }
   const plane = fitPlaneRobust(pts);
-  seams[name] = plane
-    ? { observations: pts.length, plane, obs: pts.map((p) => ({ ref: p.ref, aod: +p.z.toFixed(2) })) }
-    : { observations: pts.length, plane: null, note: 'observations too collinear to fit a plane (need spread in E and N)' };
+  // Leverage guard (2026-07-11): a seam observed only in a CLUSTER fits a plane that
+  // is fine locally but extrapolates wildly across the rest of the site. If the
+  // plane's value at the site centre (cE,cN — where the snap level and seam ORDER are
+  // read) lands more than one observed-range beyond all kept control, the regional
+  // plane is under-constrained: null it (the Maudlin pattern) rather than assert a
+  // spurious horizon. This is what put Tilley (5 NW-clustered picks, 6% of the site's
+  // E-extent) BELOW Busty and inverted the ladder. The centre — not the bbox corners —
+  // is the test: a real dip (Busty) extrapolates at the corners yet interpolates at
+  // the centre; a clustered fit (Tilley) extrapolates at the centre too.
+  let underConstrained = null;
+  if (plane) {
+    const margin = Math.max(plane.zMax - plane.zMin, 12);
+    if (plane.c < plane.zMin - margin || plane.c > plane.zMax + margin)
+      underConstrained = `regional plane under-constrained: observations cluster on one flank; the fit extrapolates to ${plane.c.toFixed(0)} AOD at the site centre, beyond all kept control (${plane.zMin.toFixed(0)}..${plane.zMax.toFixed(0)} AOD)`;
+  }
+  seams[name] =
+    plane && !underConstrained
+      ? { observations: pts.length, plane, obs: pts.map((p) => ({ ref: p.ref, aod: +p.z.toFixed(2) })) }
+      : {
+          observations: pts.length,
+          plane: null,
+          note: underConstrained ?? 'observations too collinear to fit a plane (need spread in E and N)',
+        };
 }
 
 const beds = {
