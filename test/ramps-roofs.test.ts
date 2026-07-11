@@ -1,8 +1,10 @@
 /**
- * SIM 8: ramp fills + roofs.
+ * SIM 8/11: ramp fills + roofs.
  * The load-bearing claims: a ramp's billed volume is the honest wedge and its
  * finished surface slopes from the FIRST-placed edge (masonry grounds on the
- * slope); a roof must rest every corner on a finished wall, laborers deck it
+ * slope); a roof must rest every corner on a finished wall; a drawn span is
+ * UNCOVERED by default (boss canon 2026-07-10 — material null, nobody decks
+ * bare air) until designate_roof names its covering; laborers then deck it
  * after the earth is moved, and a completed BRICK deck is ground — the next
  * storey's walls stand on it. Wood caps a void and carries nothing.
  */
@@ -120,11 +122,16 @@ describe('roofs', () => {
   it('a brick deck spans the shell and becomes the next floor', () => {
     const { world, site } = shellWorld();
     worldStep(world, site, [
-      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4), material: 'brick' },
+      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4) },
     ]);
     const roof = world.roofs[0]!;
     expect(roof.level).toBe(3); // flat site: wall top
     expect(roof.workTotal).toBe(100); // 10 × 10 m² of decking
+    expect(roof.material).toBeNull(); // the default is none
+    worldStep(world, site, [
+      { kind: 'designate_roof', tick: world.tick, roofId: roof.id, material: 'brick' },
+    ]);
+    expect(world.events.some((e) => e.kind === 'roof_covered')).toBe(true);
     while (roof.workDone < roof.workTotal) worldStep(world, site, []);
     expect(world.events.some((e) => e.kind === 'roof_complete')).toBe(true);
     // the deck IS ground now
@@ -150,10 +157,35 @@ describe('roofs', () => {
   it('wood and straw cap the void but carry nothing', () => {
     const { world, site } = shellWorld();
     worldStep(world, site, [
-      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4), material: 'wood' },
+      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4) },
+    ]);
+    worldStep(world, site, [
+      {
+        kind: 'designate_roof',
+        tick: world.tick,
+        roofId: world.roofs[0]!.id,
+        material: 'wood',
+      },
     ]);
     while (world.roofs[0]!.workDone < world.roofs[0]!.workTotal) worldStep(world, site, []);
     expect(effectiveGroundAt(world, site, 55, 55)).toBe(0); // still the terrain
+  });
+
+  it('an uncovered span draws no hands — the default is none (SIM 11)', () => {
+    const { world, site } = shellWorld();
+    worldStep(world, site, [
+      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4) },
+    ]);
+    const roof = world.roofs[0]!;
+    for (let i = 0; i < 30; i++) worldStep(world, site, []);
+    expect(roof.workDone).toBe(0); // thirty days, not a plank — nobody decks bare air
+    expect(world.events.some((e) => e.kind === 'roof_complete')).toBe(false);
+    // the word opens it to the crew
+    worldStep(world, site, [
+      { kind: 'designate_roof', tick: world.tick, roofId: roof.id, material: 'straw' },
+    ]);
+    while (roof.workDone < roof.workTotal) worldStep(world, site, []);
+    expect(world.events.some((e) => e.kind === 'roof_complete')).toBe(true);
   });
 
   it('roof corners must rest on finished walls — constant rejections', () => {
@@ -192,12 +224,17 @@ describe('roofs', () => {
           { x: 260, y: 260 },
         ], // resting on masonry that is not yet built
       },
-      {
-        kind: 'plan_roof',
-        tick: world.tick,
-        points: SHELL_RING.slice(0, 4),
-        material: 'slate' as never,
-      },
+    ]);
+    // the covering has its own constant refusals now (SIM 11)
+    worldStep(world, site, [
+      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4) },
+    ]);
+    const roofId = world.roofs[0]!.id;
+    worldStep(world, site, [
+      { kind: 'designate_roof', tick: world.tick, roofId: 9999, material: 'wood' },
+      { kind: 'designate_roof', tick: world.tick, roofId, material: 'slate' as never },
+      { kind: 'designate_roof', tick: world.tick, roofId, material: 'wood' }, // lands
+      { kind: 'designate_roof', tick: world.tick, roofId, material: 'straw' }, // covered already
     ]);
     const reasons = world.events
       .filter((e) => e.kind === 'command_rejected')
@@ -205,8 +242,11 @@ describe('roofs', () => {
     expect(reasons).toEqual([
       'roof corners must rest on finished walls',
       'roof corners must rest on finished walls',
-      'unknown roof material',
+      'no span awaits its covering there',
+      'a roof takes wood, straw, or brick',
+      'no span awaits its covering there',
     ]);
+    expect(world.roofs[0]!.material).toBe('wood'); // the honest word stood
   });
 
   it('the earth outranks the deck outranks the fields', () => {
@@ -243,7 +283,15 @@ describe('roofs', () => {
         ],
         height: 1,
       },
-      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4), material: 'straw' },
+      { kind: 'plan_roof', tick: world.tick, points: SHELL_RING.slice(0, 4) },
+    ]);
+    worldStep(world, site, [
+      {
+        kind: 'designate_roof',
+        tick: world.tick,
+        roofId: world.roofs[0]!.id,
+        material: 'straw',
+      },
     ]);
     // while EITHER job is open, no workday accrues
     while (
@@ -271,10 +319,17 @@ describe('roofs', () => {
       kind: 'plan_roof',
       tick: world.tick,
       points: SHELL_RING.slice(0, 4),
-      material: 'brick',
     };
     log.push(roofCmd);
     worldStep(world, site, [roofCmd]);
+    const coverCmd: Command = {
+      kind: 'designate_roof',
+      tick: world.tick,
+      roofId: world.roofs[0]!.id,
+      material: 'brick',
+    };
+    log.push(coverCmd);
+    worldStep(world, site, [coverCmd]);
     for (let i = 0; i < 60; i++) worldStep(world, site, []);
     expect(world.roofs[0]!.workDone).toBe(world.roofs[0]!.workTotal);
     const replayed = replay(makeSave(world, log), site);

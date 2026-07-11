@@ -209,7 +209,9 @@ export class PeopleLayer {
     const ws = this.workSite();
     // laborers serve the earth first, then the deck — the sim's own order
     const fill = this.world.fills.find((f) => f.volumeMoved < f.volumeTotal) ?? null;
-    const deck = this.world.roofs.find((r) => r.workDone < r.workTotal) ?? null;
+    // uncovered spans (material null) are not work — moveEarth's own filter
+    const deck =
+      this.world.roofs.find((r) => r.material !== null && r.workDone < r.workTotal) ?? null;
     const haul: { points: Vec2[] } | null = fill ?? deck;
     // hands walk only the ARABLE fields — moveEarth's own filter (pasture is
     // grazed, fallow rests; theater must not show work the sim doesn't do)

@@ -2,7 +2,7 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 10,
+      "simVersion": 11,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 400
@@ -281,7 +281,7 @@
       {
         "kind": "designate",
         "tick": 355,
-        "wallId": 6223,
+        "wallId": 6224,
         "use": "livestock"
       },
       {
@@ -331,7 +331,7 @@
       },
       {
         "kind": "plan_roof",
-        "tick": 380,
+        "tick": 250,
         "points": [
           {
             "x": 2040,
@@ -349,7 +349,12 @@
             "x": 2040,
             "y": 1966
           }
-        ],
+        ]
+      },
+      {
+        "kind": "designate_roof",
+        "tick": 382,
+        "roofId": 6154,
         "material": "brick"
       },
       {
@@ -381,7 +386,7 @@
   "milestones": [
     {
       "tick": 1,
-      "hash": "17818c8c",
+      "hash": "ab458e11",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
@@ -391,11 +396,12 @@
       "buildings": 0,
       "farmWorkdays": 0,
       "gates": 0,
+      "roofsUncovered": 0,
       "roofsComplete": 0
     },
     {
       "tick": 6,
-      "hash": "e7aaef61",
+      "hash": "7fb09606",
       "stones": 54,
       "events": 56,
       "wallsComplete": 0,
@@ -405,11 +411,12 @@
       "buildings": 0,
       "farmWorkdays": 0,
       "gates": 0,
+      "roofsUncovered": 0,
       "roofsComplete": 0
     },
     {
       "tick": 61,
-      "hash": "4b6d0bf9",
+      "hash": "a25fc90e",
       "stones": 3024,
       "events": 3028,
       "wallsComplete": 0,
@@ -419,11 +426,12 @@
       "buildings": 0,
       "farmWorkdays": 0,
       "gates": 0,
+      "roofsUncovered": 0,
       "roofsComplete": 0
     },
     {
       "tick": 101,
-      "hash": "6a059255",
+      "hash": "5fe3cfd4",
       "stones": 5014,
       "events": 5024,
       "wallsComplete": 2,
@@ -433,11 +441,12 @@
       "buildings": 0,
       "farmWorkdays": 0,
       "gates": 0,
+      "roofsUncovered": 0,
       "roofsComplete": 0
     },
     {
       "tick": 200,
-      "hash": "ed76b7bf",
+      "hash": "dab7ebc6",
       "stones": 6142,
       "events": 6159,
       "wallsComplete": 4,
@@ -447,13 +456,14 @@
       "buildings": 0,
       "farmWorkdays": 120,
       "gates": 1,
+      "roofsUncovered": 0,
       "roofsComplete": 0
     },
     {
       "tick": 260,
-      "hash": "50bf65f9",
+      "hash": "2c6605d7",
       "stones": 6210,
-      "events": 6229,
+      "events": 6230,
       "wallsComplete": 5,
       "fillsComplete": 1,
       "pending": 1,
@@ -461,13 +471,14 @@
       "buildings": 0,
       "farmWorkdays": 240,
       "gates": 1,
+      "roofsUncovered": 1,
       "roofsComplete": 0
     },
     {
       "tick": 400,
-      "hash": "c6b1a46b",
+      "hash": "76db757b",
       "stones": 6450,
-      "events": 6528,
+      "events": 6529,
       "wallsComplete": 6,
       "fillsComplete": 3,
       "pending": 0,
@@ -475,6 +486,7 @@
       "buildings": 1,
       "farmWorkdays": 473,
       "gates": 2,
+      "roofsUncovered": 0,
       "roofsComplete": 1
     }
   ]

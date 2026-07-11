@@ -72,7 +72,15 @@ describe('SIM 8 render layers (headless)', () => {
     worldStep(world, site, [{ kind: 'plan_wall', tick: 0, points: ring, height: 3 }]);
     while (world.walls[0]!.stonesLaid < world.walls[0]!.stonesTotal) worldStep(world, site, []);
     worldStep(world, site, [
-      { kind: 'plan_roof', tick: world.tick, points: ring.slice(0, 4), material: 'brick' },
+      { kind: 'plan_roof', tick: world.tick, points: ring.slice(0, 4) },
+    ]);
+    worldStep(world, site, [
+      {
+        kind: 'designate_roof',
+        tick: world.tick,
+        roofId: world.roofs[0]!.id,
+        material: 'brick',
+      },
     ]);
     const scene = new THREE.Scene();
     const layer = new RoofLayer(world, scene);

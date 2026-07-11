@@ -32,6 +32,7 @@ import {
   type BuildingKind,
   type Command,
   type FieldUse,
+  type RoofMaterial,
 } from '../sim/types';
 import { BuildingLayer } from './buildings';
 import { FarmLayer } from './farms';
@@ -268,11 +269,11 @@ async function boot(): Promise<void> {
   const build3 = document.createElement('div');
   const roofBtn = document.createElement('button');
   roofBtn.textContent = '⛉ roof (R)';
-  const roofMatBtn = document.createElement('button');
-  roofMatBtn.textContent = '🪵 wood';
   const shapeBtn = document.createElement('button');
   shapeBtn.textContent = '⬓ flat fill';
-  build3.append(roofBtn, roofMatBtn, shapeBtn);
+  // no roof-material picker: the covering is chosen on the card AFTER the
+  // span is drawn, like every designation (boss canon 2026-07-10 — default none)
+  build3.append(roofBtn, shapeBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
@@ -305,7 +306,7 @@ async function boot(): Promise<void> {
         mode === 'fill'
           ? { kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape }
           : mode === 'roof'
-            ? { kind: 'plan_roof', tick: world.tick, points, material: planner.roofMaterial }
+            ? { kind: 'plan_roof', tick: world.tick, points } // covering asked after
             : { kind: 'plan_wall', tick: world.tick, points, height, material },
       ),
     onModeChange: (active, mode) => {
@@ -380,6 +381,11 @@ async function boot(): Promise<void> {
     { use: 'tower', label: '🗼 tower' },
     { use: 'tavern', label: '🍺 tavern' },
   ];
+  const ROOF_CHOICES: { material: RoofMaterial; label: string }[] = [
+    { material: 'wood', label: '🪵 wood' },
+    { material: 'straw', label: '🌾 straw' },
+    { material: 'brick', label: '🧱 brick — a floor above' },
+  ];
   const card = document.createElement('div');
   card.id = 'word-card';
   card.style.display = 'none';
@@ -388,59 +394,95 @@ async function boot(): Promise<void> {
   card.append(cardTitle, cardRow);
   document.body.appendChild(card);
   const cardAnchor = new THREE.Vector3();
-  let cardWall = -1; // the pending wall the card is asking about
+  let cardAsk = -1; // the id (wall or roof — one nextId space) the card is asking about
   let cardBaseTitle = '';
-  // a wall whose word is enqueued but not yet stepped: the card moves on
+  // an ask whose word is enqueued but not yet stepped: the card moves on
   // rather than asking twice. An entry stands only while world.tick <= its
-  // tick — once stepped, the live pending list is the truth again (so a
-  // rejected word can never wedge a plot unaskable).
+  // tick — once stepped, the live pending lists are the truth again (so a
+  // rejected word can never wedge an ask).
   const spoken = new Map<number, number>();
 
   function updateCard(): void {
     for (const [id, t] of spoken) {
       if (world.tick > t) spoken.delete(id);
     }
-    const queue = world.pending.filter((id) => !spoken.has(id));
-    const target = queue[0]; // completion order: the oldest asks first
+    // one queue of asks: pending enclosures AND uncovered spans, in creation
+    // order (wall and roof ids share the one nextId sequence)
+    const queue = [
+      ...world.pending.map((id) => ({ kind: 'wall' as const, id })),
+      ...world.roofs.filter((r) => r.material === null).map((r) => ({ kind: 'roof' as const, id: r.id })),
+    ]
+      .sort((a, b) => a.id - b.id)
+      .filter((a) => !spoken.has(a.id));
+    const target = queue[0]; // the oldest asks first
     if (target === undefined) {
       card.style.display = 'none';
-      cardWall = -1;
+      cardAsk = -1;
       return;
     }
-    const wall = world.walls.find((w) => w.id === target);
-    if (!wall) return; // unreachable: pending ⇒ the wall stands
-    if (cardWall !== target) {
-      // the one predicate names the class; the card only asks the question
-      const rc = classifyRing(wall.points, wall.height);
-      if (!rc) return; // unreachable: pending ⇒ classifiable
-      cardWall = target;
-      cardBaseTitle =
-        rc.kind === 'farm'
-          ? `the plot is enclosed — ${rc.area.toFixed(0)} m² · what is it for?`
-          : `the shell stands — ${rc.area.toFixed(0)} m² · the masons read ${KIND_LABEL[rc.reading]}`;
+    // the anchor polygon: the enclosure ring or the span itself
+    const anchorPts =
+      target.kind === 'wall'
+        ? world.walls.find((w) => w.id === target.id)?.points
+        : world.roofs.find((r) => r.id === target.id)?.points;
+    if (!anchorPts) return; // unreachable: an ask ⇒ its record stands
+    if (cardAsk !== target.id) {
       cardRow.textContent = '';
-      for (const c of rc.kind === 'farm' ? FIELD_CHOICES : SHELL_CHOICES) {
-        const b = document.createElement('button');
-        b.textContent = c.label;
-        b.onclick = () => {
-          enqueue({ kind: 'designate', tick: world.tick, wallId: target, use: c.use });
-          spoken.set(target, world.tick);
-        };
-        cardRow.appendChild(b);
+      if (target.kind === 'wall') {
+        const wall = world.walls.find((w) => w.id === target.id)!;
+        // the one predicate names the class; the card only asks the question
+        const rc = classifyRing(wall.points, wall.height);
+        if (!rc) return; // unreachable: pending ⇒ classifiable
+        cardBaseTitle =
+          rc.kind === 'farm'
+            ? `the plot is enclosed — ${rc.area.toFixed(0)} m² · what is it for?`
+            : `the shell stands — ${rc.area.toFixed(0)} m² · the masons read ${KIND_LABEL[rc.reading]}`;
+        for (const c of rc.kind === 'farm' ? FIELD_CHOICES : SHELL_CHOICES) {
+          const b = document.createElement('button');
+          b.textContent = c.label;
+          b.onclick = () => {
+            enqueue({ kind: 'designate', tick: world.tick, wallId: target.id, use: c.use });
+            spoken.set(target.id, world.tick);
+          };
+          cardRow.appendChild(b);
+        }
+      } else {
+        const roof = world.roofs.find((r) => r.id === target.id)!;
+        cardBaseTitle = `the span is drawn — ${roof.area.toFixed(0)} m² · what covers it?`;
+        for (const c of ROOF_CHOICES) {
+          const b = document.createElement('button');
+          b.textContent = c.label;
+          b.onclick = () => {
+            enqueue({
+              kind: 'designate_roof',
+              tick: world.tick,
+              roofId: target.id,
+              material: c.material,
+            });
+            spoken.set(target.id, world.tick);
+          };
+          cardRow.appendChild(b);
+        }
       }
+      cardAsk = target.id;
     }
     setText(cardTitle, cardBaseTitle + (queue.length > 1 ? ` · (1 of ${queue.length})` : ''));
-    // anchor over the enclosure's middle, reprojected every frame; clamped so
-    // the question never leaves the screen while it stands unanswered
+    // anchor over the ask's middle, reprojected every frame; clamped so the
+    // question never leaves the screen while it stands unanswered. A span
+    // floats at its own deck level, an enclosure just above head height.
     let ax = 0;
     let ay = 0;
-    for (const p of wall.points) {
+    for (const p of anchorPts) {
       ax += p.x;
       ay += p.y;
     }
-    ax /= wall.points.length;
-    ay /= wall.points.length;
-    cardAnchor.set(ax, groundSim(ax, ay) + 2.5, ay).project(camera);
+    ax /= anchorPts.length;
+    ay /= anchorPts.length;
+    const az =
+      target.kind === 'roof'
+        ? world.roofs.find((r) => r.id === target.id)!.level + 1
+        : groundSim(ax, ay) + 2.5;
+    cardAnchor.set(ax, az, ay).project(camera);
     card.style.display = '';
     const sx = (cardAnchor.x * 0.5 + 0.5) * window.innerWidth;
     const sy = (-cardAnchor.y * 0.5 + 0.5) * window.innerHeight;
@@ -464,10 +506,6 @@ async function boot(): Promise<void> {
   fillBtn.onclick = () => planner.toggle('fill');
   gateBtn.onclick = () => planner.toggle('gate');
   roofBtn.onclick = () => planner.toggle('roof');
-  roofMatBtn.onclick = () => {
-    const m = planner.cycleRoofMaterial();
-    roofMatBtn.textContent = m === 'wood' ? '🪵 wood' : m === 'straw' ? '🌾 straw' : '🧱 brick';
-  };
   shapeBtn.onclick = () => {
     shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
   };
@@ -576,12 +614,14 @@ async function boot(): Promise<void> {
     const nFarms = world.farms.filter((f) => f.use === 'farm').length;
     const nPaddocks = world.farms.filter((f) => f.use === 'livestock').length;
     const nFallow = world.farms.filter((f) => f.use === 'fallow').length;
+    const nAsks =
+      world.pending.length + world.roofs.filter((r) => r.material === null).length;
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
       (nFallow ? ` — fallow ${nFallow}` : '') +
       (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
-      (world.pending.length ? ` — ${world.pending.length} awaiting the word` : '');
+      (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,
       `Year ${year}, day ${day} — stones ${laid}${total ? `/${total}` : ''} — ` +
@@ -666,11 +706,10 @@ async function boot(): Promise<void> {
               break;
             }
           }
-          const m = planner.roofMaterial;
           setText(
             plan,
-            `plan: roof — ${area.toFixed(0)} m² · ${m}${m === 'brick' ? ' (a floor above)' : ''} · ` +
-              `~${Math.ceil(area / Math.max(1, earthPace))} days of decking` +
+            `plan: roof — ${area.toFixed(0)} m² · ~${Math.ceil(area / Math.max(1, earthPace))} days of decking · ` +
+              `the covering is asked when the span is drawn` +
               (held ? '' : ' · corners must rest on finished walls'),
           );
         } else {
@@ -745,7 +784,7 @@ async function boot(): Promise<void> {
           ? 'fill'
           : pending?.kind === 'plan_roof'
             ? 'roof'
-            : pending?.kind === 'designate'
+            : pending?.kind === 'designate' || pending?.kind === 'designate_roof'
               ? 'word'
               : 'wall';
       setText(

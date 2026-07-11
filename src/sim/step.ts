@@ -115,9 +115,6 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
         return 'a roof needs at least three points';
       }
       if (badPoints(cmd.points)) return 'roof points must have finite x and y';
-      if (cmd.material !== undefined && !ROOF_MATERIALS.includes(cmd.material)) {
-        return 'unknown roof material';
-      }
       if (ringSelfIntersects(cmd.points)) return 'roof ring must not cross itself';
       if (ringSelfOverlaps(cmd.points)) return 'roof ring must not overlap itself';
       if (polygonArea(cmd.points) < 1) return 'roof ring must enclose area';
@@ -202,6 +199,18 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
         if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, or fallow';
       } else if (!isBuildingKind(cmd.use)) {
         return 'a shell takes house, blacksmith, tower, or tavern';
+      }
+      return null;
+    }
+    case 'designate_roof': {
+      const roof =
+        typeof cmd.roofId === 'number'
+          ? state.roofs.find((r) => r.id === cmd.roofId)
+          : undefined;
+      // an already-covered span is not asking; the word is one-shot here too
+      if (!roof || roof.material !== null) return 'no span awaits its covering there';
+      if (!ROOF_MATERIALS.includes(cmd.material)) {
+        return 'a roof takes wood, straw, or brick';
       }
       return null;
     }
@@ -510,7 +519,9 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         id: state.nextId++,
         points: pts,
         level,
-        material: cmd.material ?? 'wood',
+        // the default is none (boss canon 2026-07-10): the span is drawn,
+        // its covering awaits the word, and no one decks bare air
+        material: null,
         area,
         workTotal: Math.max(1, area), // ≈ a person-day per square meter
         workDone: 0,
@@ -521,6 +532,19 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         tick: state.tick,
         roofId: roof.id,
         workTotal: roof.workTotal,
+      });
+      break;
+    }
+    case 'designate_roof': {
+      // the covering chosen: a paper act, like the enclosure's word — the
+      // decking itself still queues behind the earth in the daily loop
+      const roof = state.roofs.find((r) => r.id === cmd.roofId)!; // validated
+      roof.material = cmd.material;
+      state.events.push({
+        kind: 'roof_covered',
+        tick: state.tick,
+        roofId: roof.id,
+        material: cmd.material,
       });
       break;
     }
@@ -600,7 +624,9 @@ function moveEarth(state: WorldState): void {
       }
     }
     while (quota > 0) {
-      const roof = state.roofs.find((r) => r.workDone < r.workTotal);
+      // an UNCOVERED span (material null) is not work — nobody decks bare
+      // air; the designate_roof word opens it to the crew
+      const roof = state.roofs.find((r) => r.material !== null && r.workDone < r.workTotal);
       if (!roof) break;
       const m = Math.min(quota, roof.workTotal - roof.workDone);
       roof.workDone += m;

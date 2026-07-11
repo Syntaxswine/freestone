@@ -40,7 +40,9 @@ const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 400];
  * low ring and a doorway loop that must PEND at completion and become a farm
  * and a tavern by the lord's word, a paddock whose workdays stay zero
  * (arable-only tending in the record), a door cut on a still-PENDING shell,
- * and two milestones (200, 260) that fingerprint a live pending state.
+ * two milestones (200, 260) that fingerprint a live pending state, and —
+ * SIM 11 — a span drawn at 250 that stands UNCOVERED (material null, no
+ * decking) through the 260 milestone until designate_roof bricks it at 382.
  */
 const CANON_COMMANDS: Command[] = [
   {
@@ -182,7 +184,7 @@ const CANON_COMMANDS: Command[] = [
   {
     kind: 'designate',
     tick: 355,
-    wallId: 6223, // the tick-340 gapped ring (probed, completes @345)
+    wallId: 6224, // the tick-340 gapped ring (re-probed: the tick-250 span shifted it +1)
     use: 'livestock', // a paddock: its workdays must stay ZERO in every milestone
   },
   {
@@ -214,14 +216,19 @@ const CANON_COMMANDS: Command[] = [
   },
   {
     kind: 'plan_roof',
-    tick: 380,
+    tick: 250,
     points: [
-      { x: 2040, y: 1960 }, // the tick-150 house's four corners — a brick deck
-      { x: 2048, y: 1960 },
-      { x: 2048, y: 1966 },
-      { x: 2040, y: 1966 },
+      { x: 2040, y: 1960 }, // the tick-150 shell's four corners — a span, drawn
+      { x: 2048, y: 1960 }, // early: it stands UNCOVERED through the 260
+      { x: 2048, y: 1966 }, // milestone (SIM 11 — the default is none, and the
+      { x: 2040, y: 1966 }, // asking state is in the fingerprint)
     ],
-    material: 'brick',
+  },
+  {
+    kind: 'designate_roof',
+    tick: 382,
+    roofId: 6154, // the tick-250 span (probed: minted right after wall 6153)
+    material: 'brick', // the covering chosen; decking begins, a floor above
   },
   {
     kind: 'plan_fill',
@@ -249,6 +256,7 @@ interface Milestone {
   buildings: number;
   farmWorkdays: number;
   gates: number;
+  roofsUncovered: number;
   roofsComplete: number;
 }
 
@@ -287,6 +295,7 @@ function runCanon(site: SiteData): Baseline {
         buildings: world.buildings.length,
         farmWorkdays: world.farms.reduce((n, f) => n + f.workdays, 0),
         gates: world.farms.reduce((n, f) => n + f.gates.length, 0),
+        roofsUncovered: world.roofs.filter((r) => r.material === null).length,
         roofsComplete: world.roofs.filter((r) => r.workDone >= r.workTotal).length,
       });
     }

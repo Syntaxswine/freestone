@@ -70,17 +70,12 @@ export interface SnapWall {
 
 export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof';
 
-export const ROOF_MATERIAL_CYCLE = ['wood', 'straw', 'brick'] as const;
-export type PlannerRoofMaterial = (typeof ROOF_MATERIAL_CYCLE)[number];
-
 export class WallPlanner {
   active = false;
   mode: PlannerMode = 'wall';
   height = 4;
   /** applies to wall/building plans; fills are always dirt */
   material: Material = 'sandstone';
-  /** roof plans: wood and straw cap; flat brick adds another layer */
-  roofMaterial: PlannerRoofMaterial = 'wood';
   /** fill plans: a flat platform, or a ramp rising from the first-placed edge */
   fillShape: 'flat' | 'ramp' = 'flat';
   points: Vec2[] = [];
@@ -190,12 +185,6 @@ export class WallPlanner {
     const i = MATERIALS.indexOf(this.material);
     this.material = MATERIALS[(i + 1) % MATERIALS.length]!;
     return this.material;
-  }
-
-  cycleRoofMaterial(): PlannerRoofMaterial {
-    const i = ROOF_MATERIAL_CYCLE.indexOf(this.roofMaterial);
-    this.roofMaterial = ROOF_MATERIAL_CYCLE[(i + 1) % ROOF_MATERIAL_CYCLE.length]!;
-    return this.roofMaterial;
   }
 
   cycleFillShape(): 'flat' | 'ramp' {

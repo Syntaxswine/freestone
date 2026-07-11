@@ -7,10 +7,10 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
-// 10: designation — a completed enclosure asks its lord (farm/livestock/
-// fallow, house/blacksmith/tower/tavern) — 9: doors; 8: ramps + roofs;
-// 7: real gates + gate tool; 6: gated farms
-export const SIM_VERSION = 10;
+// 11: roofs join the designation grammar — a drawn span is COVERED BY
+// NOTHING until designate_roof names its material; no covering, no work —
+// 10: enclosure designation; 9: doors; 8: ramps + roofs; 7: real gates
+export const SIM_VERSION = 11;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -109,7 +109,12 @@ export interface Roof {
   id: number;
   points: Vec2[]; // the spanned polygon; every vertex rests on a finished wall
   level: number; // meters AOD of the supporting wall tops (the highest)
-  material: RoofMaterial;
+  /**
+   * null = UNCOVERED (boss canon 2026-07-10: the default is none): the span
+   * is drawn but its covering awaits the designate_roof word, exactly as an
+   * enclosure awaits its use. No covering, no decking — laborers pass it by.
+   */
+  material: RoofMaterial | null;
   area: number; // m², shoelace
   workTotal: number; // person-days of carpentry (≈ area)
   workDone: number;
@@ -211,8 +216,7 @@ export type Command =
       kind: 'plan_roof';
       tick: number;
       points: Vec2[]; // ≥3 vertices, each resting on a FINISHED wall
-      /** absent defaults to 'wood' at the boundary */
-      material?: RoofMaterial;
+      // no material: a drawn span is UNCOVERED until designate_roof (SIM 11)
     }
   | {
       kind: 'add_gate';
@@ -233,6 +237,13 @@ export type Command =
       wallId: number;
       /** must match the enclosure's class: FieldUse for a plot, BuildingKind for a shell */
       use: FieldUse | BuildingKind;
+    }
+  | {
+      kind: 'designate_roof';
+      tick: number;
+      /** an UNCOVERED roof (material null) — the drawn span awaiting its covering */
+      roofId: number;
+      material: RoofMaterial;
     };
 
 export type SimEvent =
@@ -242,6 +253,8 @@ export type SimEvent =
   | { kind: 'fill_planned'; tick: number; fillId: number; volumeTotal: number }
   | { kind: 'fill_complete'; tick: number; fillId: number }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
+  /** the covering chosen: decking may begin */
+  | { kind: 'roof_covered'; tick: number; roofId: number; material: RoofMaterial }
   | { kind: 'roof_complete'; tick: number; roofId: number }
   /** a low ring closed and awaits the lord's word — the chronicle knows the day */
   | { kind: 'plot_enclosed'; tick: number; wallId: number; area: number }
