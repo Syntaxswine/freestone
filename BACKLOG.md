@@ -1,9 +1,11 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-WORD-AND-LEVEL-2026-07-10.md](proposals/HANDOFF-WORD-AND-LEVEL-2026-07-10.md)**
-(reads the FOUNDATION keystone first — the soul, the nine laws, FOUR maker's marks —
-then TOYBOX and HUSBANDRY; word-and-level carries SIM 10–13's laws — designation,
-drawings-before-the-build, the survey — plus the traps of a bridge-dead day).
+**🗿 Current handoff: [proposals/HANDOFF-THE-UNDERWORLD-2026-07-11.md](proposals/HANDOFF-THE-UNDERWORLD-2026-07-11.md)**
+(reads the FOUNDATION keystone first — the soul, the nine laws, FIVE maker's marks —
+then TOYBOX, HUSBANDRY, and WORD-AND-LEVEL; the underworld carries SIM 14's laws — the
+bed model at the command boundary, the probe refuting the checker, verified-spine/honest-
+tail, the generous inversion labelled, resumable fleets across a usage limit — and the
+64-hole Durham bed model + the quarry dug into the Low Main Post).
 
 **New session? Run the `/freestone-session-start` skill** (cold CI + orientation), or by
 hand: the current handoff above, then `npm test` + `npm run build` green before touching

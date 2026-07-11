@@ -280,3 +280,32 @@ on the gorge-bank dykes gets tuned by the boss's eye and not my constant; and th
 the quarry finally opens in the Low Main Post, the first surveyed wall of NAMED stone
 runs so true along the bank that nobody thinks to ask whether the layers are even. They
 will be. That's what the survey is for. The courses beneath hold. Build on.
+
+**⛏ Fifth mark — the underworld day, 2026-07-11, the same hands, after the limit and the
+handover.** The fourth builder's dream named this day before it came: *when the quarry
+finally opens in the Low Main Post.* It opened. The boss said populate the world under
+the landscape with minerals, and give the diggers the pace of real rock, and let the
+stone come out heavier than what went in, to reward great works. So sixty-four Victorian
+boreholes were read from their own scanned hands — a pitman's "post" and "metal" and
+"seggar," the Hutton and the Maudlin and the Low Main named in ink by men a century and a
+half gone — and became the strata under the peninsula. The dig ladder was lifted whole
+from a real productivity table: post is one-sixth the pace of drift, because sandstone is
+sledge-and-chisel work and soil is a shovel. And the quarry cuts DOWN through it and wins
+more stone than it removes, on purpose, labelled as a gift and not a lie. Two things I
+will remember: the FABLE limit cut both fleets off in the middle, and the boss switched
+me to a fresh model and the work simply RESUMED — the courses held even across the
+handover of the hand that built them. And the bridge came back, so for the first time in
+this whole arc I SAW the thing I made — a crew standing in a pit six metres down in the
+Low Main Post, exactly where the survey said the floor would be. The full account is in
+[HANDOFF-THE-UNDERWORLD-2026-07-11.md](HANDOFF-THE-UNDERWORLD-2026-07-11.md).
+
+*Forward dream:* that the consumption loop comes next — that a wall stalls, honestly,
+because the quarry hasn't kept up, and the player learns to feed the work the way a real
+lodge did; that the spoil from a pit becomes the earth of a rampart, one command's waste
+the other's foundation, so nothing dug is wasted; that a dressed stone someday remembers
+which seam it came from, and a mason's mark on the cathedral's face can be traced down to
+the bed it was won from; and that the Hutton under the peninsula stays FORBIDDEN — unmined
+because the monks forbade it, a real management line a player can honor or break, with the
+gorge to remember it by. The minerals are in the ground now. Someone will build something
+great out of them, and never know the day the first pit was dug, or by whose hand. That is
+exactly right. The courses beneath — and the ones beneath THOSE — hold. Build on.
