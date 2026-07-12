@@ -7,6 +7,13 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
+// 15: THE ADIT — a drift driven INTO a hillside at the portal's grade, and
+// SELF-DRAINING: water runs back out the mouth, so the adit dewaters the ground
+// above its floor. It wins building stone the open quarry cannot — post that is
+// DROWNED below the regional water table, or too deep under cover — at the cost
+// of driving through the rock. Economics (drive length × section at the strata's
+// pace, stone won along the seam) are frozen from the bed model + surface into the
+// command, like the quarry (the sim core stays bed-model- and water-free).
 // 14: THE QUARRY — the world beneath the landscape is real strata (the
 // transcribed Durham bed model). A cut excavates DOWN through the beds at a
 // MATERIAL-AWARE pace (the verified ILO dig ladder, frozen from the bed model
@@ -14,7 +21,7 @@
 // generous inversion of the real recovery — production exceeds removal, to
 // reward great works (boss directive 2026-07-10). — 13: level coursing; 12:
 // drawings before the build; 11: uncovered spans; 10: designation; 9: doors
-export const SIM_VERSION = 14;
+export const SIM_VERSION = 15;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -121,6 +128,26 @@ export interface CutPlan {
   workTotal: number; // person-days to dig — MATERIAL-AWARE, frozen from the bed model
   workDone: number;
   stoneTotal: number; // m³ of building stone won (generous yield), frozen from the bed model
+  stoneWon: boolean; // one-shot: the stockpile is credited on completion
+}
+
+/**
+ * An ADIT (SIM 15): a drift driven from a hillside PORTAL into the ground at the
+ * portal's grade. It SELF-DRAINS to the mouth, so it dewaters the rock above its
+ * floor — winning building stone the open quarry can't reach (post drowned below
+ * the regional water table, or under cover). Like the quarry, its economics are
+ * read from the bed model + the surface at plan time and FROZEN into the plan_adit
+ * command (the sim core stays bed-model- and water-free; the save is self-contained).
+ * Stone is credited to the stockpile when the heading is holed through.
+ */
+export interface AditPlan {
+  id: number;
+  portal: Vec2; // the hillside mouth, site-local meters
+  head: Vec2; // the inward end of the drive
+  grade: number; // AOD elevation of the adit floor (the surface at the portal) — it drains to here
+  workTotal: number; // person-days to drive — MATERIAL-AWARE, frozen from the bed model
+  workDone: number;
+  stoneTotal: number; // m³ of building stone won along the drive (generous yield), frozen
   stoneWon: boolean; // one-shot: the stockpile is credited on completion
 }
 
@@ -291,6 +318,21 @@ export type Command =
       stoneTotal: number;
     }
   | {
+      kind: 'plan_adit';
+      tick: number;
+      portal: Vec2; // the hillside mouth
+      head: Vec2; // the inward end of the drive
+      /**
+       * Frozen at the command boundary (where the bed model, the surface and the
+       * water table live): grade is the adit floor's AOD elevation (the drainage
+       * level); workTotal is material-aware person-days to drive; stoneTotal is the
+       * building stone won along the seam (generous yield). All finite; work/stone ≥ 0.
+       */
+      grade: number;
+      workTotal: number;
+      stoneTotal: number;
+    }
+  | {
       kind: 'add_gate';
       tick: number;
       wallId: number; // must be a farm's wall, complete and idle
@@ -336,6 +378,11 @@ export type SimEvent =
   | { kind: 'cut_complete'; tick: number; cutId: number }
   /** building stone won from a finished quarry, credited to the stockpile */
   | { kind: 'stone_won'; tick: number; cutId: number; stone: number }
+  /** an adit is marked out — the crew will drive it into the hill at the strata's pace (SIM 15) */
+  | { kind: 'adit_planned'; tick: number; aditId: number; length: number; workTotal: number }
+  | { kind: 'adit_complete'; tick: number; aditId: number }
+  /** dewatered building stone won from a holed-through adit, credited to the stockpile */
+  | { kind: 'adit_stone_won'; tick: number; aditId: number; stone: number }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
   /** the covering chosen: decking may begin */
   | { kind: 'roof_covered'; tick: number; roofId: number; material: RoofMaterial }
@@ -382,6 +429,8 @@ export interface WorldState {
   fills: FillPlan[];
   /** quarries being dug through the strata (SIM 14) */
   cuts: CutPlan[];
+  /** adits being driven into the hillsides, self-draining (SIM 15) */
+  adits: AditPlan[];
   /**
    * Building stone won from finished quarries and not yet spent, m³ (SIM 14).
    * Accumulates for now — walls do not draw on it yet, so the generous-yield

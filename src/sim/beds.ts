@@ -13,6 +13,8 @@
  * and deterministic — "the ground beneath you looks like the nearest real hole."
  */
 
+import type { Vec2 } from './types';
+
 /** What lies in the ground. Distinct from wall Material (what a wall is built of). */
 export const GROUND_MATERIALS = [
   'drift', // soil / sand / gravel / clay / till — the overburden
@@ -187,6 +189,49 @@ export function cutEconomics(
   const lastBase = column[column.length - 1]!.base;
   if (depth > lastBase) add(column[column.length - 1]!.m, lastBase, depth);
   return { workDays, stone };
+}
+
+const ADIT_SECTION = 6; // m² — a driven drift's cross-section (~2.5 × 2.4 m)
+const ADIT_STEP = 2; // m between samples along the drive
+
+/**
+ * The economics of an ADIT (SIM 15), frozen into plan_adit at the command boundary.
+ * The drift is driven from portal to head at the portal's GRADE (an AOD elevation),
+ * cutting ADIT_SECTION m² of whatever lies at grade each step:
+ *   workDays += (section · step) / DIG_RATE[material]     (person-days)
+ *   stone    += (section · step) · STONE_YIELD[material]  (m³ won — the seam it drives)
+ * SELF-DRAINING: there is NO water gate on the drive (the adit drains to its mouth) —
+ * that is the whole point, it wins post the open quarry can't. Needs the SURFACE
+ * (heightAt) to find how deep the grade lies at each point, so it takes it as input;
+ * where the drive would break surface (past the hill) there is no rock to cut.
+ */
+export function aditEconomics(
+  model: BedModel,
+  heightAt: (x: number, y: number) => number,
+  portal: Vec2,
+  head: Vec2,
+  grade: number,
+): { workDays: number; stone: number; length: number } {
+  const dx = head.x - portal.x;
+  const dy = head.y - portal.y;
+  const length = Math.hypot(dx, dy);
+  const n = Math.max(1, Math.ceil(length / ADIT_STEP));
+  const seg = length / n; // actual sample length
+  let workDays = 0;
+  let stone = 0;
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) / n; // sample at segment midpoints
+    const x = portal.x + dx * t;
+    const y = portal.y + dy * t;
+    const gradeDepth = heightAt(x, y) - grade; // how far the adit floor lies below the surface here
+    if (gradeDepth < 0) continue; // the drive would break surface — past the hill, no rock to cut
+    const m = model.strataAt(x, y, gradeDepth);
+    const vol = ADIT_SECTION * seg;
+    const r = DIG_RATE[m];
+    if (r > 0) workDays += vol / r;
+    stone += vol * STONE_YIELD[m];
+  }
+  return { workDays, stone, length };
 }
 
 /** Flat placeholder — no subsurface data (tests, and the sim before beds land). */

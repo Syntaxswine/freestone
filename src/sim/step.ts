@@ -21,6 +21,7 @@ import {
   STONE_LEN,
   type BuildingKind,
   type BuildingRoof,
+  type AditPlan,
   type Command,
   type CutPlan,
   type FieldUse,
@@ -134,6 +135,25 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
         return 'quarry stoneTotal must be a finite non-negative number';
+      }
+      return null;
+    }
+    case 'plan_adit': {
+      if (!cmd.portal || !cmd.head || badPoints([cmd.portal, cmd.head])) {
+        return 'adit portal and head must have finite x and y';
+      }
+      const len = Math.hypot(cmd.head.x - cmd.portal.x, cmd.head.y - cmd.portal.y);
+      if (!(len > 0.5)) return 'an adit needs a drive of some length';
+      if (typeof cmd.grade !== 'number' || !Number.isFinite(cmd.grade)) {
+        return 'adit grade must be a finite number';
+      }
+      // the bed-model + surface economics are frozen into the log; guard them like
+      // any float entering hashed state (NaN/Infinity arrive as null from a save)
+      if (typeof cmd.workTotal !== 'number' || !Number.isFinite(cmd.workTotal) || cmd.workTotal < 0) {
+        return 'adit workTotal must be a finite non-negative number';
+      }
+      if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
+        return 'adit stoneTotal must be a finite non-negative number';
       }
       return null;
     }
@@ -636,6 +656,33 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       });
       break;
     }
+    case 'plan_adit': {
+      // An adit: a drift driven into the hillside at the portal's grade. workTotal
+      // and stoneTotal (self-drained, water-free) were read from the bed model + the
+      // surface at the command boundary and are frozen here — the sim core never
+      // touches beds, heights or the water table.
+      const portal = { x: cmd.portal.x, y: cmd.portal.y };
+      const head = { x: cmd.head.x, y: cmd.head.y };
+      const adit: AditPlan = {
+        id: state.nextId++,
+        portal,
+        head,
+        grade: cmd.grade,
+        workTotal: Math.max(1, cmd.workTotal), // at least a day's work, like cuts and fills
+        workDone: 0,
+        stoneTotal: cmd.stoneTotal,
+        stoneWon: false,
+      };
+      state.adits.push(adit);
+      state.events.push({
+        kind: 'adit_planned',
+        tick: state.tick,
+        aditId: adit.id,
+        length: Math.hypot(head.x - portal.x, head.y - portal.y),
+        workTotal: adit.workTotal,
+      });
+      break;
+    }
     case 'plan_roof': {
       // the deck sits on the HIGHEST supporting wall top among the corners —
       // and since SIM 13 a wall's top IS its surveyed level datum, so the
@@ -784,6 +831,25 @@ function moveEarth(state: WorldState): void {
           state.stockpile += cut.stoneTotal;
           state.events.push({ kind: 'cut_complete', tick: state.tick, cutId: cut.id });
           state.events.push({ kind: 'stone_won', tick: state.tick, cutId: cut.id, stone: cut.stoneTotal });
+        }
+      }
+    }
+    if (moved === 0) {
+      // an ADIT is driven like a quarry is dug (SIM 15), ranked just under the
+      // quarry: an idle laborer drives the oldest unfinished adit one person-day
+      // (the strata's pace already baked into workTotal). On the day it is holed
+      // through, the dewatered building stone is credited. No adit, no driving —
+      // the field path below is untouched, so a world with no adits is byte-
+      // identical to before SIM 15.
+      const adit = state.adits.find((a) => a.workDone < a.workTotal);
+      if (adit) {
+        adit.workDone += 1;
+        moved = 1;
+        if (adit.workDone >= adit.workTotal && !adit.stoneWon) {
+          adit.stoneWon = true;
+          state.stockpile += adit.stoneTotal;
+          state.events.push({ kind: 'adit_complete', tick: state.tick, aditId: adit.id });
+          state.events.push({ kind: 'adit_stone_won', tick: state.tick, aditId: adit.id, stone: adit.stoneTotal });
         }
       }
     }

@@ -291,6 +291,7 @@ interface Milestone {
   roofsUncovered: number;
   roofsComplete: number;
   cutsComplete: number;
+  aditsComplete: number;
   stockpile: number;
 }
 
@@ -332,6 +333,7 @@ function runCanon(site: SiteData): Baseline {
         roofsUncovered: world.roofs.filter((r) => r.material === null).length,
         roofsComplete: world.roofs.filter((r) => r.workDone >= r.workTotal).length,
         cutsComplete: world.cuts.filter((c) => c.workDone >= c.workTotal).length,
+        aditsComplete: world.adits.filter((a) => a.workDone >= a.workTotal).length,
         stockpile: Math.round(world.stockpile),
       });
     }

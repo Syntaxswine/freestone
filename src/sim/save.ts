@@ -34,6 +34,7 @@ export function makeSave(state: WorldState, commandLog: readonly Command[]): Sav
       if (c.kind === 'designate' || c.kind === 'designate_roof' || c.kind === 'choose_roof') {
         return { ...c };
       }
+      if (c.kind === 'plan_adit') return { ...c, portal: { ...c.portal }, head: { ...c.head } };
       return { ...c, points: c.points.map((p) => ({ ...p })) };
     }),
   };
