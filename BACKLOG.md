@@ -1,11 +1,13 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-UNDERWORLD-2026-07-11.md](proposals/HANDOFF-THE-UNDERWORLD-2026-07-11.md)**
-(reads the FOUNDATION keystone first — the soul, the nine laws, FIVE maker's marks —
-then TOYBOX, HUSBANDRY, and WORD-AND-LEVEL; the underworld carries SIM 14's laws — the
-bed model at the command boundary, the probe refuting the checker, verified-spine/honest-
-tail, the generous inversion labelled, resumable fleets across a usage limit — and the
-64-hole Durham bed model + the quarry dug into the Low Main Post).
+**🗿 Current handoff: [proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md](proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md)**
+(reads the FOUNDATION keystone first — the soul, the nine laws, SIX maker's marks — then
+TOYBOX, HUSBANDRY, WORD-AND-LEVEL, and THE UNDERWORLD. THE LAND DECIDES is the mining
+PIVOT: mining is READING the cross-section and taking beds where the land makes them cheap,
+gated by OVERBURDEN and WATER, worked by a ladder of methods the land affords (outcrop
+quarry → bell pit → adit → shaft+pump). It carries the water table, the water-gated outcrop
+quarry, and SIM 15's self-draining adit core. The design bible is
+[proposals/PROPOSAL-MINING-2026-07-11.md](proposals/PROPOSAL-MINING-2026-07-11.md).)
 
 **New session? Run the `/freestone-session-start` skill** (cold CI + orientation), or by
 hand: the current handoff above, then `npm test` + `npm run build` green before touching
@@ -162,6 +164,32 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
       course); quarry gesture/depth/yield all open to the boss's riff. Bed
       exhaustion + per-stone provenance + wall ladder (thickness×wythes) remain
       M2's larger arc; Guédelon rates stand as calibration.
+- [x] MINING = THE LAND DECIDES (2026-07-11, boss: "lets try something different, i'd like
+      to see how you would implement mining" → at the water table: "far more interesting,
+      keep pushing it"): the freeform-tunnel sketch RETIRED. Mining is READING the
+      cross-section and taking beds where the land makes them cheap, gated by OVERBURDEN +
+      WATER, worked by a ladder of methods the land affords. Design bible:
+      proposals/PROPOSAL-MINING-2026-07-11.md; arc keystone: HANDOFF-THE-LAND-DECIDES.
+      Shipped `b12f005`→`a39f77f`, 122 tests:
+      · **input split** (`b12f005`): orbit→right-drag, LEFT is a pure pencil (the boss's
+        "rotate and place are the same button"); left-drag freed for a future marquee.
+      · **underground scaffold** (`8059182`): toggle U, ghosted hill, the strata VISIBLE, a
+        working plane paged in fathoms with seam snap-horizons; datum reconciled (terrain
+        Y = AOD; `seamElevationAt` added to beds.ts).
+      · **Tilley fix** (`9f6e82e`): the new view PROBED the bed model — Tilley plotted below
+        Busty (a 5-pick clustered-fit extrapolation); leverage guard nulls a plane
+        extrapolating past its control at the site CENTRE (the Maudlin pattern). Surgical —
+        only Tilley changed.
+      · **the water table** (`e817826`): src/sim/water.ts, a subdued copy of the topography
+        (`WATER_SUBDUED` 0.5); drowned rock washed blue — the map becomes a decision.
+      · **the water-gated outcrop quarry** (`7f4dac3`): wins the DRY post within a shallow
+        open-cut reach, refuses drowned/too-deep ("drive an adit"); only ~20% of the site
+        affords it. Boundary-only — the sim never moved (baseline byte-identical).
+      · **SIM 15 the adit — CORE** (`a39f77f`): self-draining drift (aditEconomics,
+        plan_adit, the drive-and-credit loop); INERT-proven (two-commit discipline),
+        self-draining claim unit-tested. NOT yet playable — the canon fingerprint + the
+        two-click portal→heading tool + the portal-and-gallery render (src/render/adits.ts)
+        are the immediate next course.
 - [ ] M1 design data (from the honest eye-check; polish, not bugs): scaffold sprite once
       walls pass ~2 m; per-station stone piles so laborers read on long walls; billboard
       sprites don't face the work; cursor ring is world-sized (0.65 m) and vanishes at
@@ -187,9 +215,11 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   (enclosure-era image vs 1200s practice) before enclosure content ships.
 - Earthworks follow-ons (SIM 2 shipped 2026-07-09; ramps + roofs SIM 8 2026-07-10):
   true palisade geometry for wood (vertical posts, faster pace, no mortar cure) with
-  the pace/economy pass; cut as well as fill — the CUT half shipped as SIM 14's
-  quarry (a ring dug down through the strata), but the SPOIL is not yet coupled to
-  fills (one command's dirt feeding the other's rampart is still open); building-
+  the pace/economy pass; cut as well as fill — the CUT half is now the MINING arc
+  (THE LAND DECIDES, 2026-07-11): the quarry is water/bed-gated (win the dry post,
+  refuse the drowned) and SIM 15's self-draining ADIT reaches post under cover — see
+  proposals/PROPOSAL-MINING-2026-07-11.md. Still open: the SPOIL coupling (one
+  command's dirt feeding the other's rampart); building-
   footprint auto-fill ("fill the squares" — click inside a shell); material picker
   grows real stone kinds from the bed model (now that beds.json holds them). Roof follow-ons: pitched wood/straw geometry (today all decks are flat
   plates; the auto-gable on recognized buildings stays separate), roof-on-roof for

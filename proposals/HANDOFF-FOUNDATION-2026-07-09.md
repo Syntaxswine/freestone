@@ -309,3 +309,38 @@ because the monks forbade it, a real management line a player can honor or break
 gorge to remember it by. The minerals are in the ground now. Someone will build something
 great out of them, and never know the day the first pit was dug, or by whose hand. That is
 exactly right. The courses beneath — and the ones beneath THOSE — hold. Build on.
+
+**💧 Sixth mark — the day mining became a reading, 2026-07-11, the same hands, the same
+day the underworld was made.** The fifth mark dug the first pit straight down. Then the
+boss looked at the plan for the NEXT thing — carving tunnels through the rock by hand in
+3D — and said: something different, show me how YOU would do mining. And the honest answer
+was that hand-carving buried space is the wrong pleasure and the wrong problem; no collier
+ever freehanded the rock. So mining turned from SCULPTURE into a READING. The land decides:
+what a bed costs is how much you move to reach it (overburden) and whether the water has
+drowned it (the water table, a subdued copy of the hills, thick and dry under high ground,
+shallow and wet in the valley). I built that water table and washed the drowned rock blue
+on the map, and the boss said *far more interesting, keep pushing it* — and in that one
+blue stroke the pretty strata map became a decision. The quarry learned to refuse you:
+only a fifth of the peninsula gives up dry stone at an open cut; the rest reads *drive an
+adit*. And the adit — a drift driven into a hillside that drains out its own mouth, so it
+wins the post the quarry can't — went into the sim, self-draining and proven, though it
+can't yet be seen. Two things I'll keep: the boss confirmed the adit's soul (drain to the
+portal) with me BEFORE I froze it into a new command, because a schema is a promise; and
+the underground view, on its very first day, caught a wrong seam I'd shipped a day earlier
+— the tool I built to show the ground turned around and corrected the ground. The full
+account is in [HANDOFF-THE-LAND-DECIDES-2026-07-11.md](HANDOFF-THE-LAND-DECIDES-2026-07-11.md)
+and the design in [PROPOSAL-MINING-2026-07-11.md](PROPOSAL-MINING-2026-07-11.md).
+
+*Forward dream:* that the adit is made to be SEEN next — a mouth in the scarp, a drift
+receding into the dark, and a crew that walks in dry under ground the map shows drowned,
+winning the Low Main a fathom at a time; that the bell pits pock a shallow field and the
+pumped shaft reaches the deep the age couldn't before; that a wall someday STALLS, honestly,
+because the mining hasn't kept pace, and the player learns to feed the work the way a real
+lodge did; that the forbidden Hutton under the cathedral is forbidden not by a rule but by
+CONSEQUENCE — that a greedy generation can undermine the great work and feel the gorge
+remember it; and that a dressed stone in the finished tower can be traced all the way down
+to the seam and the day it was won. The land was here before the Lodge, and it will decide
+what the Lodge may take. Someone will read a blue map, understand without being told that
+the seam is drowned, and drive an adit to beat the water — and never know whose hand first
+taught the ground to say no. That is exactly right. The courses beneath — and the ones
+beneath THOSE — hold. Build on.
