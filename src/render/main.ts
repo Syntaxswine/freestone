@@ -62,7 +62,7 @@ const SPEEDS = [0, 1, 4, 16] as const; // ticks (game days) per real second — 
 
 async function loadSite(): Promise<SiteData> {
   try {
-    const res = await fetch('/data/site-durham/heightmap.json');
+    const res = await fetch(`${import.meta.env.BASE_URL}data/site-durham/heightmap.json`);
     if (!res.ok) throw new Error(`${res.status}`);
     const json = (await res.json()) as HeightmapJson;
     return siteFromHeightmap(json);
@@ -74,7 +74,7 @@ async function loadSite(): Promise<SiteData> {
 
 async function loadBeds(): Promise<BedModel> {
   try {
-    const res = await fetch('/data/site-durham/beds.json');
+    const res = await fetch(`${import.meta.env.BASE_URL}data/site-durham/beds.json`);
     if (!res.ok) throw new Error(`${res.status}`);
     return bedModelFromJson((await res.json()) as BedsJson);
   } catch (err) {
