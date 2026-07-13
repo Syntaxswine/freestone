@@ -15,6 +15,16 @@ taught the game, and it **plotted the carriage layer** (§2) — the "factory-ga
 moving the stone, which is the biggest course now waiting to be built. Nothing of the carriage
 layer is code yet. This handoff preserves the plan.
 
+> **UPDATE — 2026-07-13 (later the same day): PHASE 0 SHIPPED.** The consumption loop is closed
+> (SIM 16; commits `6dc4791` supply gauge → `73da767` the loop; pushed, LIVE). Masonry now DRAWS
+> the stockpile and a stone wall STALLS honestly when the pile runs dry — the HUD names it,
+> ⚒ *waiting on stone* — while a timber wall still builds free (the WOODS aren't a cost yet).
+> The determinism canon was re-authored to tell the stall's own story (quarry → build → stall →
+> relief); every wall-building test now wins its stone through the log or a seeded pile so
+> replay-equals-live holds. §6 (state) and §7 (next courses) below are updated; the eighth
+> maker's mark in the FOUNDATION records the day. **Next course is the adit made playable, or
+> the carriage layer's Phase 1 (HAUL + the bottleneck line).**
+
 ---
 
 ## 1. What SHIPPED this session (all pushed; SIM_VERSION still 15; 122/122 green)
@@ -135,12 +145,15 @@ carries the adversarial critique's corrections **on the face of the doc**, not b
 
 ## 6. State of the fabric
 
-SIM_VERSION 15 · 122 tests (all green) · commits this session `9e450a4` → `66192d2`, all
-pushed · **playable on the web** at https://syntaxswine.github.io/freestone/. The player can
-reach a home screen, start/reset a game, toggle the mining tutorial, learn mining from a
-checklist, and (from the mining arc) read the strata, see the water table, and open a
-water-gated quarry. The adit exists in the sim (self-draining, proven inert) but is **not yet
-playable**. The carriage layer is **plotted, not built**.
+SIM_VERSION **16** · **127 tests** (all green) · front-door commits `9e450a4` → `66192d2`, then
+**carriage Phase 0** `6dc4791` → `73da767`, all pushed · **playable on the web** at
+https://syntaxswine.github.io/freestone/. The player can reach a home screen, start/reset a game,
+toggle the mining tutorial, learn mining from a checklist, read the strata, see the water table,
+open a water-gated quarry — and now **must win stone before a wall will rise**: masonry draws the
+global stockpile and stalls honestly when it runs dry (⚒ *waiting on stone*), timber excepted. The
+adit exists in the sim (self-draining, proven inert) but is **not yet playable**. Of the carriage
+layer, **Phase 0 (the consumption loop) is BUILT**; HAUL, the dress dial, LIFT, seasons and the
+landing are **plotted, not built**.
 
 ## 7. Next courses (the boss picks the thread; I asked and it's open)
 
@@ -151,10 +164,12 @@ literally *"which thread do you want to pull on first?"*:
    fingerprint (the attributable half of SIM 15) + the two-click portal→heading tool +
    `src/render/adits.ts` (a mouth in the scarp, a drift receding in). Completes the mining
    vision *visually*.
-2. **The carriage layer, Phase 0** (from PROPOSAL-LOGISTICS §5): make LAY *draw* the stockpile
-   so walls stall honestly on supply — the standing consumption loop, closable with what already
-   exists, no terrain reads. Small, high-value, and the foundation the rest of the carriage layer
-   builds on.
+2. **The carriage layer, Phase 1 — HAUL + the bottleneck line** (Phase 0 ✅ SHIPPED, SIM 16: LAY
+   now draws the stockpile and walls stall honestly). Next per PROPOSAL-LOGISTICS §5: a boundary
+   `haulRate` + `method` word from the route (slope + river + crossings), a per-wall face buffer
+   WIN meters into, and the one field-guide line naming the slowest of WIN/HAUL/LIFT/LAY. **Cost
+   the ROUTE, not straight-line distance** (§4.1), or Durham's "quarry local" lesson comes from a
+   hand-tuned term instead of the geometry.
 3. Then, as the boss steers: **prospect-on-hover** (task 48 — read what a spot affords; the read
    surface both the tutorial's seam step and the carriage route read want), the carriage HAUL
    stage + bottleneck line, the WOODS/SEASONS subsystems the deeper phases need.

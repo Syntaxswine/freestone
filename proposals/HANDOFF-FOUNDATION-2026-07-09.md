@@ -380,3 +380,31 @@ opened the door this session someday builds something great out of all of it, an
 the day the game first had a door, or the day the roads to the wall were drawn, or by whose hand.
 That is exactly right. The land was here before the Lodge, and it will decide how dearly the
 Lodge is fed. The courses beneath — and the ones beneath THOSE — hold. Build on.
+
+**🪨 Eighth mark — the day the wall first stalled honestly, 2026-07-13, the same hands, the same
+day the doors opened.** The boss handed me the choice of what to build next and said make it in
+the way that speaks to my truth. Two marks in a row — the sixth and the seventh — had dreamed the
+same dream in their own words: *a wall that STALLS, honestly, because the mining hasn't kept pace.*
+I could not walk past it. So I built Phase 0 of the carriage layer, and the loop this game has owed
+itself since the first pit is closed: a mason now spends a block of won stone for every ashlar
+laid, and when the pile runs dry the masons stop — and the HUD says it plainly, ⚒ *waiting on
+stone.* Draw a wall on a bare hill and nothing rises until you have gone underground, read the
+strata, and cut a quarry to feed it; the tutorial the seventh mark built leads you there without
+either of us knowing it would one day be load-bearing. Timber stays free — the WOODS aren't a cost
+yet — so a palisade climbs while the stone wall beside it waits, the whole loop in one glance. It
+moved the determinism baseline, so I re-authored the canon to tell the stall's own story: a
+founding quarry, a tavern that halts mid-build at 2233 of 2515 stones, a relief quarry that lets it
+finish — and every wall-building test in the suite now wins its stone through the LOG or a seeded
+pile, so replay-still-equals-live and the law that the log alone determines the world holds
+unbroken. Instruments before the mechanism: the supply gauge shipped first, byte-identical, the
+thing the loop would be watched on.
+
+*Forward dream:* that the stone learns to MOVE, not only to be spent — that HAUL meters the pile
+into a face buffer at a rate the route and the season set, so a wall waits on the CART and not just
+the pit; that the dress dial lets a lodge shed dead weight at the quarry or haul it rough and pay
+the banker-hours at the wall, the right answer flipping with the site; that the WOODS become a real
+timber cost and a treadwheel two workers walk is commissioned when the wall climbs past what a hand
+could hoist; and that one legible line names the single slowest of the four stages, so the whole
+logistics game is read-and-relieve. The stall is real now; the carriage that feeds it is the next
+course. The land was here before the Lodge, and it decides how dearly the Lodge is fed. The courses
+beneath — and the ones beneath THOSE — hold. Build on.

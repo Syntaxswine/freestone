@@ -1,7 +1,7 @@
 # Castle Cultivator backlog
 
 **🗿 Current handoff: [proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md](proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md)**
-(reads the FOUNDATION keystone first — the soul, the nine laws, SEVEN maker's marks — then the
+(reads the FOUNDATION keystone first — the soul, the nine laws, EIGHT maker's marks — then the
 mining keystone THE LAND DECIDES, then the design this session hands forward: PROPOSAL-LOGISTICS.
 This session SHIPPED the front door + the mining tutorial and put the game ON THE WEB (LIVE:
 https://syntaxswine.github.io/freestone/), and PLOTTED **the carriage layer** — moving the stone
@@ -9,6 +9,10 @@ as a **WIN→HAUL→LIFT→LAY** throughput pipeline (each stage a scalar frozen
 from slope+route+river+season; the wall builds at min() and STALLS honestly → closes the standing
 consumption loop; "deep model, shallow controls"; Durham's Wear = a MOAT not a highway, so quarry
 local). Design bible: [proposals/PROPOSAL-LOGISTICS-2026-07-13.md](proposals/PROPOSAL-LOGISTICS-2026-07-13.md).
+Then a NEW session (still 2026-07-13) built **carriage Phase 0 — SIM 16, the consumption loop**:
+masonry now draws the stockpile and a stone wall STALLS honestly on a dry pile (⚒ *waiting on
+stone*), timber excepted; the canon re-authored to tell the stall's story; 127 tests; LIVE. The
+eighth maker's mark records it. Next: HAUL (Phase 1) or the adit made playable.
 Mining still teed up: [proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md](proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md)
 (the adit made playable) + [proposals/PROPOSAL-MINING-2026-07-11.md](proposals/PROPOSAL-MINING-2026-07-11.md).)
 
@@ -215,6 +219,21 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         it teaches the dry/drowned reading, but tying the readout to the camera is the pending
         prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
         settings are the natural follow-ons.
+- [x] SIM 16 — THE CONSUMPTION LOOP (carriage Phase 0, 2026-07-13): masonry now DRAWS the
+      stockpile — the standing M2 economy the whole mining arc was for; the honest stall the
+      sixth AND seventh maker's marks both dreamed of, made real.
+      · **the loop** (`6dc4791` supply gauge → `73da767` SIM 16): a laid ashlar spends
+        STONE_VOLUME (0.03375 m³) of won building stone; a dry pile STALLS the masons (HUD:
+        ⚒ *waiting on stone*); timber draws no stone (the WOODS = carriage Phase 3). Global +
+        one-shot; no terrain reads. Instruments-first (the gauge byte-identical), then the
+        attributable bump — SIM 16 inherently moves the baseline, so no inert intermediate.
+      · **canon re-authored** to tell the stall's story (baselines/durham-42.json): founding
+        quarry Q1 → the stone walls build → the tavern STALLS mid-build (2233/2515, stockpile
+        0) → relief quarry Q2 → it finishes. Every wall-building test now wins its stone through
+        the LOG (a founding quarry) or a seeded pile, so replay-equals-live and "the log alone
+        determines the world" hold unbroken.
+      · SIM_VERSION 15→16, **127 tests**, build clean, LIVE. Next: HAUL (Phase 1) or the adit
+        made playable.
 - [ ] M1 design data (from the honest eye-check; polish, not bugs): scaffold sprite once
       walls pass ~2 m; per-station stone piles so laborers read on long walls; billboard
       sprites don't face the work; cursor ring is world-sized (0.65 m) and vanishes at
@@ -241,7 +260,9 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   only levers are the dress-at-quarry dial, working siting, commission-a-crane, an optional
   river landing, and the one bottleneck line. Durham teaches by refusal — the Wear sits above
   its head of navigation (a MOAT, not a highway), so the cheap read is "quarry the Low Main
-  Post underfoot," exactly as history did. Phase 0 = make LAY draw the stockpile. HARD
+  Post underfoot," exactly as history did. **Phase 0 (make LAY draw the stockpile) ✅ SHIPPED
+  SIM 16 (`73da767`)** — masonry draws the pile, walls stall honestly (⚒ waiting on stone); next
+  is HAUL (Phase 1). HARD
   PREREQUISITES flagged in the proposal: WOODS and SEASONS are render-only today → real
   consumable/sim-state are ground-up subsystems; HAUL must cost the ROUTE (with river
   crossings), not straight-line; the "6 t/day crane" number is the one UNVERIFIED figure (don't
