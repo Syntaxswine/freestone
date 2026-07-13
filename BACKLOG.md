@@ -229,6 +229,21 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
 - [ ] M7 — Weathering, audio, Steam packaging
 
 ## Open threads
+- MOVING STONE — the carriage layer (proposed 2026-07-13, boss: "there are a lot of factory-game
+  logistics involved with moving the stone… cranes, pulleys, log rollers"): design plotted in
+  proposals/PROPOSAL-LOGISTICS-2026-07-13.md (research pass: 79 agents, 56/67 claims verified).
+  Idea: a WIN→HAUL→LIFT→LAY throughput pipeline, each stage a scalar frozen at the survey
+  boundary from slope+route+river+season; the wall builds at min() of the four and stalls
+  honestly (this CLOSES the standing consumption loop). "Deep model, shallow controls": the
+  only levers are the dress-at-quarry dial, working siting, commission-a-crane, an optional
+  river landing, and the one bottleneck line. Durham teaches by refusal — the Wear sits above
+  its head of navigation (a MOAT, not a highway), so the cheap read is "quarry the Low Main
+  Post underfoot," exactly as history did. Phase 0 = make LAY draw the stockpile. HARD
+  PREREQUISITES flagged in the proposal: WOODS and SEASONS are render-only today → real
+  consumable/sim-state are ground-up subsystems; HAUL must cost the ROUTE (with river
+  crossings), not straight-line; the "6 t/day crane" number is the one UNVERIFIED figure (don't
+  calibrate from it); biggest fun-risk = "diagnosed once then watched" → needs an ONGOING dial
+  whose right answer changes as the wall rises. 9 open questions for the boss in §6.
 - Wall ladder implementation (SCOPE §6, boss canon 2026-07-09): wythes/thickness/core
   parameters on WallPlan + slenderness height-gating + dry vs mortared pace. LAND IT WITH
   M2's quarry mechanics — thickness multiplies stone demand, so the two tune together;
