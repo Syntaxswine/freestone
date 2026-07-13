@@ -3,7 +3,7 @@
  * sim churn, while the sim is small).
  *
  * A canonical run — fixed seed, the real Durham terrain, a hand-authored command
- * script including one deliberately invalid command — is fingerprinted at
+ * script including several deliberately invalid commands — is fingerprinted at
  * milestone ticks and committed as baselines/durham-42.json. Every `npm test`
  * replays it and compares: any change to physics, validation, decomposition, or
  * the rng path shows up as a hash mismatch here before it ships.
@@ -28,252 +28,89 @@ const BASELINE_PATH = resolve(here, '../baselines/durham-42.json');
 const TERRAIN_PATH = resolve(here, '../public/data/site-durham/heightmap.json');
 
 const SEED = 'durham-baseline-42';
-const END_TICK = 400;
-const MILESTONE_TICKS = [1, 6, 61, 101, 200, 260, 320, 400];
+const END_TICK = 200;
+const MILESTONE_TICKS = [1, 7, 30, 65, 80, 100, 130, 200];
 
 /**
- * The canon must exercise every physics path the fingerprint should guard
- * (the SIM 2 review caught it guarding zero fill/material behavior): walls in
- * both materials, a fill that completes with a wall planned ON the platform
- * (effectiveGroundAt in the record), deliberately invalid commands so the
- * constant rejection strings are fingerprinted too, and — SIM 3/10 — a closed
- * low ring and a doorway loop that must PEND at completion and become a farm
- * and a tavern by the lord's word, a paddock whose workdays stay zero
- * (arable-only tending in the record), and — SIM 12 — the DRAWINGS: the
- * tick-150 building plots and the masons lay nothing (the 200 milestone
- * fingerprints the waiting shell), the roof is chosen at 205, the trade at
- * 255 (the 260 milestone catches the crew MID-BUILD), a door is cut in the
- * finished tavern at 350, and a span drawn at 300 stands UNCOVERED through
- * the 320 milestone until designate_roof bricks it at 382 (SIM 11).
+ * The canon exercises every physics path the fingerprint guards — now including
+ * SIM 16's CONSUMPTION LOOP, the reason this baseline moved off SIM 15. Masonry
+ * DRAWS the stockpile, so the run had to be re-authored to WIN stone before it
+ * spends it, and it now tells the loop's whole arc:
+ *  - a WOOD wall (tick 6) builds free while a SANDSTONE wall (tick 5) stands
+ *    STALLED beside it on an empty pile — the loop in one fingerprint (the 7 and
+ *    30 milestones catch stones climbing on timber alone, stockpile 0);
+ *  - the FOUNDING quarry Q1 holes through ~tick 60 (the laborers clear the fills
+ *    first) and the stone walls build off it — wall A done ~67, the stepped-footing
+ *    farm ring FR ~78, both in the 80 milestone;
+ *  - the plotted tavern BS (drawings answered 20/25) is the STALL: it wants more
+ *    stone than Q1 leaves, so it halts mid-build (~2233/2515 at the 100 milestone,
+ *    stockpile ~0) until the RELIEF quarry Q2 lands ~124 and it finishes ~127 (the
+ *    130 milestone) — starve → relief → resume;
+ *  - and the pre-16 grammar still runs, now on won stone: a completed fill carries
+ *    W-plat (effectiveGroundAt in the record), the farm is designated and tended,
+ *    a ramp is billed, a door and a second gate are cut and one is walled back up
+ *    (the infill DRAWS stone), a span stands uncovered then is bricked into a deck
+ *    (~167), and four invalid commands reject with their constant reasons. The
+ *    wallIds/roofId are re-probed under the SIM 16 stone counts (the wood wall's
+ *    free posts set them: FR 225, BS 334, the span 2531).
  */
 const CANON_COMMANDS: Command[] = [
-  {
-    kind: 'plan_fill',
-    tick: 3,
-    points: [
-      { x: 1970, y: 1968 },
-      { x: 1982, y: 1968 },
-      { x: 1982, y: 1980 },
-      { x: 1970, y: 1980 },
-    ],
-    height: 1,
-  },
-  {
-    kind: 'plan_wall',
-    tick: 5,
-    points: [
-      { x: 1960, y: 2000 },
-      { x: 2020, y: 2000 },
-      { x: 2020, y: 2050 },
-    ],
-    height: 4,
-  },
-  {
-    kind: 'plan_wall',
-    tick: 60,
-    points: [
-      { x: 1940, y: 1980 },
-      { x: 1940, y: 1930 },
-    ],
-    height: 2.5,
-    material: 'wood',
-  },
-  {
-    kind: 'plan_wall',
-    tick: 100,
-    points: [
-      { x: 1900, y: 1900 },
-      { x: 1910, y: 1900 },
-    ],
-    height: null as unknown as number, // deterministically rejected, chronicled
-  },
-  {
-    kind: 'plan_fill',
-    tick: 100,
-    points: [
-      { x: 1900, y: 1900 },
-      { x: 1910, y: 1900 },
-    ],
-    height: 1, // rejected: two points cannot ring ground
-  },
-  {
-    kind: 'plan_fill',
-    tick: 100,
-    points: [
-      { x: 1860, y: 1890 },
-      { x: 1860, y: 1860 },
-      { x: 1890, y: 1860 },
-      { x: 1890, y: 1890 },
-      { x: 1860, y: 1889 },
-      { x: 1860, y: 1862 },
-      { x: 1888, y: 1862 },
-      { x: 1888, y: 1888 },
-      { x: 1860, y: 1888 },
-    ],
-    height: 1, // rejected: double-wound lap (SIM 4 overlap guard fingerprinted)
-  },
-  {
-    kind: 'plan_wall',
-    tick: 250,
-    points: [
-      { x: 1972, y: 1974 },
-      { x: 1980, y: 1974 },
-    ],
-    height: 1, // stands ON the tick-3 fill's completed platform
-  },
-  {
-    kind: 'plan_wall',
-    tick: 130,
-    points: [
-      { x: 1990, y: 1900 },
-      { x: 2014, y: 1900 },
-      { x: 2014, y: 1924 },
-      { x: 1990, y: 1924 },
-      { x: 1990, y: 1900 },
-    ],
-    height: 0.5, // closed low ring — SIM 10: pends at completion (@137), designated below
-  },
-  {
-    kind: 'designate',
-    tick: 145, // the ring completes ~141 now — stepped footings on the bank
-    //           bill 629 stones where flat-count billed 420 (SIM 13, honest)
-    wallId: 5375, // the tick-130 ring — deterministic id, re-probed
-    use: 'farm', // the word makes it arable; tending begins this very tick
-  },
-  {
-    kind: 'plan_wall',
-    tick: 150,
-    points: [
-      { x: 2044.55, y: 1960 }, // the doorway loop: jambs collinear on the front edge
-      { x: 2048, y: 1960 },
-      { x: 2048, y: 1966 },
-      { x: 2040, y: 1966 },
-      { x: 2040, y: 1960 },
-      { x: 2043.45, y: 1960 },
-    ],
-    height: 3, // a PLOTTED BUILDING (SIM 12): pends from this very tick, and the
-    //            masons lay NOT ONE STONE until both drawings are answered — the
-    //            waiting shell is in the 200 fingerprint (stones ~700 lower)
-  },
-  {
-    kind: 'choose_roof',
-    tick: 205,
-    wallId: 6006, // the tick-150 plot (re-probed) — the drawings' FIRST answer
-    roof: 'straw', // a thatched gable at completion (the dressing path)
-  },
-  {
-    kind: 'designate',
-    tick: 255,
-    wallId: 6006, // the second answer — the masons read a cot…
-    use: 'tavern', // …the lord keeps ale. The crew starts THIS tick: the 260
-    //                milestone catches the shell MID-BUILD (~338 stones in)
-  },
-  {
-    kind: 'plan_fill',
-    tick: 320,
-    points: [
-      { x: 2000, y: 2040 },
-      { x: 2008, y: 2040 },
-      { x: 2008, y: 2048 },
-      { x: 2000, y: 2048 },
-      { x: 2000, y: 2040.2 }, // hand-closed: SIM 5 normalization ACCEPTS this,
-    ], //                        and tending must pause for it then resume
-    height: 0.5,
-  },
-  {
-    kind: 'plan_wall',
-    tick: 340,
-    points: [
-      { x: 1930, y: 2035 },
-      { x: 1946, y: 2035 },
-      { x: 1946, y: 2051 },
-      { x: 1930, y: 2051 },
-      { x: 1930, y: 2036.5 }, // a 1.5 m gateway — SIM 6: the gap gate rides the designation
-    ],
-    height: 0.5,
-  },
-  {
-    kind: 'designate',
-    tick: 355,
-    wallId: 6909, // the tick-340 gapped ring (re-probed under the SIM 13 id shifts)
-    use: 'livestock', // a paddock: its workdays must stay ZERO in every milestone
-  },
-  {
-    kind: 'add_gate',
-    tick: 360,
-    wallId: 5375, // the tick-130 farm ring's wall — deterministic id, re-probed
-    at: { x: 2014, y: 1912 }, // a second gate knocked into the east wall
-  },
-  {
-    kind: 'remove_gate',
-    tick: 375,
-    wallId: 5375,
-    at: { x: 2014, y: 1912 }, // taken down again: the masons wall it back up
-  },
-  {
-    kind: 'add_gate',
-    tick: 350,
-    wallId: 6006, // the tick-150 tavern — SIM 9: the same tool cuts a DOOR
-    at: { x: 2044, y: 1966 }, // a back door in the north wall
-  },
-  {
-    kind: 'plan_roof',
-    tick: 100,
-    points: [
-      { x: 1900, y: 1900 },
-      { x: 1910, y: 1900 },
-      { x: 1910, y: 1910 },
-    ], // rejected: floating in a field (SIM 8 support rule fingerprinted)
-  },
-  {
-    kind: 'plan_roof',
-    tick: 300, // after the tavern shell completes (~275) — spans rest on FINISHED walls
-    points: [
-      { x: 2040, y: 1960 }, // the tavern's four corners — a second, honest deck
-      { x: 2048, y: 1960 }, // over the gable's building: it stands UNCOVERED
-      { x: 2048, y: 1966 }, // through the 320 milestone (SIM 11 — the default is
-      { x: 2040, y: 1966 }, // none, and the asking state is in the fingerprint)
-    ],
-  },
-  {
-    kind: 'designate_roof',
-    tick: 382,
-    roofId: 6907, // the tick-300 span (re-probed under SIM 13's footing bills)
-    material: 'brick', // the covering chosen; decking begins, a floor above
-  },
-  {
-    kind: 'plan_fill',
-    tick: 385,
-    points: [
-      { x: 1955, y: 1955 },
-      { x: 1961, y: 1955 },
-      { x: 1961, y: 1961 },
-      { x: 1955, y: 1961 },
-    ],
-    height: 1,
-    shape: 'ramp', // SIM 8: the wedge in the record
-  },
-  {
-    kind: 'plan_cut',
-    tick: 300, // SIM 14: a quarry into the bare Low Main Post — the hole at this
-    //            spot (NZ24SE109) logs sandstone from the surface, rockhead 0. The
-    //            economics are FROZEN as the render would freeze them from the bed
-    //            model: 3 m × 36 m² of post at the ILO rock rate (0.8 m³/person-day)
-    //            = 135 person-days; 108 m³ removed → 135 m³ buildable (generous
-    //            1.25). ~68 ticks with 2 laborers, so it digs 300→~368 and the 400
-    //            fingerprint catches cutsComplete=1, stockpile 135. It pulls the
-    //            idle hands off the fields while it runs (the quarry-before-field
-    //            law), so farmWorkdays at 320/400 fall below the no-quarry run.
-    points: [
-      { x: 1755, y: 1567 },
-      { x: 1761, y: 1567 },
-      { x: 1761, y: 1573 },
-      { x: 1755, y: 1573 },
-    ],
-    depth: 3,
-    workTotal: 135,
-    stoneTotal: 135,
-  },
+  // Q1 — THE FOUNDING QUARRY (SIM 16): the crew opens the outcrop Low Main Post
+  // (NZ24SE109 logs sandstone from surface, rockhead 0). Economics FROZEN as the
+  // render would from the bed model: ~44 m³ of post at the ILO rock rate ≈ 58
+  // person-days; generous 1.25 → 55 m³ won. The two laborers clear the fills
+  // first (fills outrank the pit), so it holes through ~tick 60 — and no stone is
+  // laid until then: the masons stall on an empty pile from the tick-5 wall on.
+  { kind: 'plan_cut', tick: 1, points: [{ x: 1755, y: 1567 }, { x: 1761, y: 1567 }, { x: 1761, y: 1573 }, { x: 1755, y: 1573 }], depth: 3, workTotal: 58, stoneTotal: 55 },
+  // F1 — a platform fill; W-plat stands on it once it sets (~tick 30)
+  { kind: 'plan_fill', tick: 3, points: [{ x: 1970, y: 1968 }, { x: 1982, y: 1968 }, { x: 1982, y: 1980 }, { x: 1970, y: 1980 }], height: 1 },
+  // A — a sandstone wall planned tick 5 that STALLS with an empty pile until Q1
+  // lands (~60), then builds (done ~67): the initial-starve path (SIM 16).
+  { kind: 'plan_wall', tick: 5, points: [{ x: 1960, y: 2000 }, { x: 1995, y: 2000 }], height: 1 },
+  // B — a WOOD wall: timber draws no stone (the WOODS aren't a cost yet), so it
+  // builds FREE from tick 6 while A stands stalled beside it — the loop, in one
+  // fingerprint. Its ~600 posts set the ids of everything planned after it.
+  { kind: 'plan_wall', tick: 6, points: [{ x: 1940, y: 1980 }, { x: 1940, y: 1955 }], height: 2.5, material: 'wood' },
+  // FR — a closed low ring on the gorge bank: stepped footings bill 629 stones
+  // (SIM 13); it pends at completion (~78) and the lord's word makes it a farm.
+  { kind: 'plan_wall', tick: 10, points: [{ x: 1990, y: 1900 }, { x: 2014, y: 1900 }, { x: 2014, y: 1924 }, { x: 1990, y: 1924 }, { x: 1990, y: 1900 }], height: 0.5 },
+  // BS — a plotted building (SIM 12): the doorway loop's jambs are collinear on
+  // the front edge. It pends for its DRAWINGS, and is the SIM 16 STALL — it wants
+  // 830 blocks (~28 m³) but only ~21 m³ is left when its turn comes, so it halts
+  // mid-build (~2233/2515 at tick 100) until Q2 relieves it (~tick 127).
+  { kind: 'plan_wall', tick: 12, points: [{ x: 2044.55, y: 1960 }, { x: 2048, y: 1960 }, { x: 2048, y: 1966 }, { x: 2040, y: 1966 }, { x: 2040, y: 1960 }, { x: 2043.45, y: 1960 }], height: 3 },
+  // RF — a ramp fill (SIM 8): the wedge in the record
+  { kind: 'plan_fill', tick: 15, points: [{ x: 1955, y: 1955 }, { x: 1961, y: 1955 }, { x: 1961, y: 1961 }, { x: 1955, y: 1961 }], height: 1, shape: 'ramp' },
+  // four invalid commands (tick 16) — deterministically rejected, the constant
+  // reason strings fingerprinted: a null height, a two-point fill, a double-wound
+  // lap (the SIM 4 overlap guard), a roof floating in a field (the SIM 8 support rule)
+  { kind: 'plan_wall', tick: 16, points: [{ x: 1900, y: 1900 }, { x: 1910, y: 1900 }], height: null as unknown as number },
+  { kind: 'plan_fill', tick: 16, points: [{ x: 1900, y: 1900 }, { x: 1910, y: 1900 }], height: 1 },
+  { kind: 'plan_fill', tick: 16, points: [{ x: 1860, y: 1890 }, { x: 1860, y: 1860 }, { x: 1890, y: 1860 }, { x: 1890, y: 1890 }, { x: 1860, y: 1889 }, { x: 1860, y: 1862 }, { x: 1888, y: 1862 }, { x: 1888, y: 1888 }, { x: 1860, y: 1888 }], height: 1 },
+  { kind: 'plan_roof', tick: 16, points: [{ x: 1900, y: 1900 }, { x: 1910, y: 1900 }, { x: 1910, y: 1910 }] },
+  // BS's drawings — the roof first (a thatched gable), then the trade. The masons
+  // lay not one stone of BS until both are answered (SIM 12). wallId re-probed.
+  { kind: 'choose_roof', tick: 20, wallId: 334, roof: 'straw' },
+  { kind: 'designate', tick: 25, wallId: 334, use: 'tavern' },
+  // W-plat — a wall on F1's COMPLETED platform (tick 40, after it sets ~30): the
+  // survey reads effectiveGroundAt raised, so the fill is in the fingerprint.
+  { kind: 'plan_wall', tick: 40, points: [{ x: 1972, y: 1974 }, { x: 1980, y: 1974 }], height: 1 },
+  // FR gets the word — arable; tending begins this tick (wallId re-probed)
+  { kind: 'designate', tick: 80, wallId: 225, use: 'farm' },
+  // Q2 — THE RELIEF QUARRY: a second cut whose 20 m³ lands ~tick 124 and lets the
+  // stalled tavern finish (~127). Starve → relief → resume, the loop's whole arc.
+  { kind: 'plan_cut', tick: 110, points: [{ x: 1745, y: 1567 }, { x: 1751, y: 1567 }, { x: 1751, y: 1573 }, { x: 1745, y: 1573 }], depth: 3, workTotal: 30, stoneTotal: 20 },
+  // a span drawn over the finished tavern — it stands UNCOVERED (SIM 11) until the
+  // word bricks it into a deck (~167). Corners rest on finished walls; roofId re-probed.
+  { kind: 'plan_roof', tick: 135, points: [{ x: 2040, y: 1960 }, { x: 2048, y: 1960 }, { x: 2048, y: 1966 }, { x: 2040, y: 1966 }] },
+  // gate ops (SIM 6/7/9) on finished walls: a second gate into the farm's east
+  // wall, a back DOOR in the tavern; then the farm gate is taken down and the
+  // masons wall it back up through the daily loop — the infill DRAWS stone (SIM 16).
+  { kind: 'add_gate', tick: 140, wallId: 225, at: { x: 2014, y: 1912 } },
+  { kind: 'add_gate', tick: 140, wallId: 334, at: { x: 2044, y: 1966 } },
+  { kind: 'remove_gate', tick: 150, wallId: 225, at: { x: 2014, y: 1912 } },
+  // the covering chosen: flat brick — the deck the laborers build (done ~167)
+  { kind: 'designate_roof', tick: 160, roofId: 2531, material: 'brick' },
 ];
 
 interface Milestone {

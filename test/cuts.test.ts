@@ -144,15 +144,17 @@ describe('the quarry in the sim', () => {
       ],
       height: 0.5,
     };
-    // the ring completes and pends; designate it a farm, then open a quarry.
-    // The 4 founders take ids 1–4, so the first wall is id 5.
+    // the ring needs stone to build; a founding quarry wins it at tick 0 (SIM 16),
+    // so the ring completes and pends; designate it a farm, then open a LATER
+    // quarry. The 4 founders take ids 1–4, so the first wall is id 5.
+    const seedQuarry: Command = { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 };
     const w = run(
-      [farmRing, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }, cut(45)],
+      [farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }, cut(45)],
       70,
     );
-    // with the quarry unfinished, the farm's workdays stay put after tick 45
+    // with the LATER quarry unfinished, the farm's workdays stay put after tick 45
     const farm = w.farms[0]!;
-    const noQuarry = run([farmRing, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }], 70);
+    const noQuarry = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }], 70);
     expect(farm.workdays).toBeLessThan(noQuarry.farms[0]!.workdays);
   });
 

@@ -16,6 +16,22 @@ const CMDS: Command[] = [
     ],
     height: 3,
   },
+  // SIM 16: a founding quarry wins ample stone at tick 0 — IN THE LOG, so replay
+  // reproduces it and "the log alone determines the world" still holds. Appended
+  // (not prepended) so the wall stays commands[0] for the deep-copy test.
+  {
+    kind: 'plan_cut',
+    tick: 0,
+    points: [
+      { x: 300, y: 300 },
+      { x: 306, y: 300 },
+      { x: 306, y: 306 },
+      { x: 300, y: 306 },
+    ],
+    depth: 1,
+    workTotal: 2,
+    stoneTotal: 1e6,
+  },
 ];
 
 function run(seed: string, ticks: number, commands: Command[] = CMDS): WorldState {

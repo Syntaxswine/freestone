@@ -26,6 +26,7 @@ const SQUARE: Command = {
 function run(commands: Command[], days: number, seed = 'earthworks') {
   const site = flatSite('flat', 1000);
   const world = createWorld(seed, site.id);
+  world.stockpile = 1e6; // SIM 16: ample won stone — these tests aren't about supply
   const byTick = new Map<number, Command[]>();
   for (const c of commands) {
     const b = byTick.get(c.tick);
@@ -61,6 +62,7 @@ describe('fills', () => {
   it('stones stand on COMPLETED fills only', () => {
     const site = flatSite('flat', 1000);
     const world = createWorld('earthworks', site.id);
+    world.stockpile = 1e6; // SIM 16: won stone so the platform wall lays its first course
     // mid-fill: not a platform yet
     worldStep(world, site, [SQUARE]);
     expect(effectiveGroundAt(world, site, 105, 105)).toBe(0);

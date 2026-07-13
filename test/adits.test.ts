@@ -132,8 +132,10 @@ describe('the adit in the sim', () => {
       ],
       height: 0.5,
     };
-    const w = run([farmRing, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }, adit(45)], 70);
-    const noAdit = run([farmRing, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }], 70);
+    // the ring needs stone to build; a founding quarry wins it at tick 0 (SIM 16)
+    const seedQuarry: Command = { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 };
+    const w = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }, adit(45)], 70);
+    const noAdit = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }], 70);
     expect(w.farms[0]!.workdays).toBeLessThan(noAdit.farms[0]!.workdays);
   });
 

@@ -41,6 +41,7 @@ const W2 = 6; // a second wall planned the same tick
 function run(commands: Command[], days: number, seed = 'enclosures') {
   const site = flatSite('flat', 1000);
   const world = createWorld(seed, site.id);
+  world.stockpile = 1e6; // SIM 16: ample won stone — these tests aren't about supply
   const byTick = new Map<number, Command[]>();
   for (const c of commands) {
     const b = byTick.get(c.tick);
@@ -423,6 +424,9 @@ describe('replay', () => {
       designate(W2, 'fallow', 45), // refused: the roof is chosen before the trade
       { kind: 'choose_roof', tick: 50, wallId: W2, roof: 'wood' },
       designate(W2, 'house', 55),
+      // SIM 16: won stone in the log so the walls build and replay reproduces it
+      // (appended, so FIELD_RING/DOORWAY_LOOP keep ids W1=5, W2=6)
+      { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 },
     ];
     const byTick = new Map<number, Command[]>();
     for (const c of log) {

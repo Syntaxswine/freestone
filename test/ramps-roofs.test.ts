@@ -33,6 +33,7 @@ const SHELL_RING: Vec2[] = [
 function run(commands: Command[], days: number, seed = 'ramps-roofs') {
   const site = flatSite('flat', 1000);
   const world = createWorld(seed, site.id);
+  world.stockpile = 1e6; // SIM 16: ample won stone — these tests aren't about supply
   const byTick = new Map<number, Command[]>();
   for (const c of commands) {
     const b = byTick.get(c.tick);
@@ -372,6 +373,8 @@ describe('roofs', () => {
     const log: Command[] = [
       { kind: 'plan_wall', tick: 0, points: SHELL_RING, height: 3 },
       { kind: 'plan_fill', tick: 0, points: RAMP_RING, height: 2, shape: 'ramp' },
+      // SIM 16: won stone in the log so the shell builds and replay reproduces it
+      { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 },
     ];
     const byTick = new Map<number, Command[]>();
     byTick.set(0, log.slice());

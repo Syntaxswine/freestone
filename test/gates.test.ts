@@ -41,6 +41,7 @@ const designate = (
 function run(commands: Command[], days: number, seed = 'gates') {
   const site = flatSite('flat', 1000);
   const world = createWorld(seed, site.id);
+  world.stockpile = 1e6; // SIM 16: ample won stone — these tests aren't about supply
   const byTick = new Map<number, Command[]>();
   for (const c of commands) {
     const b = byTick.get(c.tick);
@@ -270,7 +271,11 @@ describe('the gate tool', () => {
   it('gate operations replay identically from a save', () => {
     const site = flatSite('flat', 1000);
     const world = createWorld('gates-replay', site.id);
-    const log: Command[] = [wall(FIELD_RING, 0.5)];
+    const log: Command[] = [
+      wall(FIELD_RING, 0.5),
+      // SIM 16: won stone in the log so the ring builds and replay reproduces it
+      { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 },
+    ];
     const byTick = new Map<number, Command[]>();
     byTick.set(0, log.slice());
     for (let i = 0; i < 60; i++) worldStep(world, site, byTick.get(world.tick) ?? []);

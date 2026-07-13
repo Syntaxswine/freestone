@@ -19,6 +19,7 @@ import {
 import { waterModelFromSite } from '../sim/water';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
 import {
+  awaitsDrawings,
   classifyRing,
   effectiveGroundAt,
   nearestOnPolyline,
@@ -37,6 +38,7 @@ import {
   ROOF_SNAP,
   STONE_DEPTH,
   STONE_LEN,
+  STONE_VOLUME,
   TICKS_PER_YEAR,
   type BuildingKind,
   type BuildingRoof,
@@ -895,6 +897,13 @@ async function boot(): Promise<void> {
     const nAsks =
       world.pending.length + world.roofs.filter((r) => r.material === null).length;
     const nQuarries = world.cuts.length;
+    // THE STARVE (SIM 16): a stone wall with work to do but a dry pile — the masons
+    // wait on the quarry. The seed of the carriage layer's one-line bottleneck read.
+    const starved =
+      world.stockpile < STONE_VOLUME &&
+      world.walls.some(
+        (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal && !awaitsDrawings(w),
+      );
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
@@ -904,6 +913,7 @@ async function boot(): Promise<void> {
       // the SUPPLY gauge: once a quarry is opened the won-stone pile is always
       // shown (even at 0), so the mason's supply can be read as it rises and falls
       (nQuarries > 0 || world.stockpile >= 1 ? ` — stone ${Math.round(world.stockpile)} m³` : '') +
+      (starved ? ' — ⚒ waiting on stone' : '') +
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,

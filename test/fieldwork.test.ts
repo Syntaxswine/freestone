@@ -62,6 +62,7 @@ const designate = (wallId: number, use: FieldUse, tick = 20): Command => ({
 function run(commands: Command[], days: number, seed = 'fieldwork') {
   const site = flatSite('flat', 1000);
   const world = createWorld(seed, site.id);
+  world.stockpile = 1e6; // SIM 16: ample won stone — these tests aren't about supply
   const byTick = new Map<number, Command[]>();
   for (const c of commands) {
     const b = byTick.get(c.tick);
@@ -208,7 +209,12 @@ describe('field work', () => {
   it('field work replays identically from a save', () => {
     const site = flatSite('flat', 1000);
     const world = createWorld('fieldwork-replay', site.id);
-    const log: Command[] = [wall(FIELD_RING, 0.5), designate(W1, 'farm')];
+    const log: Command[] = [
+      wall(FIELD_RING, 0.5),
+      designate(W1, 'farm'),
+      // SIM 16: won stone in the log so the ring builds and replay reproduces it
+      { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 },
+    ];
     const byTick = new Map<number, Command[]>();
     for (const c of log) {
       const b = byTick.get(c.tick);

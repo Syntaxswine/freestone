@@ -19,6 +19,7 @@ import {
   ROOF_SNAP,
   ROOF_DECK,
   STONE_LEN,
+  STONE_VOLUME,
   type BuildingKind,
   type BuildingRoof,
   type AditPlan,
@@ -1051,10 +1052,22 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
     if (person.trade !== 'mason') continue;
     let quota = person.pace;
     while (quota > 0) {
-      // the masons take the oldest wall whose drawings are settled — a
-      // plotted building waits for its roof and trade before the first stone
-      const wall = state.walls.find((w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w));
+      // THE CONSUMPTION LOOP (SIM 16): the masons take the oldest wall they can
+      // actually WORK this moment — drawings settled (a plotted building waits on
+      // its roof and trade), and, for a STONE wall, stone won to lay it. A timber
+      // wall draws no stone (the WOODS are the carriage layer's Phase 3, not yet
+      // built), so it never stalls; a stone wall with a dry pile is skipped. When
+      // nothing can be worked the crew stalls honestly, waiting on the quarry.
+      const wall = state.walls.find(
+        (w) =>
+          w.stonesLaid < w.stonesTotal &&
+          !awaitsDrawings(w) &&
+          (w.material === 'wood' || state.stockpile >= STONE_VOLUME),
+      );
       if (!wall) return;
+      // a laid ashlar spends its own dressed volume of won building stone; the
+      // generous quarry yield already rewarded the winning, so this is honest.
+      if (wall.material !== 'wood') state.stockpile -= STONE_VOLUME;
       layOneStone(state, site, rng, wall, person.id);
       quota -= 1;
     }

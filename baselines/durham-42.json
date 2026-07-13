@@ -2,12 +2,37 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 15,
+      "simVersion": 16,
       "seed": "durham-baseline-42",
       "siteId": "durham",
-      "savedAtTick": 400
+      "savedAtTick": 200
     },
     "commands": [
+      {
+        "kind": "plan_cut",
+        "tick": 1,
+        "points": [
+          {
+            "x": 1755,
+            "y": 1567
+          },
+          {
+            "x": 1761,
+            "y": 1567
+          },
+          {
+            "x": 1761,
+            "y": 1573
+          },
+          {
+            "x": 1755,
+            "y": 1573
+          }
+        ],
+        "depth": 3,
+        "workTotal": 58,
+        "stoneTotal": 55
+      },
       {
         "kind": "plan_fill",
         "tick": 3,
@@ -40,19 +65,15 @@
             "y": 2000
           },
           {
-            "x": 2020,
+            "x": 1995,
             "y": 2000
-          },
-          {
-            "x": 2020,
-            "y": 2050
           }
         ],
-        "height": 4
+        "height": 1
       },
       {
         "kind": "plan_wall",
-        "tick": 60,
+        "tick": 6,
         "points": [
           {
             "x": 1940,
@@ -60,7 +81,7 @@
           },
           {
             "x": 1940,
-            "y": 1930
+            "y": 1955
           }
         ],
         "height": 2.5,
@@ -68,7 +89,89 @@
       },
       {
         "kind": "plan_wall",
-        "tick": 100,
+        "tick": 10,
+        "points": [
+          {
+            "x": 1990,
+            "y": 1900
+          },
+          {
+            "x": 2014,
+            "y": 1900
+          },
+          {
+            "x": 2014,
+            "y": 1924
+          },
+          {
+            "x": 1990,
+            "y": 1924
+          },
+          {
+            "x": 1990,
+            "y": 1900
+          }
+        ],
+        "height": 0.5
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 12,
+        "points": [
+          {
+            "x": 2044.55,
+            "y": 1960
+          },
+          {
+            "x": 2048,
+            "y": 1960
+          },
+          {
+            "x": 2048,
+            "y": 1966
+          },
+          {
+            "x": 2040,
+            "y": 1966
+          },
+          {
+            "x": 2040,
+            "y": 1960
+          },
+          {
+            "x": 2043.45,
+            "y": 1960
+          }
+        ],
+        "height": 3
+      },
+      {
+        "kind": "plan_fill",
+        "tick": 15,
+        "points": [
+          {
+            "x": 1955,
+            "y": 1955
+          },
+          {
+            "x": 1961,
+            "y": 1955
+          },
+          {
+            "x": 1961,
+            "y": 1961
+          },
+          {
+            "x": 1955,
+            "y": 1961
+          }
+        ],
+        "height": 1,
+        "shape": "ramp"
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 16,
         "points": [
           {
             "x": 1900,
@@ -83,7 +186,7 @@
       },
       {
         "kind": "plan_fill",
-        "tick": 100,
+        "tick": 16,
         "points": [
           {
             "x": 1900,
@@ -98,7 +201,7 @@
       },
       {
         "kind": "plan_fill",
-        "tick": 100,
+        "tick": 16,
         "points": [
           {
             "x": 1860,
@@ -140,186 +243,8 @@
         "height": 1
       },
       {
-        "kind": "plan_wall",
-        "tick": 250,
-        "points": [
-          {
-            "x": 1972,
-            "y": 1974
-          },
-          {
-            "x": 1980,
-            "y": 1974
-          }
-        ],
-        "height": 1
-      },
-      {
-        "kind": "plan_wall",
-        "tick": 130,
-        "points": [
-          {
-            "x": 1990,
-            "y": 1900
-          },
-          {
-            "x": 2014,
-            "y": 1900
-          },
-          {
-            "x": 2014,
-            "y": 1924
-          },
-          {
-            "x": 1990,
-            "y": 1924
-          },
-          {
-            "x": 1990,
-            "y": 1900
-          }
-        ],
-        "height": 0.5
-      },
-      {
-        "kind": "designate",
-        "tick": 145,
-        "wallId": 5375,
-        "use": "farm"
-      },
-      {
-        "kind": "plan_wall",
-        "tick": 150,
-        "points": [
-          {
-            "x": 2044.55,
-            "y": 1960
-          },
-          {
-            "x": 2048,
-            "y": 1960
-          },
-          {
-            "x": 2048,
-            "y": 1966
-          },
-          {
-            "x": 2040,
-            "y": 1966
-          },
-          {
-            "x": 2040,
-            "y": 1960
-          },
-          {
-            "x": 2043.45,
-            "y": 1960
-          }
-        ],
-        "height": 3
-      },
-      {
-        "kind": "choose_roof",
-        "tick": 205,
-        "wallId": 6006,
-        "roof": "straw"
-      },
-      {
-        "kind": "designate",
-        "tick": 255,
-        "wallId": 6006,
-        "use": "tavern"
-      },
-      {
-        "kind": "plan_fill",
-        "tick": 320,
-        "points": [
-          {
-            "x": 2000,
-            "y": 2040
-          },
-          {
-            "x": 2008,
-            "y": 2040
-          },
-          {
-            "x": 2008,
-            "y": 2048
-          },
-          {
-            "x": 2000,
-            "y": 2048
-          },
-          {
-            "x": 2000,
-            "y": 2040.2
-          }
-        ],
-        "height": 0.5
-      },
-      {
-        "kind": "plan_wall",
-        "tick": 340,
-        "points": [
-          {
-            "x": 1930,
-            "y": 2035
-          },
-          {
-            "x": 1946,
-            "y": 2035
-          },
-          {
-            "x": 1946,
-            "y": 2051
-          },
-          {
-            "x": 1930,
-            "y": 2051
-          },
-          {
-            "x": 1930,
-            "y": 2036.5
-          }
-        ],
-        "height": 0.5
-      },
-      {
-        "kind": "designate",
-        "tick": 355,
-        "wallId": 6909,
-        "use": "livestock"
-      },
-      {
-        "kind": "add_gate",
-        "tick": 360,
-        "wallId": 5375,
-        "at": {
-          "x": 2014,
-          "y": 1912
-        }
-      },
-      {
-        "kind": "remove_gate",
-        "tick": 375,
-        "wallId": 5375,
-        "at": {
-          "x": 2014,
-          "y": 1912
-        }
-      },
-      {
-        "kind": "add_gate",
-        "tick": 350,
-        "wallId": 6006,
-        "at": {
-          "x": 2044,
-          "y": 1966
-        }
-      },
-      {
         "kind": "plan_roof",
-        "tick": 100,
+        "tick": 16,
         "points": [
           {
             "x": 1900,
@@ -336,8 +261,66 @@
         ]
       },
       {
+        "kind": "choose_roof",
+        "tick": 20,
+        "wallId": 334,
+        "roof": "straw"
+      },
+      {
+        "kind": "designate",
+        "tick": 25,
+        "wallId": 334,
+        "use": "tavern"
+      },
+      {
+        "kind": "plan_wall",
+        "tick": 40,
+        "points": [
+          {
+            "x": 1972,
+            "y": 1974
+          },
+          {
+            "x": 1980,
+            "y": 1974
+          }
+        ],
+        "height": 1
+      },
+      {
+        "kind": "designate",
+        "tick": 80,
+        "wallId": 225,
+        "use": "farm"
+      },
+      {
+        "kind": "plan_cut",
+        "tick": 110,
+        "points": [
+          {
+            "x": 1745,
+            "y": 1567
+          },
+          {
+            "x": 1751,
+            "y": 1567
+          },
+          {
+            "x": 1751,
+            "y": 1573
+          },
+          {
+            "x": 1745,
+            "y": 1573
+          }
+        ],
+        "depth": 3,
+        "workTotal": 30,
+        "stoneTotal": 20
+      },
+      {
         "kind": "plan_roof",
-        "tick": 300,
+        "tick": 135,
         "points": [
           {
             "x": 2040,
@@ -358,66 +341,44 @@
         ]
       },
       {
+        "kind": "add_gate",
+        "tick": 140,
+        "wallId": 225,
+        "at": {
+          "x": 2014,
+          "y": 1912
+        }
+      },
+      {
+        "kind": "add_gate",
+        "tick": 140,
+        "wallId": 334,
+        "at": {
+          "x": 2044,
+          "y": 1966
+        }
+      },
+      {
+        "kind": "remove_gate",
+        "tick": 150,
+        "wallId": 225,
+        "at": {
+          "x": 2014,
+          "y": 1912
+        }
+      },
+      {
         "kind": "designate_roof",
-        "tick": 382,
-        "roofId": 6907,
+        "tick": 160,
+        "roofId": 2531,
         "material": "brick"
-      },
-      {
-        "kind": "plan_fill",
-        "tick": 385,
-        "points": [
-          {
-            "x": 1955,
-            "y": 1955
-          },
-          {
-            "x": 1961,
-            "y": 1955
-          },
-          {
-            "x": 1961,
-            "y": 1961
-          },
-          {
-            "x": 1955,
-            "y": 1961
-          }
-        ],
-        "height": 1,
-        "shape": "ramp"
-      },
-      {
-        "kind": "plan_cut",
-        "tick": 300,
-        "points": [
-          {
-            "x": 1755,
-            "y": 1567
-          },
-          {
-            "x": 1761,
-            "y": 1567
-          },
-          {
-            "x": 1761,
-            "y": 1573
-          },
-          {
-            "x": 1755,
-            "y": 1573
-          }
-        ],
-        "depth": 3,
-        "workTotal": 135,
-        "stoneTotal": 135
       }
     ]
   },
   "milestones": [
     {
       "tick": 1,
-      "hash": "f22d71bf",
+      "hash": "bf3d9a5c",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
@@ -434,10 +395,10 @@
       "stockpile": 0
     },
     {
-      "tick": 6,
-      "hash": "45964959",
+      "tick": 7,
+      "hash": "644409f3",
       "stones": 54,
-      "events": 56,
+      "events": 58,
       "wallsComplete": 0,
       "fillsComplete": 0,
       "pending": 0,
@@ -452,12 +413,12 @@
       "stockpile": 0
     },
     {
-      "tick": 61,
-      "hash": "cf30e0a4",
-      "stones": 3024,
-      "events": 3028,
-      "wallsComplete": 0,
-      "fillsComplete": 1,
+      "tick": 30,
+      "hash": "6136421b",
+      "stones": 604,
+      "events": 619,
+      "wallsComplete": 1,
+      "fillsComplete": 0,
       "pending": 0,
       "farms": 0,
       "buildings": 0,
@@ -470,12 +431,12 @@
       "stockpile": 0
     },
     {
-      "tick": 101,
-      "hash": "85c3fc2a",
-      "stones": 5184,
-      "events": 5193,
+      "tick": 65,
+      "hash": "08c2f0bd",
+      "stones": 874,
+      "events": 894,
       "wallsComplete": 1,
-      "fillsComplete": 1,
+      "fillsComplete": 2,
       "pending": 0,
       "farms": 0,
       "buildings": 0,
@@ -483,81 +444,81 @@
       "gates": 0,
       "roofsUncovered": 0,
       "roofsComplete": 0,
-      "cutsComplete": 0,
+      "cutsComplete": 1,
+      "aditsComplete": 0,
+      "stockpile": 46
+    },
+    {
+      "tick": 80,
+      "hash": "312521ce",
+      "stones": 1684,
+      "events": 1707,
+      "wallsComplete": 3,
+      "fillsComplete": 2,
+      "pending": 1,
+      "farms": 0,
+      "buildings": 0,
+      "farmWorkdays": 0,
+      "gates": 0,
+      "roofsUncovered": 0,
+      "roofsComplete": 0,
+      "cutsComplete": 1,
+      "aditsComplete": 0,
+      "stockpile": 19
+    },
+    {
+      "tick": 100,
+      "hash": "937fdd8e",
+      "stones": 2233,
+      "events": 2257,
+      "wallsComplete": 3,
+      "fillsComplete": 2,
+      "pending": 0,
+      "farms": 1,
+      "buildings": 0,
+      "farmWorkdays": 40,
+      "gates": 1,
+      "roofsUncovered": 0,
+      "roofsComplete": 0,
+      "cutsComplete": 1,
       "aditsComplete": 0,
       "stockpile": 0
+    },
+    {
+      "tick": 130,
+      "hash": "f2ab4c80",
+      "stones": 2515,
+      "events": 2545,
+      "wallsComplete": 5,
+      "fillsComplete": 2,
+      "pending": 0,
+      "farms": 1,
+      "buildings": 1,
+      "farmWorkdays": 70,
+      "gates": 1,
+      "roofsUncovered": 0,
+      "roofsComplete": 0,
+      "cutsComplete": 2,
+      "aditsComplete": 0,
+      "stockpile": 11
     },
     {
       "tick": 200,
-      "hash": "be2f0dc7",
-      "stones": 5996,
-      "events": 6012,
-      "wallsComplete": 3,
-      "fillsComplete": 1,
-      "pending": 1,
-      "farms": 1,
-      "buildings": 0,
-      "farmWorkdays": 110,
-      "gates": 1,
-      "roofsUncovered": 0,
-      "roofsComplete": 0,
-      "cutsComplete": 0,
-      "aditsComplete": 0,
-      "stockpile": 0
-    },
-    {
-      "tick": 260,
-      "hash": "4fe15061",
-      "stones": 6334,
-      "events": 6354,
-      "wallsComplete": 4,
-      "fillsComplete": 1,
-      "pending": 0,
-      "farms": 1,
-      "buildings": 0,
-      "farmWorkdays": 230,
-      "gates": 1,
-      "roofsUncovered": 0,
-      "roofsComplete": 0,
-      "cutsComplete": 0,
-      "aditsComplete": 0,
-      "stockpile": 0
-    },
-    {
-      "tick": 320,
-      "hash": "63428965",
-      "stones": 6894,
-      "events": 6918,
+      "hash": "904f016d",
+      "stones": 2470,
+      "events": 2564,
       "wallsComplete": 5,
-      "fillsComplete": 1,
+      "fillsComplete": 2,
       "pending": 0,
       "farms": 1,
       "buildings": 1,
-      "farmWorkdays": 310,
-      "gates": 1,
-      "roofsUncovered": 1,
-      "roofsComplete": 0,
-      "cutsComplete": 0,
-      "aditsComplete": 0,
-      "stockpile": 0
-    },
-    {
-      "tick": 400,
-      "hash": "efcad468",
-      "stones": 7262,
-      "events": 7359,
-      "wallsComplete": 6,
-      "fillsComplete": 3,
-      "pending": 1,
-      "farms": 1,
-      "buildings": 1,
-      "farmWorkdays": 328,
+      "farmWorkdays": 194,
       "gates": 1,
       "roofsUncovered": 0,
       "roofsComplete": 1,
-      "cutsComplete": 1,
+      "cutsComplete": 2,
       "aditsComplete": 0,
-      "stockpile": 135
+      "stockpile": 10
     }
   ]
 }

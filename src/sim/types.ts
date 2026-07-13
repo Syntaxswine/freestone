@@ -7,6 +7,13 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
+// 16: THE CONSUMPTION LOOP — masonry now DRAWS the stockpile. Each ashlar laid
+// spends STONE_VOLUME (its own dressed m³) of won building stone; when the pile
+// runs dry the masons STALL, honestly, until a quarry or adit wins more. The
+// standing M2 economy closes at last: a wall rises only as fast as the land is
+// made to yield, so mining and building are finally one loop, and a wall that
+// outpaces the pit stops and NAMES why. (Still global + one-shot — the per-wall
+// face buffer and metered haul are the carriage layer's Phase 1.)
 // 15: THE ADIT — a drift driven INTO a hillside at the portal's grade, and
 // SELF-DRAINING: water runs back out the mouth, so the adit dewaters the ground
 // above its floor. It wins building stone the open quarry cannot — post that is
@@ -21,7 +28,7 @@
 // generous inversion of the real recovery — production exceeds removal, to
 // reward great works (boss directive 2026-07-10). — 13: level coursing; 12:
 // drawings before the build; 11: uncovered spans; 10: designation; 9: doors
-export const SIM_VERSION = 15;
+export const SIM_VERSION = 16;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -30,6 +37,18 @@ export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
 export const STONE_LEN = 0.45;
 export const STONE_DEPTH = 0.3;
 export const COURSE_HEIGHT = 0.25;
+
+/**
+ * The won building stone one laid ashlar draws from the stockpile, m³ (SIM 16):
+ * the block's own dressed volume. The quarry/adit yield is already GENEROUS
+ * (production exceeds removal — boss directive 2026-07-10), so charging the true
+ * block volume is honest and not punishing. Phase 2 of the carriage layer (the
+ * dress dial) will split rough-hauled vs dressed-at-pit draw; for now every stone
+ * costs the same. 0.45 × 0.3 × 0.25 = 0.03375 m³. Product of fixed constants →
+ * one bit pattern on every engine, and plain subtraction is IEEE-exact, so the
+ * draw never threatens the cross-engine hash (no quantization needed).
+ */
+export const STONE_VOLUME = STONE_LEN * STONE_DEPTH * COURSE_HEIGHT;
 
 export interface Vec2 {
   x: number;
@@ -432,9 +451,11 @@ export interface WorldState {
   /** adits being driven into the hillsides, self-draining (SIM 15) */
   adits: AditPlan[];
   /**
-   * Building stone won from finished quarries and not yet spent, m³ (SIM 14).
-   * Accumulates for now — walls do not draw on it yet, so the generous-yield
-   * production is a visible resource before the consumption loop lands.
+   * Building stone won from finished quarries and adits and not yet spent, m³
+   * (SIM 14). Masonry DRAWS it since SIM 16: each ashlar laid spends STONE_VOLUME,
+   * and the masons stall when it runs dry — the honest consumption loop the whole
+   * mining arc was for. Credited one-shot on a working's completion; global for
+   * now (one pile, not yet a per-wall face buffer).
    */
   stockpile: number;
   roofs: Roof[];
