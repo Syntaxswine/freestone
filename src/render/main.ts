@@ -901,7 +901,9 @@ async function boot(): Promise<void> {
       (nFallow ? ` — fallow ${nFallow}` : '') +
       (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
       (nQuarries ? ` — quarries ${nQuarries}` : '') +
-      (world.stockpile >= 1 ? ` — stone ${Math.round(world.stockpile)} m³` : '') +
+      // the SUPPLY gauge: once a quarry is opened the won-stone pile is always
+      // shown (even at 0), so the mason's supply can be read as it rises and falls
+      (nQuarries > 0 || world.stockpile >= 1 ? ` — stone ${Math.round(world.stockpile)} m³` : '') +
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,
