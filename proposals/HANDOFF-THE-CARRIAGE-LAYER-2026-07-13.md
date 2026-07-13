@@ -22,8 +22,10 @@ layer is code yet. This handoff preserves the plan.
 > The determinism canon was re-authored to tell the stall's own story (quarry → build → stall →
 > relief); every wall-building test now wins its stone through the log or a seeded pile so
 > replay-equals-live holds. §6 (state) and §7 (next courses) below are updated; the eighth
-> maker's mark in the FOUNDATION records the day. **Next course is the adit made playable, or
-> the carriage layer's Phase 1 (HAUL + the bottleneck line).**
+> maker's mark in the FOUNDATION records the day, and the full Phase 0 account is its own
+> keystone, [HANDOFF-THE-HONEST-STALL-2026-07-13.md](HANDOFF-THE-HONEST-STALL-2026-07-13.md).
+> **Next course is the adit made playable, or the carriage layer's Phase 1 (HAUL + the
+> bottleneck line).**
 
 ---
 

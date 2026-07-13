@@ -1,18 +1,20 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md](proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md)**
+**🗿 Current handoff: [proposals/HANDOFF-THE-HONEST-STALL-2026-07-13.md](proposals/HANDOFF-THE-HONEST-STALL-2026-07-13.md)**
 (reads the FOUNDATION keystone first — the soul, the nine laws, EIGHT maker's marks — then the
-mining keystone THE LAND DECIDES, then the design this session hands forward: PROPOSAL-LOGISTICS.
-This session SHIPPED the front door + the mining tutorial and put the game ON THE WEB (LIVE:
-https://syntaxswine.github.io/freestone/), and PLOTTED **the carriage layer** — moving the stone
-as a **WIN→HAUL→LIFT→LAY** throughput pipeline (each stage a scalar frozen at the survey boundary
-from slope+route+river+season; the wall builds at min() and STALLS honestly → closes the standing
-consumption loop; "deep model, shallow controls"; Durham's Wear = a MOAT not a highway, so quarry
-local). Design bible: [proposals/PROPOSAL-LOGISTICS-2026-07-13.md](proposals/PROPOSAL-LOGISTICS-2026-07-13.md).
-Then a NEW session (still 2026-07-13) built **carriage Phase 0 — SIM 16, the consumption loop**:
-masonry now draws the stockpile and a stone wall STALLS honestly on a dry pile (⚒ *waiting on
-stone*), timber excepted; the canon re-authored to tell the stall's story; 127 tests; LIVE. The
-eighth maker's mark records it. Next: HAUL (Phase 1) or the adit made playable.
+carriage-layer PLOT it built the first phase of: HANDOFF-THE-CARRIAGE-LAYER, then the design
+PROPOSAL-LOGISTICS. This session closed **carriage Phase 0 — SIM 16, THE CONSUMPTION LOOP:**
+masonry now DRAWS the stockpile and a stone wall STALLS honestly on a dry pile (⚒ *waiting on
+stone*), timber excepted — the honest stall the sixth AND seventh maker's marks both dreamed of.
+The determinism canon was re-authored to tell the stall's own story (founding quarry → the walls
+build → the tavern STALLS mid-build 2233/2515 → relief quarry → it finishes); 127 tests; build
+clean; LIVE. The eighth maker's mark (🪨) records the day. **NEXT: carriage Phase 1 — HAUL + the
+bottleneck line (cost the ROUTE, not straight-line) OR the adit made playable.**
+The prior session PLOTTED the carriage layer — **WIN→HAUL→LIFT→LAY**, each a scalar frozen at the
+survey boundary from slope+route+river+season; the wall builds at min() and stalls honestly;
+"deep model, shallow controls"; Durham's Wear = a MOAT not a highway → quarry local. Plot:
+[HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md](proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md) +
+[PROPOSAL-LOGISTICS-2026-07-13.md](proposals/PROPOSAL-LOGISTICS-2026-07-13.md).
 Mining still teed up: [proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md](proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md)
 (the adit made playable) + [proposals/PROPOSAL-MINING-2026-07-11.md](proposals/PROPOSAL-MINING-2026-07-11.md).)
 
