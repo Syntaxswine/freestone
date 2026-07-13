@@ -795,7 +795,12 @@ export class WallPlanner {
     this.confirm();
   };
 
+  /** set by main.ts while the home/pause overlay is up: the tool hotkeys (B/H/F/…)
+   *  live on `window`, so without this they'd fire behind the menu. */
+  inputSuspended = false;
+
   private onKeyDown = (ev: KeyboardEvent): void => {
+    if (this.inputSuspended) return;
     const clean = !ev.ctrlKey && !ev.metaKey && !ev.altKey && !ev.repeat;
     if ((ev.key === 'b' || ev.key === 'B') && clean) {
       this.toggle('wall');

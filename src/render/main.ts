@@ -55,6 +55,8 @@ import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
 import { describeFootprint, KIND_LABEL, WallPlanner } from './planner';
 import { TreeLayer } from './trees';
+import { createHomeScreen } from './homescreen';
+import { createTutorial } from './tutorial';
 
 const SEED = 'durham-first-wall';
 const STONE_CAPACITY = 20000;
@@ -189,6 +191,10 @@ async function boot(): Promise<void> {
     else byTick.set(cmd.tick, [cmd]);
     return true;
   }
+
+  // The mining tutorial (declared early so the planner's onConfirm and the
+  // underground hooks below can reach it). It only WATCHES; it never gates input.
+  const tutorial = createTutorial();
 
   // --- three.js scene ---
   const app = document.getElementById('app')!;
@@ -400,7 +406,11 @@ async function boot(): Promise<void> {
     onConfirm: (mode, points, height, material) => {
       if (mode === 'cut') {
         const cmd = cutCommand(points);
-        return cmd ? enqueue(cmd) : false; // the land didn't afford an open cut — the plan row says why
+        if (cmd && enqueue(cmd)) {
+          tutorial.saw('quarry'); // tutorial step 3: a real quarry committed
+          return true;
+        }
+        return false; // the land didn't afford an open cut — the plan row says why
       }
       return enqueue(
         mode === 'fill'
@@ -639,6 +649,48 @@ async function boot(): Promise<void> {
     .filter((p) => p.trade === 'laborer')
     .reduce((n, p) => n + p.pace, 0);
 
+  // --- title screen + tutorial wiring (SIM 15 arc; UI only, the sim is untouched) ---
+  let started = false; // a game has begun this session — gates stepping + the Back button
+  const TUT_KEY = 'freestone_tutorial';
+  const getTutorialEnabled = (): boolean => localStorage.getItem(TUT_KEY) !== 'off'; // default ON
+  const setTutorialEnabled = (on: boolean): void =>
+    localStorage.setItem(TUT_KEY, on ? 'on' : 'off');
+
+  function beginGame(): void {
+    home.close();
+    planner.inputSuspended = false;
+    started = true;
+    if (getTutorialEnabled()) tutorial.start();
+  }
+  function openHome(): void {
+    planner.exit(); // drop any active tool so returning is clean
+    planner.inputSuspended = true;
+    home.open(started); // offer "Back" only if a game is in progress
+  }
+  function resumeGame(): void {
+    home.close();
+    planner.inputSuspended = false;
+  }
+  function newGame(): void {
+    // A reload is the only ghost-free reset (the render layers bind to `world` at
+    // construction). A reset world autostarts via a one-shot token; a still-fresh
+    // world (nothing drawn yet) just begins in place — no reload needed.
+    if (world.tick > 0 || commandLog.length > 0) {
+      if (!window.confirm('Start over? Unsaved progress will be lost.')) return;
+      sessionStorage.setItem('freestone_autostart', '1');
+      location.reload();
+      return;
+    }
+    beginGame();
+  }
+  const home = createHomeScreen({
+    onNewGame: newGame,
+    onBack: resumeGame,
+    getTutorialEnabled,
+    setTutorialEnabled,
+  });
+  (document.getElementById('gear') as HTMLElement).onclick = openHome;
+
   wallBtn.onclick = () => planner.toggle('wall');
   bldBtn.onclick = () => planner.toggle('building');
   fillBtn.onclick = () => planner.toggle('fill');
@@ -680,6 +732,9 @@ async function boot(): Promise<void> {
       return;
     }
     const r = underworld.readout();
+    // tutorial step 2: the working plane is centred on dry building stone (not blue)
+    if ((r.material === 'sandstone' || r.material === 'limestone') && !r.drowned)
+      tutorial.saw('seam');
     const where = r.label ? `· ${r.label} seam` : r.material === 'open air' ? '· open air' : `· ${r.material}`;
     const water = r.material === 'open air' ? '' : r.drowned ? ' · DROWNED (needs drainage)' : ' · dry, workable';
     depthRuler.style.display = '';
@@ -705,10 +760,12 @@ async function boot(): Promise<void> {
     terrainMat.needsUpdate = true;
     trees.setVisible(!on); // the woods are surface clutter over a ghosted hill
     undergroundBtn.classList.toggle('active', on);
+    if (on) tutorial.saw('underground'); // tutorial step 1
     updateDepthRuler();
   }
   undergroundBtn.onclick = () => setUnderground(!underworld.active());
   window.addEventListener('keydown', (ev) => {
+    if (home.isOpen()) return; // the menu swallows game keys
     if ((ev.key === 'u' || ev.key === 'U') && !ev.ctrlKey && !ev.metaKey && !ev.altKey && !ev.repeat) {
       setUnderground(!underworld.active());
       return;
@@ -727,6 +784,7 @@ async function boot(): Promise<void> {
   renderer.domElement.addEventListener(
     'wheel',
     (ev) => {
+      if (home.isOpen()) return;
       if (!underworld.active()) return; // surface: OrbitControls owns the wheel (zoom)
       ev.preventDefault();
       underworld.stepDepth(ev.deltaY > 0 ? -1 : 1); // scroll down digs deeper
@@ -806,10 +864,15 @@ async function boot(): Promise<void> {
     sizeToWindow(); // emulated viewports don't always fire resize events
     const dt = Math.min((now - lastTime) / 1000, 0.25);
     lastTime = now;
-    acc += dt * speed;
-    while (acc >= 1) {
-      worldStep(world, site, byTick.get(world.tick) ?? []);
-      acc -= 1;
+    // step only while actually playing: not before New Game, not behind the home menu
+    if (started && !home.isOpen()) {
+      acc += dt * speed;
+      while (acc >= 1) {
+        worldStep(world, site, byTick.get(world.tick) ?? []);
+        acc -= 1;
+      }
+    } else {
+      acc = 0; // don't bank elapsed time into a lurch on resume
     }
     syncStones();
     fills.update();
@@ -1088,6 +1151,8 @@ async function boot(): Promise<void> {
     buildings,
     trees,
     underworld,
+    home,
+    tutorial,
     water,
     quarryPlanAt,
     renderer,
@@ -1109,6 +1174,13 @@ async function boot(): Promise<void> {
       return world.tick;
     },
   };
+
+  // Title screen: a fresh load opens the home; a New-Game reset returns with a
+  // one-shot token and drops straight into play (see newGame()).
+  const autostart = sessionStorage.getItem('freestone_autostart');
+  sessionStorage.removeItem('freestone_autostart');
+  if (autostart) beginGame();
+  else home.open(false);
 
   requestAnimationFrame(frame);
 }

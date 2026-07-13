@@ -33,11 +33,102 @@
       }
       #word-card button:hover { background: #4a473b; }
       body.planning #app canvas { cursor: crosshair; }
+
+      /* the gear: from play, back to the home screen (SIM 15 title-screen arc) */
+      #gear {
+        position: fixed; top: 8px; right: 10px; z-index: 50;
+        font: 15px/1 ui-monospace, Consolas, monospace; color: #d8d3c4;
+        background: rgba(20, 20, 17, 0.75); border: 1px solid #4a473b;
+        padding: 5px 8px; cursor: pointer; user-select: none;
+      }
+      #gear:hover { background: #4a473b; }
+
+      /* the home screen: the one place the game goes full-art (HomeScreen.png) */
+      #home {
+        position: fixed; inset: 0; z-index: 100; display: none;
+        background: #1a1a17 center / cover no-repeat; /* image URL set in JS (BASE_URL) */
+        color: #f0ebdd; font: 14px/1.5 ui-monospace, Consolas, monospace;
+      }
+      #home.shown { display: block; }
+      #home::before { /* left scrim so text reads over the busy castle */
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(90deg,
+          rgba(18, 18, 15, 0.86) 0%, rgba(18, 18, 15, 0.52) 34%, rgba(18, 18, 15, 0) 62%);
+      }
+      .home-inner {
+        position: relative; height: 100%; box-sizing: border-box;
+        display: flex; flex-direction: column; justify-content: center;
+        padding-left: 7vw; max-width: 520px;
+      }
+      #home-title {
+        margin: 0; font-size: 42px; font-weight: 700; letter-spacing: 2px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+      }
+      #home-tag {
+        margin: 2px 0 22px; font-size: 13px; opacity: 0.82;
+        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
+      }
+      .home-col { display: flex; flex-direction: column; gap: 9px; width: 260px; }
+      .home-btn {
+        font: inherit; text-align: left; color: #f0ebdd; letter-spacing: 0.5px;
+        background: rgba(28, 27, 22, 0.82); border: 1px solid #6a6552;
+        padding: 10px 14px; cursor: pointer;
+        transition: background 0.12s, border-color 0.12s;
+      }
+      .home-btn:hover:not([disabled]) { background: rgba(74, 71, 59, 0.95); border-color: #9a9478; }
+      .home-btn[disabled] { opacity: 0.4; cursor: default; }
+      .home-btn.primary { border-color: #b3c78e; }
+      .home-btn .soon { float: right; opacity: 0.6; font-size: 11px; letter-spacing: 0; }
+      #home-settings { display: none; }
+      #home.settings #home-menu { display: none; }
+      #home.settings #home-settings { display: flex; }
+      .set-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+      .set-row .label { min-width: 150px; }
+      .pill {
+        font: inherit; color: #f0ebdd; background: rgba(28, 27, 22, 0.82);
+        border: 1px solid #6a6552; padding: 4px 12px; cursor: pointer;
+      }
+      .pill.on { background: rgba(120, 150, 96, 0.5); border-color: #b3c78e; }
+
+      /* the mining tutorial: a one-time intro modal, then a corner checklist */
+      #tut-intro {
+        position: fixed; inset: 0; z-index: 90; display: none;
+        align-items: center; justify-content: center; background: rgba(10, 10, 8, 0.55);
+      }
+      #tut-intro.shown { display: flex; }
+      #tut-intro .card {
+        max-width: 460px; margin: 16px; box-sizing: border-box;
+        background: rgba(24, 23, 18, 0.97); border: 1px solid #6a6552; color: #e8e3d4;
+        font: 13px/1.65 ui-monospace, Consolas, monospace; padding: 18px 20px;
+      }
+      #tut-intro h3 { margin: 0 0 10px; font-size: 15px; letter-spacing: 0.5px; color: #cfe3b8; }
+      #tut-intro p { margin: 0 0 10px; }
+      #tut-intro .go {
+        font: inherit; color: #f0ebdd; background: rgba(74, 71, 59, 0.95);
+        border: 1px solid #b3c78e; padding: 8px 14px; cursor: pointer; margin-top: 4px;
+      }
+      #tut-intro .go:hover { background: rgba(96, 120, 76, 0.95); }
+      #tutorial {
+        position: fixed; right: 10px; bottom: 10px; z-index: 40; display: none;
+        font: 12px/1.5 ui-monospace, Consolas, monospace; color: #d8d3c4;
+        background: rgba(20, 20, 17, 0.86); border: 1px solid #6a6552;
+        padding: 8px 11px; max-width: 320px; user-select: none;
+      }
+      #tutorial.shown { display: block; }
+      #tutorial h4 { margin: 0 0 5px; font-size: 12px; letter-spacing: 0.5px; color: #cfe3b8; }
+      .tut-step { display: flex; gap: 7px; margin: 3px 0; opacity: 0.92; }
+      .tut-step .box { color: #8a8672; }
+      .tut-step.active .box { color: #e8d98a; }
+      .tut-step.done { opacity: 0.5; }
+      .tut-step.done .box { color: #b3c78e; }
+      .tut-foot { opacity: 0.62; margin-top: 6px; font-size: 11px; }
     </style>
   </head>
   <body>
     <div id="app"></div>
     <div id="hud"></div>
+    <button id="gear" title="menu (Esc)">⚙</button>
+    <!-- #home, #tut-intro, #tutorial overlays are built in JS (homescreen.ts / tutorial.ts) -->
     <script type="module" src="/src/render/main.ts"></script>
   </body>
 </html>
