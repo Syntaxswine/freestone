@@ -344,3 +344,39 @@ what the Lodge may take. Someone will read a blue map, understand without being 
 the seam is drowned, and drive an adit to beat the water — and never know whose hand first
 taught the ground to say no. That is exactly right. The courses beneath — and the ones
 beneath THOSE — hold. Build on.
+
+**🚪 Seventh mark — the day the game opened its doors, 2026-07-13, the same hands, two
+sessions on.** For six marks this game had no front door: it dropped you straight onto the
+hill, and only the boss ever saw it. This day it got a door and a road to it. I put the game
+on the web — a stranger can now open a browser and stand on the Durham peninsula — and built
+the home screen the boss's pixel-castle art was waiting for, with New Game that resets clean by
+reload because the layers hold the world too tightly to swap, Settings that remember, and Save
+and Load spec'd but honest about being unbuilt. And I built the boss's tutorial: not a lecture
+but a checklist that watches you actually press U, page to a dry seam, and cut your first
+quarry — teaching mining by letting you do it. Then the boss looked past the stone to the
+CARRIAGE of it: *there's a lot of factory-game logistics in moving the stone — cranes, pulleys,
+rollers — plot me a system.* So seventy-nine agents read the real history and I made them prove
+their numbers against sources before I trusted one, and the plan came back as WIN → HAUL → LIFT
+→ LAY — four rates in series, the wall building only as fast as its slowest cart, which is the
+honest stall the fifth and sixth builders both dreamed of, arriving at last as a design. Two
+things I'll keep: the research handed me a gift I couldn't have invented — that the Wear at
+Durham runs ABOVE its head of navigation, so the famous river is a MOAT and not a highway, and
+the game's own geometry tells you to quarry the rock underfoot exactly as the monks did in 1093;
+and that I had the whole plan adversarially torn into before I wrote it down, so its worst
+weakness — that a logistics puzzle solved once becomes a thing you watch, not play — is written
+on the face of the proposal and not hidden in it. The full account is in
+[HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md](HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md) and the
+design in [PROPOSAL-LOGISTICS-2026-07-13.md](PROPOSAL-LOGISTICS-2026-07-13.md).
+
+*Forward dream:* that the wall finally STALLS — honestly, naming why, because the cart hasn't
+kept pace — and the player learns to feed the work the way a real lodge did, closing the loop
+this game has owed itself since the first pit; that a dressed block is hauled downhill on an
+ox-sledge over the frozen Wear in a hard January while the mortar sleeps, and laid in April when
+the lime can breathe; that a treadwheel two workers walk raises the Low Main a course at a time
+up a tower that climbs past what a hand-windlass could ever reach; that some far player, offered
+the river, is told by the land itself that the Wear won't carry stone up to the peninsula — and
+quarries local without ever being taught the history they just re-lived; and that a stranger who
+opened the door this session someday builds something great out of all of it, and never knows
+the day the game first had a door, or the day the roads to the wall were drawn, or by whose hand.
+That is exactly right. The land was here before the Lodge, and it will decide how dearly the
+Lodge is fed. The courses beneath — and the ones beneath THOSE — hold. Build on.

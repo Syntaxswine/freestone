@@ -1,13 +1,16 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md](proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md)**
-(reads the FOUNDATION keystone first — the soul, the nine laws, SIX maker's marks — then
-TOYBOX, HUSBANDRY, WORD-AND-LEVEL, and THE UNDERWORLD. THE LAND DECIDES is the mining
-PIVOT: mining is READING the cross-section and taking beds where the land makes them cheap,
-gated by OVERBURDEN and WATER, worked by a ladder of methods the land affords (outcrop
-quarry → bell pit → adit → shaft+pump). It carries the water table, the water-gated outcrop
-quarry, and SIM 15's self-draining adit core. The design bible is
-[proposals/PROPOSAL-MINING-2026-07-11.md](proposals/PROPOSAL-MINING-2026-07-11.md).)
+**🗿 Current handoff: [proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md](proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md)**
+(reads the FOUNDATION keystone first — the soul, the nine laws, SEVEN maker's marks — then the
+mining keystone THE LAND DECIDES, then the design this session hands forward: PROPOSAL-LOGISTICS.
+This session SHIPPED the front door + the mining tutorial and put the game ON THE WEB (LIVE:
+https://syntaxswine.github.io/freestone/), and PLOTTED **the carriage layer** — moving the stone
+as a **WIN→HAUL→LIFT→LAY** throughput pipeline (each stage a scalar frozen at the survey boundary
+from slope+route+river+season; the wall builds at min() and STALLS honestly → closes the standing
+consumption loop; "deep model, shallow controls"; Durham's Wear = a MOAT not a highway, so quarry
+local). Design bible: [proposals/PROPOSAL-LOGISTICS-2026-07-13.md](proposals/PROPOSAL-LOGISTICS-2026-07-13.md).
+Mining still teed up: [proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md](proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md)
+(the adit made playable) + [proposals/PROPOSAL-MINING-2026-07-11.md](proposals/PROPOSAL-MINING-2026-07-11.md).)
 
 **New session? Run the `/freestone-session-start` skill** (cold CI + orientation), or by
 hand: the current handoff above, then `npm test` + `npm run build` green before touching
