@@ -190,6 +190,28 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         self-draining claim unit-tested. NOT yet playable — the canon fingerprint + the
         two-click portal→heading tool + the portal-and-gallery render (src/render/adits.ts)
         are the immediate next course.
+- [x] PLAYABLE ON THE WEB + THE FRONT DOOR (2026-07-11/12): the game left the local dev
+      server and grew an entrance.
+      · **GitHub Pages deploy** (`9e450a4`): push master → Actions builds the vite bundle →
+        Pages at https://syntaxswine.github.io/freestone/. dist/ stays gitignored (CI builds
+        fresh); base '/freestone/' for build, '/' for dev. THE SUBPATH LAW — new runtime
+        fetches use import.meta.env.BASE_URL (an absolute /data or /assets 404s under the
+        repo path). See memory project_freestone_pages_deploy.
+      · **the front door** (`8943e2d`, boss: "make a tutorial for how mining works" + a title
+        screen): home screen (full-art over HomeScreen.png, rescued from the build-wiped
+        dist/ into public/assets/) — New Game (wired; reset = one-shot sessionStorage token +
+        reload, the only ghost-free reset since layers bind to `world` at construction),
+        Settings (wired; tutorial on/off in localStorage), Save/Load (spec'd stubs vs
+        save.ts, disabled "soon"), Back (conditional). A gear (⚙) opens the home mid-game and
+        PAUSES (frame gates on `started && !home.isOpen()`). The MINING TUTORIAL
+        (src/render/tutorial.ts): an intro explainer → a persistent checklist (look
+        underground → find a dry seam → quarry an outcrop) ticking off REAL events, ending on
+        an adit tease. UI + input only — no SIM_VERSION bump, 122 tests green.
+      · Known: the depth readout is SITE-CENTRE only (underworld.ts) — the seam step reads
+        the centre column, not where you point; completable (dry sandstone at the centre) and
+        it teaches the dry/drowned reading, but tying the readout to the camera is the pending
+        prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
+        settings are the natural follow-ons.
 - [ ] M1 design data (from the honest eye-check; polish, not bugs): scaffold sprite once
       walls pass ~2 m; per-station stone piles so laborers read on long walls; billboard
       sprites don't face the work; cursor ring is world-sized (0.65 m) and vanishes at
