@@ -1188,6 +1188,22 @@ async function boot(): Promise<void> {
           }
         }
         const stuff = planner.material === 'wood' ? 'timbers' : 'stones';
+        // the block class the STRUCTURE calls for (carriage Phase 2 readout): a
+        // low garden or field wall is fine in light, undressed RUBBLE; a tall or
+        // load-bearing wall (a building shell, a retaining curtain) wants squared,
+        // dressed ASHLAR; between them, roughly-squared SCAPPLED. Named here as the
+        // pencil reads the height; the dial that lets you override it, and the haul
+        // weight + lay debt each class carries, land with SIM 18. Read-only for now.
+        let dress = '';
+        if (ring && planner.material !== 'wood') {
+          const cls =
+            rc?.kind === 'building' || planner.height >= BUILDING_MIN_H
+              ? 'ashlar'
+              : planner.height <= FARM_WALL_MAX_H
+                ? 'rubble'
+                : 'scappled';
+          dress = ` · ${cls}`;
+        }
         // the HAUL verdict for where this wall sits (SIM 17): stone won on the
         // spot, or carted — dearer up a hill, dearest across the gorge to a bridge
         let haul = '';
@@ -1201,7 +1217,7 @@ async function boot(): Promise<void> {
           plan,
           s
             ? `plan: ${name}${s.length.toFixed(0)} m · ${s.courses} courses · ` +
-                `${s.stonesTotal.toLocaleString()} ${stuff} · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}${haul}`
+                `${s.stonesTotal.toLocaleString()} ${stuff} · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}${dress}${haul}`
             : 'plan: click the ground to start the line',
         );
         setText(
