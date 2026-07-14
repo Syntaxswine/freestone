@@ -3,6 +3,15 @@
 *2026-07-14 · from the session that built HAUL — Phase 1 of the carriage layer, SIM 17 ·
 Castle Cultivator (repo codename `freestone`)*
 
+> **UPDATE — 2026-07-14 (later the same day): carriage Phase 2, the DRESS dial, also SHIPPED (SIM 18,
+> `1ea7bf4`).** Each stone wall is now worked to a block class — rubble | scappled | ashlar — that
+> flips with the STRUCTURE (a smart default the dial overrides), setting a LAY DEBT (rubble 0.5,
+> ashlar 2×) + a HAUL WEIGHT (ashlar carts 1.5×); the stone shows the level (ashlar bigger & uniform,
+> rubble smaller & mottled). Boss pick + insight: *tall structures need heavier blocks*. Account:
+> commit `1ea7bf4`, the BACKLOG SIM-18 ledger, and the tenth maker's mark (🎚) in FOUNDATION. The
+> keystone below is the Phase-1 (HAUL) story; §5's DRESS-dial "next course" is now DONE — the course
+> after is **LIFT (Phase 3, needs the WOODS as a real consumable)** or the adit made playable.
+
 You are the next builder. Read the FOUNDATION keystone first
 ([HANDOFF-FOUNDATION-2026-07-09.md](HANDOFF-FOUNDATION-2026-07-09.md) — the soul, the nine laws,
 **NINE maker's marks** now; add yours BELOW, never above), then the plot this stands on

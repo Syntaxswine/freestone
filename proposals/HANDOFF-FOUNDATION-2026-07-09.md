@@ -433,3 +433,26 @@ that the adit becomes playable and gives HAUL a second source, the drowned post 
 reach; and that when the WOODS become real, a treadwheel two workers walk rises on the tall wall.
 The stone travels now. The land decides where the Lodge can afford to build. The courses beneath —
 and the ones beneath THOSE — hold. Build on.
+
+**🎚 Tenth mark — the day the stone was worked to fit the wall, 2026-07-14, the same hands, later
+still.** The boss said *keep going*, and the next step was the ninth mark's own forward dream — the
+DRESS dial — so I built it. Each stone wall is now worked to a block class: light RUBBLE for a low
+garden or field wall, dressed ASHLAR for a tall or load-bearing one, roughly-squared SCAPPLED
+between. The level sets two frozen scalars the sim replays — a LAY DEBT (rubble flies up at half a
+mason-day a stone, ashlar crawls at two) and a HAUL WEIGHT (an ashlar block carts half again as much
+rough stone) — so a tall dressed wall is dear both to move and to raise, and a field wall goes up
+light and quick. The boss enriched the design in the asking: the block should follow the STRUCTURE —
+light rocks for the garden wall, heavier blocks for the tall work — so the smart default reads the
+height, the player can override it with a dial, and the stone itself shows the choice, ashlar
+sitting bigger and uniform, rubble smaller and mottled. The canon dressed its tavern in ashlar and
+watched it become the deepest stall — hungrier, slower, needing a bigger relief quarry — while the
+field ring flew up in rubble. *Tall structures need heavier blocks*, the boss said, and now the land
+and the wall both know it.
+
+*Forward dream:* that LIFT arrives when the WOODS become real — the windlass, then the treadwheel
+two workers walk, and the discrete weight a showpiece block exceeds outright; that the dress dial
+grows its ongoing bloom, the right level flipping as the wall climbs and the crane arrives and the
+season turns; that a hauled, dressed stone remembers the bed it was won from and the road it rode.
+The stone travels, and now it is worked to fit. The land decides where the Lodge can afford to
+build, and how finely it can afford to build there. The courses beneath — and the ones beneath THOSE
+— hold. Build on.

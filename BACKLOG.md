@@ -3,16 +3,19 @@
 **🗿 Current handoff: [proposals/HANDOFF-THE-CART-2026-07-14.md](proposals/HANDOFF-THE-CART-2026-07-14.md)**
 (reads the FOUNDATION keystone first — the soul, the nine laws, NINE maker's marks — then the
 carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its Phase-0 keystone HANDOFF-THE-HONEST-STALL, and
-the design PROPOSAL-LOGISTICS. This session closed **carriage Phase 1 — SIM 17, HAUL:** won stone no
-longer teleports pile→wall — each stone wall carries a FACE BUFFER and a haulRate frozen at plan
-time from the ROUTE (nearest dry post + the climb + ×4 across the gorge to a bridge), so a wall far
-from winnable stone stalls on the CART, not the pit, and the bottleneck line names which link
-starves. Boss picked the **wall-sited** model (the lever is where you BUILD). "Cost the route, not
-straight-line" → Durham's *quarry local* falls out of the geometry. Canon re-authored so wall A's
-face trickles (WIN → HAUL → PILE stalls, one fingerprint); 133 tests; build clean; LIVE. Also FIXED
-the render-smoke infinite loop that had leaked the vitest pool since SIM 16 (~75 node zombies, ~8 GB
-— the boss's CPU drain). The ninth maker's mark (🛒) records the day. **NEXT: carriage Phase 2 —
-the DRESS dial (the ongoing lever) OR the adit made playable.**
+the design PROPOSAL-LOGISTICS. Carriage **Phase 1 — SIM 17, HAUL** (won stone travels pile→face by
+cart at a route-frozen rate; **wall-sited**, so the lever is where you BUILD; "cost the route, not
+straight-line" → Durham's *quarry local* falls out of the geometry) AND **Phase 2 — SIM 18, the
+DRESS dial** are both SHIPPED. DRESS: each stone wall is worked to a block class that flips with the
+STRUCTURE — light RUBBLE for a low garden/field wall, dressed ASHLAR for a tall/load-bearing one,
+SCAPPLED between — setting a LAY DEBT (rubble quick 0.5, ashlar 2× slow) and a HAUL WEIGHT (ashlar
+carts 1.5×), so a tall dressed wall is dear to MOVE and to RAISE; a smart default reads the height,
+a dial (⚒ auto → rubble → scappled → ashlar) overrides, and the stone shows it (ashlar bigger &
+uniform, rubble smaller & mottled). Boss pick + insight: *tall structures need heavier blocks*. Canon
+re-authored — the ashlar tavern is the deepest stall (hungry + slow, a bigger relief quarry), the
+rubble field ring flies up; **139 tests**; build clean; LIVE. The ninth (🛒) and tenth (🎚) marks
+record the two days. **NEXT: carriage Phase 3 — LIFT (needs the WOODS as a real consumable first) OR
+the adit made playable.**
 The carriage layer plot — **WIN→HAUL→LIFT→LAY**, each a scalar frozen at the survey boundary; the
 wall builds at min() and stalls honestly; "deep model, shallow controls"; Durham's Wear = a MOAT
 not a highway → quarry local. Plot:
@@ -224,6 +227,26 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         it teaches the dry/drowned reading, but tying the readout to the camera is the pending
         prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
         settings are the natural follow-ons.
+- [x] SIM 18 — THE DRESS DIAL (carriage Phase 2, 2026-07-14): each stone wall is worked to a block
+      class — rubble | scappled | ashlar — frozen at plan time, setting a LAY DEBT + a HAUL WEIGHT.
+      · **the physics** (`78b03df` plan-row readout, byte-identical → `1ea7bf4` SIM 18): DRESS_SPEC —
+        rubble {lay 0.5, haul 1.0}, scappled {1.0, 1.0} (the SIM-17 cost, absent-default → byte-
+        identical), ashlar {2.0, 1.5}. layStones spends the level's layDebt from the mason quota;
+        haulStone + the face/pile draw use DRESS_DRAW (STONE_VOLUME × haulFactor). All exact dyadic
+        floats → IEEE-exact, no hash risk. A tall ashlar wall is dear to MOVE (face wants 1.5×/block,
+        cart falls behind) AND to RAISE (2× mason-days); a rubble field wall flies up light.
+      · **smart default + override** (boss pick + insight 2026-07-14): the class keys off the
+        STRUCTURE — boundary autoDress(height): ≤1 m → rubble, ≥2 m → ashlar, else scappled — frozen
+        when the dial reads 'auto'; a HUD dial (⚒ auto→rubble→scappled→ashlar) pins an override. The
+        stone SHOWS the level (render-only, s.id-keyed): ashlar ×1.05 uniform, rubble ×0.90–0.98
+        varied, plan-view scale only (course height untouched). *Tall structures need heavier blocks.*
+      · **canon re-authored**: FR (field ring) + A (low hauled) go up rubble (FR done ~67, 2× fast);
+        the tall tavern BS is ashlar — the deepest stall (hungry ~42 m³ + 2× slow), fed by a bigger,
+        earlier relief Q2 (32 m³ @ t92), finishes ~123; FR 225 / BS 334 / roof 2531 HELD (dress moves
+        TIMING, not counts). dress.test.ts: 6 red-specimen (lay speed, haul weight local+hauled,
+        absent→scappled, conservation, byte replay). Verified live via __cc (bundle simVersion 18,
+        rubble 220/220 vs ashlar 31 in 3 ticks; stone-mesh x-scale rubble 0.90–0.98, ashlar 1.05).
+      · SIM_VERSION 17→18, **139 tests**, build clean, LIVE. Next: LIFT (Phase 3, needs WOODS) or adit.
 - [x] SIM 17 — HAUL (carriage Phase 1, 2026-07-14): won stone no longer teleports pile→wall —
       each stone wall carries a FACE BUFFER + a haulRate frozen at plan time from the ROUTE.
       · **the metering** (`49799c3` bottleneck line → `48c8f27` SIM 17): worldStep threads a HAUL

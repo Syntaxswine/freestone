@@ -32,7 +32,15 @@ layer is code yet. This handoff preserves the plan.
 > on the CART, and the bottleneck line names which link starves. Boss picked the **wall-sited**
 > model (the lever is where you BUILD). The ninth maker's mark (🛒) records the day; the full
 > account is its keystone, [HANDOFF-THE-CART-2026-07-14.md](HANDOFF-THE-CART-2026-07-14.md).
-> **Next course is the DRESS dial (Phase 2, the ongoing lever) or the adit made playable.**
+>
+> **UPDATE — 2026-07-14 (later): PHASE 2 SHIPPED.** The DRESS dial is closed (SIM 18; `78b03df`
+> plan-row readout, byte-identical → `1ea7bf4` the physics; pushed, LIVE). Each stone wall is worked
+> to a block class — rubble | scappled | ashlar — that flips with the STRUCTURE (a smart default the
+> dial overrides): a LAY DEBT (rubble 0.5, ashlar 2×) + a HAUL WEIGHT (ashlar carts 1.5×), so a tall
+> ashlar wall is dear to MOVE and to RAISE, a rubble field wall flies up. Boss pick + insight: *tall
+> structures need heavier blocks*; the stone shows the level (ashlar bigger & uniform, rubble smaller
+> & mottled). The tenth maker's mark (🎚) records the day. **Next course is LIFT (Phase 3, needs the
+> WOODS as a real consumable) or the adit made playable.**
 
 ---
 
@@ -154,14 +162,16 @@ carries the adversarial critique's corrections **on the face of the doc**, not b
 
 ## 6. State of the fabric
 
-SIM_VERSION **17** · **133 tests** (all green) · through carriage **Phase 0** `6dc4791` → `73da767`
-and **Phase 1 (HAUL)** `49799c3` → `48c8f27`, all pushed · **playable on the web** at
-https://syntaxswine.github.io/freestone/. The player must win stone before a wall will rise (SIM 16)
-AND now the stone must REACH the wall by cart at a route-frozen rate (SIM 17): a wall far from
-winnable stone, or across the gorge, stalls on the CART and the bottleneck line names it. The adit
-exists in the sim (self-draining, proven inert) but is **not yet playable**. Of the carriage layer,
-**Phase 0 (consumption) and Phase 1 (HAUL) are BUILT**; the dress dial, LIFT, seasons and the
-landing are **plotted, not built**. (Full Phase-1 account: HANDOFF-THE-CART-2026-07-14.)
+SIM_VERSION **18** · **139 tests** (all green) · through carriage **Phase 0** `6dc4791` → `73da767`,
+**Phase 1 (HAUL)** `49799c3` → `48c8f27`, and **Phase 2 (DRESS)** `78b03df` → `1ea7bf4`, all pushed ·
+**playable on the web** at https://syntaxswine.github.io/freestone/. The player must win stone before
+a wall will rise (SIM 16), the stone must REACH the wall by cart at a route-frozen rate (SIM 17), AND
+each wall is worked to a block class — rubble/scappled/ashlar — that sets its lay debt and haul
+weight (SIM 18): a tall ashlar wall is dear to move AND to raise, a rubble field wall flies up light.
+The adit exists in the sim (self-draining, proven inert) but is **not yet playable**. Of the carriage
+layer, **Phase 0 (consumption), Phase 1 (HAUL) and Phase 2 (DRESS) are BUILT**; LIFT, seasons and the
+landing are **plotted, not built**. (Phase-1 account: HANDOFF-THE-CART; Phase-2: commit `1ea7bf4` +
+the tenth maker's mark in FOUNDATION.)
 
 ## 7. Next courses (the boss picks the thread; I asked and it's open)
 
@@ -176,7 +186,9 @@ literally *"which thread do you want to pull on first?"*:
    a boundary `haulRate` + `method` frozen from the route (nearest dry post + climb + ×4 across the
    gorge to a bridge), a per-wall face buffer WIN meters into, and the one line naming the binding
    stage. Cost-the-ROUTE done (§4.1); Durham's "quarry local" falls out of the geometry. Boss picked
-   the wall-sited model. **Next is now the DRESS dial (Phase 2)** — see HANDOFF-THE-CART §5.
+   the wall-sited model. **Phase 2, the DRESS dial, ✅ SHIPPED (SIM 18, `1ea7bf4`)** — the block class
+   (rubble/scappled/ashlar) flips with the STRUCTURE via a smart default the dial overrides; the
+   ashlar tavern is the deepest stall. **Next is LIFT (Phase 3, needs the WOODS) or the adit.**
 3. Then, as the boss steers: **prospect-on-hover** (task 48 — read what a spot affords; the read
    surface both the tutorial's seam step and the carriage route read want), the carriage HAUL
    stage + bottleneck line, the WOODS/SEASONS subsystems the deeper phases need.
