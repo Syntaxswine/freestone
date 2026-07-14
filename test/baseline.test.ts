@@ -33,26 +33,30 @@ const MILESTONE_TICKS = [1, 7, 30, 65, 80, 100, 130, 200];
 
 /**
  * The canon exercises every physics path the fingerprint guards — now including
- * SIM 16's CONSUMPTION LOOP, the reason this baseline moved off SIM 15. Masonry
- * DRAWS the stockpile, so the run had to be re-authored to WIN stone before it
- * spends it, and it now tells the loop's whole arc:
- *  - a WOOD wall (tick 6) builds free while a SANDSTONE wall (tick 5) stands
+ * SIM 17's HAUL (each stone wall's face is fed by the cart at a frozen rate), on
+ * top of SIM 16's CONSUMPTION LOOP (masonry DRAWS the pile). The run tells the
+ * carriage stalls in one arc:
+ *  - a WOOD wall (tick 6) builds free while a SANDSTONE wall A (tick 5) stands
  *    STALLED beside it on an empty pile — the loop in one fingerprint (the 7 and
  *    30 milestones catch stones climbing on timber alone, stockpile 0);
  *  - the FOUNDING quarry Q1 holes through ~tick 60 (the laborers clear the fills
- *    first) and the stone walls build off it — wall A done ~67, the stepped-footing
- *    farm ring FR ~78, both in the 80 milestone;
- *  - the plotted tavern BS (drawings answered 20/25) is the STALL: it wants more
- *    stone than Q1 leaves, so it halts mid-build (~2233/2515 at the 100 milestone,
- *    stockpile ~0) until the RELIEF quarry Q2 lands ~124 and it finishes ~127 (the
- *    130 milestone) — starve → relief → resume;
- *  - and the pre-16 grammar still runs, now on won stone: a completed fill carries
- *    W-plat (effectiveGroundAt in the record), the farm is designated and tended,
- *    a ramp is billed, a door and a second gate are cut and one is walled back up
- *    (the infill DRAWS stone), a span stands uncovered then is bricked into a deck
- *    (~167), and four invalid commands reject with their constant reasons. The
- *    wallIds/roofId are re-probed under the SIM 16 stone counts (the wood wall's
- *    free posts set them: FR 225, BS 334, the span 2531).
+ *    first). Now the WIN stall gives way to the HAUL stall: A's stone comes up the
+ *    bank by cart at 0.6 m³/day, so A's FACE trickles — the crew (oldest-wall
+ *    first) lays A's few blocks each day then flexes to the stepped-footing farm
+ *    ring FR and the tavern off the pile while A waits on the road (A partway at
+ *    the 65 milestone, done ~80);
+ *  - the plotted tavern BS (drawings answered 20/25) is the PILE stall: it wants
+ *    more stone than Q1 leaves, so it halts mid-build (the 100 milestone, stockpile
+ *    ~0) until the RELIEF quarry Q2 lands ~124 and it finishes (the 130 milestone)
+ *    — WIN → HAUL → PILE stalls, then relief, all in one fingerprint;
+ *  - and the pre-17 grammar still runs, now on hauled and won stone: a completed
+ *    fill carries W-plat (effectiveGroundAt in the record), the farm is designated
+ *    and tended, a ramp is billed, a door and a second gate are cut and one is
+ *    walled back up (the infill draws stone), a span stands uncovered then is
+ *    bricked into a deck (~167), and four invalid commands reject with their
+ *    constant reasons. The wallIds/roofId hold under SIM 17 — all walls finish
+ *    before the span is drawn, so the counts that set FR 225, BS 334 and the span
+ *    2531 are unchanged; only A's throttled pace moved the intermediate milestones.
  */
 const CANON_COMMANDS: Command[] = [
   // Q1 — THE FOUNDING QUARRY (SIM 16): the crew opens the outcrop Low Main Post
@@ -65,8 +69,12 @@ const CANON_COMMANDS: Command[] = [
   // F1 — a platform fill; W-plat stands on it once it sets (~tick 30)
   { kind: 'plan_fill', tick: 3, points: [{ x: 1970, y: 1968 }, { x: 1982, y: 1968 }, { x: 1982, y: 1980 }, { x: 1970, y: 1980 }], height: 1 },
   // A — a sandstone wall planned tick 5 that STALLS with an empty pile until Q1
-  // lands (~60), then builds (done ~67): the initial-starve path (SIM 16).
-  { kind: 'plan_wall', tick: 5, points: [{ x: 1960, y: 2000 }, { x: 1995, y: 2000 }], height: 1 },
+  // lands (~60). New in SIM 17: A's stone comes up the bank by CART at a frozen
+  // 0.6 m³/day — far slower than the masons could lay it — so A's face trickles
+  // and the crew, oldest-wall-first, lays A's few blocks then flexes to FR/BS off
+  // the pile while A waits on the road. A waits first on the PIT, then on the CART
+  // (partway at the 65 milestone, done ~80): the two carriage stalls in one wall.
+  { kind: 'plan_wall', tick: 5, points: [{ x: 1960, y: 2000 }, { x: 1995, y: 2000 }], height: 1, haulRate: 0.6, method: 'ox-cart uphill' },
   // B — a WOOD wall: timber draws no stone (the WOODS aren't a cost yet), so it
   // builds FREE from tick 6 while A stands stalled beside it — the loop, in one
   // fingerprint. Its ~600 posts set the ids of everything planned after it.

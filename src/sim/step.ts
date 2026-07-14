@@ -14,6 +14,7 @@ import {
   GATE_HALF,
   GATE_MIN_SEG,
   GATE_W,
+  HAUL_METHODS,
   MATERIALS,
   ROOF_MATERIALS,
   ROOF_SNAP,
@@ -54,9 +55,11 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
     applyCommand(state, site, cmd);
   }
 
-  // fixed daily order: earth moves before stones are laid (a fill completed
-  // this morning can carry this afternoon's masonry)
+  // fixed daily order: earth moves (winning stone to the pile) before the carts
+  // haul it to the faces, before the masons lay — so stone won this morning can
+  // be carted and laid the same day. SIM 17 threads HAUL between WIN and LAY.
   moveEarth(state);
+  haulStone(state);
   layStones(state, site, rng);
 
   state.tick += 1;
@@ -84,6 +87,17 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       if (badPoints(cmd.points)) return 'wall points must have finite x and y';
       if (cmd.material !== undefined && !MATERIALS.includes(cmd.material)) {
         return 'unknown material';
+      }
+      // the frozen haul (SIM 17): a finite positive rate if present, else local.
+      // NaN/Infinity arrive as null from a save (JSON) — treated as absent = local.
+      if (
+        cmd.haulRate !== undefined &&
+        (typeof cmd.haulRate !== 'number' || !Number.isFinite(cmd.haulRate) || cmd.haulRate <= 0)
+      ) {
+        return 'haul rate must be a finite positive number';
+      }
+      if (cmd.method !== undefined && !HAUL_METHODS.includes(cmd.method)) {
+        return 'unknown haul method';
       }
       return null;
     }
@@ -439,6 +453,12 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         slotEnds: survey.slotEnds,
         stonesTotal: survey.stonesTotal,
         stonesLaid: 0,
+        // THE HAUL (SIM 17): absent ⇒ a 'local' wall (haulRate null) that draws
+        // the pile directly, the SIM-16 path — so a log with no frozen route
+        // replays byte-for-byte. A frozen finite rate carts stone to the face.
+        haulRate: cmd.haulRate ?? null,
+        faceBuffer: 0,
+        method: cmd.method ?? 'local',
       };
       state.walls.push(wall);
       state.events.push({
@@ -1047,27 +1067,59 @@ export function awaitsDrawings(w: WallPlan): boolean {
   return w.plans !== null && (w.plans.roof === null || w.plans.kind === null);
 }
 
+/**
+ * THE HAUL (SIM 17): the carts move won stone from the global pile to each stone
+ * wall's FACE at its frozen haulRate — the missing middle of WIN → HAUL → LAY.
+ * Each hauled wall meters min(haulRate, pile, still-needed) into its faceBuffer
+ * per day, so a wall far from winnable stone (a low rate) fills its face slowly
+ * and stalls on the CART even while the pile is full. 'local' walls (haulRate
+ * null) and timber take no cart — they draw the pile directly in layStones,
+ * exactly as in SIM 16, so a world of only local/timber walls is byte-identical
+ * to before. Walls are served in id order (oldest first), like diggers and
+ * masons; when the pile runs dry the day's hauling stops.
+ */
+function haulStone(state: WorldState): void {
+  for (const wall of state.walls) {
+    if (state.stockpile <= 0) break; // the pile is dry — no cart rolls today
+    if (wall.haulRate === null || wall.material === 'wood') continue; // no cart
+    if (wall.stonesLaid >= wall.stonesTotal || awaitsDrawings(wall)) continue; // not being worked
+    // never haul past what the wall can still lay — stone at a finished face is
+    // stranded (the wall's demand, less what already stands at the face)
+    const need = (wall.stonesTotal - wall.stonesLaid) * STONE_VOLUME - wall.faceBuffer;
+    if (need <= 0) continue;
+    const move = Math.min(wall.haulRate, state.stockpile, need);
+    if (move <= 0) continue;
+    state.stockpile -= move;
+    wall.faceBuffer += move;
+  }
+}
+
 function layStones(state: WorldState, site: SiteData, rng: Rng): void {
+  // a wall the masons can WORK this moment (SIM 16 + 17): drawings settled (a
+  // plotted building waits on its roof and trade), and its supply in hand —
+  // timber is free (the WOODS aren't a cost yet), a 'local' wall draws the
+  // global pile as before, a HAULED wall draws the stone the carts have brought
+  // to its FACE. A hauled wall whose face is dry stalls on the CART even while
+  // the pile is full; a local wall with a dry pile stalls on the quarry. When
+  // nothing can be worked the crew stalls honestly, and the line names why.
+  const supplied = (w: WallPlan): boolean =>
+    w.material === 'wood' ||
+    (w.haulRate === null ? state.stockpile >= STONE_VOLUME : w.faceBuffer >= STONE_VOLUME);
   for (const person of state.people) {
     if (person.trade !== 'mason') continue;
     let quota = person.pace;
     while (quota > 0) {
-      // THE CONSUMPTION LOOP (SIM 16): the masons take the oldest wall they can
-      // actually WORK this moment — drawings settled (a plotted building waits on
-      // its roof and trade), and, for a STONE wall, stone won to lay it. A timber
-      // wall draws no stone (the WOODS are the carriage layer's Phase 3, not yet
-      // built), so it never stalls; a stone wall with a dry pile is skipped. When
-      // nothing can be worked the crew stalls honestly, waiting on the quarry.
       const wall = state.walls.find(
-        (w) =>
-          w.stonesLaid < w.stonesTotal &&
-          !awaitsDrawings(w) &&
-          (w.material === 'wood' || state.stockpile >= STONE_VOLUME),
+        (w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w) && supplied(w),
       );
       if (!wall) return;
-      // a laid ashlar spends its own dressed volume of won building stone; the
-      // generous quarry yield already rewarded the winning, so this is honest.
-      if (wall.material !== 'wood') state.stockpile -= STONE_VOLUME;
+      // a laid ashlar spends its own dressed volume, from wherever the wall draws:
+      // the FACE if it is hauled, the global pile if it is local; timber spends
+      // nothing (the generous quarry yield already rewarded the winning).
+      if (wall.material !== 'wood') {
+        if (wall.haulRate === null) state.stockpile -= STONE_VOLUME;
+        else wall.faceBuffer -= STONE_VOLUME;
+      }
       layOneStone(state, site, rng, wall, person.id);
       quota -= 1;
     }

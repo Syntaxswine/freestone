@@ -44,6 +44,7 @@ import {
   type BuildingRoof,
   type Command,
   type FieldUse,
+  type HaulMethod,
   type RoofMaterial,
   type Vec2,
 } from '../sim/types';
@@ -393,6 +394,93 @@ async function boot(): Promise<void> {
     };
   }
 
+  // --- THE HAUL (SIM 17): the route a wall's stone must travel. main.ts alone
+  //     holds surface + water + beds, so it reads the route HERE and freezes a
+  //     haulRate + method into plan_wall, exactly as quarryPlanAt freezes plan_cut
+  //     — the sim replays the scalar and never sees the road. "Cost the ROUTE, not
+  //     straight-line" (PROPOSAL-LOGISTICS §4.1): a bed across the Wear is NOT near
+  //     — the cart must detour to a bridge, so the gorge reads as a MOAT and the
+  //     historical optimum (quarry the peninsula's own post) falls out of the
+  //     geometry with zero scripting. ---
+  const HAUL_PROBE_AREA = 10; // m² — the affordance probe ("is dry post winnable here?")
+  const HAUL_BASE_RATE = 12; // m³/day a cart lays at the doorstep (≫ masons need → never binds)
+  const HAUL_SCALE = 120; // m of haul-route at which the delivered rate halves (mileage → map scale)
+  const HAUL_UPHILL_PER_M = 14; // haul-route metres ADDED per metre the stone must climb to the wall
+  const HAUL_BRIDGE_DETOUR = 4; // the Wear is a MOAT: a route that crosses the gorge detours to a bridge
+  const HAUL_GORGE_DROP = 10; // m the land must dip below both ends for a route to "cross the gorge"
+  const HAUL_MAX_REACH = 250; // m — past this from any dry post, haul is maximally dear (bounds the scan)
+  const round6 = (v: number): number => Math.round(v * 1e6) / 1e6; // tidy the frozen scalar
+  // the nearest place the land affords an OPEN CUT of dry building stone — the
+  // source the carts draw from. Ring-search outward from the wall; the first
+  // afforded radius wins (≈ nearest). Bounded + memoized, so the live preview
+  // never re-scans a still gesture.
+  function nearestDryPost(wx: number, wy: number): { x: number; y: number; dist: number } | null {
+    const maxR = Math.min(HAUL_MAX_REACH, Math.max(site.extentX, site.extentY));
+    for (let r = 16; r <= maxR; r += 16) {
+      let best: { x: number; y: number; dist: number } | null = null;
+      const n = Math.max(8, Math.round((2 * Math.PI * r) / 16));
+      for (let k = 0; k < n; k++) {
+        const a = (2 * Math.PI * k) / n;
+        const sx = wx + r * Math.cos(a);
+        const sy = wy + r * Math.sin(a);
+        if (sx < 0 || sy < 0 || sx > site.extentX || sy > site.extentY) continue;
+        if (quarryPlanAt(sx, sy, HAUL_PROBE_AREA).ok) {
+          const d = Math.hypot(sx - wx, sy - wy);
+          if (!best || d < best.dist) best = { x: sx, y: sy, dist: d };
+        }
+      }
+      if (best) return best; // first radius with a hit — the nearest afforded post
+    }
+    return null; // no dry post within reach — the caller treats it as dearest
+  }
+  // does the straight route dip into the gorge? then a cart can't ford it — it
+  // detours to a bridge (the moat). Sampled on the terrain heights.
+  function routeCrossesGorge(ax: number, ay: number, bx: number, by: number, refLow: number): boolean {
+    const steps = Math.max(4, Math.ceil(Math.hypot(bx - ax, by - ay) / 8));
+    for (let i = 1; i < steps; i++) {
+      const t = i / steps;
+      if (site.heightAt(ax + (bx - ax) * t, ay + (by - ay) * t) < refLow - HAUL_GORGE_DROP) return true;
+    }
+    return false;
+  }
+  const haulMemo = new Map<string, { haulRate: number; method: HaulMethod } | null>();
+  // the haul VERDICT for a wall, frozen at plan time. null = 'local' (dry post
+  // under the wall's own feet — no cart, draws the pile directly). Otherwise a
+  // finite m³/day the cart delivers to the face + the field-guide word for it.
+  function haulVerdict(points: Vec2[]): { haulRate: number; method: HaulMethod } | null {
+    const { cx, cy } = centroid(points);
+    const key = `${Math.round(cx / 4)},${Math.round(cy / 4)}`;
+    const cached = haulMemo.get(key);
+    if (cached !== undefined) return cached;
+    let verdict: { haulRate: number; method: HaulMethod } | null;
+    if (quarryPlanAt(cx, cy, HAUL_PROBE_AREA).ok) {
+      verdict = null; // winnable underfoot — 'local', no cart
+    } else {
+      const src = nearestDryPost(cx, cy);
+      if (!src) {
+        // no dry post within reach — the dearest overland haul the map allows
+        verdict = { haulRate: round6(HAUL_BASE_RATE / (1 + HAUL_MAX_REACH / HAUL_SCALE)), method: 'ox-cart' };
+      } else {
+        const wallG = site.heightAt(cx, cy);
+        const srcG = site.heightAt(src.x, src.y);
+        const climb = Math.max(0, wallG - srcG); // hauling UP to the wall costs the beasts
+        const crosses = routeCrossesGorge(src.x, src.y, cx, cy, Math.min(wallG, srcG));
+        let route = src.dist + HAUL_UPHILL_PER_M * climb;
+        if (crosses) route *= HAUL_BRIDGE_DETOUR;
+        const method: HaulMethod = crosses
+          ? 'ox-cart over the bridge'
+          : climb > src.dist * 0.15
+            ? 'ox-cart uphill'
+            : route < HAUL_SCALE
+              ? 'sledge'
+              : 'ox-cart';
+        verdict = { haulRate: round6(HAUL_BASE_RATE / (1 + route / HAUL_SCALE)), method };
+      }
+    }
+    haulMemo.set(key, verdict);
+    return verdict;
+  }
+
   // explicit annotation: onConfirm's closure reads planner.fillShape /
   // roofMaterial, so inference would otherwise chase its own tail
   const planner: WallPlanner = new WallPlanner({
@@ -414,13 +502,23 @@ async function boot(): Promise<void> {
         }
         return false; // the land didn't afford an open cut — the plan row says why
       }
-      return enqueue(
-        mode === 'fill'
-          ? { kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape }
-          : mode === 'roof'
-            ? { kind: 'plan_roof', tick: world.tick, points } // covering asked after
-            : { kind: 'plan_wall', tick: world.tick, points, height, material },
-      );
+      if (mode === 'fill') {
+        return enqueue({ kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape });
+      }
+      if (mode === 'roof') {
+        return enqueue({ kind: 'plan_roof', tick: world.tick, points }); // covering asked after
+      }
+      // wall or building (both are plan_wall): freeze the HAUL verdict from the
+      // route (SIM 17). Timber takes no cart; stone on winnable ground is 'local'.
+      const hv = material === 'wood' ? null : haulVerdict(points);
+      return enqueue({
+        kind: 'plan_wall',
+        tick: world.tick,
+        points,
+        height,
+        material,
+        ...(hv ? { haulRate: hv.haulRate, method: hv.method } : {}),
+      });
     },
     onModeChange: (active, mode) => {
       wallBtn.classList.toggle('active', active && mode === 'wall');
@@ -897,29 +995,32 @@ async function boot(): Promise<void> {
     const nAsks =
       world.pending.length + world.roofs.filter((r) => r.material === null).length;
     const nQuarries = world.cuts.length;
-    // THE STARVE (SIM 16): a stone wall with work to do but a dry pile — the masons
-    // wait on the quarry.
-    const starved =
-      world.stockpile < STONE_VOLUME &&
-      world.walls.some(
-        (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal && !awaitsDrawings(w),
-      );
-    // THE BOTTLENECK LINE (carriage layer, Commit A): the supply read reframed as a
-    // WIN→LAY pipeline that names the stage which BINDS — the quarry (supply) or the
-    // masons (lay). Render-only; the sim is untouched, the baseline unmoved. HAUL
-    // slots its own stage into the middle of this read in the next commit, so a wall
-    // waiting on the CART reads as plainly as one waiting on the pit.
-    const nStoneWalls = world.walls.filter(
+    // THE BOTTLENECK LINE (carriage layer): the WIN→HAUL→LAY read, naming the stage
+    // that BINDS. WIN — the pile is dry, the quarry lags. HAUL — the pile has stone
+    // but a cart is behind and a wall's FACE is dry (SIM 17). LAY — supply keeps up
+    // and the masons are the throat. The per-wall haul verdict is read on the plan
+    // row as a wall is drawn; here the one line names which link starves.
+    const stoneWalls = world.walls.filter(
       (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal && !awaitsDrawings(w),
-    ).length;
+    );
+    const pileDry = world.stockpile < STONE_VOLUME;
+    // a cart behind: the pile has stone, yet a hauled wall's face can't afford a
+    // block — that wall waits on the road, not the pit
+    const cartBehind = pileDry
+      ? undefined
+      : stoneWalls.find((w) => w.haulRate !== null && w.faceBuffer < STONE_VOLUME);
     const hasStoneEconomy =
-      nQuarries > 0 || world.adits.length > 0 || world.stockpile >= 1 || nStoneWalls > 0;
+      nQuarries > 0 || world.adits.length > 0 || world.stockpile >= 1 || stoneWalls.length > 0;
+    const bind = pileDry
+      ? '⚒ waits on the quarry'
+      : cartBehind
+        ? `⚒ waits on the cart (${cartBehind.method})`
+        : 'the masons lay';
     const supply = !hasStoneEconomy
       ? ''
-      : nStoneWalls === 0
+      : stoneWalls.length === 0
         ? ` — won ${Math.round(world.stockpile)} m³`
-        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ` +
-          (starved ? '⚒ waits on the quarry' : 'the masons lay');
+        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ${bind}`;
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
@@ -1087,11 +1188,20 @@ async function boot(): Promise<void> {
           }
         }
         const stuff = planner.material === 'wood' ? 'timbers' : 'stones';
+        // the HAUL verdict for where this wall sits (SIM 17): stone won on the
+        // spot, or carted — dearer up a hill, dearest across the gorge to a bridge
+        let haul = '';
+        if (ring && planner.material !== 'wood' && rc?.kind !== 'farm') {
+          const hv = haulVerdict(ring);
+          haul = hv
+            ? ` · ${hv.method}, ~${hv.haulRate.toFixed(1)} m³/day to the face`
+            : ' · stone won on the spot';
+        }
         setText(
           plan,
           s
             ? `plan: ${name}${s.length.toFixed(0)} m · ${s.courses} courses · ` +
-                `${s.stonesTotal.toLocaleString()} ${stuff} · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}`
+                `${s.stonesTotal.toLocaleString()} ${stuff} · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}${haul}`
             : 'plan: click the ground to start the line',
         );
         setText(

@@ -7,6 +7,18 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
+// 17: THE HAUL — won building stone no longer teleports from pile to wall. Each
+// STONE wall carries a FACE BUFFER and a haulRate frozen at plan time from the
+// ROUTE the boundary reads: the distance to the nearest DRY winnable post, the
+// climb up to the wall, and any gorge the cart must detour across a bridge to
+// cross. WIN fills the global pile (as before); HAUL meters that pile into each
+// wall's face at its frozen rate; LAY draws the face. A wall far from winnable
+// stone — or across the Wear — stalls on the CART, not the pit, and the
+// bottleneck line names which link starves. On-the-spot walls (haulRate null,
+// 'local') and timber draw the pile directly, exactly as in SIM 16. The route
+// is frozen at the boundary; the sim core replays only the scalar (no beds,
+// water or heights), byte-identical after any terrain regen. — carriage layer
+// Phase 1 (PROPOSAL-LOGISTICS §5), wall-sited per boss pick 2026-07-14.
 // 16: THE CONSUMPTION LOOP — masonry now DRAWS the stockpile. Each ashlar laid
 // spends STONE_VOLUME (its own dressed m³) of won building stone; when the pile
 // runs dry the masons STALL, honestly, until a quarry or adit wins more. The
@@ -28,7 +40,7 @@
 // generous inversion of the real recovery — production exceeds removal, to
 // reward great works (boss directive 2026-07-10). — 13: level coursing; 12:
 // drawings before the build; 11: uncovered spans; 10: designation; 9: doors
-export const SIM_VERSION = 16;
+export const SIM_VERSION = 17;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -63,6 +75,23 @@ export interface Vec2 {
  */
 export const MATERIALS = ['wood', 'sandstone'] as const;
 export type Material = (typeof MATERIALS)[number];
+
+/**
+ * How a wall's stone reaches its face (SIM 17). A CONSTANT-string field-guide
+ * word chosen at the boundary from the frozen route and stored on the wall, so
+ * the bottleneck line can name the cart. 'local' is stone won on the spot (no
+ * haul, no cart) — its haulRate is null and it draws the pile directly. The
+ * rest are hauled: the label rides with a finite haulRate. Constant strings —
+ * they enter hashed state via WallPlan.method, exactly like Material.
+ */
+export const HAUL_METHODS = [
+  'local', // quarried underfoot — no cart, draws the pile directly (haulRate null)
+  'sledge', // short, flat or downhill — the cheap overland haul
+  'ox-cart', // overland
+  'ox-cart uphill', // climbing to the wall costs the beasts
+  'ox-cart over the bridge', // the route must cross the gorge — the Wear is a MOAT
+] as const;
+export type HaulMethod = (typeof HAUL_METHODS)[number];
 
 export interface WallPlan {
   id: number;
@@ -104,6 +133,18 @@ export interface WallPlan {
   slotEnds: number[];
   stonesTotal: number;
   stonesLaid: number;
+  /**
+   * THE HAUL (SIM 17), frozen at plan time from the route the boundary reads.
+   * `haulRate` is m³ of won stone the cart delivers to this wall's face per day
+   * (metered from the global stockpile), or NULL for an on-the-spot ('local')
+   * wall and any timber wall — those draw the pile directly, no cart, exactly as
+   * in SIM 16. `faceBuffer` is the won stone standing AT the face, not yet laid:
+   * HAUL fills it (≤ what the wall still needs), LAY draws it a block at a time.
+   * `method` is the field-guide word for the cart (HAUL_METHODS), for the line.
+   */
+  haulRate: number | null;
+  faceBuffer: number;
+  method: HaulMethod;
 }
 
 /**
@@ -306,6 +347,15 @@ export type Command =
       height: number;
       /** absent in old logs/saves — defaults to 'sandstone' at the boundary */
       material?: Material;
+      /**
+       * THE HAUL, frozen at the boundary from the route (SIM 17). Absent ⇒ an
+       * on-the-spot 'local' wall that draws the pile directly (the SIM-16 path,
+       * so old logs replay byte-for-byte). Present ⇒ a finite m³/day the cart
+       * meters to the wall's face; `method` is its field-guide word. Both are
+       * frozen scalars — the sim core never sees the route that set them.
+       */
+      haulRate?: number;
+      method?: HaulMethod;
     }
   | {
       kind: 'plan_fill';
@@ -454,8 +504,10 @@ export interface WorldState {
    * Building stone won from finished quarries and adits and not yet spent, m³
    * (SIM 14). Masonry DRAWS it since SIM 16: each ashlar laid spends STONE_VOLUME,
    * and the masons stall when it runs dry — the honest consumption loop the whole
-   * mining arc was for. Credited one-shot on a working's completion; global for
-   * now (one pile, not yet a per-wall face buffer).
+   * mining arc was for. Credited one-shot on a working's completion; still one
+   * GLOBAL pile. Since SIM 17 the HAUL stage meters this pile into each stone
+   * wall's per-wall faceBuffer at its frozen haulRate; 'local' and timber walls
+   * draw the pile directly (no cart), so the pile remains the shared reservoir.
    */
   stockpile: number;
   roofs: Roof[];
