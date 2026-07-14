@@ -7,6 +7,19 @@
  * - The save format is {meta, commands}: seed + command log fully determine a world.
  *   SimEvents are derived outcomes (the chronicle's source), reproduced by replay.
  */
+// 18: THE DRESS DIAL — a wall's stone is no longer one fixed cost. Each stone
+// wall carries a DRESS LEVEL (rubble | scappled | ashlar) frozen at plan time:
+// rubble is light, undressed fieldstone that lays quick (a low garden wall);
+// ashlar is squared, dressed blocks that lay slow and haul heavy (a tall or
+// load-bearing wall); scappled is the roughly-squared middle. The level sets a
+// LAY DEBT (mason-days per stone) and a HAUL FACTOR (rough m³ carted per stone),
+// so a tall ashlar structure far from winnable stone is dear both to move and to
+// raise, while a rubble field wall flies up. The boundary picks a smart default
+// from the STRUCTURE (low→rubble, tall→ashlar) that the player can override; the
+// sim replays only the constant-string level through a constant table (no new
+// geometry), byte-identical when absent (⇒ 'scappled', the SIM-16/17 cost). —
+// carriage layer Phase 2 (PROPOSAL-LOGISTICS §5), structure-keyed per boss pick
+// 2026-07-14.
 // 17: THE HAUL — won building stone no longer teleports from pile to wall. Each
 // STONE wall carries a FACE BUFFER and a haulRate frozen at plan time from the
 // ROUTE the boundary reads: the distance to the nearest DRY winnable post, the
@@ -40,7 +53,7 @@
 // generous inversion of the real recovery — production exceeds removal, to
 // reward great works (boss directive 2026-07-10). — 13: level coursing; 12:
 // drawings before the build; 11: uncovered spans; 10: designation; 9: doors
-export const SIM_VERSION = 17;
+export const SIM_VERSION = 18;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -52,13 +65,15 @@ export const COURSE_HEIGHT = 0.25;
 
 /**
  * The won building stone one laid ashlar draws from the stockpile, m³ (SIM 16):
- * the block's own dressed volume. The quarry/adit yield is already GENEROUS
- * (production exceeds removal — boss directive 2026-07-10), so charging the true
- * block volume is honest and not punishing. Phase 2 of the carriage layer (the
- * dress dial) will split rough-hauled vs dressed-at-pit draw; for now every stone
- * costs the same. 0.45 × 0.3 × 0.25 = 0.03375 m³. Product of fixed constants →
- * one bit pattern on every engine, and plain subtraction is IEEE-exact, so the
- * draw never threatens the cross-engine hash (no quantization needed).
+ * the block's own dressed volume, and the SCAPPLED (neutral) draw. The quarry/adit
+ * yield is already GENEROUS (production exceeds removal — boss directive
+ * 2026-07-10), so charging the true block volume is honest and not punishing.
+ * Since SIM 18 the DRESS DIAL scales this per wall (DRESS_DRAW): an ashlar wall
+ * carts half again as much rough stone per block (dressing waste rides the cart),
+ * rubble/scappled draw exactly this. 0.45 × 0.3 × 0.25 = 0.03375 m³. Product of
+ * fixed constants → one bit pattern on every engine, and plain subtraction is
+ * IEEE-exact, so the draw never threatens the cross-engine hash (no quantization
+ * needed); the per-level scale is a constant multiply, exactly rounded.
  */
 export const STONE_VOLUME = STONE_LEN * STONE_DEPTH * COURSE_HEIGHT;
 
@@ -92,6 +107,56 @@ export const HAUL_METHODS = [
   'ox-cart over the bridge', // the route must cross the gorge — the Wear is a MOAT
 ] as const;
 export type HaulMethod = (typeof HAUL_METHODS)[number];
+
+/**
+ * THE DRESS DIAL (SIM 18): how finely a wall's stone is worked, and thus how
+ * dearly it moves and rises. A CONSTANT-string field-guide term stored per wall
+ * and chosen at the boundary (a smart default from the structure; the player may
+ * override). Real mason's vocabulary:
+ * - 'rubble'   — undressed fieldstone, laid nearly as-won: light to haul, quick
+ *                to lay. The honest choice for a low garden or field wall.
+ * - 'scappled' — roughly squared with the hammer: the neutral middle, and the
+ *                absent-default so old logs/saves (SIM 16/17) replay byte-for-byte.
+ * - 'ashlar'   — finely dressed, squared, coursed blocks: they lay slow (fine
+ *                setting) and haul heavy (bigger worked stone, waste carted). What
+ *                a tall or load-bearing wall wants. Constant strings — they enter
+ *                hashed state via WallPlan.dressLevel, like Material and HaulMethod.
+ */
+export const DRESS_LEVELS = ['rubble', 'scappled', 'ashlar'] as const;
+export type DressLevel = (typeof DRESS_LEVELS)[number];
+
+/**
+ * What each dress level costs, as two frozen scalars the sim replays through this
+ * CONSTANT table (no geometry, no bed model):
+ * - layDebt: mason-days spent per stone laid. Rubble 0.5 (quick stacking),
+ *   scappled 1.0 (the SIM-16/17 rate — byte-identical), ashlar 2.0 (dressed and
+ *   finely set). A ~4× swing, the cozy compression of Guédelon's ~8× (fine ashlar
+ *   ~2 days/stone vs rough ~4/day). All exact dyadic floats → no hash risk.
+ * - haulFactor: rough won stone drawn from the pile (and carted to the face) per
+ *   stone LAID, as a multiple of STONE_VOLUME. Rubble/scappled 1.0 (laid near its
+ *   won volume); ashlar 1.5 (the dressing waste rides the cart, shed at the wall).
+ *   Makes a far ashlar wall stall on its cart sooner — "heavier blocks cost more
+ *   to move" (boss, 2026-07-14).
+ */
+export const DRESS_SPEC: Record<DressLevel, { layDebt: number; haulFactor: number }> = {
+  rubble: { layDebt: 0.5, haulFactor: 1.0 },
+  scappled: { layDebt: 1.0, haulFactor: 1.0 },
+  ashlar: { layDebt: 2.0, haulFactor: 1.5 },
+};
+
+/**
+ * The won stone one laid stone draws from the pile/face, m³, PER DRESS LEVEL:
+ * STONE_VOLUME × the level's haulFactor, precomputed at module load as a product
+ * of fixed constants so it is one bit pattern on every engine (the STONE_VOLUME
+ * law extended). Rubble/scappled = STONE_VOLUME exactly (the SIM 16/17 draw);
+ * ashlar carts half again as much rough stone per finished block. DRESS_SPEC is
+ * the single source of haulFactor; this table is its volume form for the hot loop.
+ */
+export const DRESS_DRAW: Record<DressLevel, number> = {
+  rubble: STONE_VOLUME * DRESS_SPEC.rubble.haulFactor,
+  scappled: STONE_VOLUME * DRESS_SPEC.scappled.haulFactor,
+  ashlar: STONE_VOLUME * DRESS_SPEC.ashlar.haulFactor,
+};
 
 export interface WallPlan {
   id: number;
@@ -145,6 +210,14 @@ export interface WallPlan {
   haulRate: number | null;
   faceBuffer: number;
   method: HaulMethod;
+  /**
+   * THE DRESS LEVEL (SIM 18), frozen at plan time: how finely this wall's stone
+   * is worked (DRESS_LEVELS). Sets the LAY DEBT (mason-days per stone, DRESS_SPEC)
+   * and the per-stone DRAW from the pile/face (DRESS_DRAW) — so an ashlar wall
+   * lays slow and carts heavy, a rubble wall flies up light. Absent in old
+   * logs/saves ⇒ 'scappled' at plan time (the SIM-16/17 cost), byte-identical.
+   */
+  dressLevel: DressLevel;
 }
 
 /**
@@ -356,6 +429,13 @@ export type Command =
        */
       haulRate?: number;
       method?: HaulMethod;
+      /**
+       * THE DRESS LEVEL (SIM 18), frozen at the boundary: a smart default from the
+       * structure (low→rubble, tall→ashlar) or the player's override. Absent ⇒
+       * 'scappled', so old logs replay byte-for-byte. A constant string; the sim
+       * looks up its cost in the DRESS_SPEC / DRESS_DRAW constant tables.
+       */
+      dressLevel?: DressLevel;
     }
   | {
       kind: 'plan_fill';
@@ -502,8 +582,10 @@ export interface WorldState {
   adits: AditPlan[];
   /**
    * Building stone won from finished quarries and adits and not yet spent, m³
-   * (SIM 14). Masonry DRAWS it since SIM 16: each ashlar laid spends STONE_VOLUME,
-   * and the masons stall when it runs dry — the honest consumption loop the whole
+   * (SIM 14). Masonry DRAWS it since SIM 16: each stone laid spends its dress
+   * level's draw (DRESS_DRAW — STONE_VOLUME for rubble/scappled, half again for
+   * ashlar since SIM 18), and the masons stall when it runs dry — the honest
+   * consumption loop the whole
    * mining arc was for. Credited one-shot on a working's completion; still one
    * GLOBAL pile. Since SIM 17 the HAUL stage meters this pile into each stone
    * wall's per-wall faceBuffer at its frozen haulRate; 'local' and timber walls

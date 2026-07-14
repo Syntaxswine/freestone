@@ -7,6 +7,9 @@ import {
   BUILDING_ROOFS,
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
+  DRESS_DRAW,
+  DRESS_LEVELS,
+  DRESS_SPEC,
   FARM_CLOSE_EPS,
   FARM_MIN_AREA,
   FARM_WALL_MAX_H,
@@ -20,7 +23,6 @@ import {
   ROOF_SNAP,
   ROOF_DECK,
   STONE_LEN,
-  STONE_VOLUME,
   type BuildingKind,
   type BuildingRoof,
   type AditPlan,
@@ -98,6 +100,10 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       if (cmd.method !== undefined && !HAUL_METHODS.includes(cmd.method)) {
         return 'unknown haul method';
+      }
+      // the frozen dress level (SIM 18): a known level if present, else scappled
+      if (cmd.dressLevel !== undefined && !DRESS_LEVELS.includes(cmd.dressLevel)) {
+        return 'unknown dress level';
       }
       return null;
     }
@@ -459,6 +465,10 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         haulRate: cmd.haulRate ?? null,
         faceBuffer: 0,
         method: cmd.method ?? 'local',
+        // THE DRESS LEVEL (SIM 18): absent ⇒ 'scappled' (the SIM-16/17 cost), so
+        // a log with no frozen level replays byte-for-byte. A finite level scales
+        // the lay debt (DRESS_SPEC) and the per-stone draw (DRESS_DRAW).
+        dressLevel: cmd.dressLevel ?? 'scappled',
       };
       state.walls.push(wall);
       state.events.push({
@@ -1084,8 +1094,11 @@ function haulStone(state: WorldState): void {
     if (wall.haulRate === null || wall.material === 'wood') continue; // no cart
     if (wall.stonesLaid >= wall.stonesTotal || awaitsDrawings(wall)) continue; // not being worked
     // never haul past what the wall can still lay — stone at a finished face is
-    // stranded (the wall's demand, less what already stands at the face)
-    const need = (wall.stonesTotal - wall.stonesLaid) * STONE_VOLUME - wall.faceBuffer;
+    // stranded (the wall's demand, less what already stands at the face). The
+    // demand is per-stone DRAW × remaining: an ashlar wall's face wants half again
+    // more rough stone per block (SIM 18), so its cart falls behind sooner.
+    const draw = DRESS_DRAW[wall.dressLevel];
+    const need = (wall.stonesTotal - wall.stonesLaid) * draw - wall.faceBuffer;
     if (need <= 0) continue;
     const move = Math.min(wall.haulRate, state.stockpile, need);
     if (move <= 0) continue;
@@ -1100,11 +1113,15 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
   // timber is free (the WOODS aren't a cost yet), a 'local' wall draws the
   // global pile as before, a HAULED wall draws the stone the carts have brought
   // to its FACE. A hauled wall whose face is dry stalls on the CART even while
-  // the pile is full; a local wall with a dry pile stalls on the quarry. When
-  // nothing can be worked the crew stalls honestly, and the line names why.
+  // the pile is full; a local wall with a dry pile stalls on the quarry. The
+  // supply one stone needs is its dress DRAW (SIM 18): an ashlar block wants half
+  // again as much rough stone as rubble/scappled. When nothing can be worked the
+  // crew stalls honestly, and the line names why.
   const supplied = (w: WallPlan): boolean =>
     w.material === 'wood' ||
-    (w.haulRate === null ? state.stockpile >= STONE_VOLUME : w.faceBuffer >= STONE_VOLUME);
+    (w.haulRate === null
+      ? state.stockpile >= DRESS_DRAW[w.dressLevel]
+      : w.faceBuffer >= DRESS_DRAW[w.dressLevel]);
   for (const person of state.people) {
     if (person.trade !== 'mason') continue;
     let quota = person.pace;
@@ -1113,15 +1130,19 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         (w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w) && supplied(w),
       );
       if (!wall) return;
-      // a laid ashlar spends its own dressed volume, from wherever the wall draws:
-      // the FACE if it is hauled, the global pile if it is local; timber spends
-      // nothing (the generous quarry yield already rewarded the winning).
+      // a laid stone spends its dress DRAW, from wherever the wall draws: the FACE
+      // if it is hauled, the global pile if it is local; timber spends nothing (the
+      // generous quarry yield already rewarded the winning). And it spends the dress
+      // level's LAY DEBT of the mason's day (SIM 18): rubble is quick (0.5), ashlar
+      // slow (2.0), scappled the neutral 1.0 — so all-scappled play is byte-identical
+      // to SIM 17. The day's last stone is affordable whenever quota remains (the
+      // mason finishes the block begun); quota resets each day, no cross-day carry.
       if (wall.material !== 'wood') {
-        if (wall.haulRate === null) state.stockpile -= STONE_VOLUME;
-        else wall.faceBuffer -= STONE_VOLUME;
+        if (wall.haulRate === null) state.stockpile -= DRESS_DRAW[wall.dressLevel];
+        else wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];
       }
       layOneStone(state, site, rng, wall, person.id);
-      quota -= 1;
+      quota -= DRESS_SPEC[wall.dressLevel].layDebt;
     }
   }
 }

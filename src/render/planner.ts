@@ -19,7 +19,15 @@ import * as THREE from 'three';
 import { classifyFootprint, type FootprintKind } from '../sim/classify';
 import type { SiteData } from '../sim/site';
 import { polylineLength, surveyWall } from '../sim/step';
-import { MATERIALS, ROOF_DECK, ROOF_SNAP, type Material, type Vec2 } from '../sim/types';
+import {
+  DRESS_LEVELS,
+  MATERIALS,
+  ROOF_DECK,
+  ROOF_SNAP,
+  type DressLevel,
+  type Material,
+  type Vec2,
+} from '../sim/types';
 
 const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point are ignored
 const SNAP_PX = 16; // screen px: a wall click this near the FIRST point closes the ring
@@ -83,6 +91,13 @@ export class WallPlanner {
   height = 4;
   /** applies to wall/building plans; fills are always dirt */
   material: Material = 'sandstone';
+  /**
+   * THE DRESS DIAL (carriage Phase 2): how finely a stone wall's blocks are
+   * worked. 'auto' lets the boundary pick from the structure (low→rubble,
+   * tall→ashlar); the other values PIN an override for the walls drawn next.
+   * Frozen into plan_wall at confirm; timber ignores it.
+   */
+  dress: 'auto' | DressLevel = 'auto';
   /** fill plans: a flat platform, or a ramp rising from the first-placed edge */
   fillShape: 'flat' | 'ramp' = 'flat';
   points: Vec2[] = [];
@@ -192,6 +207,14 @@ export class WallPlanner {
     const i = MATERIALS.indexOf(this.material);
     this.material = MATERIALS[(i + 1) % MATERIALS.length]!;
     return this.material;
+  }
+
+  /** auto → rubble → scappled → ashlar → auto (the dress dial's override cycle) */
+  cycleDress(): 'auto' | DressLevel {
+    const cyc: ('auto' | DressLevel)[] = ['auto', ...DRESS_LEVELS];
+    const i = cyc.indexOf(this.dress);
+    this.dress = cyc[(i + 1) % cyc.length]!;
+    return this.dress;
   }
 
   cycleFillShape(): 'flat' | 'ramp' {

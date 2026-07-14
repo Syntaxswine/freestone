@@ -33,6 +33,7 @@ import { createWorld } from '../sim/world';
 import {
   BUILDING_MIN_H,
   COURSE_HEIGHT,
+  DRESS_SPEC,
   FARM_MIN_AREA,
   FARM_WALL_MAX_H,
   ROOF_SNAP,
@@ -43,6 +44,7 @@ import {
   type BuildingKind,
   type BuildingRoof,
   type Command,
+  type DressLevel,
   type FieldUse,
   type HaulMethod,
   type RoofMaterial,
@@ -307,7 +309,9 @@ async function boot(): Promise<void> {
   gateBtn.textContent = '🚪 gate (G)';
   const matBtn = document.createElement('button');
   matBtn.textContent = '🪨 sandstone';
-  build2.append(fillBtn, gateBtn, matBtn);
+  const dressBtn = document.createElement('button');
+  dressBtn.textContent = '⚒ dress: auto';
+  build2.append(fillBtn, gateBtn, matBtn, dressBtn);
   build.after(build2);
   const build3 = document.createElement('div');
   const roofBtn = document.createElement('button');
@@ -481,6 +485,17 @@ async function boot(): Promise<void> {
     return verdict;
   }
 
+  // --- THE DRESS DIAL (SIM 18): the block class a wall's STRUCTURE calls for,
+  //     the smart default when the dial is on 'auto'. A low garden or field wall
+  //     is fine in light RUBBLE; a tall or load-bearing wall (a building shell, a
+  //     retaining curtain) wants dressed ASHLAR; SCAPPLED between. Pure function of
+  //     the drawn height — a building is always ≥ BUILDING_MIN_H, so height alone
+  //     captures it. Shared by the plan-row readout and the plan_wall freeze, so
+  //     the pencil's promise and the frozen level never drift. ---
+  function autoDress(height: number): DressLevel {
+    return height >= BUILDING_MIN_H ? 'ashlar' : height <= FARM_WALL_MAX_H ? 'rubble' : 'scappled';
+  }
+
   // explicit annotation: onConfirm's closure reads planner.fillShape /
   // roofMaterial, so inference would otherwise chase its own tail
   const planner: WallPlanner = new WallPlanner({
@@ -511,12 +526,22 @@ async function boot(): Promise<void> {
       // wall or building (both are plan_wall): freeze the HAUL verdict from the
       // route (SIM 17). Timber takes no cart; stone on winnable ground is 'local'.
       const hv = material === 'wood' ? null : haulVerdict(points);
+      // freeze the DRESS LEVEL (SIM 18): the dial's override, or the structure's
+      // smart default when 'auto'; timber is never dressed, so it takes the neutral
+      // scappled (byte-identical to its SIM-17 lay). The sim replays the level.
+      const dressLevel: DressLevel =
+        material === 'wood'
+          ? 'scappled'
+          : planner.dress === 'auto'
+            ? autoDress(height)
+            : planner.dress;
       return enqueue({
         kind: 'plan_wall',
         tick: world.tick,
         points,
         height,
         material,
+        dressLevel,
         ...(hv ? { haulRate: hv.haulRate, method: hv.method } : {}),
       });
     },
@@ -804,6 +829,13 @@ async function boot(): Promise<void> {
     const m = planner.cycleMaterial();
     matBtn.textContent = m === 'wood' ? '🪵 wood' : '🪨 sandstone';
   };
+  // the DRESS DIAL button (SIM 18): auto → rubble → scappled → ashlar → auto. On
+  // 'auto' the structure decides; the rest pin an override for the walls drawn next.
+  const dressLabel = (d: 'auto' | DressLevel): string =>
+    d === 'auto' ? '⚒ dress: auto' : `⚒ ${d}`;
+  dressBtn.onclick = () => {
+    dressBtn.textContent = dressLabel(planner.cycleDress());
+  };
   hMinus.onclick = () => planner.setHeight(planner.height - 0.5);
   hPlus.onclick = () => planner.setHeight(planner.height + 0.5);
 
@@ -919,21 +951,33 @@ async function boot(): Promise<void> {
       lastStoneCount = 0;
     }
     const matById = new Map(world.walls.map((w) => [w.id, w.material]));
+    const dressById = new Map(world.walls.map((w) => [w.id, w.dressLevel]));
     for (let i = lastStoneCount; i < world.stones.length; i++) {
       const s = world.stones[i]!;
+      const t = ((s.id * 2654435761) >>> 0) / 4294967296;
+      const v = ((s.id * 40503) % 97) / 97 - 0.5;
+      // the DRESS LEVEL reads in the stone itself (SIM 18, render-only): dressed
+      // ASHLAR sits as bigger, uniform, tight-fitted blocks; light RUBBLE as
+      // smaller, rougher, more varied fieldstone; SCAPPLED between. Plan-view scale
+      // only — course height (y) is untouched so the layers stay even — and keyed
+      // on the stone id, never the sim rng (render reads state, never writes it).
+      const dress = dressById.get(s.wallId);
+      const planScale =
+        dress === 'ashlar' ? 1.05 : dress === 'rubble' ? 0.94 + v * 0.08 : 1;
       dummy.position.set(s.pos[0], s.pos[2], s.pos[1]);
       dummy.rotation.set(0, -s.yaw, 0);
+      dummy.scale.set(planScale, 1, planScale);
       dummy.updateMatrix();
       stones.setMatrixAt(i, dummy.matrix);
       // Per-stone tonal variation so the wall reads as coursework, not extrusion.
       // Render-side only, keyed on the stone's id — the sim rng is never touched here.
-      const t = ((s.id * 2654435761) >>> 0) / 4294967296;
-      const v = (((s.id * 40503) % 97) / 97 - 0.5);
+      // Rubble is mottled mixed stone, ashlar a matched course: widen/narrow the spread.
+      const spread = dress === 'ashlar' ? 0.55 : dress === 'rubble' ? 1.5 : 1;
       if (matById.get(s.wallId) === 'wood') {
         tint.setHSL(0.075 + t * 0.015, 0.42, 0.38 + v * 0.14); // weathered timber
       } else {
         // honey-toned Durham sandstone in warm daylight (SCOPE §8d)
-        tint.setHSL(0.085 + t * 0.02, 0.34, 0.68 + v * 0.1);
+        tint.setHSL(0.085 + t * 0.02, 0.34, 0.68 + v * 0.1 * spread);
       }
       stones.setColorAt(i, tint);
     }
@@ -1188,21 +1232,23 @@ async function boot(): Promise<void> {
           }
         }
         const stuff = planner.material === 'wood' ? 'timbers' : 'stones';
-        // the block class the STRUCTURE calls for (carriage Phase 2 readout): a
-        // low garden or field wall is fine in light, undressed RUBBLE; a tall or
-        // load-bearing wall (a building shell, a retaining curtain) wants squared,
-        // dressed ASHLAR; between them, roughly-squared SCAPPLED. Named here as the
-        // pencil reads the height; the dial that lets you override it, and the haul
-        // weight + lay debt each class carries, land with SIM 18. Read-only for now.
+        // THE DRESS DIAL (SIM 18): the block class this wall's stone is worked to —
+        // the structure's smart default (low→rubble, tall→ashlar) unless the dial
+        // pins an override. Rubble is light and lays quick; ashlar is dressed, lays
+        // slow and hauls heavy; scappled the neutral middle. The pencil shows what
+        // the wall will be built of and its cost, so the trade is legible before it
+        // is committed. A far ashlar wall is dear both to move and to raise.
         let dress = '';
         if (ring && planner.material !== 'wood') {
-          const cls =
-            rc?.kind === 'building' || planner.height >= BUILDING_MIN_H
-              ? 'ashlar'
-              : planner.height <= FARM_WALL_MAX_H
-                ? 'rubble'
-                : 'scappled';
-          dress = ` · ${cls}`;
+          const lvl = planner.dress === 'auto' ? autoDress(planner.height) : planner.dress;
+          const spec = DRESS_SPEC[lvl];
+          const eff =
+            spec.layDebt < 1
+              ? 'light, lays quick'
+              : spec.layDebt > 1
+                ? `dressed, lays ${spec.layDebt}× slower${spec.haulFactor > 1 ? ' + hauls heavy' : ''}`
+                : 'roughly squared';
+          dress = ` · ${lvl}${planner.dress === 'auto' ? '' : ' (set)'} — ${eff}`;
         }
         // the HAUL verdict for where this wall sits (SIM 17): stone won on the
         // spot, or carted — dearer up a hill, dearest across the gorge to a bridge
