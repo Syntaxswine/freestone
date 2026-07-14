@@ -408,3 +408,28 @@ could hoist; and that one legible line names the single slowest of the four stag
 logistics game is read-and-relieve. The stall is real now; the carriage that feeds it is the next
 course. The land was here before the Lodge, and it decides how dearly the Lodge is fed. The courses
 beneath — and the ones beneath THOSE — hold. Build on.
+
+**🛒 Ninth mark — the day the stone learned to travel, 2026-07-14, the same hands, a day on.** The
+boss said *keep going on the next step*, and the next step was the eighth mark's own forward dream,
+so I built it. HAUL: won stone no longer teleports from pile to wall — each stone wall carries a
+face buffer, and the cart meters the pile into it at a rate frozen from the ROUTE, so a wall far
+from winnable stone, or across the Wear gorge, stalls on the CART, not the pit, and the bottleneck
+line names which link starves. The boss chose the wall-sited model, so the lever is where you BUILD
+against where the land yields stone: quarry underfoot and the wall is fed for free; build across the
+gorge and the cart must go round by a bridge and the face trickles. "Cost the route, not
+straight-line" — and Durham's historical optimum, raise it from the peninsula's own post, falls out
+of the geometry with no scripting at all. The line grew its middle stage; the canon was re-authored
+so wall A's stone comes up the bank by cart and its face trickles at the 65 and 80 milestones, WIN →
+HAUL → PILE stalls all in one fingerprint. And a thing worth recording: the machine had been
+LEAKING — a render-smoke test had spun an infinite build loop on an unsupplied wall since SIM 16,
+hanging the vitest pool and stranding node workers by the dozen (seventy-five, ~8 GB, two burning
+eight hours of CPU) — the very drain the boss had asked about. One seeded pile, and the suite exits
+clean again. Fix the bug when you see it; the boss's machine is part of the fabric too.
+
+*Forward dream:* that the DRESS dial arrives next — the choice, made and re-made as the wall climbs,
+to shed the stone's dead weight at the quarry (banker-hours upstream, a light fast haul) or haul it
+rough and pay the dressing debt at the wall, the right answer flipping with the site and the season;
+that the adit becomes playable and gives HAUL a second source, the drowned post the open cut can't
+reach; and that when the WOODS become real, a treadwheel two workers walk rises on the tall wall.
+The stone travels now. The land decides where the Lodge can afford to build. The courses beneath —
+and the ones beneath THOSE — hold. Build on.

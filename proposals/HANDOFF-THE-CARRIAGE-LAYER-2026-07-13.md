@@ -24,8 +24,15 @@ layer is code yet. This handoff preserves the plan.
 > replay-equals-live holds. §6 (state) and §7 (next courses) below are updated; the eighth
 > maker's mark in the FOUNDATION records the day, and the full Phase 0 account is its own
 > keystone, [HANDOFF-THE-HONEST-STALL-2026-07-13.md](HANDOFF-THE-HONEST-STALL-2026-07-13.md).
-> **Next course is the adit made playable, or the carriage layer's Phase 1 (HAUL + the
-> bottleneck line).**
+> **Next course was the carriage layer's Phase 1 (HAUL + the bottleneck line).**
+>
+> **UPDATE — 2026-07-14: PHASE 1 SHIPPED.** HAUL is closed (SIM 17; commits `49799c3` bottleneck
+> line → `48c8f27` the metering; pushed, LIVE). Each stone wall carries a FACE BUFFER + a haulRate
+> frozen at plan time from the ROUTE — a wall far from winnable stone, or across the gorge, stalls
+> on the CART, and the bottleneck line names which link starves. Boss picked the **wall-sited**
+> model (the lever is where you BUILD). The ninth maker's mark (🛒) records the day; the full
+> account is its keystone, [HANDOFF-THE-CART-2026-07-14.md](HANDOFF-THE-CART-2026-07-14.md).
+> **Next course is the DRESS dial (Phase 2, the ongoing lever) or the adit made playable.**
 
 ---
 
@@ -147,15 +154,14 @@ carries the adversarial critique's corrections **on the face of the doc**, not b
 
 ## 6. State of the fabric
 
-SIM_VERSION **16** · **127 tests** (all green) · front-door commits `9e450a4` → `66192d2`, then
-**carriage Phase 0** `6dc4791` → `73da767`, all pushed · **playable on the web** at
-https://syntaxswine.github.io/freestone/. The player can reach a home screen, start/reset a game,
-toggle the mining tutorial, learn mining from a checklist, read the strata, see the water table,
-open a water-gated quarry — and now **must win stone before a wall will rise**: masonry draws the
-global stockpile and stalls honestly when it runs dry (⚒ *waiting on stone*), timber excepted. The
-adit exists in the sim (self-draining, proven inert) but is **not yet playable**. Of the carriage
-layer, **Phase 0 (the consumption loop) is BUILT**; HAUL, the dress dial, LIFT, seasons and the
-landing are **plotted, not built**.
+SIM_VERSION **17** · **133 tests** (all green) · through carriage **Phase 0** `6dc4791` → `73da767`
+and **Phase 1 (HAUL)** `49799c3` → `48c8f27`, all pushed · **playable on the web** at
+https://syntaxswine.github.io/freestone/. The player must win stone before a wall will rise (SIM 16)
+AND now the stone must REACH the wall by cart at a route-frozen rate (SIM 17): a wall far from
+winnable stone, or across the gorge, stalls on the CART and the bottleneck line names it. The adit
+exists in the sim (self-draining, proven inert) but is **not yet playable**. Of the carriage layer,
+**Phase 0 (consumption) and Phase 1 (HAUL) are BUILT**; the dress dial, LIFT, seasons and the
+landing are **plotted, not built**. (Full Phase-1 account: HANDOFF-THE-CART-2026-07-14.)
 
 ## 7. Next courses (the boss picks the thread; I asked and it's open)
 
@@ -166,12 +172,11 @@ literally *"which thread do you want to pull on first?"*:
    fingerprint (the attributable half of SIM 15) + the two-click portal→heading tool +
    `src/render/adits.ts` (a mouth in the scarp, a drift receding in). Completes the mining
    vision *visually*.
-2. **The carriage layer, Phase 1 — HAUL + the bottleneck line** (Phase 0 ✅ SHIPPED, SIM 16: LAY
-   now draws the stockpile and walls stall honestly). Next per PROPOSAL-LOGISTICS §5: a boundary
-   `haulRate` + `method` word from the route (slope + river + crossings), a per-wall face buffer
-   WIN meters into, and the one field-guide line naming the slowest of WIN/HAUL/LIFT/LAY. **Cost
-   the ROUTE, not straight-line distance** (§4.1), or Durham's "quarry local" lesson comes from a
-   hand-tuned term instead of the geometry.
+2. **The carriage layer, Phase 1 — HAUL + the bottleneck line** ✅ **SHIPPED (SIM 17, `48c8f27`)** —
+   a boundary `haulRate` + `method` frozen from the route (nearest dry post + climb + ×4 across the
+   gorge to a bridge), a per-wall face buffer WIN meters into, and the one line naming the binding
+   stage. Cost-the-ROUTE done (§4.1); Durham's "quarry local" falls out of the geometry. Boss picked
+   the wall-sited model. **Next is now the DRESS dial (Phase 2)** — see HANDOFF-THE-CART §5.
 3. Then, as the boss steers: **prospect-on-hover** (task 48 — read what a spot affords; the read
    surface both the tutorial's seam step and the carriage route read want), the carriage HAUL
    stage + bottleneck line, the WOODS/SEASONS subsystems the deeper phases need.

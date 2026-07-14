@@ -1,18 +1,21 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-HONEST-STALL-2026-07-13.md](proposals/HANDOFF-THE-HONEST-STALL-2026-07-13.md)**
-(reads the FOUNDATION keystone first — the soul, the nine laws, EIGHT maker's marks — then the
-carriage-layer PLOT it built the first phase of: HANDOFF-THE-CARRIAGE-LAYER, then the design
-PROPOSAL-LOGISTICS. This session closed **carriage Phase 0 — SIM 16, THE CONSUMPTION LOOP:**
-masonry now DRAWS the stockpile and a stone wall STALLS honestly on a dry pile (⚒ *waiting on
-stone*), timber excepted — the honest stall the sixth AND seventh maker's marks both dreamed of.
-The determinism canon was re-authored to tell the stall's own story (founding quarry → the walls
-build → the tavern STALLS mid-build 2233/2515 → relief quarry → it finishes); 127 tests; build
-clean; LIVE. The eighth maker's mark (🪨) records the day. **NEXT: carriage Phase 1 — HAUL + the
-bottleneck line (cost the ROUTE, not straight-line) OR the adit made playable.**
-The prior session PLOTTED the carriage layer — **WIN→HAUL→LIFT→LAY**, each a scalar frozen at the
-survey boundary from slope+route+river+season; the wall builds at min() and stalls honestly;
-"deep model, shallow controls"; Durham's Wear = a MOAT not a highway → quarry local. Plot:
+**🗿 Current handoff: [proposals/HANDOFF-THE-CART-2026-07-14.md](proposals/HANDOFF-THE-CART-2026-07-14.md)**
+(reads the FOUNDATION keystone first — the soul, the nine laws, NINE maker's marks — then the
+carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its Phase-0 keystone HANDOFF-THE-HONEST-STALL, and
+the design PROPOSAL-LOGISTICS. This session closed **carriage Phase 1 — SIM 17, HAUL:** won stone no
+longer teleports pile→wall — each stone wall carries a FACE BUFFER and a haulRate frozen at plan
+time from the ROUTE (nearest dry post + the climb + ×4 across the gorge to a bridge), so a wall far
+from winnable stone stalls on the CART, not the pit, and the bottleneck line names which link
+starves. Boss picked the **wall-sited** model (the lever is where you BUILD). "Cost the route, not
+straight-line" → Durham's *quarry local* falls out of the geometry. Canon re-authored so wall A's
+face trickles (WIN → HAUL → PILE stalls, one fingerprint); 133 tests; build clean; LIVE. Also FIXED
+the render-smoke infinite loop that had leaked the vitest pool since SIM 16 (~75 node zombies, ~8 GB
+— the boss's CPU drain). The ninth maker's mark (🛒) records the day. **NEXT: carriage Phase 2 —
+the DRESS dial (the ongoing lever) OR the adit made playable.**
+The carriage layer plot — **WIN→HAUL→LIFT→LAY**, each a scalar frozen at the survey boundary; the
+wall builds at min() and stalls honestly; "deep model, shallow controls"; Durham's Wear = a MOAT
+not a highway → quarry local. Plot:
 [HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md](proposals/HANDOFF-THE-CARRIAGE-LAYER-2026-07-13.md) +
 [PROPOSAL-LOGISTICS-2026-07-13.md](proposals/PROPOSAL-LOGISTICS-2026-07-13.md).
 Mining still teed up: [proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md](proposals/HANDOFF-THE-LAND-DECIDES-2026-07-11.md)
@@ -221,6 +224,22 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         it teaches the dry/drowned reading, but tying the readout to the camera is the pending
         prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
         settings are the natural follow-ons.
+- [x] SIM 17 — HAUL (carriage Phase 1, 2026-07-14): won stone no longer teleports pile→wall —
+      each stone wall carries a FACE BUFFER + a haulRate frozen at plan time from the ROUTE.
+      · **the metering** (`49799c3` bottleneck line → `48c8f27` SIM 17): worldStep threads a HAUL
+        pass between WIN and LAY — a carted wall meters min(haulRate, pile, still-needed) into its
+        face; LAY draws the FACE (carted) or the pile ('local'/timber, byte-identical to SIM 16).
+        Wall-sited per boss pick: the lever is where you BUILD. Boundary (main.ts) freezes haulRate
+        + method from the route (nearest dry post + climb + ×4 across the gorge to a bridge) —
+        "cost the ROUTE, not straight-line" (§4.1), so Durham's *quarry local* falls out of geometry.
+      · **canon re-authored** so wall A's face trickles (0.6 m³/day): WIN (t7/30) → HAUL (A partway
+        at t65/80, full pile) → PILE stall (tavern 2233 at t100) → Q2 relief (t130) → span decked
+        (t200, roofId 2531 HELD). haul.test.ts: 6 red-specimen (throttle, conservation
+        pile+face+laid=won, pile cap, local-path equivalence, byte replay). Verified live via __cc.
+      · SIM_VERSION 16→17, **133 tests**, build clean, LIVE. Next: DRESS dial (Phase 2) or the adit.
+      · ALSO FIXED (`9cc6c1c`): render-smoke's roof test spun an INFINITE loop on an unsupplied wall
+        since SIM 16, hanging the vitest pool → ~75 lingering node workers (~8 GB, two at ~30k
+        CPU-s) — the boss's CPU/memory drain. Seeded the pile; the suite exits clean, 0 zombies.
 - [x] SIM 16 — THE CONSUMPTION LOOP (carriage Phase 0, 2026-07-13): masonry now DRAWS the
       stockpile — the standing M2 economy the whole mining arc was for; the honest stall the
       sixth AND seventh maker's marks both dreamed of, made real.
@@ -262,9 +281,11 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   only levers are the dress-at-quarry dial, working siting, commission-a-crane, an optional
   river landing, and the one bottleneck line. Durham teaches by refusal — the Wear sits above
   its head of navigation (a MOAT, not a highway), so the cheap read is "quarry the Low Main
-  Post underfoot," exactly as history did. **Phase 0 (make LAY draw the stockpile) ✅ SHIPPED
-  SIM 16 (`73da767`)** — masonry draws the pile, walls stall honestly (⚒ waiting on stone); next
-  is HAUL (Phase 1). HARD
+  Post underfoot," exactly as history did. **Phase 0 (LAY draws the pile) ✅ SHIPPED SIM 16
+  (`73da767`); Phase 1 (HAUL — a route-frozen per-wall face buffer, wall-sited) ✅ SHIPPED SIM 17
+  (`48c8f27`)** — a wall far from winnable stone, or across the gorge, stalls on the CART, and the
+  bottleneck line names the link. Next: the DRESS dial (Phase 2, the ongoing lever whose right
+  answer flips with the site) or the adit made playable. HARD
   PREREQUISITES flagged in the proposal: WOODS and SEASONS are render-only today → real
   consumable/sim-state are ground-up subsystems; HAUL must cost the ROUTE (with river
   crossings), not straight-line; the "6 t/day crane" number is the one UNVERIFIED figure (don't
