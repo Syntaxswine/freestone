@@ -94,7 +94,13 @@ conservation held), and `localOk` VARIES across the real Durham terrain (winnabl
   `worldStep` MUST supply stone (seed the pile, or win it in the log), or it hangs forever. And if
   a full `vitest run` never prints its summary, you have a hung worker — check
   `Get-CimInstance Win32_Process -Filter "Name='node.exe'"` for `freestone*tinypool` zombies and
-  `Stop-Process` them.** [[reference_claude_code_remote_wsl]] is unrelated; this is a real leak.
+  `Stop-Process` them.** CROSS-SESSION corroboration: a concurrent *vugg* session caught this in the
+  act — its 12 heaviest sim tests timed out at 60 s and it named the cause exactly, "the freestone
+  repo's vitest in a continuous loop saturating the CPU." Two diagnoses converged from opposite
+  sides. The deeper lesson is a SHARED-MACHINE one: a hung test loop in one repo starves every
+  sibling session's CI, not only your own suite. RESOLVED this session — all 75 workers killed,
+  `node.exe` count verified **0** (twice), the root cause fixed, so a full run now exits clean in
+  ~1.2 s and cannot recur. ([[reference_claude_code_remote_wsl]] is unrelated; this was a real leak.)
 - **The full-suite background pipe never flushes.** `npx vitest run 2>&1 | Select-Object/String`
   buffers until exit; backgrounded, the file stays empty. Run vitest RAW (no pipe) so output
   streams, or a single file foreground. (Compounded by the hang above — now fixed, the suite exits
