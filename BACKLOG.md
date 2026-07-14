@@ -1,9 +1,9 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-CART-2026-07-14.md](proposals/HANDOFF-THE-CART-2026-07-14.md)**
-(reads the FOUNDATION keystone first — the soul, the nine laws, NINE maker's marks — then the
-carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its Phase-0 keystone HANDOFF-THE-HONEST-STALL, and
-the design PROPOSAL-LOGISTICS. Carriage **Phase 1 — SIM 17, HAUL** (won stone travels pile→face by
+**🗿 Current handoff: [proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)**
+(reads the FOUNDATION keystone first — the soul, the nine laws, TEN maker's marks — then the
+carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its phase keystones HANDOFF-THE-HONEST-STALL (Phase 0)
+and HANDOFF-THE-CART (Phase 1), and the design PROPOSAL-LOGISTICS. Carriage **Phase 1 — SIM 17, HAUL** (won stone travels pile→face by
 cart at a route-frozen rate; **wall-sited**, so the lever is where you BUILD; "cost the route, not
 straight-line" → Durham's *quarry local* falls out of the geometry) AND **Phase 2 — SIM 18, the
 DRESS dial** are both SHIPPED. DRESS: each stone wall is worked to a block class that flips with the
@@ -14,8 +14,10 @@ a dial (⚒ auto → rubble → scappled → ashlar) overrides, and the stone sh
 uniform, rubble smaller & mottled). Boss pick + insight: *tall structures need heavier blocks*. Canon
 re-authored — the ashlar tavern is the deepest stall (hungry + slow, a bigger relief quarry), the
 rubble field ring flies up; **139 tests**; build clean; LIVE. The ninth (🛒) and tenth (🎚) marks
-record the two days. **NEXT: carriage Phase 3 — LIFT (needs the WOODS as a real consumable first) OR
-the adit made playable.**
+record the two days. **NEXT (boss picked timber): THE WOODS — make timber a real consumable with a
+GENERATIONAL regrowth clock (coppice rotation; a wood felled for the crane grows back over
+generations, or a line inherits bare ground — the granary's civic thesis written into the land).
+The prerequisite for LIFT (Phase 3); write PROPOSAL-WOODS first. OR the adit made playable.**
 The carriage layer plot — **WIN→HAUL→LIFT→LAY**, each a scalar frozen at the survey boundary; the
 wall builds at min() and stalls honestly; "deep model, shallow controls"; Durham's Wear = a MOAT
 not a highway → quarry local. Plot:

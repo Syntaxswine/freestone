@@ -8,9 +8,11 @@ Castle Cultivator (repo codename `freestone`)*
 > flips with the STRUCTURE (a smart default the dial overrides), setting a LAY DEBT (rubble 0.5,
 > ashlar 2×) + a HAUL WEIGHT (ashlar carts 1.5×); the stone shows the level (ashlar bigger & uniform,
 > rubble smaller & mottled). Boss pick + insight: *tall structures need heavier blocks*. Account:
-> commit `1ea7bf4`, the BACKLOG SIM-18 ledger, and the tenth maker's mark (🎚) in FOUNDATION. The
-> keystone below is the Phase-1 (HAUL) story; §5's DRESS-dial "next course" is now DONE — the course
-> after is **LIFT (Phase 3, needs the WOODS as a real consumable)** or the adit made playable.
+> commit `1ea7bf4`, the BACKLOG SIM-18 ledger, the tenth maker's mark (🎚) in FOUNDATION, and its full
+> keystone [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](HANDOFF-THE-DRESSED-STONE-2026-07-14.md). The
+> keystone below is the Phase-1 (HAUL) story; §5's DRESS-dial "next course" is now DONE — and the boss
+> picked **THE WOODS next** (timber + a generational tree-repopulation clock), the prerequisite for
+> LIFT (Phase 3).
 
 You are the next builder. Read the FOUNDATION keystone first
 ([HANDOFF-FOUNDATION-2026-07-09.md](HANDOFF-FOUNDATION-2026-07-09.md) — the soul, the nine laws,

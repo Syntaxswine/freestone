@@ -39,8 +39,11 @@ layer is code yet. This handoff preserves the plan.
 > dial overrides): a LAY DEBT (rubble 0.5, ashlar 2×) + a HAUL WEIGHT (ashlar carts 1.5×), so a tall
 > ashlar wall is dear to MOVE and to RAISE, a rubble field wall flies up. Boss pick + insight: *tall
 > structures need heavier blocks*; the stone shows the level (ashlar bigger & uniform, rubble smaller
-> & mottled). The tenth maker's mark (🎚) records the day. **Next course is LIFT (Phase 3, needs the
-> WOODS as a real consumable) or the adit made playable.**
+> & mottled). The tenth maker's mark (🎚) records the day; the full account is its keystone,
+> [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](HANDOFF-THE-DRESSED-STONE-2026-07-14.md). **Next course
+> (boss picked timber 2026-07-14): THE WOODS — timber as a real consumable with a GENERATIONAL
+> regrowth clock (coppice rotation; a wood felled for the crane grows back over generations), the
+> prerequisite for LIFT (Phase 3). Write PROPOSAL-WOODS first.**
 
 ---
 
