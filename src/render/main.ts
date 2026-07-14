@@ -898,22 +898,35 @@ async function boot(): Promise<void> {
       world.pending.length + world.roofs.filter((r) => r.material === null).length;
     const nQuarries = world.cuts.length;
     // THE STARVE (SIM 16): a stone wall with work to do but a dry pile — the masons
-    // wait on the quarry. The seed of the carriage layer's one-line bottleneck read.
+    // wait on the quarry.
     const starved =
       world.stockpile < STONE_VOLUME &&
       world.walls.some(
         (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal && !awaitsDrawings(w),
       );
+    // THE BOTTLENECK LINE (carriage layer, Commit A): the supply read reframed as a
+    // WIN→LAY pipeline that names the stage which BINDS — the quarry (supply) or the
+    // masons (lay). Render-only; the sim is untouched, the baseline unmoved. HAUL
+    // slots its own stage into the middle of this read in the next commit, so a wall
+    // waiting on the CART reads as plainly as one waiting on the pit.
+    const nStoneWalls = world.walls.filter(
+      (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal && !awaitsDrawings(w),
+    ).length;
+    const hasStoneEconomy =
+      nQuarries > 0 || world.adits.length > 0 || world.stockpile >= 1 || nStoneWalls > 0;
+    const supply = !hasStoneEconomy
+      ? ''
+      : nStoneWalls === 0
+        ? ` — won ${Math.round(world.stockpile)} m³`
+        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ` +
+          (starved ? '⚒ waits on the quarry' : 'the masons lay');
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
       (nFallow ? ` — fallow ${nFallow}` : '') +
       (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
       (nQuarries ? ` — quarries ${nQuarries}` : '') +
-      // the SUPPLY gauge: once a quarry is opened the won-stone pile is always
-      // shown (even at 0), so the mason's supply can be read as it rises and falls
-      (nQuarries > 0 || world.stockpile >= 1 ? ` — stone ${Math.round(world.stockpile)} m³` : '') +
-      (starved ? ' — ⚒ waiting on stone' : '') +
+      supply +
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,
