@@ -62,6 +62,11 @@ describe('SIM 8 render layers (headless)', () => {
   it('a completed roof builds its deck plate', () => {
     const site = flatSite('flat', 1000);
     const world = createWorld('smoke-roof', site.id);
+    // masonry DRAWS the stockpile since SIM 16 — a stone wall with a dry pile never
+    // rises, so an unsupplied build loop spins FOREVER (it hung the vitest worker
+    // and leaked the pool). Seed the pile so the wall can complete and the roof
+    // has something to rest on. Geometry smoke test — supply is not what it checks.
+    world.stockpile = 1e6;
     const ring = [
       { x: 50, y: 50 },
       { x: 60, y: 50 },
