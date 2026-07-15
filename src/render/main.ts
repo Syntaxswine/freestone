@@ -31,6 +31,7 @@ import {
   worldStep,
 } from '../sim/step';
 import { createWorld } from '../sim/world';
+import { makeSave, replay, stableStringify, type SaveFile } from '../sim/save';
 import {
   BUILDING_MIN_H,
   COURSE_HEIGHT,
@@ -64,6 +65,7 @@ import {
   type HaulMethod,
   type RoofMaterial,
   type Vec2,
+  type WorldState,
 } from '../sim/types';
 import { BuildingLayer } from './buildings';
 import { CutLayer } from './cuts';
@@ -198,14 +200,52 @@ async function boot(): Promise<void> {
   // the water table (boundary input, like the beds): shades the underground view AND
   // gates the workings, so the blue on the map and the stone in the ground agree
   const water = waterModelFromSite(site);
-  const world = createWorld(SEED, site.id);
+  // --- the Lodge Book (SIM 15 save/load) ---------------------------------------
+  // A one-shot 'load' token, set before the reload in loadGame() below, tells THIS
+  // boot to rebuild the world from the saved command log instead of a fresh seed.
+  // replay() re-steps the log through the same worldStep the live loop uses, so a
+  // loaded castle is byte-identical to the one saved — and the render layers (which
+  // bind to `world` at construction, just below) simply bind to the advanced world.
+  const SAVE_KEY = 'freestone_save';
+  let loadedThisBoot = false;
+  let loadError: string | null = null;
+  let restoredCommands: readonly Command[] = [];
+  let world: WorldState;
+  {
+    const loadReq = sessionStorage.getItem('freestone_load');
+    sessionStorage.removeItem('freestone_load');
+    let loaded: WorldState | null = null;
+    if (loadReq) {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) throw new Error('the Lodge Book is empty');
+        const save = JSON.parse(raw) as SaveFile;
+        loaded = replay(save, site); // guards SIM-version + site; re-steps the log
+        restoredCommands = save.commands;
+      } catch (e) {
+        loadError = (e as Error).message;
+      }
+    }
+    if (loaded) {
+      world = loaded;
+      loadedThisBoot = true;
+    } else {
+      world = createWorld(SEED, site.id);
+    }
+  }
 
-  // The command log starts EMPTY: the groundwork demo is gone, and the first
-  // wall on this hill is drawn by the player's own hand.
+  // The command log holds the whole chronicle so continued play appends to it and the
+  // next Save captures the full history. Fresh: empty (the first wall is the player's
+  // own hand). Loaded: the restored log, re-bucketed for the tick index.
   const cx = site.extentX / 2;
   const cy = site.extentY / 2;
-  const commandLog: Command[] = [];
+  const commandLog: Command[] = restoredCommands.slice();
   const byTick = new Map<number, Command[]>();
+  for (const c of commandLog) {
+    const bucket = byTick.get(c.tick);
+    if (bucket) bucket.push(c);
+    else byTick.set(c.tick, [c]);
+  }
 
   /** The one legal write path into the sim: append to the log AND the tick index. */
   function enqueue(cmd: Command): boolean {
@@ -885,11 +925,40 @@ async function boot(): Promise<void> {
     }
     beginGame();
   }
+  // The Lodge Book (SIM 15 save/load). Save writes the event-sourced format to a
+  // localStorage slot from the live world; Load rides New-Game's reload rails (the
+  // render layers bind to `world` at construction) — a one-shot token, then boot()
+  // replays the slot instead of seeding fresh. Both are pure UI: no sim change.
+  function saveGame(): void {
+    localStorage.setItem(SAVE_KEY, stableStringify(makeSave(world, commandLog)));
+    home.noteSaved();
+  }
+  function loadGame(): void {
+    if (!localStorage.getItem(SAVE_KEY)) return; // nothing kept (the button is disabled anyway)
+    const inProgress = world.tick > 0 || commandLog.length > 0;
+    if (inProgress && !window.confirm('Open the kept castle? The one in progress will be set aside.')) {
+      return;
+    }
+    sessionStorage.setItem('freestone_load', '1');
+    location.reload();
+  }
+  function savedInfo(): { year: number } | null {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    try {
+      return { year: yearOf((JSON.parse(raw) as SaveFile).meta.savedAtTick) };
+    } catch {
+      return null;
+    }
+  }
   const home = createHomeScreen({
     onNewGame: newGame,
     onBack: resumeGame,
+    onSave: saveGame,
+    onLoad: loadGame,
     getTutorialEnabled,
     setTutorialEnabled,
+    getSaveInfo: savedInfo,
   });
   (document.getElementById('gear') as HTMLElement).onclick = openHome;
 
@@ -1598,11 +1667,13 @@ async function boot(): Promise<void> {
     },
   };
 
-  // Title screen: a fresh load opens the home; a New-Game reset returns with a
-  // one-shot token and drops straight into play (see newGame()).
+  // Title screen: a fresh load opens the home; a New-Game reset OR a Load returns with
+  // a one-shot token and drops straight into play (see newGame() / loadGame()). A load
+  // that failed its guard (version/site) surfaces why, then falls back to the home.
+  if (loadError) window.alert(`Could not open the kept castle — ${loadError}.`);
   const autostart = sessionStorage.getItem('freestone_autostart');
   sessionStorage.removeItem('freestone_autostart');
-  if (autostart) beginGame();
+  if (autostart || loadedThisBoot) beginGame();
   else home.open(false);
 
   requestAnimationFrame(frame);
