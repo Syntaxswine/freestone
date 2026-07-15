@@ -13,11 +13,15 @@ import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
 import {
+  AREA_PER_PERSON,
+  FOUNDING_SHELTER,
   HALL_SHELTER,
+  SHELTER_GROWTH_SLACK,
   TICKS_PER_YEAR,
   houseTier,
   tierShelter,
   type Building,
+  type Farm,
   type Person,
 } from '../src/sim/types';
 
@@ -61,5 +65,20 @@ describe('housing tiers (SIM 25)', () => {
     stepN(housed, TICKS_PER_YEAR * 3);
     expect(bare.events.some((e) => e.kind === 'person_left')).toBe(true); // the bare village bled souls
     expect(housed.people.length).toBeGreaterThan(bare.people.length); // the halls held theirs
+  });
+
+  it('shelter GATES growth — a housed settlement grows past the unhoused cap (SIM 30)', () => {
+    // abundant food for both, same seed; one bare (only the founders' first roofs), one roofed in halls
+    const farm = (): Farm => ({ id: 9001, wallId: 9000, use: 'farm', points: [], area: AREA_PER_PERSON * 40, gates: [], workdays: 0 });
+    const bare = fresh('grow');
+    bare.farms = [farm()]; // food for ~44 mouths, but no houses
+    const housed = fresh('grow'); // same seed → same weather + demographic rolls
+    housed.farms = [farm()];
+    housed.buildings = Array.from({ length: 6 }, (_, i) => hall(1 + i)); // shelter well past the food cap
+    stepN(bare, TICKS_PER_YEAR * 20);
+    stepN(housed, TICKS_PER_YEAR * 20);
+    const cap = FOUNDING_SHELTER + SHELTER_GROWTH_SLACK;
+    expect(bare.people.length).toBeLessThanOrEqual(cap + 4); // the bare hamlet caps near founders' shelter + slack
+    expect(housed.people.length).toBeGreaterThan(cap + 5); // the housed one grew PAST it, toward its food capacity
   });
 });

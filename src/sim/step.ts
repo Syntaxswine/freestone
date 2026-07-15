@@ -24,6 +24,7 @@ import {
   GRANARY_STORAGE,
   GROWTH_FULL,
   RETENTION_MAX,
+  SHELTER_GROWTH_SLACK,
   houseTier,
   tierShelter,
   GROWTH_THRESHOLD,
@@ -1171,6 +1172,17 @@ function livingYear(state: WorldState): void {
   });
 
   // 3. BIRTHS (continuous), MIGRANTS (surplus only) off S; HUNGER off effectiveS.
+  // SHELTER (SIM 25/30): the souls the founders' roofs + the houses (by tier) can hold, reckoned ONCE here —
+  // it GATES growth (SIM 30) and softens hunger (SIM 25). growthRoom is full while the shelter comfortably
+  // exceeds the mouths and tapers to zero as they meet it, with SHELTER_GROWTH_SLACK of headroom so a founding
+  // hamlet still grows on its first roofs before it must BUILD HOUSES to grow past ~FOUNDING_SHELTER + SLACK.
+  const shelter =
+    FOUNDING_SHELTER +
+    state.buildings.reduce(
+      (n, b) => (b.kind === 'house' ? n + tierShelter(houseTier(b.area, b.roof)) : n),
+      0,
+    );
+  const growthRoom = Math.min(1, Math.max(0, (shelter - mouths + SHELTER_GROWTH_SLACK) / SHELTER_GROWTH_SLACK));
   // BIRTHS — the SLOW valve, always on above the fertility floor: at HOLD they
   // roughly replace the dead (no death-spiral), at surplus they grow the line, in
   // hunger they collapse. A child lifts no stone for ~ADULT_AGE years — a lineage.
@@ -1178,7 +1190,7 @@ function livingYear(state: WorldState): void {
   if (birthFactor > 0) {
     const adults = state.people.filter((p) => isAdult(p, state.tick)).length;
     for (let i = 0; i < adults; i++) {
-      if (rng.float() < BIRTH_RATE_FULL * birthFactor) {
+      if (rng.float() < BIRTH_RATE_FULL * birthFactor * growthRoom) { // SIM 30: no room to house, no growth
         const p = newChild(state, rng, state.tick);
         state.people.push(p);
         state.events.push({ kind: 'person_born', tick: state.tick, personId: p.id, name: p.name });
@@ -1189,7 +1201,7 @@ function livingYear(state: WorldState): void {
   // a full granary spreads and working adults arrive THIS year (responsiveness).
   if (S >= GROWTH_THRESHOLD) {
     const g = Math.min(1, (S - GROWTH_THRESHOLD) / (GROWTH_FULL - GROWTH_THRESHOLD));
-    const want = MIGRANTS_PER_YEAR_FULL * g;
+    const want = MIGRANTS_PER_YEAR_FULL * g * growthRoom; // SIM 30: the housing gates migration too
     let migrants = Math.floor(want);
     if (rng.float() < want - migrants) migrants += 1;
     for (let i = 0; i < migrants; i++) {
@@ -1205,13 +1217,7 @@ function livingYear(state: WorldState): void {
   // people (SIM 25): a well-sheltered settlement loses far fewer to a hard year — the shelter
   // its houses give (by tier), over the mouths, softens the leave rate up to RETENTION_MAX.
   if (effectiveS < 1.0) {
-    const shelter =
-      FOUNDING_SHELTER +
-      state.buildings.reduce(
-        (n, b) => (b.kind === 'house' ? n + tierShelter(houseTier(b.area, b.roof)) : n),
-        0,
-      );
-    const housed = Math.min(1, shelter / mouths);
+    const housed = Math.min(1, shelter / mouths); // the shelter reckoned once at §3 top (SIM 30)
     const leaveRate = HUNGER_LEAVE_RATE * (1 - RETENTION_MAX * housed);
     let leaving = state.people.filter((p) => p.trade !== 'smith' && rng.float() < leaveRate);
     if (leaving.length >= state.people.length) leaving = leaving.slice(0, state.people.length - 1);

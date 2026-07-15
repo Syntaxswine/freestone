@@ -12,7 +12,15 @@ import { describe, expect, it } from 'vitest';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import { AREA_PER_PERSON, FOUNDING_CAPACITY, TICKS_PER_YEAR, type Farm } from '../src/sim/types';
+import {
+  AREA_PER_PERSON,
+  FOUNDING_CAPACITY,
+  HALL_AREA,
+  HALL_SHELTER,
+  TICKS_PER_YEAR,
+  type Building,
+  type Farm,
+} from '../src/sim/types';
 
 const site = flatSite('flat', 4000);
 
@@ -24,6 +32,16 @@ function century(seed: string, years: number, capacityMouths: number) {
     const farm: Farm = { id: 9001, wallId: 9000, use: 'farm', points: [], area, gates: [], workdays: 0 };
     w.farms = [farm];
   }
+  // SIM 30: house the settlement generously so the SHELTER growth-cap never binds here — this instrument
+  // tunes the FOOD demographics; the housing gate itself is proven in housing.test.ts.
+  const halls = Math.ceil(capacityMouths / HALL_SHELTER) + 2;
+  w.buildings = Array.from({ length: halls }, (_, i): Building => ({
+    id: 8001 + i,
+    wallId: 8000,
+    kind: 'house',
+    roof: 'brick',
+    area: HALL_AREA,
+  }));
   let peak = w.people.length;
   for (let i = 0; i < years * TICKS_PER_YEAR; i++) {
     worldStep(w, site, []);

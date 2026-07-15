@@ -93,7 +93,14 @@
 // the grain staple), and a PASTURE keeps a draft HORSE that hauls more surplus to the store each year
 // (HORSE_HAUL, grazing free on its own field). So the mixed farm the smith needed is now worth keeping
 // for its own sake — diversity feeds and carries, not just varies. In livingYear §2 → INERT on canon.
-export const SIM_VERSION = 29;
+// 30: SHELTER GATES GROWTH — housing stops being only a hunger-retention nudge (SIM 25) and becomes a real
+// growth CAP: a settlement grows (births + migrants) only while it has ROOM to house more, tapering to zero
+// as the mouths approach the shelter its roofs give. A founding hamlet still grows to ~FOUNDING_SHELTER +
+// SHELTER_GROWTH_SLACK on the founders' first roofs, but past that you must BUILD HOUSES to grow — so the
+// population settles at min(food capacity, shelter capacity), and housing finally MATTERS for growth, not
+// just retention. In livingYear §3 → INERT on the 200-tick canon (never reckoned there). A conservative
+// SLACK for now (the harshness is a knob); the century-sweep now houses its settlements so it still tunes FOOD.
+export const SIM_VERSION = 30;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -581,6 +588,12 @@ export const HOVEL_SHELTER = 3;
 export const COTTAGE_SHELTER = 6;
 export const HALL_SHELTER = 12; // souls each tier houses
 export const RETENTION_MAX = 0.6; // a fully-housed settlement loses this fraction fewer to hunger
+// SHELTER GATES GROWTH (SIM 30): the settlement grows only while it has ROOM to house more. Growth (births +
+// migrants) rides a factor that is full while the shelter comfortably exceeds the mouths and tapers to zero as
+// the mouths approach it — but with this much SLACK above the current shelter, so a founding hamlet on its
+// first roofs (FOUNDING_SHELTER) still grows to ~FOUNDING_SHELTER + SHELTER_GROWTH_SLACK before it must build
+// houses. Conservative for now; raise it to soften the gate, lower it to bite sooner.
+export const SHELTER_GROWTH_SLACK = 6; // souls of growth headroom above the current shelter
 
 /**
  * THE LIFT (SIM 26, step 5 — the final course): a stone laid high up costs more of the
