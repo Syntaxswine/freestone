@@ -20,8 +20,8 @@ This arc discharges the roadmap's Beats 0–4.
 |---|---|---|
 | **0** | **The year made real + Sit-the-Season** | ✅ **SHIPPED** (`02465ac`, SIM-neutral) |
 | **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
-| 2 | The living population — harvest engine + demographic pass | ▶ **NEXT** (likely one batched SIM bump) |
-| 3 | The pyramid + carpenter's shop + the cart + granary cat | pending |
+| **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
+| 3 | The pyramid + carpenter's shop + the cart + granary cat | ▶ **NEXT** |
 | 4 | Housing quality tiers (hovel/cottage/hall) | pending |
 | 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
 
@@ -38,8 +38,12 @@ handoff (this doc, updated) + a keystone (a maker's mark on the FOUNDATION) betw
   move, ridden on the two-commit discipline. The re-authored `baselines/durham-42.json` now
   fingerprints the timber loop (a wood wall spends the woodpile 30→10; a coppice fell wins it back to
   40; `timber` + `standsFelled` are new milestone fields) with zero id ripple.
-- **Step 2 the living population is likely one BATCHED SIM bump** (roadmap §4 — don't pay eight
-  re-baselines for the spine). Isolate any new demographic RNG on a `seed+year` stream (§10).
+- **SIM 20 — THE LIVING YEAR** (`7577667`): people mortal + the harvest + births/migration/hunger.
+  Inert on the canon (the annual pass first fires at tick 364, so the 200-tick canon never enters it):
+  regen showed 0 non-hash diffs, 8/8 hashes moved purely from the new `Person.bornTick`. The
+  demographic RNG is isolated on `seed:demo:<year>` — proven not to shift the masonry jitter.
+- **Step 3 will be SIM 21** — the pyramid needs new hashed state (housing tiers, trade lineage), a
+  new drawing verb (the cart / the woodworking place), and a baseline move.
 
 ---
 
@@ -129,32 +133,64 @@ the canon fells, the tool + render + HUD). The twelfth maker's mark (🪓) recor
 
 ---
 
-## Step 2 — THE LIVING POPULATION (NEXT, likely one batched SIM bump)
+## Step 2 — DONE (THE LIVING YEAR, SIM 20)
 
-§3 (the mortal hands) + §4 (the harvest) of the bible. This is what the woods' regrowth is finally
-*measured against* — the generations. Roadmap §4: batch the spine into ONE SIM bump.
+§3 (the mortal hands) + §4 (the harvest); shipped `7577667`. The thirteenth mark (🕯) records it.
 
-**The seams (from the census):**
-- **`state.people`** is four founder stubs (`id/name/trade/pace`, already hashed sim state); the
-  labor loops (`moveEarth`, `layStones`) already iterate it, so production breathes with the roster.
-- **The demographic pass** slots into `worldStep`'s daily order (beside `moveEarth`/`layStones`), run
-  ONE day a year (gate on `dayOfYear(tick) === 0`): seeded survival rolls on an age curve (staggered
-  lifespans from commit one — the cohort-death-wave trap), niche-gated household formation (Razi
-  land-availability, NOT the early-modern EMP), vacancy-on-heirless-death.
-- **Determinism (the load-bearing risk)**: isolate the demographic RNG on its own `seed + year`
-  derived stream so people-churn does NOT cascade into the masonry baselines (§10).
-- **The harvest** (§4): space-gated food (~5 acres/person; `Farm.workdays`/area is already the
-  substrate) → the 1.25× surplus ramp → migration (fast) + births (slow).
-- **Rides in**: the clerk (SCOPE §7), sprite↔person binding, the funeral protocol, `name_apprentice`
-  + coarse skill bands + the First Technique.
-- **The instrument** (§10): a headless **century-sweep** (100 yr × N seeds) to tune the surplus
-  threshold, mortality curve + variance, growth rates — none tunable by eye on a 400-tick baseline.
+**What shipped:**
+- **`Person.bornTick`** (age); the labor loops gate on `isAdult`, so children don't dig or lay.
+  Founders begin STAGGERED (22/25/28/31, a FIXED spread — not rng, which would shift the jitter).
+- **The demographic pass** (`livingYear`, worldStep's daily order, the last day of each year) on its
+  OWN rng `seed:demo:<year>`: MORTALITY (age-curve survival rolls → `person_died`); the HARVEST
+  (food capacity = founding floor + arable area / `AREA_PER_PERSON`; S = capacity/mouths); BIRTHS
+  (continuous, replacement→growth above `BIRTH_FLOOR_S` → `person_born`, a child); MIGRANTS
+  (surplus-only, the fast valve → `person_arrived`); HUNGER (S<1.0 → `person_left`, never empties).
+- **The century-sweep** (`tools/century-sweep.mjs`, `npm run sweep`) — the tuning instrument;
+  confirmed population TRACKS carrying capacity (a clean Malthusian curve).
+- **Tests**: `population.test.ts` (6) + `century-sweep.test.ts` (sanity + report) → **158 green**.
+  HUD: a food read ("food N mouths (S× growing/holding/hungry)").
 
-**Discipline**: batch the SIM bump; the `seed+year` RNG isolation is mandatory; red specimens for
-mortality + household formation + the surplus ramp; a century-sweep tool as part of the deliverable;
-verify at the kernel; push; add the thirteenth mark.
+**Laws this course set (carry them):**
+1. **The demographic year runs on its OWN rng stream** (`seed:demo:<year>`) — NEVER `state.rng`.
+   Proven: a settlement that doubled its people laid byte-identical stones. Any future annual/random
+   subsystem that must not perturb the masonry follows this.
+2. **A fixed stagger, not an rng roll, for founding ages** — advancing `createWorld`'s rng shifts
+   every stone's jitter. Derive spreads that must not move the baseline from index, not the cursor.
+3. **Don't tune by eye** — the century-sweep set the knobs; a knob change re-runs the sweep.
+
+**Deferred follow-ons (noted; the batched spine's richer half rides step 3):** the clerk +
+sprite↔person binding + the funeral-rest protocol; `name_apprentice` + coarse skill bands + the
+First Technique (folds into step 3's base-sustains-the-lineage rule); niche-gated household formation
+(the current growth is capacity-gated, not toft-gated — Razi's land-availability throttle is the
+richer model when housing tiers land in step 4).
 
 ---
 
-*Step 0 laid the level line; step 1 grew the wood that heals as fast as you cut it. Now give it
-people to outlive it.*
+## Step 3 — THE PYRAMID + THE CART (NEXT, SIM 21)
+
+§5 (the pyramid) + §6 (the accelerants, cart-first) + §7 (the granary cat). The population engine's
+output becomes not just *more* people but *specialized* people.
+
+**The seams (from the census + bible):**
+- **Variety** — the shipped designation grammar (`farm/livestock/fallow`) grows two tenants: **horse
+  pasture** + **an orchard** (§12.4, fishpond cut). Variety × population × housing gates a specialist.
+- **The cart is FIRST** (boss) — cheapest accelerant: **wood + a woodworking place** (a new Tier-1
+  building, sibling to the blacksmith); its first job is **grain → the granary**. It draws timber
+  (step 1's stock) — the WOODS' first payoff. The drawing verb: *build a cart* / *designate a
+  woodworking place*. It teaches logistics on the forgiving farm run before any ashlar needs carting.
+- **The base sustains the lineage** (boss's key refinement, folds in the technique system): a
+  specialist whose support base decays doesn't leave — but transmits no trade, so it dies with the
+  master unless the base is rebuilt. The trade is as permanent as the ground you keep under it.
+- **Arrive AND emerge**: a specialist arrives on the migration wind (already have `person_arrived` —
+  give some migrants a trade) OR is raised from a local child under a master (the lineage the
+  chronicle loves — needs the apprentice bond deferred from step 2).
+- **The granary cat** (§7): the canon payroll cat, an animated render-only decor at the granary.
+
+**Discipline**: SIM 21 (new state: housing tier, trade-lineage; a cart entity or a scalar); two
+commits (inert record, then the bite) if it moves the masonry; a drawing verb; red specimens; the
+century-sweep extended for the specialization thresholds; verify at the kernel; push; the 14th mark.
+
+---
+
+*Step 0 laid the level line; step 1 grew the wood that heals as fast as you cut it; step 2 gave it
+people to outlive it. Now give the people something to become.*

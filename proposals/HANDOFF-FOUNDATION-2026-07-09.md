@@ -501,3 +501,27 @@ record, on the same clock the coppice runs, so the seven-year return finally has
 measured against; that the harvest decides how many hands there are to fell and lift and lay; and
 that a line one day inherits a wood its grandfather left uncut, or the bare ground he didn't. The
 wood heals as fast as you cut it. Now give it someone to outlive. Build on.
+
+**🕯 Thirteenth mark — the day the people became mortal, 2026-07-15, the same hands, the third course
+of the ladder.** The twelfth mark grew a wood that outlives the hand that cuts it; this one gives it a
+hand that does not. People age now. Once a year the settlement is reckoned: each soul rolls survival
+on the curve of its years and, when the roll comes up, dies on the record — a named death, never a
+bare subtraction. And the harvest decides how many hands there are at all: food is a function of the
+field you enclose, space-gated and easy the way the boss asked, and its surplus draws MIGRANTS on the
+wind and lifts the BIRTH rate — the fast valve and the slow, a stranger this year or a child in
+fifteen. A child lifts no stone until it comes of age, so the roster you build with is the roster time
+leaves you. This is the pillar the whole game leans on — *people are mortal, the Work is not* — and it
+was the most dangerous thing to build, because a demographic roll that shared the masons' dice would
+have shifted every stone's jitter and moved the baseline for a thing the masons never touched. So the
+year runs on its OWN stream, `seed:demo:<year>`, and I proved it: a settlement that doubled its
+people laid byte-for-byte the same wall. I did not tune the death curve by eye — I built the
+century-sweep, ran a hundred years across many seeds, and watched the population find its carrying
+capacity and hold there, births balancing deaths, the way a real valley does. The coppice's
+seven-year return finally has generations to be measured against.
+
+*Forward dream:* that the trades come next (step 3, the pyramid) — that a settlement which broadens
+its base, adds horses and an orchard and a nicer roof, draws a smith and then a mason-of-masons, each
+trade resting on the ground you keep under it; that the first cart rolls from felled timber down the
+grain road to a granary with a cat asleep on its step; and that one day a chronicle can say *the smith
+was a farmer's son, and his father laid the third course of the east wall.* The people are born and
+buried now. Give them something to become. Build on.

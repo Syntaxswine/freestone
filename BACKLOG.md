@@ -7,11 +7,16 @@ the year made real + Sit-the-Season — SHIPPED `02465ac` (SIM-neutral). Step 1 
 SHIPPED SIM 19 (`df01154` inert scaffold + `02f7736` the bite): timber is a real WON/SPENT/REGROWING
 resource — a `plan_fell` freezes a cant's timber from the tree model (quarry-twin), the palisade
 DRAWS it and stalls dry, the felled stool regrows over ~7 years and re-cuts, a 🪓 fell (T) tool +
-the coppice returning its exact trees; 150 tests. NEXT step 2 THE LIVING POPULATION (§3+§4, one
-batched SIM bump — the generations the regrowth is measured against).** Twelve maker's marks now
-(⏭ the year, 🪓 the woods). The PRIOR course's handoff (carriage/dress):
+the coppice returning its exact trees; 150 tests. Step 2 — THE LIVING YEAR — SHIPPED SIM 20
+(`7577667`): people are MORTAL and the settlement GROWS — an annual demographic pass (on its OWN
+`seed:demo:<year>` rng, so people-churn never shifts the masonry jitter) rolls survival on an age
+curve, and the space-gated HARVEST sets a surplus that draws migrants + lifts births, or thins the
+village in hunger; children age and lift no stone until grown; a `century-sweep` tuning tool confirms
+population tracks carrying capacity; 158 tests. NEXT step 3 THE PYRAMID + THE CART (§5+§6+§7, SIM 21 —
+variety+housing gate specialists, the cart is the WOODS' first payoff, the granary cat).** Thirteen
+maker's marks now (⏭ year, 🪓 woods, 🕯 the mortal hands). The PRIOR course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
-(reads the FOUNDATION keystone first — the soul, the nine laws, now TWELVE maker's marks — then the
+(reads the FOUNDATION keystone first — the soul, the nine laws, now THIRTEEN maker's marks — then the
 carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its phase keystones HANDOFF-THE-HONEST-STALL (Phase 0)
 and HANDOFF-THE-CART (Phase 1), and the design PROPOSAL-LOGISTICS. Carriage **Phase 1 — SIM 17, HAUL** (won stone travels pile→face by
 cart at a route-frozen rate; **wall-sited**, so the lever is where you BUILD; "cost the route, not
@@ -260,6 +265,27 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         it teaches the dry/drowned reading, but tying the readout to the camera is the pending
         prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
         settings are the natural follow-ons.
+- [x] THE LIVING SETTLEMENT — step 2: THE LIVING YEAR, SIM 20 (2026-07-15, `7577667`): people are
+      MORTAL and the settlement GROWS — §3 the mortal hands + §4 the harvest, what the woods' regrowth
+      is finally measured against. **The demographic pass** (`livingYear`, worldStep's daily order,
+      the last day of each year) runs on its OWN rng stream `seed:demo:<year>` so people-churn NEVER
+      advances the masonry jitter cursor (§10 isolation — PROVEN: a settlement that doubled its people
+      laid byte-identical stones): MORTALITY (age-curve survival rolls → person_died); the HARVEST
+      (food capacity = founding floor + arable area/AREA_PER_PERSON; S = capacity/mouths, space-gated +
+      easy per boss); BIRTHS (continuous, replacement→growth above BIRTH_FLOOR_S → person_born, a
+      child); MIGRANTS (surplus-only fast valve → person_arrived); HUNGER (S<1.0 → person_left, never
+      empties). AGING is real — `Person.bornTick`, the labor loops gate on isAdult (children don't dig
+      or lay); founders begin STAGGERED (22/25/28/31, a FIXED spread, NOT rng — that would shift the
+      jitter). INERT on the canon (the pass first fires tick 364, so the 200-tick canon never enters:
+      0 non-hash diffs, 8/8 hashes from bornTick alone). **century-sweep** (`npm run sweep`,
+      tools/century-sweep.mjs) = the tuning instrument — confirmed population TRACKS carrying capacity
+      (cap 4→~4, 20→~20, 50→~50; births≈deaths at equilibrium; migrants taper as it fills). HUD: a food
+      read. population.test.ts (6, incl. rng-isolation + byte replay) + century-sweep.test.ts → **158
+      tests**; verified live via __cc (founders staggered; hold held; a seeded surplus grew 4→9 via
+      migrants AND births, children born + aging). Thirteenth mark (🕯). LAWS: the demographic year
+      runs on its OWN rng stream, never state.rng; a fixed stagger not an rng roll for founding ages;
+      don't tune by eye (the sweep sets the knobs). DEFERRED (step 3): the clerk, sprite↔person
+      binding, funeral-rest, name_apprentice + skill bands + First Technique, niche-gated households.
 - [x] THE LIVING SETTLEMENT — step 1: THE WOODS, SIM 19 (2026-07-15, `df01154` inert scaffold +
       `02f7736` the bite): timber is a real WON/SPENT/REGROWING resource — the generational heart.
       **Scaffold** proven byte-identical inert on the canon (0 non-hash milestone diffs; only the new
