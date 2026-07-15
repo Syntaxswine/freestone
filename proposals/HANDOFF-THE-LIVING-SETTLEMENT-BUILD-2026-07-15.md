@@ -186,9 +186,32 @@ output becomes not just *more* people but *specialized* people.
   chronicle loves — needs the apprentice bond deferred from step 2).
 - **The granary cat** (§7): the canon payroll cat, an animated render-only decor at the granary.
 
-**Discipline**: SIM 21 (new state: housing tier, trade-lineage; a cart entity or a scalar); two
-commits (inert record, then the bite) if it moves the masonry; a drawing verb; red specimens; the
-century-sweep extended for the specialization thresholds; verify at the kernel; push; the 14th mark.
+**⚠ DESIGN REALIZATION (found stepping 2→3 — resolve before building):** the bible's cart carries
+*grain → the granary* and the granary cat sits *at the granary* — but **there is no granary building
+and no grain flow yet.** SIM 20's harvest is an abstract capacity *ratio* (food = f(field area)), not
+a grain stock moving to a store. So step 3 has a hidden keystone. Two honest ways forward:
+1. **Build the granary first** (recommended, and it grounds §4's soul — "the granary embodies mutual
+   aid AND is the population engine, one object"): `BUILDING_KINDS` gains `'granary'`; farms produce a
+   grain flow that fills it; the food capacity reads the granary's throughput; THEN the cart
+   (grain→granary) and the cat have a real home. This is the civic heart made concrete — arguably its
+   own sub-slice (3a) before the cart (3b) and the pyramid (3c).
+2. **Reframe the cart** as a food-capacity accelerant (a built cart raises effective food throughput,
+   the "grain→granary" as flavour) — cheaper, but leaves the granary abstract and the cat homeless.
+The **specialization pyramid (§5)** is the one genuinely standalone piece: variety tenants (horse
+pasture + orchard) × population + a blacksmith building → a **smith** appears (the boss's exact
+example). It needs no granary. Its trap: a specialist's *production effect* (smith → faster dress)
+touches the masonry baseline; ship the pyramid's STRUCTURE (specialists appear/persist/die-with-base,
+the visible reward of diversifying) and layer each effect as its own small bump.
+
+**Recommended decomposition**: **3a** the granary as a real building + grain flow + the granary cat
+(the keystone §4 wanted all along) → **3b** the cart (grain→granary, draws timber = the woods' first
+payoff) + the woodworking place → **3c** the specialization pyramid (variety tenants + the gate +
+base-sustains-the-lineage). Each its own SIM bump + mark, or batch the light ones.
+
+**Discipline**: SIM 21+ (new state: `'granary'` kind + a grain stock; later housing tier +
+trade-lineage; the cart a scalar or entity); two commits (inert record, then the bite) where it moves
+the masonry; a drawing verb per arc; red specimens; the century-sweep extended for the thresholds;
+verify at the kernel; push; the 14th mark.
 
 ---
 
