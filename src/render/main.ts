@@ -44,7 +44,8 @@ import {
   AREA_PER_PERSON,
   FELL_TREES_PER_DAY,
   FOUNDING_CAPACITY,
-  GRANARY_CAPACITY,
+  FOUNDING_STORAGE,
+  GRANARY_STORAGE,
   GROWTH_THRESHOLD,
   REGROWTH_TICKS,
   TICKS_PER_YEAR,
@@ -1161,14 +1162,25 @@ async function boot(): Promise<void> {
       (regrowing.length && Number.isFinite(soonestReturn)
         ? ` — a cant returns in ~${Math.max(1, Math.round(soonestReturn / TICKS_PER_YEAR))}y`
         : '');
-    // THE HARVEST read (SIM 20): food capacity in mouths + the surplus that draws
-    // migrants and lifts births — the growth lever, mirroring the sim's own formula
+    // THE HARVEST read (SIM 22): the FIELDS' yield in mouths (the growth signal —
+    // migrants + births track it) and the GRAIN STORE that buffers the lean years,
+    // out of the granaries' cap. Mirrors the sim's own formula (mean weather).
     const arableArea = world.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
     const nGranaries = world.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
-    const capacity = FOUNDING_CAPACITY + arableArea / AREA_PER_PERSON + nGranaries * GRANARY_CAPACITY;
-    const surplus = capacity / Math.max(1, world.people.length);
-    const weather = surplus >= GROWTH_THRESHOLD ? ' growing' : surplus < 1 ? ' hungry' : ' holding';
-    const harvest = ` — food ${Math.round(capacity)} mouths (${surplus.toFixed(2)}×${weather})`;
+    const fieldYield = FOUNDING_CAPACITY + arableArea / AREA_PER_PERSON;
+    const surplus = fieldYield / Math.max(1, world.people.length);
+    const grainCap = FOUNDING_STORAGE + nGranaries * GRANARY_STORAGE;
+    const foodState =
+      surplus >= GROWTH_THRESHOLD
+        ? 'growing'
+        : surplus >= 1
+          ? 'holding'
+          : world.grain > 0.5
+            ? 'on stores'
+            : 'hungry';
+    const harvest =
+      ` — harvest ${Math.round(fieldYield)} mouths (${surplus.toFixed(2)}× ${foodState})` +
+      ` — grain ${Math.round(world.grain)}/${grainCap}`;
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +

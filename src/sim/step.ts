@@ -12,7 +12,8 @@ import {
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
   FOUNDING_CAPACITY,
-  GRANARY_CAPACITY,
+  FOUNDING_STORAGE,
+  GRANARY_STORAGE,
   GROWTH_FULL,
   GROWTH_THRESHOLD,
   HUNGER_LEAVE_RATE,
@@ -36,6 +37,8 @@ import {
   MATERIALS,
   REGROWTH_TICKS,
   TIMBER_PER_POST,
+  WEATHER_MIN,
+  WEATHER_MAX,
   ROOF_MATERIALS,
   ROOF_SNAP,
   ROOF_DECK,
@@ -1098,14 +1101,43 @@ function livingYear(state: WorldState): void {
   }
   state.people = survivors;
 
-  // 2. THE HARVEST — food capacity in mouths: the founding stores, the enclosed
-  // arable (§4), and the GRANARIES that store it (SIM 21 — the civic heart feeds more)
+  // 2. THE HARVEST + THE GRAIN STOCK (SIM 22) — grain is PRODUCED (the founding floor +
+  // the enclosed arable §4, times this year's WEATHER), EATEN by the mouths, and the
+  // surplus STORED up to the granaries' cap. A lean year DRAWS the store down to hold off
+  // hunger — the granary's one true job (mutual aid = a buffer, not a bigger field).
   const arable = state.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
   const granaries = state.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
-  const capacity = FOUNDING_CAPACITY + arable / AREA_PER_PERSON + granaries * GRANARY_CAPACITY;
-  const S = capacity / Math.max(1, state.people.length);
+  const weather = WEATHER_MIN + rng.float() * (WEATHER_MAX - WEATHER_MIN);
+  const produced = (FOUNDING_CAPACITY + arable / AREA_PER_PERSON) * weather;
+  const mouths = Math.max(1, state.people.length);
+  // S = the FIELDS' abundance (harvest per mouth): drives GROWTH, never touched by the
+  // store, so a settlement never breeds off its hoard.
+  const S = produced / mouths;
+  let eaten: number;
+  if (produced >= mouths) {
+    eaten = mouths;
+    const cap = FOUNDING_STORAGE + granaries * GRANARY_STORAGE;
+    state.grain = Math.min(cap, state.grain + (produced - mouths)); // the surplus goes to store
+  } else {
+    // a lean year: the store covers what shortfall it can before anyone goes hungry
+    const drawn = Math.min(state.grain, mouths - produced);
+    state.grain -= drawn;
+    eaten = produced + drawn;
+  }
+  // effectiveS = the POST-BUFFER ratio: 1.0 if the store fed everyone, < 1.0 only when the
+  // grain ran out too. HUNGER gates on this — a granary with grain holds the village together.
+  const effectiveS = eaten / mouths;
+  state.events.push({
+    kind: 'harvest',
+    tick: state.tick,
+    year: yearOf(state.tick),
+    weather,
+    produced,
+    eaten,
+    stored: state.grain,
+  });
 
-  // 3. BIRTHS (continuous), MIGRANTS (surplus only), HUNGER (dearth) — all off one S.
+  // 3. BIRTHS (continuous), MIGRANTS (surplus only) off S; HUNGER off effectiveS.
   // BIRTHS — the SLOW valve, always on above the fertility floor: at HOLD they
   // roughly replace the dead (no death-spiral), at surplus they grow the line, in
   // hunger they collapse. A child lifts no stone for ~ADULT_AGE years — a lineage.
@@ -1134,8 +1166,9 @@ function livingYear(state: WorldState): void {
     }
   }
   // HUNGER — souls leave for another manor (the boss: "really bad, like starvation,
-  // and they leave"). One soul always holds on — the settlement never empties here.
-  if (S < 1.0) {
+  // and they leave"), but ONLY when the store couldn't cover the shortfall either
+  // (effectiveS < 1). One soul always holds on — the settlement never empties here.
+  if (effectiveS < 1.0) {
     let leaving = state.people.filter(() => rng.float() < HUNGER_LEAVE_RATE);
     if (leaving.length >= state.people.length) leaving = leaving.slice(0, state.people.length - 1);
     const gone = new Set(leaving.map((p) => p.id));

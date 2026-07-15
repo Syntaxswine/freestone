@@ -20,6 +20,8 @@ import { createWorld } from '../src/sim/world';
 import {
   ADULT_AGE,
   AREA_PER_PERSON,
+  FOUNDING_STORAGE,
+  GRANARY_STORAGE,
   TICKS_PER_YEAR,
   type Command,
   type Farm,
@@ -97,18 +99,51 @@ describe('the living year (SIM 20)', () => {
     expect(w.events.some((e) => e.kind === 'person_left')).toBe(true);
   });
 
-  it('a GRANARY feeds more mouths — the civic heart is a population lever (SIM 21)', () => {
-    // six mouths, no field: founding capacity 4 → hunger (S ≈ 0.67), the village thins
-    const noG = fresh();
-    noG.people = Array.from({ length: 6 }, (_, i) => adult(200 + i, 0));
-    // the same, but with a GRANARY: capacity 4 + GRANARY_CAPACITY = 9 → surplus (S 1.5), it grows
-    const wG = fresh();
-    wG.people = Array.from({ length: 6 }, (_, i) => adult(200 + i, 0));
-    wG.buildings = [{ id: 8001, wallId: 8000, kind: 'granary', roof: 'none', area: 30 }];
-    stepN(noG, TICKS_PER_YEAR * 5); // five reckonings — the contrast is stark and seed-robust
+  it('a GRANARY buffers the lean years — a granary-less village goes hungry, a stored one holds (SIM 22)', () => {
+    // ten mouths on a field that yields ~6 at mean weather — well short (S ≈ 0.6, and even
+    // the fattest year stays under the fertility floor, so NO births or migrants confound
+    // it: the only forces are mortality (negligible) and hunger. WITHOUT a granary the thin
+    // larder empties in year one and souls leave; WITH a deep store the buffer covers every
+    // lean year across the run. A clean A/B in which only the granary differs.
+    const field = (): Farm => seedFarm(AREA_PER_PERSON * 2); // produced_mean = FOUNDING(4) + 2 = 6
+    const noG = fresh('buf');
+    noG.people = Array.from({ length: 10 }, (_, i) => adult(300 + i, 0));
+    noG.farms = [field()];
+    const wG = fresh('buf'); // same seed → same weather in year one, a clean A/B
+    wG.people = Array.from({ length: 10 }, (_, i) => adult(300 + i, 0));
+    wG.farms = [field()];
+    wG.buildings = Array.from({ length: 4 }, (_, i) => ({
+      id: 8001 + i,
+      wallId: 8000,
+      kind: 'granary' as const,
+      roof: 'none' as const,
+      area: 30,
+    }));
+    wG.grain = FOUNDING_STORAGE + 4 * GRANARY_STORAGE; // a deep, established store (43 mouth-years)
+    stepN(noG, TICKS_PER_YEAR * 5); // five reckonings
     stepN(wG, TICKS_PER_YEAR * 5);
-    expect(wG.people.length).toBeGreaterThan(6); // the granary's surplus grew it
-    expect(wG.people.length).toBeGreaterThan(noG.people.length); // and out-fed the granary-less village
+    const left = (w: ReturnType<typeof fresh>): number =>
+      w.events.filter((e) => e.kind === 'person_left').length;
+    expect(left(noG)).toBeGreaterThan(0); // the granary-less village starved and shed souls
+    expect(left(wG)).toBe(0); // the deep store covered every lean year — nobody left
+    expect(wG.people.length).toBeGreaterThan(noG.people.length); // and so it kept more of its people
+  });
+
+  it('the grain STORE fills from a fat harvest and never overtops the granary cap (SIM 22)', () => {
+    // two mouths on a broad field — a fat harvest every year, the surplus flowing to store
+    const w = fresh('grainflow');
+    w.people = [adult(400, 0), adult(401, 0)];
+    w.farms = [seedFarm(AREA_PER_PERSON * 10)]; // produced_mean = 4 + 10 = 14 for 2 mouths → very fat
+    w.buildings = [{ id: 8003, wallId: 8000, kind: 'granary', roof: 'none', area: 30 }];
+    const cap = FOUNDING_STORAGE + GRANARY_STORAGE;
+    stepN(w, TICKS_PER_YEAR * 3);
+    const harvests = w.events.filter(
+      (e): e is Extract<typeof e, { kind: 'harvest' }> => e.kind === 'harvest',
+    );
+    expect(harvests.length).toBe(3); // one reckoning a year
+    expect(w.grain).toBeGreaterThan(FOUNDING_STORAGE); // fat years filled it past a bare larder
+    expect(w.grain).toBeLessThanOrEqual(cap + 1e-9); // but the store never overtops its cap
+    expect(harvests.every((h) => h.stored <= cap + 1e-9)).toBe(true); // every recorded store honors it
   });
 
   it('the demographic rng is ISOLATED — a growing settlement lays the SAME stones', () => {

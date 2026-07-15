@@ -168,6 +168,7 @@ interface Milestone {
   aditsComplete: number;
   stockpile: number;
   timber: number;
+  grain: number;
   standsFelled: number;
 }
 
@@ -212,6 +213,7 @@ function runCanon(site: SiteData): Baseline {
         aditsComplete: world.adits.filter((a) => a.workDone >= a.workTotal).length,
         stockpile: Math.round(world.stockpile),
         timber: Math.round(world.timber),
+        grain: Math.round(world.grain), // SIM 22 — constant SEED_GRAIN in the canon (livingYear never fires in 200 ticks)
         // felled-through stands: standing (feltTick>=0) or regrown after a completed cut
         standsFelled: world.stands.filter((s) => !s.felling && s.workDone >= s.workTotal).length,
       });

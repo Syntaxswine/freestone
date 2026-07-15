@@ -1,6 +1,7 @@
 import { hashSeed, Rng } from './rng';
 import {
   FOUNDER_AGE,
+  SEED_GRAIN,
   SEED_TIMBER,
   SIM_VERSION,
   TICKS_PER_YEAR,
@@ -50,6 +51,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
     stands: [],
     stockpile: 0,
     timber: SEED_TIMBER, // the founder's woodpile (SIM 19) — a first palisade before the first fell
+    grain: SEED_GRAIN, // the founder's larder (SIM 22) — a store before the first harvest
     roofs: [],
     pending: [],
     farms: [],

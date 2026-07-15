@@ -74,7 +74,7 @@
 // each), so the food capacity reads the granaries beside the arable. Grounds §4's
 // soul (the granary embodies mutual aid AND is the population engine, one object)
 // and gives the cart a place to carry grain TO. Step 3a of the pyramid arc.
-export const SIM_VERSION = 21;
+export const SIM_VERSION = 22;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -440,21 +440,39 @@ export const MORTALITY_BANDS: readonly { untilAge: number; annual: number }[] = 
  * are small), so a modest farm feeds several — "easy, hindered mostly by space".
  */
 export const AREA_PER_PERSON = 200; // m² of enclosed arable that feeds one mouth
-export const FOUNDING_CAPACITY = 4; // mouths fed before any field (the founding stores)
-/**
- * A GRANARY (SIM 21) is the harvest's STORE: its mutual-aid stock carries grain
- * from the fat years into the lean and cuts the waste, so a settlement with a
- * granary feeds more mouths than its bare fields would — this many more, each. The
- * civic heart as a population lever (§4's soul made mechanical); the number the
- * century-sweep tunes. Read beside the arable in the harvest capacity.
- */
-export const GRANARY_CAPACITY = 5; // extra mouths a built granary feeds
+export const FOUNDING_CAPACITY = 4; // the base yearly harvest, in mouth-years, before any field
 
 /**
- * The surplus ratio S = food capacity / mouths sets the year's demographic weather:
- * below 1.0 the village THINS (emigration — the boss's "things get really bad, like
- * starvation, and they leave"); 1.0–1.25 HOLDS; at/above GROWTH_THRESHOLD it GROWS,
- * ramping to full by GROWTH_FULL. The boss opened at 2×; 1.25 makes growth a
+ * THE GRAIN STOCK (SIM 22): the harvest is no longer an instantaneous ratio — grain is
+ * PRODUCED each year (the base + the arable, times the weather), EATEN by the mouths,
+ * and the surplus STORED up to the granaries' cap. A granary is the STORE: it holds this
+ * many mouth-years of grain beyond a bare settlement's own larder, and in a lean year
+ * that buffer is DRAWN DOWN to hold off hunger. So the granary's population lever is now
+ * emergent and honest — it does not grow food, it carries the fat years into the lean, so
+ * a buffered village survives the bad harvests that would thin an unbuffered one. The
+ * numbers the century-sweep tunes.
+ */
+export const FOUNDING_STORAGE = 3; // mouth-years a bare settlement keeps (a hut's larder)
+export const GRANARY_STORAGE = 10; // mouth-years each built granary adds to the store
+export const SEED_GRAIN = 3; // the founder's starting larder (a full base store)
+
+/**
+ * The harvest varies year to year with the WEATHER — a multiplier on production drawn on
+ * the demographic year's OWN rng stream (never state.rng, so it can't shift the masonry).
+ * Mean ~1.0; a lean year bites, a fat year fills the store. This variance is what makes
+ * the granary buffer MATTER: with a fixed harvest a stock just fills to cap and sits.
+ */
+export const WEATHER_MIN = 0.7;
+export const WEATHER_MAX = 1.3;
+
+/**
+ * The surplus ratio S = the year's HARVEST (produced) / mouths sets the demographic
+ * weather. GROWTH (births + migrants) tracks S — the FIELDS' abundance, the sustainable
+ * signal, so a settlement never breeds off its hoard. HUNGER is gated separately, on the
+ * POST-BUFFER ratio (produced + grain drawn from the store): a granary with grain to
+ * spend holds off the emigration a lean year would otherwise force. So below 1.0 a village
+ * THINS only if its store can't cover the gap; 1.0–1.25 HOLDS; at/above GROWTH_THRESHOLD
+ * it GROWS, ramping to full by GROWTH_FULL. The boss opened at 2×; 1.25 makes growth a
  * deliberate over-plant while a comfortable hold band never punishes breaking even.
  * Two speeds, both: MIGRANTS the fast valve (working adults this year), BIRTHS the
  * slow (a lineage that lifts no stone for ~15 years). Knobs for the sweep.
@@ -763,6 +781,11 @@ export type SimEvent =
   | { kind: 'person_died'; tick: number; personId: number; name: string; age: number }
   /** hunger drove a soul to leave for another manor */
   | { kind: 'person_left'; tick: number; personId: number; name: string }
+  /**
+   * THE GRAIN STOCK (SIM 22): the year's harvest reckoned — produced (weather-varied),
+   * eaten by the mouths, and what stands in the store after (a lean year draws it down).
+   */
+  | { kind: 'harvest'; tick: number; year: number; weather: number; produced: number; eaten: number; stored: number }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
   /** the covering chosen: decking may begin */
   | { kind: 'roof_covered'; tick: number; roofId: number; material: RoofMaterial }
@@ -833,6 +856,15 @@ export interface WorldState {
    * first fell. One GLOBAL stock, like the stockpile.
    */
   timber: number;
+  /**
+   * Grain in the settlement's store, in mouth-years (SIM 22). Each year's harvest is
+   * PRODUCED, the mouths EAT one apiece, and the surplus is STORED here up to the
+   * granaries' cap (FOUNDING_STORAGE + granaries × GRANARY_STORAGE); a lean year draws
+   * it down to hold off hunger. One GLOBAL stock, like the stockpile and the timber.
+   * Seeded with the founder's larder (SEED_GRAIN). Only livingYear touches it — once a
+   * year — so it is inert on any run shorter than a year.
+   */
+  grain: number;
   roofs: Roof[];
   /**
    * Wall ids of completed enclosures awaiting designation (SIM 10). Just the
