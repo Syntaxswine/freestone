@@ -70,6 +70,7 @@ import { FillLayer } from './fills';
 import { GateLayer } from './gates';
 import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
+import { GranaryLayer } from './granary';
 import { describeFootprint, KIND_LABEL, WallPlanner } from './planner';
 import { TreeLayer } from './trees';
 import { createHomeScreen } from './homescreen';
@@ -822,6 +823,8 @@ async function boot(): Promise<void> {
   }
 
   const people = new PeopleLayer(world, site, scene, groundShow);
+  // the granary comes alive: sacks + a prowling cat per designated store (3b)
+  const granary = new GranaryLayer(world, site, scene, groundShow);
   const paceSum = world.people
     .filter((p) => p.trade === 'mason')
     .reduce((n, p) => n + p.pace, 0);
@@ -1096,6 +1099,7 @@ async function boot(): Promise<void> {
     gates.update();
     trees.update(world);
     people.update(dt, speed > 0);
+    granary.update(dt, speed > 0);
     updateCard();
 
     const year = yearOf(world.tick);
@@ -1476,6 +1480,7 @@ async function boot(): Promise<void> {
     controls,
     planner,
     people,
+    granary,
     fills,
     roofs,
     farms,
@@ -1501,6 +1506,7 @@ async function boot(): Promise<void> {
       buildings.update();
       gates.update();
       trees.update(world);
+      granary.update(0, false); // place a hidden tab's sacks/cat (rAF is paused)
       updateCard();
       return world.tick;
     },
