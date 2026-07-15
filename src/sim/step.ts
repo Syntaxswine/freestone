@@ -1132,7 +1132,11 @@ function livingYear(state: WorldState): void {
   const pastures = state.farms.reduce((n, f) => (f.use === 'pasture' ? n + 1 : n), 0);
   const granaries = state.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
   const carts = state.buildings.reduce((n, b) => (b.kind === 'carpentry' ? n + 1 : n), 0);
-  const weather = WEATHER_MIN + rng.float() * (WEATHER_MAX - WEATHER_MIN);
+  // THE WEATHER (SIM 22, shaped SIM 31): a multiplier on the harvest, drawn on the demographic rng
+  // stream (never state.rng). The MEAN of two uniform rolls — a TRIANGULAR distribution peaked at the
+  // centre — so ordinary years cluster near 1.0 and the extreme famine/glut years (which drive the
+  // hunger churn) grow rarer, WITHOUT shifting the average. Two draws on the isolated stream.
+  const weather = WEATHER_MIN + ((rng.float() + rng.float()) / 2) * (WEATHER_MAX - WEATHER_MIN);
   const produced =
     (FOUNDING_CAPACITY + arable / AREA_PER_PERSON + orchard / ORCHARD_AREA_PER_PERSON) * weather;
   const mouths = Math.max(1, state.people.length);

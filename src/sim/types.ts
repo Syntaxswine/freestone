@@ -100,7 +100,12 @@
 // population settles at min(food capacity, shelter capacity), and housing finally MATTERS for growth, not
 // just retention. In livingYear §3 → INERT on the 200-tick canon (never reckoned there). A conservative
 // SLACK for now (the harshness is a knob); the century-sweep now houses its settlements so it still tunes FOOD.
-export const SIM_VERSION = 30;
+// 31: WEATHER SHAPED — the harvest's yearly weather roll was UNIFORM on [WEATHER_MIN, WEATHER_MAX]; now it is
+// the MEAN of two such rolls, a TRIANGULAR distribution peaked at the centre. Same mean (1.0), but ordinary
+// years cluster near it and the extreme famine/glut years — the ones that drive the hunger churn (the sweep's
+// high 'left' counts) — grow rarer. A gentler difficulty curve without a fixed harvest. Two demo-rng draws in
+// livingYear §2 → INERT on the 200-tick canon (never reckoned there).
+export const SIM_VERSION = 31;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -497,7 +502,9 @@ export const SEED_GRAIN = 3; // the founder's starting larder (a full base store
  * The harvest varies year to year with the WEATHER — a multiplier on production drawn on
  * the demographic year's OWN rng stream (never state.rng, so it can't shift the masonry).
  * Mean ~1.0; a lean year bites, a fat year fills the store. This variance is what makes
- * the granary buffer MATTER: with a fixed harvest a stock just fills to cap and sits.
+ * the granary buffer MATTER: with a fixed harvest a stock just fills to cap and sits. These are the BOUNDS;
+ * SIM 31 draws the year's weather as the MEAN of two uniform rolls over them — a triangular distribution
+ * peaked at the midpoint, so the extremes are approached but rarely reached (see livingYear §2).
  */
 export const WEATHER_MIN = 0.7;
 export const WEATHER_MAX = 1.3;
