@@ -14,6 +14,43 @@ This arc discharges the roadmap's Beats 0–4.
 
 ---
 
+## Session capstone — 2026-07-15, the day the foundation of the living settlement rose
+
+One session, under the boss's directive *keep going until the ladder is done — a handoff and a
+keystone between tasks*. It laid **four courses** of the §9 ladder, each shipped, tested, deployed to
+Pages, and marked:
+
+| step | arc | SIM | commits | tests |
+|---|---|---|---|---|
+| 0 | the year clock + **Sit the Season** | — (SIM-neutral) | `02465ac` | 139→145 |
+| 1 | **THE WOODS** — timber won/spent/regrowing | 19 | `df01154` + `02f7736` | →150 |
+| 2 | **THE LIVING YEAR** — people mortal, the settlement grows | 20 | `7577667` | →158 |
+| 3a | **THE GRANARY** — the civic heart made a building | 21 | `4f241db` | →159 |
+
+Marks eleven through fourteen on the FOUNDATION: **⏭ 🪓 🕯 🌾**. The through-line holds — a *year* you
+can watch makes a *wood* that regrows over generations mean something; the wood is measured against a
+*people* who are born and buried on the record; the *harvest* decides how many hands there are; and
+the *granary* is the lever that feeds more of them.
+
+**The pickup is clean.** Step 3 is IN PROGRESS: **3a the granary shipped**; the next hand starts at
+**3b** — the **granary cat** (boss-requested; it now has a place to prowl), the **cart**
+(grain→granary, drawing timber = the woods' first payoff), and a real grain **stock** — then **3c**
+the specialization pyramid. All three are seamed below; the ⚠ granary-keystone realization that
+reshaped step 3 is in that section. Tree clean, 159 green, live.
+
+**The three session-laws worth carrying** (each proven, each a trap avoided):
+1. **A random subsystem that must not perturb the masonry runs on its OWN rng stream** (the
+   demographic year's `seed:demo:<year>`) — never `state.rng`. Proven: a doubled village laid
+   byte-identical stones.
+2. **Derive a spread that must not move the baseline from an INDEX, not an rng roll** (the founders'
+   staggered ages) — advancing `createWorld`'s cursor shifts every stone's jitter.
+3. **A new subsystem inert on the 200-tick canon** (regrowth at 2555 ticks, the demographic pass at
+   tick 364) ships as ONE clean commit whose regen shows *0 non-hash diffs* — the behavior lives in
+   dedicated tests + the century-sweep, not the canon. Don't force a two-commit split where the canon
+   never exercises the feature.
+
+---
+
 ## The ladder (§9 of the bible) — status
 
 | step | course | state |
