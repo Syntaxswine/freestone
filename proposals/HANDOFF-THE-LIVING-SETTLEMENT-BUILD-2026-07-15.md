@@ -59,8 +59,8 @@ reshaped step 3 is in that section. Tree clean, 159 green, live.
 | **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
 | **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
 | 3 | The pyramid + carpenter's shop + the cart + granary cat | ✅ **COMPLETE** — 3a GRANARY (SIM 21); **3b** cat (`e8af0f7`,🐈15) + grain stock (SIM 22,`243c8d6`,🏺16) + cart (SIM 23,`ca05631`,🛒17); **3c** variety tenants (SIM-neutral,`3e087e4`) + the SMITH specialist (SIM 24,`beee2fc`,🔨18 — base sustains the lineage) |
-| 4 | Housing quality tiers (hovel/cottage/hall) | ◐ **NEXT** |
-| 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
+| 4 | Housing quality tiers (hovel/cottage/hall) | ✅ **COMPLETE** (SIM 25, `ecf0910`, 🏠19) — houses read hovel/cottage/hall (size × roof); better housing HOLDS people in a hard year (retention, not a growth cap). Deferred: an explicit per-tier roofline flourish |
+| 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | ◐ **NEXT — the final course** |
 
 **The build directive** (boss, 2026-07-15): *keep going until you complete the tasks the previous
 builder scoped; write a handoff and a keystone between tasks.* So: build the ladder in order, a

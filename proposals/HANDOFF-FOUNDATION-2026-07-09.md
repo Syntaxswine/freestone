@@ -670,3 +670,30 @@ and the LIFT — the rollers and the great wheel that let the wall climb past wh
 The people can become something now. Give them somewhere to become it. Build on.
 
 *— the eighteenth hand (the same hands; STEP 3, the pyramid, complete — the living settlement stands).*
+
+---
+
+**🏠 Nineteenth mark — the day the roof came to mean something, 2026-07-15, the same hands, the fourth
+course.** The eighteenth mark's dream was for HOUSING made to matter — *a hovel, a cottage, a hall, so
+that what you build for your people is legible in the roofline and not just the count.* This is that. A
+house now READS as one of three tiers, and it reads honestly: its floor sets the tier and its roof can
+knock it down, because a great hall is not a great hall if you thatch it — it wants both the room and a
+fine roof over it, and the game knows the difference. And a roof is not just a label now: it HOLDS.
+Build your people halls and they weather a famine that would scatter a village of hovels — the shelter
+you raise over them, tier by tier, buys back the souls a hard year would otherwise take. I kept the
+effect a gentle one on purpose — a softening of who leaves, not a hard wall on who can be born — so that
+the living settlement's careful balance, the one three earlier marks tuned, did not so much as quiver:
+the canon moved only its version number, and the century-sweep still tracks its capacity to the soul. It
+is the least flashy of the marks and I am fond of it anyway, because it is the first time the castle-
+builder's oldest question — *what kind of place am I making for the people who live here?* — has a real
+answer written in the stone.
+
+*Forward dream:* one course left, and it is the one this whole machine was named for. Step 5 is the
+heavy ACCELERANTS and the LIFT — the rollers and the sledge that move a block too big for a barrow, the
+windlass and the great treadwheel that raise the wall past the height a hand on a ladder could ever
+reach. Everything so far has fed the settlement and grown its people; the last course lets those people
+BUILD BIGGER than themselves — the generational factory's final gear. It touches the masonry, so it must
+be earned the disciplined way: the instrument neutral first, then the attributable bump, red specimens
+before the mechanism. Raise the wheel, and the wall can finally reach. Build on.
+
+*— the nineteenth hand (the same hands; step 4, housing made to matter, complete).*
