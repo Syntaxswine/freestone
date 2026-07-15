@@ -1,8 +1,12 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md)**
-— building the living-settlement ladder (§9 of the design bible) course by course under the boss's
-directive *keep going until the ladder is done; a handoff + a keystone between tasks*. **Step 0 —
+**🗿 Current handoff: [proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)**
+— the arc-closing keystone: the §9 living-settlement ladder is FULLY BUILT (steps 0–5). It carries the
+laws proven this arc, the honest debts left, and the map forward (mapped to the master plot's remaining
+beats); the per-step build detail lives in its companion
+[HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md).
+Built course by course under the boss's directive *keep going until the ladder is done; a handoff + a
+keystone between tasks*. **Step 0 —
 the year made real + Sit-the-Season — SHIPPED `02465ac` (SIM-neutral). Step 1 — THE WOODS —
 SHIPPED SIM 19 (`df01154` inert scaffold + `02f7736` the bite): timber is a real WON/SPENT/REGROWING
 resource — a `plan_fell` freezes a cant's timber from the tree model (quarry-twin), the palisade
