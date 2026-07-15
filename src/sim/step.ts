@@ -1478,6 +1478,10 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         (w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w) && supplied(w),
       );
       if (!wall) return;
+      // where the next stone lands (its COURSE decides the lift cost in SIM 26)
+      const decomp = decomposeWall(wall.points, wall.height, wall.gates);
+      const pick = pickSlot(wall, decomp.slots);
+      if (!pick) break; // unreachable past the laid<total check
       // a laid unit spends its supply: a WOOD post draws TIMBER_PER_POST from the
       // global timber stock (SIM 19 — the palisade is no longer free; the generous
       // fell yield rewarded the winning); a STONE spends its dress DRAW from wherever
@@ -1493,10 +1497,46 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
       } else {
         wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];
       }
-      layOneStone(state, site, rng, wall, person.id);
+      layOneStone(state, site, rng, wall, person.id, pick, decomp.spacing);
       quota -= DRESS_SPEC[wall.dressLevel].layDebt;
     }
   }
+}
+
+/**
+ * Which (course, slot) the NEXT stone falls in — the level-coursing walk (SIM 13),
+ * lifted out of layOneStone so the caller can know the working COURSE before it spends
+ * the mason's quota (the lift penalty rides on height, SIM 26). Infill (a walled-back
+ * gate) is explicit and consumes its job here, exactly as before. Returns null only past
+ * the laid<total check (unreachable in the lay loop).
+ */
+function pickSlot(wall: WallPlan, slots: number[]): { course: number; slot: number } | null {
+  if (wall.infill.length > 0) {
+    // walling a removed gate back up: explicit slots, bottom course first
+    const job = wall.infill.shift()!;
+    return { course: job.course, slot: job.slot };
+  }
+  // the initial build walks the SURVEY's slab grid bottom-up (SIM 13): a course is laid
+  // clear across every column deep enough to hold it, so the wall rises in LEVEL layers.
+  let i = wall.stonesLaid;
+  for (let c = 0; c < wall.courses; c++) {
+    let n = 0;
+    for (const s of slots) {
+      if (wall.slotStarts[s]! <= c && c < wall.slotEnds[s]!) n += 1;
+    }
+    if (i < n) {
+      let k = -1;
+      for (const s of slots) {
+        if (wall.slotStarts[s]! <= c && c < wall.slotEnds[s]!) {
+          k += 1;
+          if (k === i) return { course: c, slot: s };
+        }
+      }
+    } else {
+      i -= n;
+    }
+  }
+  return null;
 }
 
 function layOneStone(
@@ -1505,46 +1545,10 @@ function layOneStone(
   rng: Rng,
   wall: WallPlan,
   masonId: number,
+  pick: { course: number; slot: number },
+  spacing: number,
 ): void {
-  const { slots, spacing } = decomposeWall(wall.points, wall.height, wall.gates);
-  let course = -1;
-  let slot = -1;
-  if (wall.infill.length > 0) {
-    // walling a removed gate back up: explicit slots, bottom course first
-    const job = wall.infill.shift()!;
-    course = job.course;
-    slot = job.slot;
-  } else {
-    // the initial build walks the SURVEY's slab grid bottom-up (SIM 13): a
-    // course is laid clear across every column deep enough to hold it, so
-    // the wall rises in LEVEL layers the way real coursework does. The
-    // enumeration is stable for a wall's whole first life (gate ops are
-    // legal only on complete, idle walls).
-    let i = wall.stonesLaid;
-    for (let c = 0; c < wall.courses && slot === -1; c++) {
-      let n = 0;
-      for (const s of slots) {
-        if (wall.slotStarts[s]! <= c && c < wall.slotEnds[s]!) n += 1;
-      }
-      if (i < n) {
-        let k = -1;
-        for (const s of slots) {
-          if (wall.slotStarts[s]! <= c && c < wall.slotEnds[s]!) {
-            k += 1;
-            if (k === i) {
-              slot = s;
-              break;
-            }
-          }
-        }
-        course = c;
-      } else {
-        i -= n;
-      }
-    }
-    if (slot === -1) return; // unreachable: the caller checks laid < total
-  }
-
+  const { course, slot } = pick;
   const at = pointAt(wall.points, (slot + 0.5) * spacing);
 
   // LEVEL courses hang from the surveyed datum — never from live ground
