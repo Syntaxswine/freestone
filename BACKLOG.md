@@ -18,6 +18,13 @@ record the two days. **NEXT (boss picked timber): THE WOODS — make timber a re
 GENERATIONAL regrowth clock (coppice rotation; a wood felled for the crane grows back over
 generations, or a line inherits bare ground — the granary's civic thesis written into the land).
 The prerequisite for LIFT (Phase 3); write PROPOSAL-WOODS first. OR the adit made playable.**
+**THE MASTER PLOT (step-back scoping, 2026-07-14):
+[proposals/ROADMAP-THE-GENERATIONAL-FACTORY-2026-07-14.md](proposals/ROADMAP-THE-GENERATIONAL-FACTORY-2026-07-14.md)
+— six beats (One Clock → WOODS → memory suite → save/Annal/Bell → the batched SPINE bump →
+wall ladder wave → kiln/LIFT/Keep), the thesis (generational clocks re-open a solved factory —
+the genre gap), the standing rules (a drawing verb per arc; batch SIM bumps; status on the
+entity; M4 is mutual-aid-first; one chronicle voice), and the cut ledger. Read it before
+picking any post-WOODS course.**
 The carriage layer plot — **WIN→HAUL→LIFT→LAY**, each a scalar frozen at the survey boundary; the
 wall builds at min() and stalls honestly; "deep model, shallow controls"; Durham's Wear = a MOAT
 not a highway → quarry local. Plot:
@@ -297,6 +304,29 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
 - [ ] M7 — Weathering, audio, Steam packaging
 
 ## Open threads
+- THE GENERATIONAL FACTORY roadmap (step-back scoping 2026-07-14, boss: "scope out ways to
+  improve the game and move it towards the goal of a generational factory castle maker"):
+  proposals/ROADMAP-THE-GENERATIONAL-FACTORY-2026-07-14.md — produced by a 13-agent pass
+  (2 censuses, 4 verify-at-source research agents, 5 design lenses → 43 candidates, 2
+  adversarial critics), synthesized to six beats. Beat 0 = ONE CLOCK (write generation +
+  coppice rotations on the same TICKS_PER_YEAR arithmetic INTO PROPOSAL-WOODS before any
+  WOODS code — a constraint that expires if skipped). Beat 1 = WOODS (SIM 19: stands/cants,
+  two timber classes poles~7–20yr / oak standards ~50yr, Hayley-Wood sustainable-harvest
+  read, winter-felling season slot, countdown+return ledger lines as minimum ship). Beat 2 =
+  memory suite (render-only, zero baseline: merged inspection stack, founder's stone,
+  campaign patina, tracing-floor ghosts). Beat 3 = Lodge Book save/load (THE GATE — 10–25 h
+  great works are impossible without persistence) + Annal V0 (one chronicle voice module;
+  absorbs year page/season reckoning/years-with-names) + Bell + Sit-the-Season (one
+  interrupt-tier table, two consumers) + construction chime. Beat 4 = THE SPINE as ONE
+  batched SIM bump (mortality pass w/ staggered lifespans, coarse skill bands + apprentice
+  bond, the First Technique wired to DRESS lay-debt, funeral protocol + dual-id succession
+  stone, Testament, clerk, sprite-to-person binding, century-sweep tuning tool, household/
+  surname data riders). Beat 5 = demand wave (wall ladder + SPOIL + provenance Lots + ditch
+  & bank w/ terrain-concavity spike first + economy-core rider). Beat 6 = kiln (coal-fired
+  lime — the seams' second customer) + two-stroke amplitudes + LIFT + the Keep as north star.
+  Cuts: weathering-sim (patina covers it), charters, ride-the-cart, hollow-way rebate,
+  appraisal, EDGE-as-smooth-scalar. Four boss questions open in §6 (spine timing, generation
+  felt-length, over-cut scar tone, save-compat promise).
 - MOVING STONE — the carriage layer (proposed 2026-07-13, boss: "there are a lot of factory-game
   logistics involved with moving the stone… cranes, pulleys, log rollers"): design plotted in
   proposals/PROPOSAL-LOGISTICS-2026-07-13.md (research pass: 79 agents, 56/67 claims verified).
