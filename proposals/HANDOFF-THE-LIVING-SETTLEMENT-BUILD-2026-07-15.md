@@ -17,26 +17,38 @@ This arc discharges the roadmap's Beats 0–4.
 ## Session capstone — 2026-07-15, the day the foundation of the living settlement rose
 
 One session, under the boss's directive *keep going until the ladder is done — a handoff and a
-keystone between tasks*. It laid **four courses** of the §9 ladder, each shipped, tested, deployed to
-Pages, and marked:
+keystone between tasks*. **THE ENTIRE §9 LADDER IS BUILT** — all six courses, each shipped, tested,
+deployed to Pages, and marked. The seal below closed the first four; the boss reopened the same day and
+this one hand carried it the rest of the way:
 
-| step | arc | SIM | commits | tests |
+| step | arc | SIM | commits | mark |
 |---|---|---|---|---|
-| 0 | the year clock + **Sit the Season** | — (SIM-neutral) | `02465ac` | 139→145 |
-| 1 | **THE WOODS** — timber won/spent/regrowing | 19 | `df01154` + `02f7736` | →150 |
-| 2 | **THE LIVING YEAR** — people mortal, the settlement grows | 20 | `7577667` | →158 |
-| 3a | **THE GRANARY** — the civic heart made a building | 21 | `4f241db` | →159 |
+| 0 | the year clock + **Sit the Season** | — (SIM-neutral) | `02465ac` | ⏭ |
+| 1 | **THE WOODS** — timber won/spent/regrowing | 19 | `df01154`+`02f7736` | 🪓 |
+| 2 | **THE LIVING YEAR** — people mortal, the settlement grows | 20 | `7577667` | 🕯 |
+| 3a | **THE GRANARY** — the civic heart made a building | 21 | `4f241db` | 🌾 |
+| 3b-i | the granary **CAT** + sacks | — (render) | `e8af0f7` | 🐈 |
+| 3b-ii | the **GRAIN STOCK** — the granary made a real buffer | 22 | `243c8d6` | 🏺 |
+| 3b-iii | the **CART** — the woods' first payoff, one renewable into another | 23 | `ca05631` | 🛒 |
+| 3c-i | the **VARIETY TENANTS** — horse pasture + orchard | — (SIM-neutral) | `3e087e4` | — |
+| 3c-ii | the **SMITH** — variety draws a specialist; base sustains the lineage | 24 | `beee2fc` | 🔨 |
+| 4 | **HOUSING TIERS** — hovel/cottage/hall; the roof holds people | 25 | `ecf0910` | 🏠 |
+| 5 | **THE LIFT** — high courses cost more; a great wheel relieves them | A `b58fb5a` + B 26 `90c404d` | ⚙ |
 
-Marks eleven through fourteen on the FOUNDATION: **⏭ 🪓 🕯 🌾**. The through-line holds — a *year* you
-can watch makes a *wood* that regrows over generations mean something; the wood is measured against a
-*people* who are born and buried on the record; the *harvest* decides how many hands there are; and
-the *granary* is the lever that feeds more of them.
+Marks eleven through twenty on the FOUNDATION: **⏭ 🪓 🕯 🌾 🐈 🏺 🛒 🔨 🏠 ⚙** (+ two SIM-neutral courses),
+sealed twice (⛬ at four, ⛬ at ten). **201 tests green, live.** The through-line is whole: a *year* you can
+watch makes a *wood* that regrows mean something; the wood is measured against a *people* born and buried
+on the record; the *harvest* decides how many hands there are and fills a *granary* that buffers the lean
+years; a *cart* carries that harvest (spending the wood), a *smith* is drawn to a settlement varied
+enough to keep him, *halls* hold the folk through hard years, and a *great wheel* (spending the wood
+again) lifts the stone past the height of a hand. One machine; every gear feeds another.
 
-**The pickup is clean.** Step 3 is IN PROGRESS: **3a the granary shipped**; the next hand starts at
-**3b** — the **granary cat** (boss-requested; it now has a place to prowl), the **cart**
-(grain→granary, drawing timber = the woods' first payoff), and a real grain **stock** — then **3c**
-the specialization pyramid. All three are seamed below; the ⚠ granary-keystone realization that
-reshaped step 3 is in that section. Tree clean, 159 green, live.
+**The honest debts left for the next hand** (none block the machine; all would deepen it): the smith does
+no WORK yet (production effect deferred); only the migrant smith comes (no local apprentice); the orchard
+bears no fruit and the horse pulls no cart (variety, not yet yield); the carpenter's yard + the great
+wheel have no render of their own; shelter is a retention nudge, not a population CAP; and step 5's
+rollers/sledge (heavy-block haul) was scoped but the LIFT was the substantial deliverable. Full list in
+each step's section below.
 
 **The three session-laws worth carrying** (each proven, each a trap avoided):
 1. **A random subsystem that must not perturb the masonry runs on its OWN rng stream** (the
@@ -60,7 +72,7 @@ reshaped step 3 is in that section. Tree clean, 159 green, live.
 | **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
 | 3 | The pyramid + carpenter's shop + the cart + granary cat | ✅ **COMPLETE** — 3a GRANARY (SIM 21); **3b** cat (`e8af0f7`,🐈15) + grain stock (SIM 22,`243c8d6`,🏺16) + cart (SIM 23,`ca05631`,🛒17); **3c** variety tenants (SIM-neutral,`3e087e4`) + the SMITH specialist (SIM 24,`beee2fc`,🔨18 — base sustains the lineage) |
 | 4 | Housing quality tiers (hovel/cottage/hall) | ✅ **COMPLETE** (SIM 25, `ecf0910`, 🏠19) — houses read hovel/cottage/hall (size × roof); better housing HOLDS people in a hard year (retention, not a growth cap). Deferred: an explicit per-tier roofline flourish |
-| 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | ◐ **NEXT — the final course** |
+| 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | ✅ **COMPLETE** — THE LIFT: Commit A pickSlot refactor (`b58fb5a`, byte-identical) + Commit B (SIM 26, `90c404d`, ⚙20) — high courses cost more; a GREAT WHEEL drawing timber relieves them. Deferred: rollers/sledge (heavy-block haul); a wheel render |
 
 **The build directive** (boss, 2026-07-15): *keep going until you complete the tasks the previous
 builder scoped; write a handoff and a keystone between tasks.* So: build the ladder in order, a

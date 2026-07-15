@@ -12,12 +12,18 @@ the coppice returning its exact trees; 150 tests. Step 2 — THE LIVING YEAR —
 `seed:demo:<year>` rng, so people-churn never shifts the masonry jitter) rolls survival on an age
 curve, and the space-gated HARVEST sets a surplus that draws migrants + lifts births, or thins the
 village in hunger; children age and lift no stone until grown; a `century-sweep` tuning tool confirms
-population tracks carrying capacity; 158 tests. Step 3 — THE PYRAMID + THE CART — IN PROGRESS: **3a
-THE GRANARY SHIPPED SIM 21 (`4f241db`)** — the civic heart made a real building (BUILDING_KINDS gains
-'granary', offered on the card 🏛; a granary feeds GRANARY_CAPACITY more mouths, so it's a population
-lever — §4's soul grounded, and the keystone the cart/cat need; inert on the canon; 159 tests). 3b the
-cart + the granary CAT + a real grain stock, then 3c the pyramid (variety×housing → specialists) =
-NEXT.** Fourteen maker's marks now (⏭ year, 🪓 woods, 🕯 mortal hands, 🌾 the granary). The PRIOR
+population tracks carrying capacity; 158 tests. **THE ENTIRE §9 LADDER IS NOW BUILT (2026-07-15,
+steps 0–5):** 3a THE GRANARY (SIM 21 `4f241db`); **3b** the granary CAT + sacks (render `e8af0f7`),
+the GRAIN STOCK — granary made a real famine buffer, harvest×weather PRODUCED/EATEN/STORED (SIM 22
+`243c8d6`), the CART — grain→granary drawing timber, the woods' first payoff + first
+renewable-into-renewable loop (SIM 23 `ca05631`); **3c** the VARIETY TENANTS pasture+orchard
+(SIM-neutral `3e087e4`) + the SMITH — variety draws a specialist, base-sustains-the-lineage (SIM 24
+`beee2fc`); **step 4** HOUSING TIERS hovel/cottage/hall, the roof holds people in hunger (SIM 25
+`ecf0910`); **step 5** THE LIFT — high courses cost more, a great wheel drawing timber relieves them,
+on the two-commit discipline (A `b58fb5a` + B SIM 26 `90c404d`). **TWENTY maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙)
++ two ⛬ seals; 201 tests green; live.** Honest debts left (none blocking): smith does no work yet, no
+local-apprentice path, orchard/horse are variety-not-yield, no carpenter's-yard/wheel render, shelter
+is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the

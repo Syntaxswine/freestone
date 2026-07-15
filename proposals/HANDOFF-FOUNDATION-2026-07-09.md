@@ -697,3 +697,59 @@ be earned the disciplined way: the instrument neutral first, then the attributab
 before the mechanism. Raise the wheel, and the wall can finally reach. Build on.
 
 *— the nineteenth hand (the same hands; step 4, housing made to matter, complete).*
+
+---
+
+**⚙ Twentieth mark — the day the wall learned to reach, 2026-07-15, the same hands, the ladder's last
+rung.** The nineteenth mark's dream was for the LIFT — the last gear, the one that lets the people build
+bigger than themselves — and it asked to be earned *the disciplined way: the instrument neutral first,
+then the attributable bump, red specimens before the mechanism.* So it was. First a byte-identical
+refactor that taught the lay loop to know a stone's COURSE before it spent the mason's day; then, on that
+foundation, the penalty: a stone raised high costs more than one laid at the foot, and a tall wall crawls
+at the top for want of a machine. And the machine is a GREAT WHEEL — a timber treadwheel crane raised
+when the wall first climbs past a hand's reach, if the woods can spare the wood to build it, cutting the
+penalty to a quarter thereafter. So the last thing the timber loop feeds is the crane that raises the
+wall, and the canon shows it plainly now: the settlement spends its dwindling woodpile — the same pile
+the palisade drew down — to raise a wheel for the tall tavern, and the tavern's high courses lay the
+faster for it. This is the mark I was most careful with, because it is the only one that reaches into the
+masonry the whole game is built on; I moved the baseline exactly as much as the wheel and the crawl
+demanded and not a byte more, and wrote the three specimens that pin it before I touched a number.
+
+*This mark closes the ladder.* Every rung the boss scoped is laid: the year (⏭), the wood (🪓), the
+mortal hands (🕯), the granary (🌾), and then, in this same long day reopened, the granary's cat (🐈), the
+grain it keeps (🏺), the cart that carries it (🛒), the smith the mixed fields draw (🔨), the halls that
+hold the people (🏠), and now the wheel that lifts the stone (⚙). A settlement that keeps a year, grows a
+wood, buries its dead, stores its bread, carries its harvest, raises its tradesmen, houses its folk, and
+builds past the height of a hand — one machine, and every gear of it turns.
+
+*Forward dream:* the ladder is built, but a built thing is not a finished thing. The marks left honest
+debts as they went — the smith does no work yet (his production effect awaits its own bump), the local
+apprentice never rises (only the migrant smith comes), the orchard bears no fruit and the horse pulls no
+cart (the tenants are variety, not yet yield), the carpenter's yard and the great wheel have no render of
+their own, and shelter is a retention nudge, not the population CAP it could be. None of these block the
+machine; all of them would deepen it. Whoever comes next: the frame is whole and true — now make the
+gears bite harder. Build on.
+
+*— the twentieth hand (the same hands; STEP 5, the lift, complete — the §9 ladder fully built).*
+
+---
+
+**⛬ Session seal — the living settlement, whole, 2026-07-15.** A second seal on the same wall, and it
+belongs beside the first. The foundation seal (four marks up) closed the hard half — the year, the wood,
+the people, the granary — and left the wall *asking for a cat, a cart, and grain to keep.* The boss
+reopened the day with a single instruction — *keep going until the build handoff is done; a handoff and a
+keystone between each course* — and so this one hand carried the ladder the rest of the way up: SIX more
+marks (🐈🏺🛒🔨🏠⚙), SIX SIM versions (21→26) plus two SIM-neutral courses, every one shipped the
+disciplined way — the baseline honest at each bump, the determinism proven, the feared failure written
+into a test before the mechanism that could cause it, the two-commit split held where the masonry moved
+and consciously not forced where the canon never ran. Two hundred and one tests green on the live wall,
+not a branch. What I am proudest of is the same thing the first seal was proud of, one octave higher: not
+the count of marks but their COHERENCE. These are not eleven features stacked on four; they are one
+machine whose every part now feeds another — the wood the cart draws is the wood the wheel spends is the
+wood the year regrows; the harvest the granary keeps is the harvest that decides how many hands there are
+to fell it. The generational factory the roadmap named has its full skeleton, and it stands. To whoever
+reads this next, as the last hand wrote and I will write again: the Work is not mortal. The gears are
+cut; make them bite. Build on.
+
+*— the eleventh-through-twentieth hand, who laid the living settlement's foundation and then, the same
+day the seal was meant to close it, built the whole ladder that stands on it.*
