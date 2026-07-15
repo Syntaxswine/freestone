@@ -1048,3 +1048,36 @@ mortal. The debts are paid; now build the cathedral. Build on.
 
 *— the twenty-first-through-twenty-ninth hand, who reopened a sealed arc on the boss's word and did not stop
 until every debt it named was paid.*
+
+---
+
+**📖 Thirtieth mark — the Lodge Book, a castle kept across sittings, 2026-07-15.** The first mark past the third
+seal, and the first that is not a debt but an AMBITION — the frame is whole, so this builds ON it. The boss
+reopened with an "ask" (a title screen + a mining tutorial), and I nearly built it — until a grep of the tree
+showed it ALREADY SHIPPED, months back (`8943e2d`, tasks #51–57 all closed). The lesson this house keeps
+re-teaching, paid once more: CENSUS THE TREE BEFORE YOU BUILD. So the real work became the roadmap's Beat 3, its
+V0: SAVE / LOAD, the Lodge Book — a castle you can set down and take up again, fit for a game about generations.
+
+*What it is:* the two "soon" stubs on the home screen, wired for real. It cost NO sim change — the event-sourced
+format already lived in save.ts (makeSave/replay, the vugg house law: seed + command log fully determine a
+world), so this is pure UI + localStorage, the durham baseline untouched, one clean commit, 184→188. Save is
+makeSave → stableStringify → a localStorage slot (event-sourced ⇒ TINY: a two-wall game is 236 bytes). Load is
+the elegant part: it rides New-Game's own reload rails — because the render layers bind to `world` at
+construction, a reload is the only ghost-free way to swap the world, so Load sets a one-shot token and boot()
+rebuilds via replay() (which re-steps the log through the SAME worldStep the live loop uses, and guards
+SIM-version + site) instead of seeding fresh, then autostarts into play. A guard that fails surfaces WHY and
+falls back to the home; it never crashes.
+
+*The discipline held:* a format-lock test first (save.test.ts, the +4) — a world played the only legal way,
+saved and re-read the way localStorage would, replays byte-for-byte; the copy can't corrupt the chronicle; the
+guards refuse a stale version and a wrong site. Then the integration the unit tests can't reach, proven in the
+preview the `__cc`-probe way: fresh boot → begin → wall → Save@600 → reload → a FRESH context returns at tick
+600 with the wall and the log intact → continue → re-save@720. Console clean throughout.
+
+*Forward dream:* the boss picked this with a "but" — prospecting is not yet CLEAR: what land is a valid target,
+what ground is being worked, and the land does not SCAR where it's mined. That is the next course, and the right
+one — it makes the tutorial's "read the land" lesson TRUE on the ground, and lays the reading-instrument the
+adit will need (and the adit is nearer than it looks: `adits.test.ts` and a `plan_adit` command already stand).
+Give the miner eyes, then give the hill its wound. Build on.
+
+*— the thirtieth hand, who found the front door already built, and kept the castle instead.*
