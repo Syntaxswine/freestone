@@ -15,7 +15,7 @@
  */
 import * as THREE from 'three';
 import { reduceCorners } from '../sim/classify';
-import { COURSE_HEIGHT, type Vec2, type WorldState } from '../sim/types';
+import { COURSE_HEIGHT, houseTier, type Vec2, type WorldState } from '../sim/types';
 
 const OVERHANG = 0.35; // meters of eave past the wall face
 const PITCH = 0.5; // ridge rise per meter of half-span (0.5 = 45°)
@@ -141,5 +141,35 @@ export class BuildingLayer {
     mesh.frustumCulled = false;
     this.meshes.push(mesh);
     this.scene.add(mesh);
+
+    // A HALL (SIM 25 tier — a great floor under a fine roof) wears a finer ROOFLINE than a hovel:
+    // a cresting cap runs the ridge and a finial rises at each gable peak, so the great house reads
+    // across the settlement, not only in the count. Only halls; a hovel or cottage keeps its plain gable.
+    if (b.kind === 'house' && houseTier(b.area, b.roof) === 'hall') {
+      const crestMat = new THREE.MeshLambertMaterial({ color: color.clone().multiplyScalar(0.72) });
+      const rdx = g1.x - g0.x;
+      const rdy = g1.y - g0.y;
+      const rlen = Math.sqrt(rdx * rdx + rdy * rdy) || 1;
+      // the ridge cap — a slim beam a hair proud of the ridge line (g0 → g1 at ridgeZ)
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(rlen, 0.14, 0.16), crestMat);
+      cap.position.set((g0.x + g1.x) / 2, ridgeZ + 0.07, (g0.y + g1.y) / 2);
+      cap.rotation.y = Math.atan2(-rdy / rlen, rdx / rlen); // align the beam's length to the ridge
+      cap.frustumCulled = false;
+      this.meshes.push(cap);
+      this.scene.add(cap);
+      // a finial post + knob at each gable peak
+      for (const g of [g0, g1]) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.5, 0.14), crestMat);
+        post.position.set(g.x, ridgeZ + 0.28, g.y);
+        post.frustumCulled = false;
+        this.meshes.push(post);
+        this.scene.add(post);
+        const knob = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 0.24), crestMat);
+        knob.position.set(g.x, ridgeZ + 0.56, g.y);
+        knob.frustumCulled = false;
+        this.meshes.push(knob);
+        this.scene.add(knob);
+      }
+    }
   }
 }
