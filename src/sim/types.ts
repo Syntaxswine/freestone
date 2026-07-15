@@ -105,7 +105,13 @@
 // years cluster near it and the extreme famine/glut years — the ones that drive the hunger churn (the sweep's
 // high 'left' counts) — grow rarer. A gentler difficulty curve without a fixed harvest. Two demo-rng draws in
 // livingYear §2 → INERT on the 200-tick canon (never reckoned there).
-export const SIM_VERSION = 31;
+// 32: THE SLEDGE ON ROLLERS — the heavy-block HAUL accelerant, the lift's overland twin (step 5's scoped
+// leftover). The lift relieved the vertical haul UP a tall wall (SIM 26); this relieves the OVERLAND haul
+// across the ground: an OPT-IN wall lays timber rollers under a sledge and its won stone travels its route
+// ROLLER_HAUL_BOOST times faster (the cart/sledge fills the face sooner). Opt-in per wall at plan time, so a
+// wall that doesn't choose it — and the whole 200-tick canon, whose walls don't — hauls byte-for-byte as
+// before: INERT on the canon, one clean commit. A rollers field defaulting false is the only new state.
+export const SIM_VERSION = 32;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -333,6 +339,14 @@ export interface WallPlan {
    * logs/saves ⇒ 'scappled' at plan time (the SIM-16/17 cost), byte-identical.
    */
   dressLevel: DressLevel;
+  /**
+   * THE SLEDGE ON ROLLERS (SIM 32): an OPT-IN heavy-block haul accelerant — the crew lays timber rollers
+   * under a sledge so a HAULED wall's won stone travels its route the faster (its delivered rate times
+   * ROLLER_HAUL_BOOST). Chosen per wall at plan time; absent in old logs/saves ⇒ false, and a false wall
+   * (or any 'local' un-hauled wall, which draws the pile directly) is byte-identical to before. The lift
+   * relieved the VERTICAL haul (up the wall); the sledge relieves the OVERLAND haul (across the ground).
+   */
+  rollers: boolean;
 }
 
 /**
@@ -616,6 +630,10 @@ export const LIFT_FREE_COURSES = 6; // courses a hand raises unaided (~1.5 m, at
 export const LIFT_PER_COURSE = 0.05; // extra lay-debt fraction per course above the free reach
 export const WHEEL_TIMBER = 8; // m³ a great wheel draws to be raised for a wall
 export const WHEEL_RELIEF = 0.25; // the wheel cuts the height penalty to this fraction
+// THE SLEDGE ON ROLLERS (SIM 32): the lift's OVERLAND twin. A hauled wall built on rollers moves its won
+// stone across the ground this many times faster — timber rollers under a sledge roughly double an
+// overland team's load (the ancients moved their greatest blocks so). Opt-in; a wall without it is unchanged.
+export const ROLLER_HAUL_BOOST = 2; // a rollers wall's delivered haul rate is multiplied by this
 
 export type HouseTier = 'hovel' | 'cottage' | 'hall';
 
@@ -801,6 +819,12 @@ export type Command =
        * looks up its cost in the DRESS_SPEC / DRESS_DRAW constant tables.
        */
       dressLevel?: DressLevel;
+      /**
+       * THE SLEDGE (SIM 32): true if this wall is hauled on rollers — the boundary's opt-in accelerant.
+       * Absent ⇒ false (byte-identical). Only a HAULED stone wall benefits; the sim ignores it on a local
+       * wall (no cart) and on timber. Coerced to a strict boolean at the boundary, like every hashed field.
+       */
+      rollers?: boolean;
     }
   | {
       kind: 'plan_fill';

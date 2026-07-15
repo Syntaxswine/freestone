@@ -348,7 +348,10 @@ async function boot(): Promise<void> {
   matBtn.textContent = '🪨 sandstone';
   const dressBtn = document.createElement('button');
   dressBtn.textContent = '⚒ dress: auto';
-  build2.append(fillBtn, gateBtn, matBtn, dressBtn);
+  const rollersBtn = document.createElement('button');
+  rollersBtn.textContent = '🛷 sledge: off';
+  rollersBtn.title = 'haul the next wall’s heavy stone on rollers — faster overland delivery (SIM 32)';
+  build2.append(fillBtn, gateBtn, matBtn, dressBtn, rollersBtn);
   build.after(build2);
   const build3 = document.createElement('div');
   const roofBtn = document.createElement('button');
@@ -602,7 +605,8 @@ async function boot(): Promise<void> {
         height,
         material,
         dressLevel,
-        ...(hv ? { haulRate: hv.haulRate, method: hv.method } : {}),
+        // rollers help only a HAULED wall (a sledge on the road); a local wall draws the pile directly
+        ...(hv ? { haulRate: hv.haulRate, method: hv.method, ...(planner.rollers ? { rollers: true } : {}) } : {}),
       });
     },
     onModeChange: (active, mode) => {
@@ -909,6 +913,9 @@ async function boot(): Promise<void> {
     d === 'auto' ? '⚒ dress: auto' : `⚒ ${d}`;
   dressBtn.onclick = () => {
     dressBtn.textContent = dressLabel(planner.cycleDress());
+  };
+  rollersBtn.onclick = () => {
+    rollersBtn.textContent = `🛷 sledge: ${planner.toggleRollers() ? 'on' : 'off'}`;
   };
   hMinus.onclick = () => planner.setHeight(planner.height - 0.5);
   hPlus.onclick = () => planner.setHeight(planner.height + 0.5);

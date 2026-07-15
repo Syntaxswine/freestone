@@ -15,6 +15,7 @@ import {
   COURSE_HEIGHT,
   LIFT_FREE_COURSES,
   LIFT_PER_COURSE,
+  ROLLER_HAUL_BOOST,
   WHEEL_RELIEF,
   WHEEL_TIMBER,
   DOOR_GAP_MAX,
@@ -544,6 +545,8 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         // a log with no frozen level replays byte-for-byte. A finite level scales
         // the lay debt (DRESS_SPEC) and the per-stone draw (DRESS_DRAW).
         dressLevel: cmd.dressLevel ?? 'scappled',
+        // THE SLEDGE (SIM 32): opt-in; a strict boolean into hashed state (absent/false ⇒ byte-identical)
+        rollers: cmd.rollers === true,
       };
       state.walls.push(wall);
       state.events.push({
@@ -1499,7 +1502,10 @@ function haulStone(state: WorldState): void {
     const draw = DRESS_DRAW[wall.dressLevel];
     const need = (wall.stonesTotal - wall.stonesLaid) * draw - wall.faceBuffer;
     if (need <= 0) continue;
-    const move = Math.min(wall.haulRate, state.stockpile, need);
+    // THE SLEDGE ON ROLLERS (SIM 32): a wall built on rollers moves its won stone across the ground the
+    // faster — its delivered rate is boosted. A wall without rollers hauls exactly as before (byte-identical).
+    const rate = wall.rollers ? wall.haulRate * ROLLER_HAUL_BOOST : wall.haulRate;
+    const move = Math.min(rate, state.stockpile, need);
     if (move <= 0) continue;
     state.stockpile -= move;
     wall.faceBuffer += move;

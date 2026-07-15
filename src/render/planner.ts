@@ -98,6 +98,12 @@ export class WallPlanner {
    * Frozen into plan_wall at confirm; timber ignores it.
    */
   dress: 'auto' | DressLevel = 'auto';
+  /**
+   * THE SLEDGE (SIM 32): the stone walls drawn next are hauled on ROLLERS — a heavy-block accelerant
+   * that speeds a HAULED wall's overland delivery. Frozen into plan_wall at confirm; a local/timber wall
+   * ignores it. A latching toggle, like the dress dial's override.
+   */
+  rollers = false;
   /** fill plans: a flat platform, or a ramp rising from the first-placed edge */
   fillShape: 'flat' | 'ramp' = 'flat';
   points: Vec2[] = [];
@@ -220,6 +226,12 @@ export class WallPlanner {
   cycleFillShape(): 'flat' | 'ramp' {
     this.fillShape = this.fillShape === 'flat' ? 'ramp' : 'flat';
     return this.fillShape;
+  }
+
+  /** toggle the SLEDGE (rollers) for the stone walls drawn next (SIM 32) */
+  toggleRollers(): boolean {
+    this.rollers = !this.rollers;
+    return this.rollers;
   }
 
   enter(): void {
