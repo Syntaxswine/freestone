@@ -82,7 +82,13 @@
 // is drawn until the first reckoning at tick 364), so it ships as one clean commit —
 // only simVersion + the milestone hashes move. Roadmap Beat 4; the specialization
 // pyramid's payoff (SIM 24 gave the smith a life, this gives him a purpose).
-export const SIM_VERSION = 27;
+// 28: THE APPRENTICE BOND — the smith's trade passes DOWN, not only in on the wind. When a
+// master smith already lives and another forge wants filling, the settlement's YOUNGEST hand is
+// raised to it (a local child come of age, reassigned — no new body); only with NO master to
+// learn from (the first smith, or after the last master dies) does a journeyman MIGRATE in. The
+// `origin` on the arrival event ('apprentice' | 'migrant') carries the lineage for the chronicle.
+// All in livingYear §4 — INERT on the 200-tick canon (never reckoned there), so one clean commit.
+export const SIM_VERSION = 28;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -899,7 +905,7 @@ export type SimEvent =
    * THE SPECIALIST (SIM 24): a settlement varied enough drew a tradesperson to a
    * workshop it holds — the first is the smith, to the blacksmith.
    */
-  | { kind: 'specialist_arrived'; tick: number; personId: number; name: string; trade: 'smith' }
+  | { kind: 'specialist_arrived'; tick: number; personId: number; name: string; trade: 'smith'; origin: 'apprentice' | 'migrant' }
   /**
    * THE GRAIN STOCK (SIM 22): the year's harvest reckoned — produced (weather-varied),
    * eaten by the mouths, and what stands in the store after (a lean year draws it down).

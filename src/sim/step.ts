@@ -1224,16 +1224,43 @@ function livingYear(state: WorldState): void {
     smithies >= 1 && countVariety(state) >= VARIETY_FOR_SMITH && state.people.length >= SMITH_MIN_POP;
   const smiths = state.people.reduce((n, p) => (p.trade === 'smith' ? n + 1 : n), 0);
   if (baseHolds && smiths < smithies) {
-    const p = newAdult(state, rng, state.tick);
-    p.trade = 'smith';
-    state.people.push(p);
-    state.events.push({
-      kind: 'specialist_arrived',
-      tick: state.tick,
-      personId: p.id,
-      name: p.name,
-      trade: 'smith',
-    });
+    // THE APPRENTICE BOND (SIM 28): the trade passes DOWN when there is a master to teach it.
+    // If a smith already lives, the settlement's YOUNGEST hand is raised to the forge under the
+    // master — a local lineage, no new body, one of your own reassigned. Only with NO master to
+    // learn from (the FIRST smith, or after the last master has died) does a journeyman MIGRATE
+    // in. The path taken rides on the event's `origin` so the chronicle can tell one from the other.
+    let apprentice: Person | null = null;
+    if (smiths >= 1) {
+      for (const p of state.people) {
+        // the youngest adult laborer — a child of the settlement newly come of age is the
+        // apprentice (largest bornTick = youngest); specialists and children are never drawn.
+        if (p.trade !== 'laborer' || !isAdult(p, state.tick)) continue;
+        if (apprentice === null || p.bornTick > apprentice.bornTick) apprentice = p;
+      }
+    }
+    if (apprentice) {
+      apprentice.trade = 'smith'; // raised from within, the master's hand on the youngster's
+      state.events.push({
+        kind: 'specialist_arrived',
+        tick: state.tick,
+        personId: apprentice.id,
+        name: apprentice.name,
+        trade: 'smith',
+        origin: 'apprentice',
+      });
+    } else {
+      const p = newAdult(state, rng, state.tick); // a journeyman on the migration wind
+      p.trade = 'smith';
+      state.people.push(p);
+      state.events.push({
+        kind: 'specialist_arrived',
+        tick: state.tick,
+        personId: p.id,
+        name: p.name,
+        trade: 'smith',
+        origin: 'migrant',
+      });
+    }
   }
 }
 

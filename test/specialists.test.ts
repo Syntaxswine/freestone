@@ -48,6 +48,14 @@ const adult = (id: number): Person => ({
 });
 const smiths = (w: ReturnType<typeof fresh>): number =>
   w.people.reduce((n, p) => (p.trade === 'smith' ? n + 1 : n), 0);
+/** the origin ('apprentice' | 'migrant') of the most recently drawn smith, or null (SIM 28) */
+function lastOrigin(w: ReturnType<typeof fresh>): string | null {
+  for (let i = w.events.length - 1; i >= 0; i--) {
+    const e = w.events[i]!;
+    if (e.kind === 'specialist_arrived') return e.origin; // control-flow narrows to the arrival
+  }
+  return null;
+}
 
 describe('the specialist (SIM 24)', () => {
   it('a varied, populous settlement with a blacksmith draws a smith', () => {
@@ -94,5 +102,30 @@ describe('the specialist (SIM 24)', () => {
     stepN(w, TICKS_PER_YEAR * 2); // two hungry reckonings
     expect(w.events.some((e) => e.kind === 'person_left')).toBe(true); // hunger emptied the fields' hands
     expect(smiths(w)).toBe(1); // but the smith stayed — rooted, and no new one drawn without the base
+  });
+});
+
+describe('the apprentice bond (SIM 28)', () => {
+  it('the first smith always MIGRATES — there is no master to learn the trade from', () => {
+    const w = fresh('appr');
+    w.people = Array.from({ length: 8 }, (_, i) => adult(100 + i));
+    w.farms = [farm(1, 'farm'), farm(2, 'pasture')]; // variety 3 with the smithy
+    w.buildings = [blacksmith(10)];
+    stepN(w, TICKS_PER_YEAR); // one reckoning
+    expect(smiths(w)).toBe(1);
+    expect(lastOrigin(w)).toBe('migrant'); // a journeyman on the wind, not raised from within
+  });
+
+  it('under a living master, a second forge raises the trade from WITHIN (an apprentice)', () => {
+    const w = fresh('appr');
+    w.people = [
+      { ...adult(200), trade: 'smith' }, // an established MASTER at the first forge
+      ...Array.from({ length: 9 }, (_, i) => adult(100 + i)), // and nine local hands to raise from
+    ];
+    w.farms = [farm(1, 'farm'), farm(2, 'pasture')]; // variety 3
+    w.buildings = [blacksmith(10), blacksmith(11)]; // TWO forges: one held, one open
+    stepN(w, TICKS_PER_YEAR); // one reckoning fills the open forge
+    expect(smiths(w)).toBe(2);
+    expect(lastOrigin(w)).toBe('apprentice'); // the trade passed DOWN under the master, not imported
   });
 });
