@@ -13,6 +13,10 @@ import {
   CART_HAUL,
   CART_UPKEEP,
   COURSE_HEIGHT,
+  LIFT_FREE_COURSES,
+  LIFT_PER_COURSE,
+  WHEEL_RELIEF,
+  WHEEL_TIMBER,
   DOOR_GAP_MAX,
   FOUNDING_CAPACITY,
   FOUNDING_SHELTER,
@@ -517,6 +521,7 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
         material: cmd.material ?? 'sandstone', // old logs/saves carry no material
         gates,
         infill: [],
+        wheel: false, // THE LIFT (SIM 26): a great wheel is raised only when the wall climbs high
         plans: rc?.kind === 'building' ? { roof: null, kind: null } : null,
         levelTop: survey.levelTop,
         courses: survey.courses,
@@ -1478,10 +1483,31 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         (w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w) && supplied(w),
       );
       if (!wall) return;
-      // where the next stone lands (its COURSE decides the lift cost in SIM 26)
+      // where the next stone lands (its COURSE decides the lift cost, SIM 26)
       const decomp = decomposeWall(wall.points, wall.height, wall.gates);
       const pick = pickSlot(wall, decomp.slots);
       if (!pick) break; // unreachable past the laid<total check
+      // THE LIFT (SIM 26): a stone raised high costs more of the mason's day. A wood
+      // palisade is set, not stacked, and takes no lift. A stone wall climbing past the
+      // free reach raises a GREAT WHEEL if the woodpile can build one (drawing
+      // WHEEL_TIMBER), and the wheel then relieves the penalty to WHEEL_RELIEF of itself.
+      let liftMult = 1;
+      if (wall.material !== 'wood') {
+        const above = pick.course - LIFT_FREE_COURSES;
+        if (above > 0) {
+          if (!wall.wheel && state.timber >= WHEEL_TIMBER) {
+            state.timber -= WHEEL_TIMBER;
+            wall.wheel = true;
+            state.events.push({
+              kind: 'wheel_raised',
+              tick: state.tick,
+              wallId: wall.id,
+              timber: WHEEL_TIMBER,
+            });
+          }
+          liftMult = 1 + above * LIFT_PER_COURSE * (wall.wheel ? WHEEL_RELIEF : 1);
+        }
+      }
       // a laid unit spends its supply: a WOOD post draws TIMBER_PER_POST from the
       // global timber stock (SIM 19 — the palisade is no longer free; the generous
       // fell yield rewarded the winning); a STONE spends its dress DRAW from wherever
@@ -1498,7 +1524,7 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];
       }
       layOneStone(state, site, rng, wall, person.id, pick, decomp.spacing);
-      quota -= DRESS_SPEC[wall.dressLevel].layDebt;
+      quota -= DRESS_SPEC[wall.dressLevel].layDebt * liftMult; // the LIFT taxes the mason's day (SIM 26)
     }
   }
 }

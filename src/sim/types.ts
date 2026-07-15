@@ -74,7 +74,7 @@
 // each), so the food capacity reads the granaries beside the arable. Grounds §4's
 // soul (the granary embodies mutual aid AND is the population engine, one object)
 // and gives the cart a place to carry grain TO. Step 3a of the pyramid arc.
-export const SIM_VERSION = 25;
+export const SIM_VERSION = 26;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -287,6 +287,13 @@ export interface WallPlan {
   haulRate: number | null;
   faceBuffer: number;
   method: HaulMethod;
+  /**
+   * THE LIFT (SIM 26): a GREAT WHEEL has been raised for this wall — a timber
+   * treadwheel crane that relieves the height penalty on its upper courses. Set true
+   * the first time the wall climbs past the free reach WITH the timber to build one
+   * (it draws WHEEL_TIMBER); stays raised. Absent in old logs ⇒ false, byte-identical.
+   */
+  wheel: boolean;
   /**
    * THE DRESS LEVEL (SIM 18), frozen at plan time: how finely this wall's stone
    * is worked (DRESS_LEVELS). Sets the LAY DEBT (mason-days per stone, DRESS_SPEC)
@@ -535,6 +542,21 @@ export const HOVEL_SHELTER = 3;
 export const COTTAGE_SHELTER = 6;
 export const HALL_SHELTER = 12; // souls each tier houses
 export const RETENTION_MAX = 0.6; // a fully-housed settlement loses this fraction fewer to hunger
+
+/**
+ * THE LIFT (SIM 26, step 5 — the final course): a stone laid high up costs more of the
+ * mason's day than one laid at the foot, for the block must be RAISED. Courses up to
+ * LIFT_FREE_COURSES are free (a hand can lift to shoulder height); above that the lay
+ * debt grows LIFT_PER_COURSE per course. A GREAT WHEEL — a timber treadwheel crane —
+ * relieves it: the first time a wall climbs past the free reach WITH the wood to raise
+ * one, it draws WHEEL_TIMBER and cuts the penalty to WHEEL_RELIEF of itself thereafter.
+ * So the wall reaches higher, faster, at the price of the woods — the generational
+ * factory's last gear. (Wood palisades are set, not stacked, and take no lift.)
+ */
+export const LIFT_FREE_COURSES = 6; // courses a hand raises unaided (~1.5 m, at 0.25 m/course)
+export const LIFT_PER_COURSE = 0.05; // extra lay-debt fraction per course above the free reach
+export const WHEEL_TIMBER = 8; // m³ a great wheel draws to be raised for a wall
+export const WHEEL_RELIEF = 0.25; // the wheel cuts the height penalty to this fraction
 
 export type HouseTier = 'hovel' | 'cottage' | 'hall';
 
@@ -823,6 +845,8 @@ export type SimEvent =
   | { kind: 'wall_planned'; tick: number; wallId: number; stonesTotal: number }
   | { kind: 'stone_laid'; tick: number; stoneId: number; wallId: number; masonId: number }
   | { kind: 'wall_complete'; tick: number; wallId: number }
+  /** THE LIFT (SIM 26): a great wheel was raised for a wall climbing past the free reach */
+  | { kind: 'wheel_raised'; tick: number; wallId: number; timber: number }
   | { kind: 'fill_planned'; tick: number; fillId: number; volumeTotal: number }
   | { kind: 'fill_complete'; tick: number; fillId: number }
   /** a quarry is marked out — the crew will dig it at the strata's pace (SIM 14) */

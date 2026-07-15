@@ -1150,11 +1150,13 @@ async function boot(): Promise<void> {
       : cartBehind
         ? `⚒ waits on the cart (${cartBehind.method})`
         : 'the masons lay';
+    // THE LIFT (SIM 26): a great wheel is turning at a wall climbing high
+    const wheeling = stoneWalls.some((w) => w.wheel && w.stonesLaid < w.stonesTotal);
     const supply = !hasStoneEconomy
       ? ''
       : stoneWalls.length === 0
         ? ` — won ${Math.round(world.stockpile)} m³`
-        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ${bind}`;
+        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ${bind}${wheeling ? ' · ⚙ the great wheel turns' : ''}`;
     // THE WOODS read (SIM 19): the timber stock, and the coppice's return clock
     const felling = world.stands.filter((s) => s.felling).length;
     const regrowing = world.stands.filter((s) => !s.felling && s.feltTick >= 0);
