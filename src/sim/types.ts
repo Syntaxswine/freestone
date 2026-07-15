@@ -74,7 +74,7 @@
 // each), so the food capacity reads the granaries beside the arable. Grounds §4's
 // soul (the granary embodies mutual aid AND is the population engine, one object)
 // and gives the cart a place to carry grain TO. Step 3a of the pyramid arc.
-export const SIM_VERSION = 24;
+export const SIM_VERSION = 25;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -518,6 +518,38 @@ export const HUNGER_LEAVE_RATE = 0.12; // fraction who emigrate per year of hung
  */
 export const VARIETY_FOR_SMITH = 3; // distinct tenants + workshops before a smith is drawn
 export const SMITH_MIN_POP = 6; // souls before the settlement can spare one for a trade
+
+/**
+ * HOUSING QUALITY (SIM 25, step 4): a house is a HOVEL, a COTTAGE, or a HALL — its TIER
+ * read from its floor and its roof (size sets the base; a mean roof, thatch or none,
+ * knocks a grand floor down a notch, for a great hall needs both the room AND a fine roof
+ * over it). Better housing SHELTERS more and HOLDS its people: a well-housed settlement
+ * loses far fewer souls to a hard year. What you build for your people is legible in the
+ * roofline, not just the count. (Shelter as a hard growth CAP is a later, tuned bump; today
+ * its effect is retention.)
+ */
+export const COTTAGE_AREA = 30; // m² of floor: at/above this a house is a cottage, not a hovel
+export const HALL_AREA = 80; // m²: at/above this, with a fine roof, it is a hall
+export const FOUNDING_SHELTER = 4; // souls the founders' first roofs shelter, before any house
+export const HOVEL_SHELTER = 3;
+export const COTTAGE_SHELTER = 6;
+export const HALL_SHELTER = 12; // souls each tier houses
+export const RETENTION_MAX = 0.6; // a fully-housed settlement loses this fraction fewer to hunger
+
+export type HouseTier = 'hovel' | 'cottage' | 'hall';
+
+/** A house's tier from its floor area and roof — the shared sim/render derivation. */
+export function houseTier(area: number, roof: BuildingRoof): HouseTier {
+  const bySize: HouseTier = area >= HALL_AREA ? 'hall' : area >= COTTAGE_AREA ? 'cottage' : 'hovel';
+  if (roof !== 'none' && roof !== 'straw') return bySize; // a fine roof keeps the size-tier
+  // a mean roof (thatch or open) knocks the tier down one notch
+  return bySize === 'hall' ? 'cottage' : 'hovel';
+}
+
+/** Souls a house of this tier shelters. */
+export function tierShelter(tier: HouseTier): number {
+  return tier === 'hall' ? HALL_SHELTER : tier === 'cottage' ? COTTAGE_SHELTER : HOVEL_SHELTER;
+}
 
 /**
  * Enclosure recognition thresholds (SCOPE §6 — the plot is the plan). A wall's

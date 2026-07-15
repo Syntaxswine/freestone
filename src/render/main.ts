@@ -47,6 +47,7 @@ import {
   FOUNDING_STORAGE,
   GRANARY_STORAGE,
   GROWTH_THRESHOLD,
+  houseTier,
   REGROWTH_TICKS,
   TICKS_PER_YEAR,
   TIMBER_PER_TREE,
@@ -1188,12 +1189,31 @@ async function boot(): Promise<void> {
       ` — harvest ${Math.round(fieldYield)} mouths (${surplus.toFixed(2)}× ${foodState})` +
       ` — grain ${Math.round(world.grain)}/${grainCap}` +
       (nCarts ? ` — ${nCarts} cart${nCarts > 1 ? 's' : ''}` : '');
+    // housing by tier (SIM 25) — legible in the count as well as the roofline
+    let nHovel = 0;
+    let nCottage = 0;
+    let nHall = 0;
+    for (const b of world.buildings) {
+      if (b.kind !== 'house') continue;
+      const tier = houseTier(b.area, b.roof);
+      if (tier === 'hall') nHall++;
+      else if (tier === 'cottage') nCottage++;
+      else nHovel++;
+    }
+    const housing = [
+      nHall ? `${nHall} hall${nHall > 1 ? 's' : ''}` : '',
+      nCottage ? `${nCottage} cottage${nCottage > 1 ? 's' : ''}` : '',
+      nHovel ? `${nHovel} hovel${nHovel > 1 ? 's' : ''}` : '',
+    ]
+      .filter(Boolean)
+      .join(', ');
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
       (nPasture ? ` — pasture ${nPasture}` : '') +
       (nOrchard ? ` — orchards ${nOrchard}` : '') +
       (nFallow ? ` — fallow ${nFallow}` : '') +
+      (housing ? ` — ${housing}` : '') +
       (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
       (nQuarries ? ` — quarries ${nQuarries}` : '') +
       supply +

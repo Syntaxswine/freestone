@@ -15,9 +15,13 @@ import {
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
   FOUNDING_CAPACITY,
+  FOUNDING_SHELTER,
   FOUNDING_STORAGE,
   GRANARY_STORAGE,
   GROWTH_FULL,
+  RETENTION_MAX,
+  houseTier,
+  tierShelter,
   GROWTH_THRESHOLD,
   HUNGER_LEAVE_RATE,
   MIGRANTS_PER_YEAR_FULL,
@@ -1182,9 +1186,19 @@ function livingYear(state: WorldState): void {
   // HUNGER — souls leave for another manor (the boss: "really bad, like starvation,
   // and they leave"), but ONLY when the store couldn't cover the shortfall either
   // (effectiveS < 1). One soul always holds on — the settlement never empties here.
-  // SPECIALISTS never leave: their trade is rooted to the base (SIM 24).
+  // SPECIALISTS never leave: their trade is rooted to the base (SIM 24). And HOUSING HOLDS
+  // people (SIM 25): a well-sheltered settlement loses far fewer to a hard year — the shelter
+  // its houses give (by tier), over the mouths, softens the leave rate up to RETENTION_MAX.
   if (effectiveS < 1.0) {
-    let leaving = state.people.filter((p) => p.trade !== 'smith' && rng.float() < HUNGER_LEAVE_RATE);
+    const shelter =
+      FOUNDING_SHELTER +
+      state.buildings.reduce(
+        (n, b) => (b.kind === 'house' ? n + tierShelter(houseTier(b.area, b.roof)) : n),
+        0,
+      );
+    const housed = Math.min(1, shelter / mouths);
+    const leaveRate = HUNGER_LEAVE_RATE * (1 - RETENTION_MAX * housed);
+    let leaving = state.people.filter((p) => p.trade !== 'smith' && rng.float() < leaveRate);
     if (leaving.length >= state.people.length) leaving = leaving.slice(0, state.people.length - 1);
     const gone = new Set(leaving.map((p) => p.id));
     for (const p of leaving) {
