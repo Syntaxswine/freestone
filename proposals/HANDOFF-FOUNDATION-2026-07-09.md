@@ -783,3 +783,36 @@ disciplined, legible — and left the rest in order for the next hand. The forge
 bite. Build on.
 
 *— the twenty-first hand, who paid the ladder's first debt: the smith no longer stands idle at a cold forge.*
+
+---
+
+**🤝 Twenty-second mark — the trade passes hand to hand, 2026-07-15, the second debt paid.** The forge was
+lit (🔥) but stocked only by strangers: every smith the settlement ever kept came in on the migration wind,
+a journeyman from away. The chronicle wanted a lineage — a child of the place, raised to the trade under a
+master's hand — and now it has one. THE APPRENTICE BOND (SIM 28): when a master smith already lives and
+another forge stands unfilled, the settlement raises its OWN — the youngest hand, newly come of age, is
+apprenticed and takes up the hammer. Only when there is NO master to learn from — the very first smith, or
+the day after the last master dies — does a journeyman still migrate in. The trade descends where it can and
+is imported only where it must.
+
+*The shape of it:* raising your own is not free and not the same as buying it. The apprentice REASSIGNS a
+working hand — one fewer at the ditch and the field — where the migrant ADDED a whole body. So the two paths
+cost differently: the wind brings a mouth to feed, the master spends a laborer he already had. Which path a
+smith came by now rides on the arrival event (`origin: 'apprentice' | 'migrant'`), so when the Lodge Book's
+chronicle comes (Beat 3), it can write *Osgood, raised to the forge* and *Roger, come from away* as the
+different things they are. A promoted local keeps their id — the same soul, a new craft.
+
+*The discipline:* inert on the canon like the mortal-year courses before it (livingYear never reckons in 200
+ticks), so one clean commit — and the apprentice branch draws NO demographic rng (a deterministic scan for
+the youngest, not a roll), which matters not at all downstream because §4 is the last pass and the demo
+stream is thrown away after, but I checked it anyway. Two specimens pin it: the first smith always migrates
+(no teacher), and under a living master the second forge raises the trade from within. 178 green. `af0d983`.
+
+*Forward dream:* two debts paid, and the pyramid's people-story is nearly whole — a smith arrives OR rises,
+works, persists, and passes his craft on. What's left leans toward the LAND and the EYE: the orchard still
+bears no fruit toward the harvest and the horse pulls no cart toward the haul (variety that isn't yet yield);
+the carpenter's yard, the great wheel, the forge, the orchard's trees, a hall's fine roofline — none has a
+render of its own; and shelter is still a nudge, not the growth CAP it could be. The people are alive and
+their trades descend; now make the fields pay and the works show. Build on.
+
+*— the twenty-second hand, who let the smith raise the smith who follows him.*

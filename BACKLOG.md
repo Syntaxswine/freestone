@@ -26,13 +26,16 @@ renewable-into-renewable loop (SIM 23 `ca05631`); **3c** the VARIETY TENANTS pas
 `ecf0910`); **step 5** THE LIFT — high courses cost more, a great wheel drawing timber relieves them,
 on the two-commit discipline (A `b58fb5a` + B SIM 26 `90c404d`). **POST-ARC (2026-07-15, continuing): the
 boss reopened the closed arc — *keep going till we knock off the items in the handoff* — so the honest debts
-are being discharged in order.** **DONE: the smith's PRODUCTION EFFECT — THE FIRST TECHNIQUE (SIM 27
-`89c88f1`, the 🔥 21st mark):** a smith at the forge relieves the mason's lay debt (0.15/smith, cap 0.30),
-riding the very line the lift taxes; inert on the canon (no smith drawn in 200 ticks) → one clean commit,
-not the two-commit dance; HUD says *the forge sharpens the irons*. **TWENTY-ONE maker's marks
-(⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥) + two ⛬ seals; 176 tests green; live.** Debts still standing (none blocking): no
-local-apprentice path, orchard/horse are variety-not-yield, no carpenter's-yard/wheel/forge render, shelter
-is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
+are being discharged in order.** **DONE: (1) THE FIRST TECHNIQUE (SIM 27 `89c88f1`, 🔥)** — a smith at the
+forge relieves the mason's lay debt (0.15/smith, cap 0.30), riding the very line the lift taxes; HUD says
+*the forge sharpens the irons*. **(2) THE APPRENTICE BOND (SIM 28 `af0d983`, 🤝)** — under a living master a
+second forge raises the settlement's youngest hand (a local, no new body) instead of importing a journeyman;
+only the first smith (or one after the last master dies) migrates; arrival event gains
+`origin: apprentice|migrant` for the chronicle. Both inert on the canon (livingYear never reckons in 200
+ticks) → one clean commit each, NOT the two-commit dance (the lesson: check whether the canon RUNS the
+feature first). **TWENTY-TWO maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝) + two ⛬ seals; 178 tests green; live.**
+Debts still standing (none blocking): orchard/horse are variety-not-yield, no carpenter's-yard/wheel/forge
+render, shelter is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the
