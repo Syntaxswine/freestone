@@ -43,10 +43,13 @@ the yard (`4d5a193`, workshops.ts); verified via the receiver-trick (green/russe
 migrants), so population settles at min(food, shelter); a no-house hamlet caps at ~FOUNDING_SHELTER +
 SHELTER_GROWTH_SLACK (~10). The century-sweep now HOUSES its settlements so it still tunes FOOD; the food
 equilibrium re-verified intact (cap 20→20, cap 50→51). Inert on canon → one commit.
-**TWENTY-FIVE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘) + two ⛬ seals; 181 tests green; live.**
-Debts still standing (none blocking): the render pass's remainder (GREAT WHEEL on tall walls, HALL roofline,
-distinct SMITH sprite — want a steady preview),
-step-5 rollers/sledge (heavy-block haul accelerant, likely two-commit) + weather-shape (small polish). The PRIOR
+**(6) WEATHER SHAPED (SIM 31 `0bd6bb6`, 🌦)** — the harvest's yearly weather is now the MEAN of two uniform
+rolls (triangular, peaked at 1.0), so the extreme famine/glut years grow rarer without shifting the mean;
+the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one commit; +1 distributional test.
+**TWENTY-SIX maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦) + two ⛬ seals; 182 tests green; live.** **ALL SIX SIM
+DEBTS PAID (SIM 27–31 + the render pass).** Debts still standing (none blocking): the render pass's remainder
+(GREAT WHEEL on tall walls, HALL roofline, distinct SMITH sprite — want a steady preview),
+step-5 rollers/sledge (heavy-block haul accelerant, the ONE debt touching the canon → likely TWO-commit). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the

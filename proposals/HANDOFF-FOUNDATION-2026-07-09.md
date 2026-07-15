@@ -909,3 +909,34 @@ lowest priority). The settlement is now bounded by field AND roof, its people al
 down. Raise the wheel where a hand can see it, and let the heavy stone ride a sledge. Build on.
 
 *— the twenty-fifth hand, who bound the settlement's growth to its roofs, and kept the food equilibrium true.*
+
+---
+
+**🌦 Twenty-sixth mark — the harvest's luck runs kinder, 2026-07-15, the last sim debt.** The smallest of the
+debts, and the one I took last, because it only earns its keep once the others are laid: WEATHER SHAPED (SIM
+31). The year's weather — the multiplier that makes a harvest fat or lean — was drawn FLAT across its bounds,
+so a killing frost was exactly as likely as a gentle year. Now it is the MEAN of two such rolls, a triangular
+curve peaked at the middle: the average is unmoved, but the ordinary years crowd toward it and the ruinous
+extremes grow rare. The debt was scoped *lowest priority, only if the churn reads harsh* — and it does now,
+because SIM 30 gave the demographics a second wall (the roof) to press against, and the century-sweep reads
+real bleeding (a capacity-50 town sheds near a hundred souls to hunger across a century, dealt by the deep
+famines a flat die throws too often). Peaking the weather thins exactly those killing years, a gentler curve
+that still needs the granary — the harvest is shaped, not FIXED.
+
+*The discipline:* inert on the canon like every livingYear course, one clean commit, only simVersion and the
+hashes moved. A distribution can't be read from one year, so the specimen reads MANY (150 years × 4 seeds):
+the mean holds at the midpoint, the outer-fifth years fall below a fifth of the run where a flat die would put
+two-fifths, and the range still spans — the mildest and harshest years still come, just seldom. 182 green.
+`0bd6bb6`.
+
+*Forward dream:* **every SIM debt of the post-arc knockoff is now paid** — the smith works and passes his
+craft down (🔥🤝), the land's variety feeds and carries (🍎), the roof bounds the people (🏘), and the weather
+is kind in the ordinary run (🌦) — and the render pass is begun (🎨). Two things remain, and both want what
+this session lost: a STEADY EYE. The render REMAINDER — the great wheel most of all, still turning unseen on
+its tall walls, and the hall's finer roofline, and the smith's own sprite — needs a preview that doesn't
+flicker. And the heavy-block ROLLERS/SLEDGE (the lift's scoped twin, a haul accelerant) is the one debt that
+touches the canon's hauled walls, so it wants the TWO-commit discipline and a clear head, not the tail of a
+long day. The machine is whole in its logic; what is left is to make it SEEN and to let the heavy stone ride.
+Build on.
+
+*— the twenty-sixth hand, who paid the last of the sim debts and left the wheel and the sledge for a clearer eye.*
