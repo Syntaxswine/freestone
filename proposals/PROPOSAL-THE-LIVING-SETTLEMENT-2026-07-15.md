@@ -260,8 +260,10 @@ headcount*, because a richer base is a bigger internal market.
 **Two input axes** (distinct from the population engine's quantity axis):
 
 - **Food/economic VARIETY** — distinct kinds of production present: crops, livestock, horses,
-  later an orchard, a fishpond, a mill, a wood. (The shipped designation grammar —
-  farm/livestock/fallow — is already the input; it grows a few tenants.)
+  later an orchard, a mill, a wood. (The shipped designation grammar — farm/livestock/fallow —
+  is already the input; it grows two new tenants — **horse pasture** and **an orchard** — as
+  step 3's variety types. The **fishpond is cut** (boss, 2026-07-15): a lord's stew-pond
+  amenity that wants standing water, more manorial-luxury than base-layer.)
 - **Housing QUALITY** — discrete tiers **hovel → cottage → hall** (the prosperity-decor canon
   §8c made *functional* instead of cosmetic; a specialist won't live in a hovel).
 
@@ -491,18 +493,26 @@ the ice-haul 46 vs ~330 men / ~7× (PMC3864354); the fast-forward patterns (CK3 
 announcement tiers, Timberborn weather cycle, Against the Storm frozen-impatience). Full digests
 in the session's four research workflows.
 
-## 12. Open questions for the boss
+## 12. Open questions — RESOLVED (boss, 2026-07-15: "complete the tasks that were scoped out")
 
-1. **The name** — *the living settlement* is my working title; if the arc is still "the woods" in
-   your head I'll anchor the doc there instead. (The systems don't change either way.)
-2. **Build order** — ship the woods first (SIM 19) and layer the population engine behind it, or
-   treat step 1+2 as one coupled "the living year begins" release (since the woods' regrowth is a
-   clock ticking against generations that don't exist until step 2)?
-3. **Migration's source** — where do newcomers come from narratively (other manors, the bishop's
-   estates), and is there a cap, or does housing+food alone bound it?
-4. **Food variety** — build the new farm types the pyramid wants (horse pasture, orchard,
-   fishpond) as part of step 3, or start the variety axis with only the shipped
-   farm/livestock/fallow and grow it later?
+The boss's directive to **build the whole ladder in order** settles the three that gated the first
+hammer; all four are now decisions of record, revisable but not blocking:
+
+1. **The name — keep *the living settlement*.** The doc anchors here; "the woods" stays the name of
+   step 1, its first and load-bearing arc. (The systems don't change either way.)
+2. **Build order — the §9 ladder in order, starting step 0.** Not "woods first then population"
+   vs. "one coupled release" but *both, sequenced*: step 0 (the year clock + Sit-the-Season) is the
+   prerequisite that makes any generational clock watchable, so it ships first and SIM-neutral;
+   then step 1 THE WOODS (SIM 19); then step 2 the living population it is measured against. Each
+   step is its own ship with a handoff + keystone between (the goal's own rule).
+3. **Migration's source — the bishop's estates and the neighbouring manors,** bounded by **food
+   surplus × housing capacity** (no separate hard cap in the early game; §4's two dials *are* the
+   bound). A soft **reach** gate arrives only at the pyramid's apex (§5 — the horse-buyer's 300 km),
+   never at the base. Revisit if the century-sweep shows runaway influx.
+4. **Food variety — build the new farm types as variety tenants: horse pasture and an orchard**
+   as part of step 3; the **fishpond is cut**. Crops, livestock, and fallow are shipped; horses +
+   orchard are the new designations the pyramid's variety axis reads. (Further types — a mill, the
+   wood-pasture/coppice — arrive with their own systems.)
 
 ---
 
