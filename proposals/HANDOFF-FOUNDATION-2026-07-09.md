@@ -753,3 +753,33 @@ cut; make them bite. Build on.
 
 *— the eleventh-through-twentieth hand, who laid the living settlement's foundation and then, the same
 day the seal was meant to close it, built the whole ladder that stands on it.*
+
+---
+
+**🔥 Twenty-first mark — the forge is lit, 2026-07-15, a new hand, the first debt paid.** The second seal
+had barely dried when the boss said, again, *keep going till we knock off the items in the handoff.* So I
+took the debts the ladder left in the order the STANDS keystone set them, and the first was the truest: the
+smith the mixed fields draw (the twentieth day's 🔨) STOOD at his forge but did no WORK. Now he does. THE
+FIRST TECHNIQUE (SIM 27): a smith at the forge keeps the crew's edge tools — the mason's chisel, the
+carpenter's adze — sharp and tempered, and sharp irons dress and lay stone faster. His PRESENCE is the
+multiplier: each smith relieves the mason's lay debt by a sixth, saturating at a third, so tools speed the
+work but can never do it (two forges reach the cap; a fifth adds nothing). It rides the very line the lift
+taxes — `layDebt * liftMult * smithMult` — the wheel and the forge stacking on one mason's day.
+
+*The discipline of it:* this touches the masonry the whole game rests on, and yet it is NOT the two-commit
+dance the lift needed — because the smith is never drawn in the 200-tick canon (the first reckoning is at
+tick 364, past the canon's end), the relief is provably INERT there. The regen moved only `simVersion`
+26→27 and the milestone hashes, zero value-field diffs — so it ships as one clean commit (Law 3), and the
+knowing of WHICH law applies is the craft. Three red specimens pin it: the smith finishes the wall sooner,
+the relief saturates at the cap, and it composes with the lift. 176 tests green, and the masonry HUD now
+says *the forge sharpens the irons* while stone is laid, so the player SEES the technique bite (a
+render-upgrade must be visible). `89c88f1`.
+
+*Forward dream:* the smith works, but the debts are not spent. The apprentice still never rises — only the
+migrant smith comes, and the chronicle wants a local child raised under a master. The orchard bears no fruit
+toward the harvest and the horse pulls no cart toward the haul. The carpenter's yard and the great wheel and
+the forge itself have no render of their own. I paid the first debt the way the ladder was built — accurate,
+disciplined, legible — and left the rest in order for the next hand. The forge is lit. Make the next gear
+bite. Build on.
+
+*— the twenty-first hand, who paid the ladder's first debt: the smith no longer stands idle at a cold forge.*

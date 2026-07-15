@@ -5,7 +5,14 @@ the "it is done, here is the map forward" companion to the in-progress build led
 [HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md)
 (read that for the per-step detail — this doc does not duplicate it). Read the FOUNDATION keystone
 [HANDOFF-FOUNDATION-2026-07-09.md](HANDOFF-FOUNDATION-2026-07-09.md) FIRST — the soul, the nine laws,
-now **twenty maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙) and **two ⛬ seals**; add yours BELOW, never above.*
+now **twenty-one maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥) and **two ⛬ seals**; add yours BELOW, never above.
+The twenty-first mark (🔥 THE FIRST TECHNIQUE, SIM 27) sits below the second seal — the arc closed, then
+the debt-knockoff began.*
+
+> **Post-arc (2026-07-15, continuing):** the boss reopened the closed arc — *keep going till we knock off
+> the items in the handoff* — so the "honest debts" below are now being discharged in order. **Done so far:
+> the smith's production effect** (THE FIRST TECHNIQUE, SIM 27, `89c88f1`; see the 🔥 mark). The rest of the
+> debts stand as written.
 
 ---
 
@@ -86,9 +93,11 @@ carries its own list; this is the consolidated view, mapped to the master plot
 [ROADMAP-THE-GENERATIONAL-FACTORY-2026-07-14.md](ROADMAP-THE-GENERATIONAL-FACTORY-2026-07-14.md).
 
 **Immediate follow-ons to what just shipped:**
-- **The smith's PRODUCTION EFFECT** — the smith exists and persists but does no WORK yet. Wiring it to
-  the DRESS lay-debt (a smith speeds the dressing/laying) IS the roadmap's Beat-4 *First Technique*, and
-  it touches the masonry → its own two-commit bump. The single most natural next course.
+- ~~**The smith's PRODUCTION EFFECT**~~ — ✅ **DONE (SIM 27, `89c88f1`, the 🔥 mark).** The smith now speeds
+  the dress: his presence relieves the mason's lay debt (0.15/smith, cap 0.30), riding the same line the
+  lift taxes. It turned out NOT to need the two-commit dance — no smith is drawn in the 200-tick canon, so
+  the relief is inert there and shipped as one clean commit (the lesson: check whether the canon actually
+  runs the feature before assuming a masonry change needs the split).
 - **The local-apprentice EMERGE path** — only the migrant smith comes; raising a smith from a local
   child under a master is the lineage the chronicle wants (roadmap Beat 4's apprentice bond).
 - **Renders left plain**: the carpenter's yard and the great wheel have no geometry of their own; the
@@ -119,10 +128,12 @@ carries its own list; this is the consolidated view, mapped to the master plot
 
 ## Where I'd start (a recommendation, not a mandate)
 
-If the goal stays *deepen the generational factory*, the cleanest next course is **the smith's First
-Technique** — the smith already stands at his forge; give him something to DO (speed the dress), on the
-two-commit discipline the lift just modelled. It closes the loop the specialization pyramid opened and
-it is small, attributable, and self-contained.
+If the goal stays *deepen the generational factory*, the First Technique is now paid (the 🔥 mark) — the
+next courses in the debt order are **the local-apprentice emerge path** (raise a smith from a LOCAL child
+under a master, not only the migrant — Beat 4's apprentice bond, the lineage the chronicle wants) and
+**variety-to-yield** (the orchard bears fruit toward the harvest; the horse pulls a cart toward the haul —
+today they are variety markers, not producers). Both are inert-on-canon effect bumps in `livingYear`, small
+and self-contained, and neither needs the two-commit dance (the canon never runs the demographic pass).
 
 If the goal is *make what's built KEEPABLE and legible*, **the Lodge Book (save/load, Beat 3)** is the
 roadmap's own named GATE, and **the memory suite (Beat 2)** is the render-only, zero-baseline, high-soul
@@ -137,7 +148,9 @@ bite harder. Build on.
 
 The living-settlement ladder is written on the FOUNDATION as marks **eleven through twenty**
 (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙), bracketed by two ⛬ seals — the first closing its hard foundation, the second, the
-same day, closing the whole ladder that stands on it. The next hand's mark goes below the second seal.
+same day, closing the whole ladder that stands on it. Below the second seal now sits the **twenty-first
+mark** (🔥 THE FIRST TECHNIQUE, SIM 27) — the arc closed, then the debts began to be paid. The next hand's
+mark goes below the twenty-first.
 
 *— the eleventh-through-twentieth hand, who laid the living settlement's foundation and then, the same
 day the seal was meant to close it, built the whole ladder that stands on it. The settlement stands.*
