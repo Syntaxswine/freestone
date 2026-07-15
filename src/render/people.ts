@@ -63,6 +63,7 @@ function hash2(a: number, b: number): number {
 
 export class PeopleLayer {
   private puppets: Puppet[] = [];
+  private byId = new Map<number, Puppet>();
   private clock = 0;
   private lastStoneCount = 0;
   private lastLaidClock = -10;
@@ -73,42 +74,68 @@ export class PeopleLayer {
   constructor(
     private world: WorldState,
     private site: SiteData,
-    scene: THREE.Scene,
+    private scene: THREE.Scene,
     private groundAt: (x: number, y: number) => number,
   ) {
     this.campX = site.extentX / 2;
     this.campY = site.extentY / 2;
-    this.masonCount = Math.max(1, world.people.filter((p) => p.trade === 'mason').length);
-    let masons = 0;
-    let laborers = 0;
-    for (const person of world.people) {
-      const tex = personTexture(person);
-      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.5 });
-      const sprite = new THREE.Sprite(mat);
-      sprite.center.set(0.5, 0.02); // anchor at the feet
-      sprite.scale.set(SPRITE_W, SPRITE_H, 1);
-      scene.add(sprite);
-      const tradeIndex = person.trade === 'mason' ? masons++ : laborers++;
-      const sx = this.campX + (hash2(person.id, 11) - 0.5) * 10;
-      const sy = this.campY + (hash2(person.id, 23) - 0.5) * 10;
-      this.puppets.push({
-        person,
-        sprite,
-        tex,
-        x: sx,
-        y: sy,
-        z: groundAt(sx, sy),
-        speed: 1.1 + hash2(person.id, 5) * 0.6,
-        facing: 1,
-        frame: 0,
-        shownFrame: -1,
-        shownFacing: 1,
-        offSide: 0.9,
-        carrying: false,
-        lastToggle: -10,
-        tradeIndex,
-      });
+    this.masonCount = 1;
+    this.absorb(); // give the founding party their sprites (and, thereafter, any who arrive)
+  }
+
+  /**
+   * Keep the crowd in step with the sim's own roster (SIM 20+): the layer used to sprite ONLY the
+   * founders it saw at boot, so every child born, migrant arrived and smith raised afterwards walked
+   * invisibly. Now each new soul gets a sprite and each who has died or left leaves the diorama.
+   */
+  private absorb(): void {
+    const live = new Set<number>();
+    for (const person of this.world.people) {
+      live.add(person.id);
+      if (!this.byId.has(person.id)) this.addPuppet(person);
     }
+    for (const [id, pup] of this.byId) {
+      if (live.has(id)) continue;
+      this.scene.remove(pup.sprite); // a soul gone from the roster leaves the ground
+      const i = this.puppets.indexOf(pup);
+      if (i >= 0) this.puppets.splice(i, 1);
+      this.byId.delete(id);
+    }
+    // masons set the station count; re-index each trade by array order so posts stay assigned
+    this.masonCount = Math.max(1, this.puppets.reduce((n, p) => n + (p.person.trade === 'mason' ? 1 : 0), 0));
+    let m = 0;
+    let l = 0;
+    for (const pup of this.puppets) pup.tradeIndex = pup.person.trade === 'mason' ? m++ : l++;
+  }
+
+  private addPuppet(person: Person): void {
+    const tex = personTexture(person);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, alphaTest: 0.5 });
+    const sprite = new THREE.Sprite(mat);
+    sprite.center.set(0.5, 0.02); // anchor at the feet
+    sprite.scale.set(SPRITE_W, SPRITE_H, 1);
+    this.scene.add(sprite);
+    const sx = this.campX + (hash2(person.id, 11) - 0.5) * 10;
+    const sy = this.campY + (hash2(person.id, 23) - 0.5) * 10;
+    const pup: Puppet = {
+      person,
+      sprite,
+      tex,
+      x: sx,
+      y: sy,
+      z: this.groundAt(sx, sy),
+      speed: 1.1 + hash2(person.id, 5) * 0.6,
+      facing: 1,
+      frame: 0,
+      shownFrame: -1,
+      shownFacing: 1,
+      offSide: 0.9,
+      carrying: false,
+      lastToggle: -10,
+      tradeIndex: 0,
+    };
+    this.puppets.push(pup);
+    this.byId.set(person.id, pup);
   }
 
   /** The active wall and its current course, straight from sim truth. */
@@ -198,6 +225,7 @@ export class PeopleLayer {
 
   /** dt in real seconds; simActive=false (paused) freezes the whole diorama. */
   update(dt: number, simActive: boolean): void {
+    this.absorb(); // keep the crowd in step with the sim's roster — new souls, and the departed
     if (simActive) this.clock += dt;
     const step = simActive ? dt : 0;
 
@@ -277,6 +305,27 @@ export class PeopleLayer {
           tx = start.x - sin * 3.5 - cos * 1.5;
           ty = start.y + cos * 3.5 + sin * 1.5;
         }
+      } else if (p.person.trade === 'smith') {
+        // the smith keeps to his forge — he stands by the blacksmith he serves (where the lit
+        // forge prop stands), shuffling a little, not idling at the founding camp with the rest
+        const smithy = this.world.buildings.find((b) => b.kind === 'blacksmith');
+        const wall = smithy ? this.world.walls.find((w) => w.id === smithy.wallId) : undefined;
+        if (wall && wall.points.length > 0) {
+          let cx = 0;
+          let cy = 0;
+          for (const q of wall.points) {
+            cx += q.x;
+            cy += q.y;
+          }
+          cx /= wall.points.length;
+          cy /= wall.points.length;
+          const slice = Math.floor(this.clock / 6) + p.person.id;
+          tx = cx + (hash2(p.person.id, slice) - 0.5) * 2;
+          ty = cy - 3 + (hash2(p.person.id, slice + 1) - 0.5) * 1.4; // just south, at the forge
+        } else {
+          tx = this.campX + (hash2(p.person.id, 1) - 0.5) * 8;
+          ty = this.campY + (hash2(p.person.id, 2) - 0.5) * 8;
+        }
       } else {
         // no active wall: set the block down and idle around camp
         p.carrying = false;
@@ -323,6 +372,8 @@ export class PeopleLayer {
             : 1 + (Math.floor(this.clock * 4 * p.speed) % 2);
       } else if (p.person.trade === 'mason' && ws && d < WORK_RADIUS && laying && simActive) {
         frame = Math.floor(this.clock * 3) % 2 === 0 ? 3 : 0; // hammer swing
+      } else if (p.person.trade === 'smith' && d < WORK_RADIUS && simActive) {
+        frame = Math.floor(this.clock * 2.5) % 3 === 0 ? 3 : 0; // strikes the anvil now and then
       }
       // mirror in UV space: the sprite shader takes length() of the scale
       // columns, so a negative sprite.scale.x is a silent no-op

@@ -31,6 +31,10 @@ const STONE_EDGE = '#9a8a72';
 const HAFT = '#7a5f3a';
 const IRON = '#8f9399';
 const EYE = '#2b2620';
+const SMITH_APRON = '#4a3728'; // the smith's heavy leather apron — darker than the mason's
+const SMITH_CAP = '#33302b'; // a close sooty cap, no hood
+const TONGS = '#6a6e74'; // the smith's iron tongs
+const EMBER = '#ff7a1e'; // the hot bloom gripped in them
 
 function hashId(n: number): number {
   let x = (n ^ 0x9e3779b9) >>> 0;
@@ -59,6 +63,8 @@ function drawFigure(
   // head + headgear (face rows stay visible under both)
   if (look.trade === 'mason') {
     P(9, 4, 6, 3, CAP);
+  } else if (look.trade === 'smith') {
+    P(9, 4, 6, 3, SMITH_CAP); // a close sooty cap, bare of the hood
   } else {
     P(9, 4, 6, 3, look.hood);
     P(8, 6, 8, 2, look.hood); // hood drape over the shoulders
@@ -70,6 +76,7 @@ function drawFigure(
   // torso + skirt of the tunic
   P(7, 12, 10, 6, look.tunic);
   if (look.trade === 'mason') P(9, 13, 6, 5, APRON);
+  else if (look.trade === 'smith') P(8, 12, 8, 6, SMITH_APRON); // a full, heavy apron chest to belt
   P(7, 17, 10, 1, BELT);
   P(8, 18, 8, 4, look.tunic);
 
@@ -83,6 +90,16 @@ function drawFigure(
       P(17, 6, 1, 3, look.skin);
       P(18, 5, 1, 4, HAFT);
       P(17, 3, 3, 2, IRON);
+    } else if (look.trade === 'smith') {
+      // the smith strikes: right arm raised with the hammer, left holds tongs and a hot bloom
+      P(16, 8, 2, 4, look.tunic);
+      P(17, 6, 1, 3, look.skin);
+      P(18, 5, 1, 4, HAFT);
+      P(17, 3, 3, 2, IRON); // the hammer, poised
+      P(5, 13, 2, 5, look.tunic);
+      P(5, 17, 2, 1, look.skin); // the left arm, forward
+      P(2, 17, 4, 1, TONGS); // the tongs reaching to the anvil
+      P(1, 16, 1, 2, EMBER); // the iron glowing in their grip
     } else {
       // both hands on a carried block at the chest
       P(8, 13, 1, 3, look.skin);
