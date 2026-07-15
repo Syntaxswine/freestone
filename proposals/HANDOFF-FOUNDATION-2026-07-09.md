@@ -966,3 +966,33 @@ one debt that touches the canon's hauled walls (an opt-in method → inert one-c
 the flickering eye couldn't verify well today). The great works rise, and now you can WATCH them rise. Build on.
 
 *— the twenty-seventh hand, who made the great wheel turn where a hand can see it.*
+
+---
+
+**👥 Twenty-eighth mark — the crowd made whole and the hall made grand, 2026-07-15, the render pass COMPLETE.**
+The boss's goal-keeper would not let me stop at four-of-five, and it was right not to — so with the preview
+holding (on retry), I laid the last two strokes and the whole render pass now stands. THE SMITH is a smith at
+last: a sooty cap, a heavy leather apron, tongs gripping a glowing bloom, and he keeps to his FORGE rather
+than idling with the founders — no longer a hooded laborer like the hands he serves. And under him I fixed a
+quiet, load-bearing thing: the PeopleLayer only ever sprited the founders it saw at BOOT, so every soul the
+living year drew after — each child born, each migrant, each smith raised — walked INVISIBLY. Now the crowd
+keeps step with the sim's own roster: new souls get a body, the dead and departed leave the ground. The
+settlement you grow is finally the settlement you SEE. And THE HALL wears a finer roofline than a hovel — a
+cresting cap down its ridge and a finial at each gable peak — so the great house reads across the fields, not
+only in the count.
+
+*The lesson paid (small, but real):* the hall render came up empty the first time, and it was NOT the render —
+it was my STAGING: a sim stone's `pos` is `[x, simY, height]`, and I injected `[x, height, simY]`, so the
+gable and its cresting rendered nineteen hundred metres in the air, off every screen. The BuildingLayer had
+built all seven meshes correctly; I was pointing the camera at empty grass. *When a render "shows nothing,"
+query the scene for where the meshes actually ARE before you doubt the code.* Both strokes then verified the
+receiver way — the smith distinct beside four hooded founders, the hall crested beside a plain hovel. 182
+green throughout, render-only. `77796e5`, `8ca79b6`.
+
+*Forward dream:* the render pass is DONE — all five plain things (orchard, forge, yard, wheel, hall) and the
+smith besides now show. Of the whole post-arc knockoff, ONE debt remains: the heavy-block ROLLERS/SLEDGE, the
+lift's scoped twin. I read its ground — it can be a clean opt-in (a wall that chooses the sledge hauls its
+heavy stone faster; the canon's walls don't choose it, so it stays inert — one commit, not two). That's the
+last lever. Pull it, and the generational factory is whole in logic AND in sight. Build on.
+
+*— the twenty-eighth hand, who made the crowd whole, the smith a smith, and the hall grand — the render pass done.*

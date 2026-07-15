@@ -36,10 +36,11 @@ orchard bears food toward the harvest (area/ORCHARD_AREA_PER_PERSON, a supplemen
 keeps a draft horse that hauls more surplus to the store (HORSE_HAUL, grazing free); HUD fieldYield widened
 to include the orchard + shows "N draft horses". All three inert on the canon (livingYear never reckons in
 200 ticks) → one clean commit each, NOT the two-commit dance (the lesson: check whether the canon RUNS the
-feature first). **(4, IN PART) THE RENDER PASS (🎨)** — render-only, no sim: the ORCHARD dots fruit-tree rows
-(`6da302b`, orchard.ts) and the WORKSHOPS wear their tools — a lit forge on the smithy, logs + a sawhorse on
-the yard (`4d5a193`, workshops.ts) + the GREAT WHEEL, a treadwheel crane beside every wheeled wall (`1712fe7`,
-wheel.ts, 🏗 — the signature machine); all verified via the receiver-trick (green/russet orchard, glowing forge, wheel in frame).
+feature first). **(4) THE RENDER PASS — COMPLETE (🎨🏗👥)** — render-only, no sim, all six strokes: the ORCHARD
+dots fruit-tree rows (`6da302b`), the WORKSHOPS wear a lit forge + a carpenter's yard (`4d5a193`), the GREAT
+WHEEL is a treadwheel crane on every wheeled wall (`1712fe7`, 🏗), the SMITH is distinct — cap, apron, tongs,
+kept to his forge (`77796e5`, which also fixed the PeopleLayer so souls drawn AFTER boot finally appear), and
+the HALL wears a cresting + finials where a hovel stays plain (`8ca79b6`); all receiver-trick verified.
 **(5) SHELTER GATES GROWTH (SIM 30 `d32b25c`, 🏘)** — housing now GATES growth (growthRoom on births +
 migrants), so population settles at min(food, shelter); a no-house hamlet caps at ~FOUNDING_SHELTER +
 SHELTER_GROWTH_SLACK (~10). The century-sweep now HOUSES its settlements so it still tunes FOOD; the food
@@ -47,11 +48,9 @@ equilibrium re-verified intact (cap 20→20, cap 50→51). Inert on canon → on
 **(6) WEATHER SHAPED (SIM 31 `0bd6bb6`, 🌦)** — the harvest's yearly weather is now the MEAN of two uniform
 rolls (triangular, peaked at 1.0), so the extreme famine/glut years grow rarer without shifting the mean;
 the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one commit; +1 distributional test.
-**TWENTY-SEVEN maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗) + two ⛬ seals; 182 tests green; live.** **ALL SIX SIM
-DEBTS PAID (SIM 27–31), and the render pass shows FOUR OF FIVE (orchard, forge, yard, great wheel).** Debts
-still standing (none blocking): the render pass's last two small strokes (HALL roofline keyed on
-houseTier==='hall', distinct SMITH sprite — want a steady preview),
-step-5 rollers/sledge (heavy-block haul accelerant, the ONE debt touching the canon → likely TWO-commit). The PRIOR
+**TWENTY-EIGHT maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥) + two ⛬ seals; 182 tests green; live.** **ALL SIX SIM
+DEBTS PAID (SIM 27–31) AND THE RENDER PASS COMPLETE (all six strokes).** ONE debt remains (none blocking):
+step-5 rollers/sledge (heavy-block haul accelerant — a clean OPT-IN method, so inert on canon → one commit). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the

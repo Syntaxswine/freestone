@@ -5,11 +5,11 @@ the "it is done, here is the map forward" companion to the in-progress build led
 [HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md)
 (read that for the per-step detail — this doc does not duplicate it). Read the FOUNDATION keystone
 [HANDOFF-FOUNDATION-2026-07-09.md](HANDOFF-FOUNDATION-2026-07-09.md) FIRST — the soul, the nine laws,
-now **twenty-seven maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗) and **two ⛬ seals**; add yours BELOW, never above.
+now **twenty-eight maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥) and **two ⛬ seals**; add yours BELOW, never above.
 The post-arc knockoff's marks sit below the second seal: 🔥 (FIRST TECHNIQUE, 27), 🤝 (APPRENTICE BOND, 28),
-🍎 (VARIETY BEARS FRUIT, 29), 🎨 (the render pass — orchard + workshops), 🏘 (SHELTER GATES GROWTH, 30),
-🌦 (WEATHER SHAPED, 31) and 🏗 (THE GREAT WHEEL made visible). **Every SIM debt is paid, and the render pass
-shows four of five (only a HALL's roofline + the SMITH's sprite remain); the rollers/sledge is the last lever.**
+🍎 (VARIETY BEARS FRUIT, 29), 🎨 (render pass begun — orchard + workshops), 🏘 (SHELTER GATES GROWTH, 30),
+🌦 (WEATHER SHAPED, 31), 🏗 (THE GREAT WHEEL) and 👥 (render pass COMPLETE — the smith + the hall). **Every SIM
+debt is paid, and the RENDER PASS IS COMPLETE (all six strokes). ONE debt remains: the rollers/sledge lever.**
 
 > **Post-arc (2026-07-15, continuing):** the boss reopened the closed arc — *keep going till we knock off
 > the items in the handoff* — so the "honest debts" below are being discharged in order. **Done so far:
@@ -109,13 +109,12 @@ carries its own list; this is the consolidated view, mapped to the master plot
   lives, a second forge now raises the settlement's youngest hand instead of importing a journeyman; only the
   first smith (or one after the last master dies) migrates. The arrival event carries `origin`
   ('apprentice' | 'migrant') for the future chronicle.
-- **Renders left plain** — 🎨🏗 **FOUR OF FIVE DONE:** the ORCHARD dots fruit-tree rows (`6da302b`,
-  src/render/orchard.ts), the WORKSHOPS wear their tools — a lit forge + a carpenter's yard (`4d5a193`,
-  src/render/workshops.ts), and the GREAT WHEEL now stands as a treadwheel crane beside every wheeled wall
-  (`1712fe7`, src/render/wheel.ts — the signature machine). **STILL PLAIN (two small strokes):** a HALL wears
-  no finer ROOFLINE than a hovel (a cresting/finial keyed on `houseTier==='hall'`, likely in RoofLayer/a new
-  layer); the SMITH still renders as a common laborer sprite (an apron/hammer variant in the PeopleLayer
-  pixel-art). Both are small and want a steady preview to eye-check.
+- ~~**Renders left plain**~~ — ✅ **DONE, all six (🎨🏗👥).** The ORCHARD dots fruit-tree rows (`6da302b`,
+  orchard.ts), the WORKSHOPS wear a lit forge + a carpenter's yard (`4d5a193`, workshops.ts), the GREAT WHEEL
+  stands as a treadwheel crane on every wheeled wall (`1712fe7`, wheel.ts), the SMITH is distinct — a cap, an
+  apron, tongs, and he keeps to his forge (`77796e5`, pixelart.ts + people.ts, which also fixed the
+  PeopleLayer so souls drawn AFTER boot finally appear), and the HALL wears a cresting + finials on its ridge
+  where a hovel stays plain (`8ca79b6`, buildings.ts). The settlement you grow is the settlement you see.
 - ~~**Variety-not-yet-yield**~~ — ✅ **DONE (SIM 29, `807db0b`, the 🍎 mark).** The orchard now bears food
   toward the harvest (area / ORCHARD_AREA_PER_PERSON, a supplement to the grain staple) and each pasture
   keeps a draft horse that hauls more surplus to the store (HORSE_HAUL, grazing free). The HUD's harvest
@@ -149,9 +148,8 @@ carries its own list; this is the consolidated view, mapped to the master plot
 
 Three sim debts are paid (🔥🤝🍎) and the render pass is BEGUN (🎨 — orchard + workshops visible). Two
 strands remain, and they suit different conditions:
-- **Finish the renders** (needs a steady preview): the GREAT WHEEL is done (🏗); what remains are two small
-  strokes — a HALL's finer ROOFLINE (a cresting keyed on `houseTier==='hall'`) and a distinct SMITH sprite
-  (apron + hammer in the PeopleLayer). Both are quick once the preview is steady enough to eye-check.
+- **The renders are DONE** (🎨🏗👥) — orchard, workshops, great wheel, smith, hall, all six shipped and
+  eye-checked. Nothing left on the eye's side of the ledger.
 - **The sim debts** (verify by TEST, no preview) are all but one PAID — shelter-cap (🏘) and weather (🌦) both
   landed this session. The one that remains is the heavy-block **rollers/sledge** the lift left scoped (a haul
   accelerant): it is the ONLY debt that touches the canon's hauled walls, so unlike the inert livingYear
@@ -173,10 +171,10 @@ bite harder. Build on.
 
 The living-settlement ladder is written on the FOUNDATION as marks **eleven through twenty**
 (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙), bracketed by two ⛬ seals — the first closing its hard foundation, the second, the
-same day, closing the whole ladder that stands on it. Below the second seal now sit marks **twenty-one** (🔥 THE FIRST TECHNIQUE, SIM 27) through **twenty-seven**
-(🏗 THE GREAT WHEEL made visible): the post-arc debt-knockoff — 🔥 (27), 🤝 (28), 🍎 (29), 🎨 (the render pass:
-orchard + workshops), 🏘 (30), 🌦 (31), 🏗 (the great wheel). The arc closed, then the debts were paid, in
-order. The next hand's mark goes below the twenty-seventh.
+same day, closing the whole ladder that stands on it. Below the second seal now sit marks **twenty-one** (🔥 THE FIRST TECHNIQUE, SIM 27) through **twenty-eight**
+(👥 the render pass complete): the post-arc debt-knockoff — 🔥 (27), 🤝 (28), 🍎 (29), 🎨 (render pass begun),
+🏘 (30), 🌦 (31), 🏗 (the great wheel), 👥 (the smith + the hall — render pass done). Every SIM debt paid and
+every render laid; ONLY the rollers/sledge lever remains. The next hand's mark goes below the twenty-eighth.
 
 *— the eleventh-through-twentieth hand, who laid the living settlement's foundation and then, the same
 day the seal was meant to close it, built the whole ladder that stands on it. The settlement stands.*
