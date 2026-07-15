@@ -34,6 +34,17 @@
       #word-card button:hover { background: #4a473b; }
       body.planning #app canvas { cursor: crosshair; }
 
+      /* the prospect readout: what the land under the Quarry cursor affords (SIM 15
+         prospecting) — trails the cursor, green when winnable, red when it's drowned */
+      #prospect {
+        position: fixed; z-index: 30; display: none; pointer-events: none;
+        font: 11px/1.4 ui-monospace, Consolas, monospace; color: #d8d3c4;
+        background: rgba(20, 20, 17, 0.9); padding: 4px 8px; border: 1px solid #6a6552;
+        max-width: 320px; user-select: none;
+      }
+      #prospect.ok { border-color: #6f8a4f; color: #cfe3b8; }
+      #prospect.bad { border-color: #c0472e; color: #e8b6a6; }
+
       /* the gear: from play, back to the home screen (SIM 15 title-screen arc) */
       #gear {
         position: fixed; top: 8px; right: 10px; z-index: 50;
@@ -128,6 +139,7 @@
     <div id="app"></div>
     <div id="hud"></div>
     <button id="gear" title="menu (Esc)">⚙</button>
+    <div id="prospect"></div>
     <!-- #home, #tut-intro, #tutorial overlays are built in JS (homescreen.ts / tutorial.ts) -->
     <script type="module" src="/src/render/main.ts"></script>
   </body>

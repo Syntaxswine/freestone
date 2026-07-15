@@ -40,6 +40,8 @@ const LINE_LIFT = 0.12; // meters above ground so the preview never z-fights the
 const DOOR_W = 1.1; // meters left open at the front-edge middle — the gap IS the doorway
 const MIN_EDGE = 2.0; // a building front shorter than this won't close into a loop
 const MIN_DEPTH = 1.2; // a building shallower than this won't commit
+const CUT_TONE = 0x8a8574; // quarry grey — cut ground the land affords
+const CUT_TONE_INVALID = 0xc0472e; // warning rust-red — a drowned/too-deep cut (dig anyway, but be warned)
 
 export interface PlannerDeps {
   scene: THREE.Scene;
@@ -74,6 +76,14 @@ export interface PlannerDeps {
    * tool snapped to the bottom of walls).
    */
   snapTargets?: () => readonly SnapWall[];
+  /**
+   * Cut mode (SIM 15 prospecting): is (x, y) a valid OPEN-CUT target — dry building
+   * stone within reach? Drives the RED invalid warning on the ring. Absent ⇒ always
+   * valid (the sim never blocks a drowned cut; red only WARNS — you may dig anyway).
+   */
+  cutValid?: (x: number, y: number) => boolean;
+  /** Cut mode: the cursor moved to ground point p (null on exit) — drives the prospect readout. */
+  onCutCursor?: (p: Vec2 | null) => void;
 }
 
 /** a wall plan as the snap sees it */
@@ -120,6 +130,8 @@ export class WallPlanner {
   private readonly markerPos: THREE.BufferAttribute;
   /** true while the cursor sits on a snap target (drives the ring feedback) */
   snapped = false;
+  /** cut mode: the cursor is over ground that won't afford an open cut (drives the RED warning) */
+  private cutInvalid = false;
   private downX = 0;
   private downY = 0;
   private downT = 0;
@@ -246,12 +258,14 @@ export class WallPlanner {
         : this.mode === 'roof'
           ? 0xb08968
           : this.mode === 'cut'
-            ? 0x8a8574 // quarry grey — cut ground, not tipped dirt
+            ? CUT_TONE // quarry grey — cut ground, not tipped dirt
             : this.mode === 'fell'
               ? 0x6f7a48 // woods green — the cant marked to fell
               : 0xd8d3c4;
     (this.line.material as THREE.LineBasicMaterial).color.setHex(tone);
     (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(tone);
+    this.cutInvalid = false;
+    (this.cursorRing.material as THREE.MeshBasicMaterial).color.setHex(0xf0ead6); // ring back to cream
     document.body.classList.add('planning');
     this.deps.onModeChange?.(true, this.mode);
   }
@@ -263,9 +277,18 @@ export class WallPlanner {
     this.cursor = null;
     this.cursorRing.visible = false;
     this.group.visible = false;
+    this.cutInvalid = false;
+    this.deps.onCutCursor?.(null); // clear the prospect readout
     document.body.classList.remove('planning');
     this.rebuild();
     this.deps.onModeChange?.(false, this.mode);
+  }
+
+  /** cut mode: paint the ring quarry-grey (afforded) or rust-red (drowned/too-deep — a warning) */
+  private applyCutTone(): void {
+    const c = this.cutInvalid ? CUT_TONE_INVALID : CUT_TONE;
+    (this.line.material as THREE.LineBasicMaterial).color.setHex(c);
+    (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(c);
   }
 
   setHeight(h: number): void {
@@ -830,6 +853,20 @@ export class WallPlanner {
       (this.cursorRing.material as THREE.MeshBasicMaterial).opacity = this.snapped ? 1 : 0.8;
     } else {
       this.cursorRing.visible = false;
+    }
+    // cut mode (SIM 15 prospecting): the ring warns RED over ground that won't afford an
+    // open cut, and the cursor's ground point drives the prospect readout (main owns the DOM).
+    // The red only WARNS — the sim never blocks a drowned cut; you may dig it and find out why.
+    if (this.mode === 'cut') {
+      const invalid = !!this.cursor && !(this.deps.cutValid?.(this.cursor.x, this.cursor.y) ?? true);
+      if (invalid !== this.cutInvalid) {
+        this.cutInvalid = invalid;
+        this.applyCutTone();
+      }
+      (this.cursorRing.material as THREE.MeshBasicMaterial).color.setHex(
+        invalid ? CUT_TONE_INVALID : 0xf0ead6,
+      );
+      this.deps.onCutCursor?.(this.cursor);
     }
     this.rebuild();
   };

@@ -412,7 +412,7 @@ async function boot(): Promise<void> {
   // --- the woods, the earthworks, the pencil and the people ---
   const trees = new TreeLayer(site, terrain.groundAt, scene);
   const fills = new FillLayer(world, scene, terrain.groundAt);
-  const cuts = new CutLayer(world, scene, terrain.groundAt);
+  const cuts = new CutLayer(world, scene, terrain.groundAt, water.tableAt); // water.tableAt: a drowned cut floods
   // the underworld made VISIBLE (2026-07-11): a toggle-on strata map + working
   // plane the tunnel tool will draw on. View/input only — the sim never sees it.
   const underworld = new UnderworldLayer(scene, site, beds, water);
@@ -466,17 +466,32 @@ async function boot(): Promise<void> {
       reason: `the post here lies ${post.top.toFixed(0)} m down — too deep for an open cut · drive an adit`,
     };
   }
-  function cutCommand(points: Vec2[]): Command | null {
+  const DROWNED_YIELD_FRAC = 0.15; // stone won from a drowned open cut — a token; the post is under water
+  function cutCommand(points: Vec2[]): Command {
     const { cx, cy } = centroid(points);
-    const plan = quarryPlanAt(cx, cy, Math.max(1, polygonArea(points)));
-    if (!plan.ok) return null; // onConfirm refuses; the plan row already says why
+    const area = Math.max(1, polygonArea(points));
+    const plan = quarryPlanAt(cx, cy, area);
+    if (plan.ok) {
+      return {
+        kind: 'plan_cut',
+        tick: world.tick,
+        points,
+        depth: plan.depth,
+        workTotal: plan.workDays,
+        stoneTotal: plan.stone,
+      };
+    }
+    // DIG ANYWAY (boss 2026-07-15): the red only WARNS — the player may cut drowned/too-deep
+    // ground and find out why. The open cut goes to its full reach, FLOODS below the table
+    // (cuts.ts pools the water), and wins only a token of stone (the post lies under water).
+    const { workDays, stone } = cutEconomics(beds, cx, cy, MAX_OPEN_REACH, area);
     return {
       kind: 'plan_cut',
       tick: world.tick,
       points,
-      depth: plan.depth,
-      workTotal: plan.workDays,
-      stoneTotal: plan.stone,
+      depth: MAX_OPEN_REACH,
+      workTotal: Math.max(1, workDays),
+      stoneTotal: Math.round(stone * DROWNED_YIELD_FRAC * 1000) / 1000,
     };
   }
   // THE FELL (SIM 19): a cant marked over woodland. Like the quarry, the economics
@@ -595,6 +610,40 @@ async function boot(): Promise<void> {
     return height >= BUILDING_MIN_H ? 'ashlar' : height <= FARM_WALL_MAX_H ? 'rubble' : 'scappled';
   }
 
+  // --- THE PROSPECT READOUT (SIM 15): what the land under the Quarry cursor affords.
+  //     Reuses quarryPlanAt — the SAME water+bed oracle cutCommand freezes — so the
+  //     hover-read and the commit never disagree: ok ⇒ a green "winnable" line, else the
+  //     reason it's drowned/too deep. The planner colours its ring red on !ok; this only
+  //     WRITES the DOM. Pure render — no sim, no baseline. ---
+  const prospectEl = document.getElementById('prospect') as HTMLElement;
+  const PROSPECT_PROBE = HAUL_PROBE_AREA; // the same "is dry post winnable here?" probe the haul uses
+  function prospectToScreen(x: number, y: number): { sx: number; sy: number } {
+    const v = new THREE.Vector3(x, groundSim(x, y), y).project(camera);
+    const rect = renderer.domElement.getBoundingClientRect();
+    return { sx: rect.left + ((v.x + 1) / 2) * rect.width, sy: rect.top + ((1 - v.y) / 2) * rect.height };
+  }
+  function showProspect(p: Vec2 | null): void {
+    if (!p) {
+      prospectEl.style.display = 'none';
+      return;
+    }
+    const plan = quarryPlanAt(p.x, p.y, PROSPECT_PROBE);
+    if (plan.ok) {
+      const post = beds
+        .nearestHole(p.x, p.y)
+        ?.column.find((s) => s.m === 'sandstone' || s.m === 'limestone');
+      prospectEl.className = 'ok';
+      prospectEl.textContent = `⛏ ${post?.m ?? 'building stone'} · ${plan.reach.toFixed(0)} m dry · open cut ✓`;
+    } else {
+      prospectEl.className = 'bad';
+      prospectEl.textContent = `⚠ ${plan.reason}`;
+    }
+    const { sx, sy } = prospectToScreen(p.x, p.y);
+    prospectEl.style.left = `${sx + 14}px`;
+    prospectEl.style.top = `${sy + 14}px`;
+    prospectEl.style.display = 'block';
+  }
+
   // explicit annotation: onConfirm's closure reads planner.fillShape /
   // roofMaterial, so inference would otherwise chase its own tail
   const planner: WallPlanner = new WallPlanner({
@@ -607,15 +656,21 @@ async function boot(): Promise<void> {
     countGround: (x, y) => effectiveGroundAt(world, site, x, y),
     heightBounds: { min: terrain.minH, max: terrain.maxH + 10 }, // fills raise the roof
     dom: renderer.domElement,
+    // prospecting (SIM 15): the ring warns RED where the land won't afford an open cut,
+    // and the cursor's ground point feeds the prospect readout — both read quarryPlanAt
+    cutValid: (x, y) => quarryPlanAt(x, y, PROSPECT_PROBE).ok,
+    onCutCursor: showProspect,
     onConfirm: (mode, points, height, material) => {
       if (mode === 'cut') {
+        // the cut always affords now — the red ring only WARNS; a drowned cut digs and floods
         const cmd = cutCommand(points);
-        if (cmd && enqueue(cmd)) {
+        if (enqueue(cmd)) {
           tutorial.saw('quarry'); // tutorial step 3: a real quarry committed
           return true;
         }
-        return false; // the land didn't afford an open cut — the plan row says why
+        return false;
       }
+
       if (mode === 'fell') {
         const cmd = fellCommand(points);
         return cmd ? enqueue(cmd) : false; // no standing timber — the plan row says why

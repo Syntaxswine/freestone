@@ -14,6 +14,16 @@ import type { CutPlan, WorldState } from '../sim/types';
 
 const SKIRT_STEP = 3; // meters between pit-wall samples along an edge
 
+// the flood (SIM 15): a drowned cut fills to the water table — the underworld's DROWNED
+// blue (mirrors UnderworldLayer). Shared + translucent; rebuild disposes geometry, not this.
+const WATER_MAT = new THREE.MeshBasicMaterial({
+  color: 0x3d5f78,
+  transparent: true,
+  opacity: 0.62,
+  side: THREE.DoubleSide,
+  depthWrite: false,
+});
+
 function hash1(a: number): number {
   let x = Math.imul(a + 1, 0x85ebca6b) >>> 0;
   x = Math.imul(x ^ (x >>> 15), 0x27d4eb2f) >>> 0;
@@ -42,6 +52,9 @@ export class CutLayer {
     private world: WorldState,
     private scene: THREE.Scene,
     private terrainGroundAt: (x: number, y: number) => number,
+    /** the water table AOD (SIM 15 prospecting): a cut whose sinking floor dips below it
+     *  FLOODS — the visible consequence of cutting drowned ground. Absent ⇒ no water. */
+    private waterTableAt?: (x: number, y: number) => number,
   ) {}
 
   private bbox(c: CutPlan): BBox {
@@ -161,5 +174,55 @@ export class CutLayer {
     const walls = new THREE.Mesh(wallGeo, v.wallMat);
     walls.frustumCulled = false;
     v.group.add(walls);
+
+    // centroid of the ring — the pond level (a pond is flat) and the spoil's radial anchor
+    let cx = 0;
+    let cy = 0;
+    for (const p of c.points) {
+      cx += p.x;
+      cy += p.y;
+    }
+    cx /= c.points.length;
+    cy /= c.points.length;
+
+    // THE FLOOD (SIM 15): if the sinking floor dips below the water table, the pit fills to
+    // the table — a pond of the underworld's drowned blue: the visible consequence of
+    // cutting drowned ground (the red warning made good). The table lies below the surface,
+    // so the pond never floats above the rim.
+    if (this.waterTableAt) {
+      const waterLevel = this.waterTableAt(cx, cy);
+      if (this.floorAt(c, cx, cy) < waterLevel - 0.05) {
+        const wgeo = new THREE.ShapeGeometry(
+          new THREE.Shape(c.points.map((p) => new THREE.Vector2(p.x, p.y))),
+        );
+        wgeo.rotateX(Math.PI / 2);
+        const wpos = wgeo.getAttribute('position') as THREE.BufferAttribute;
+        for (let i = 0; i < wpos.count; i++) wpos.setY(i, waterLevel);
+        const water = new THREE.Mesh(wgeo, WATER_MAT);
+        water.frustumCulled = false;
+        v.group.add(water);
+      }
+    }
+
+    // SPOIL (SIM 15): waste rock tipped just outside the rim, rising as the crew digs — the
+    // other half of the scar. A few low mounds pushed radially out from the centroid.
+    const prog = this.progress(c);
+    if (prog > 0.06) {
+      const step = Math.max(1, Math.floor(c.points.length / 4)); // ~4 heaps around the pit
+      const rad = 1.2;
+      const h = 0.35 + 0.9 * prog; // the heap grows with the digging
+      for (let i = 0; i < c.points.length; i += step) {
+        const p = c.points[i]!;
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+        const d = Math.hypot(dx, dy) || 1;
+        const ox = p.x + (dx / d) * (rad + 0.4); // just beyond the rim
+        const oy = p.y + (dy / d) * (rad + 0.4);
+        const mound = new THREE.Mesh(new THREE.ConeGeometry(rad, h, 7), v.wallMat);
+        mound.position.set(ox, this.terrainGroundAt(ox, oy) + h / 2, oy);
+        mound.frustumCulled = false;
+        v.group.add(mound);
+      }
+    }
   }
 }
