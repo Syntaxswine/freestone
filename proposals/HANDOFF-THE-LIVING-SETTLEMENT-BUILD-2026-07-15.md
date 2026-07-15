@@ -21,7 +21,7 @@ This arc discharges the roadmap's Beats 0–4.
 | **0** | **The year made real + Sit-the-Season** | ✅ **SHIPPED** (`02465ac`, SIM-neutral) |
 | **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
 | **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
-| 3 | The pyramid + carpenter's shop + the cart + granary cat | ▶ **NEXT** |
+| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a the GRANARY building SHIPPED** (SIM 21, `4f241db`); **3b** cart + the granary cat + a real grain stock, **3c** the pyramid = NEXT |
 | 4 | Housing quality tiers (hovel/cottage/hall) | pending |
 | 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
 
@@ -166,10 +166,20 @@ richer model when housing tiers land in step 4).
 
 ---
 
-## Step 3 — THE PYRAMID + THE CART (NEXT, SIM 21)
+## Step 3 — THE PYRAMID + THE CART (IN PROGRESS)
 
 §5 (the pyramid) + §6 (the accelerants, cart-first) + §7 (the granary cat). The population engine's
 output becomes not just *more* people but *specialized* people.
+
+**✅ 3a — THE GRANARY (SIM 21, `4f241db`) SHIPPED** — the keystone the realization demanded, and the
+fourteenth mark (🌾). `BUILDING_KINDS` gained `'granary'` (offered on the designation card, 🏛); the
+harvest reads it (capacity += `granaries × GRANARY_CAPACITY`), so the granary is a population LEVER —
+§4's soul grounded. Inert on the canon (no granary designated → count 0; the pass doesn't run in 200
+ticks); regen = 0 non-hash diffs, SIM_VERSION 20→21. `population.test.ts` proves the lever (a granary
+flips a 6-mouth village hunger→growth). **Left honestly undone (the immediate next work):** a
+distinct granary RENDER (draws as a plain shell today); the **granary CAT** (§7, boss-requested — now
+it has a place to prowl); a real grain STOCK/flow (the granary is a capacity term, not a filling
+store). Then **3b** the cart, **3c** the pyramid below.
 
 **The seams (from the census + bible):**
 - **Variety** — the shipped designation grammar (`farm/livestock/fallow`) grows two tenants: **horse

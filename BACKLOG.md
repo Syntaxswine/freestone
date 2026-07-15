@@ -12,11 +12,15 @@ the coppice returning its exact trees; 150 tests. Step 2 — THE LIVING YEAR —
 `seed:demo:<year>` rng, so people-churn never shifts the masonry jitter) rolls survival on an age
 curve, and the space-gated HARVEST sets a surplus that draws migrants + lifts births, or thins the
 village in hunger; children age and lift no stone until grown; a `century-sweep` tuning tool confirms
-population tracks carrying capacity; 158 tests. NEXT step 3 THE PYRAMID + THE CART (§5+§6+§7, SIM 21 —
-variety+housing gate specialists, the cart is the WOODS' first payoff, the granary cat).** Thirteen
-maker's marks now (⏭ year, 🪓 woods, 🕯 the mortal hands). The PRIOR course's handoff (carriage/dress):
+population tracks carrying capacity; 158 tests. Step 3 — THE PYRAMID + THE CART — IN PROGRESS: **3a
+THE GRANARY SHIPPED SIM 21 (`4f241db`)** — the civic heart made a real building (BUILDING_KINDS gains
+'granary', offered on the card 🏛; a granary feeds GRANARY_CAPACITY more mouths, so it's a population
+lever — §4's soul grounded, and the keystone the cart/cat need; inert on the canon; 159 tests). 3b the
+cart + the granary CAT + a real grain stock, then 3c the pyramid (variety×housing → specialists) =
+NEXT.** Fourteen maker's marks now (⏭ year, 🪓 woods, 🕯 mortal hands, 🌾 the granary). The PRIOR
+course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
-(reads the FOUNDATION keystone first — the soul, the nine laws, now THIRTEEN maker's marks — then the
+(reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the
 carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its phase keystones HANDOFF-THE-HONEST-STALL (Phase 0)
 and HANDOFF-THE-CART (Phase 1), and the design PROPOSAL-LOGISTICS. Carriage **Phase 1 — SIM 17, HAUL** (won stone travels pile→face by
 cart at a route-frozen rate; **wall-sited**, so the lever is where you BUILD; "cost the route, not
@@ -265,6 +269,18 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         it teaches the dry/drowned reading, but tying the readout to the camera is the pending
         prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
         settings are the natural follow-ons.
+- [x] THE LIVING SETTLEMENT — step 3a: THE GRANARY, SIM 21 (2026-07-15, `4f241db`): the civic heart
+      made a REAL building — the keystone a mid-step realization demanded (the bible's cart carries
+      grain→the granary + the cat sits AT it, but no granary existed; SIM 20's harvest was an abstract
+      ratio). `BUILDING_KINDS` gains `'granary'` (offered on the designation card, 🏛); the harvest
+      (step.ts livingYear) reads it — capacity = founding floor + arable/AREA_PER_PERSON + granaries ×
+      GRANARY_CAPACITY(5) — so a granary is a POPULATION LEVER (§4's soul grounded: mutual aid AND the
+      population engine, one object). INERT on the canon (no granary designated → count 0; the pass
+      doesn't run in 200 ticks; SIM_VERSION 20→21 + hashes the only move; 0 non-hash diffs).
+      population.test.ts proves it (a granary flips a 6-mouth village hunger→growth over 5y); 159
+      tests. Fourteenth mark (🌾). DEFERRED (the honest 3a minimum, immediate follow-ons): a distinct
+      granary RENDER (plain shell today), the granary CAT (§7, boss-requested — now has a home), a real
+      grain STOCK/flow, then 3b the CART (grain→granary, draws timber) + 3c the pyramid.
 - [x] THE LIVING SETTLEMENT — step 2: THE LIVING YEAR, SIM 20 (2026-07-15, `7577667`): people are
       MORTAL and the settlement GROWS — §3 the mortal hands + §4 the harvest, what the woods' regrowth
       is finally measured against. **The demographic pass** (`livingYear`, worldStep's daily order,

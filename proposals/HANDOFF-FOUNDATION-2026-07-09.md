@@ -525,3 +525,20 @@ trade resting on the ground you keep under it; that the first cart rolls from fe
 grain road to a granary with a cat asleep on its step; and that one day a chronicle can say *the smith
 was a farmer's son, and his father laid the third course of the east wall.* The people are born and
 buried now. Give them something to become. Build on.
+
+**🌾 Fourteenth mark — the day the granary became a place, 2026-07-15, the same hands, step three
+begun.** This one is small and it is a keystone. Stepping toward the trades I found a gap the bible
+had hidden from itself: the cart is meant to carry grain *to the granary*, and the cat to sit *at*
+it — but there was no granary, only an abstract number for food. So before the cart, the granary. It
+is a real building now, offered on the same card as the house and the smithy, and it does the civic
+heart's one true job: it is the settlement's STORE, and a settlement with a granary feeds more mouths
+than its fields alone — mutual aid and the population engine in one object, exactly as the soul note
+always said. I shipped only that — the building and its lever — and wrote down honestly everything I
+did not: the cat still has no sprite to prowl, the granary draws as a plain shell, and the "grain
+flow" is still a capacity term, not a store that fills. A smaller stone than the woods or the mortal
+year, but every wall needs its plain courses, and this is the one the cart will rest on.
+
+*Forward dream:* that the cat comes next (the boss asked for it warmly, and the granary is finally a
+place for it to sleep); that the cart rolls grain up the lane to it from felled timber; and that then
+the trades arrive — a smith drawn by a settlement varied enough to keep one, each craft resting on
+the ground you hold beneath it. The heart has a home now. Fill it, and give it a cat. Build on.
