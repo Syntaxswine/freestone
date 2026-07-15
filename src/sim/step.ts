@@ -328,7 +328,7 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       // re-derives its facts (wall geometry is immutable)
       const rc = classifyRing(wall.points, wall.height);
       if (rc === null || rc.kind !== 'farm') return 'no enclosure awaits the word there'; // unreachable
-      if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, or fallow';
+      if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, pasture, orchard, or fallow';
       return null;
     }
     case 'choose_roof': {

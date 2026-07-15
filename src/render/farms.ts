@@ -41,6 +41,9 @@ const STUBBLE = 5;
 const PASTURE_GREEN = 6;
 const PASTURE_WINTER = 7;
 const FALLOW_SCRUB = 8;
+/** the variety tenants (SIM 24): an orchard leafs, then turns and fruits in autumn */
+const ORCHARD_LEAF = 9;
+const ORCHARD_TURN = 10;
 
 function hash1(a: number): number {
   let x = Math.imul(a + 1, 0x85ebca6b) >>> 0;
@@ -76,6 +79,10 @@ function bandTones(band: number, j: number): [THREE.Color, THREE.Color] {
       return [c(0.2 + j * 0.02, 0.16, 0.38 + j * 0.04), c(0.17 + j * 0.02, 0.14, 0.44 + j * 0.04)];
     case FALLOW_SCRUB: // rested land — dun earth and weedy flecks
       return [c(0.1 + j * 0.02, 0.2, 0.42 + j * 0.05), c(0.2 + j * 0.03, 0.18, 0.4 + j * 0.05)];
+    case ORCHARD_LEAF: // fruit trees in full leaf — a deep, close canopy green
+      return [c(0.33 + j * 0.02, 0.42, 0.3 + j * 0.05), c(0.31 + j * 0.03, 0.46, 0.36 + j * 0.05)];
+    case ORCHARD_TURN: // autumn — leaves russet, fruit hanging gold among them
+      return [c(0.08 + j * 0.02, 0.44, 0.42 + j * 0.05), c(0.13 + j * 0.03, 0.5, 0.48 + j * 0.05)];
     default: // FRESH — just tilled, first sowing (the founding look)
       return [c(0.07 + j * 0.02, 0.3, 0.34 + j * 0.06), c(0.23 + j * 0.05, 0.3, 0.4 + j * 0.08)];
   }
@@ -84,7 +91,7 @@ function bandTones(band: number, j: number): [THREE.Color, THREE.Color] {
 interface FarmView {
   colorAttr: THREE.BufferAttribute;
   parities: Uint8Array; // one per quad: which of the band's two tones
-  use: 'farm' | 'livestock' | 'fallow';
+  use: 'farm' | 'livestock' | 'pasture' | 'orchard' | 'fallow';
   establishedTick: number;
   jitter: number;
   shownBand: number;
@@ -116,11 +123,16 @@ export class FarmLayer {
 
   private bandFor(v: FarmView): number {
     if (v.use === 'fallow') return FALLOW_SCRUB; // rest knows no season
-    if (v.use === 'livestock') {
-      // pasture keeps no crop calendar — only the cold shows
+    if (v.use === 'livestock' || v.use === 'pasture') {
+      // grazed sward (sheep or horse) keeps no crop calendar — only the cold shows
       return seasonBand(this.world.tick % TICKS_PER_YEAR) === WINTER
         ? PASTURE_WINTER
         : PASTURE_GREEN;
+    }
+    if (v.use === 'orchard') {
+      // trees leaf most of the year, turn and fruit in the harvest season and the cold
+      const s = seasonBand(this.world.tick % TICKS_PER_YEAR);
+      return s === GOLD || s === STUBBLE || s === WINTER ? ORCHARD_TURN : ORCHARD_LEAF;
     }
     if (this.world.tick - v.establishedTick < FRESH_DAYS) return FRESH;
     return seasonBand(this.world.tick % TICKS_PER_YEAR);

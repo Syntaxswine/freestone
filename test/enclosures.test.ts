@@ -295,10 +295,21 @@ describe('designation — the palettes hold', () => {
       [wall(FIELD_RING, 0.5), designate(W1, 'tavern', 50), designate(W1, 'farm', 60)],
       100,
     );
-    expect(rejections(world)).toEqual(['a field plot takes farm, livestock, or fallow']);
+    expect(rejections(world)).toEqual([
+      'a field plot takes farm, livestock, pasture, orchard, or fallow',
+    ]);
     // the refusal consumed nothing: the honest word landed after
     expect(world.farms).toHaveLength(1);
     expect(world.farms[0]!.use).toBe('farm');
+  });
+
+  it('the field palette takes the variety tenants — pasture and orchard (SIM 24)', () => {
+    const pasture = run([wall(FIELD_RING, 0.5), designate(W1, 'pasture')], 100);
+    expect(pasture.world.farms).toHaveLength(1);
+    expect(pasture.world.farms[0]!.use).toBe('pasture');
+    const orchard = run([wall(FIELD_RING, 0.5), designate(W1, 'orchard')], 100);
+    expect(orchard.world.farms).toHaveLength(1);
+    expect(orchard.world.farms[0]!.use).toBe('orchard');
   });
 
   it('the roof is chosen before the trade, and a shell refuses a field use', () => {

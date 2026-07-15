@@ -563,7 +563,7 @@ export interface Roof {
  * some may unlock later). Constant strings; they enter hashed state via
  * Farm.use and the designate command.
  */
-export const FIELD_USES = ['farm', 'livestock', 'fallow'] as const;
+export const FIELD_USES = ['farm', 'livestock', 'pasture', 'orchard', 'fallow'] as const;
 export type FieldUse = (typeof FIELD_USES)[number];
 
 /**
@@ -578,7 +578,12 @@ export type BuildingKind = (typeof BUILDING_KINDS)[number];
 export interface Farm {
   id: number;
   wallId: number;
-  /** farm (arable, tended), livestock (a paddock; herds later), or fallow (rested) */
+  /**
+   * The plot's use: farm (arable, tended), livestock (a sheep paddock), pasture (a horse
+   * paddock), orchard (fruit), or fallow (rested). The two new tenants (SIM 24, 3c) are
+   * VARIETY: a settlement mixed enough raises a specialist (3c-ii). Only 'farm' is arable;
+   * their own produce (orchard fruit, horse haulage) is a later effect bump.
+   */
   use: FieldUse;
   /** the enclosure ring (open form — no duplicate closing vertex) */
   points: Vec2[];

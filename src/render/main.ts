@@ -666,6 +666,8 @@ async function boot(): Promise<void> {
   const FIELD_CHOICES: { use: FieldUse; label: string }[] = [
     { use: 'farm', label: '🌾 farm' },
     { use: 'livestock', label: '🐑 livestock' },
+    { use: 'pasture', label: '🐎 pasture' }, // SIM 24: a horse paddock — variety toward a specialist
+    { use: 'orchard', label: '🍎 orchard' }, // SIM 24: fruit — variety toward a specialist
     { use: 'fallow', label: '🌿 fallow' },
   ];
   const SHELL_CHOICES: { use: BuildingKind; label: string }[] = [
@@ -1120,6 +1122,8 @@ async function boot(): Promise<void> {
     const total = world.walls.reduce((n, w) => n + w.stonesTotal, 0);
     const nFarms = world.farms.filter((f) => f.use === 'farm').length;
     const nPaddocks = world.farms.filter((f) => f.use === 'livestock').length;
+    const nPasture = world.farms.filter((f) => f.use === 'pasture').length;
+    const nOrchard = world.farms.filter((f) => f.use === 'orchard').length;
     const nFallow = world.farms.filter((f) => f.use === 'fallow').length;
     const nAsks =
       world.pending.length + world.roofs.filter((r) => r.material === null).length;
@@ -1187,6 +1191,8 @@ async function boot(): Promise<void> {
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
+      (nPasture ? ` — pasture ${nPasture}` : '') +
+      (nOrchard ? ` — orchards ${nOrchard}` : '') +
       (nFallow ? ` — fallow ${nFallow}` : '') +
       (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
       (nQuarries ? ` — quarries ${nQuarries}` : '') +
