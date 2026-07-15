@@ -74,7 +74,15 @@
 // each), so the food capacity reads the granaries beside the arable. Grounds §4's
 // soul (the granary embodies mutual aid AND is the population engine, one object)
 // and gives the cart a place to carry grain TO. Step 3a of the pyramid arc.
-export const SIM_VERSION = 26;
+// 27: THE FIRST TECHNIQUE — the smith stops being decoration and does WORK. A smith
+// at the forge keeps the masons' (and carpenters') irons sharp, so the crew DRESSES
+// and LAYS faster: his presence relieves the mason's lay debt (SMITH_DRESS_RELIEF per
+// smith, capped SMITH_RELIEF_MAX — tools speed the work, they never do it). Reads the
+// existing people; no new state, no new command. INERT on the 200-tick canon (no smith
+// is drawn until the first reckoning at tick 364), so it ships as one clean commit —
+// only simVersion + the milestone hashes move. Roadmap Beat 4; the specialization
+// pyramid's payoff (SIM 24 gave the smith a life, this gives him a purpose).
+export const SIM_VERSION = 27;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -525,6 +533,18 @@ export const HUNGER_LEAVE_RATE = 0.12; // fraction who emigrate per year of hung
  */
 export const VARIETY_FOR_SMITH = 3; // distinct tenants + workshops before a smith is drawn
 export const SMITH_MIN_POP = 6; // souls before the settlement can spare one for a trade
+
+/**
+ * THE FIRST TECHNIQUE (SIM 27): the smith's PRODUCTION EFFECT — the payoff of the
+ * specialization pyramid. A smith at the forge keeps the crew's edge tools (the mason's
+ * chisel, the carpenter's adze) sharp and tempered, and sharp irons DRESS and LAY stone
+ * faster. Each smith present relieves the mason's lay debt by SMITH_DRESS_RELIEF, saturating
+ * at SMITH_RELIEF_MAX — a conservative claim: tools speed the work, they never do it, so the
+ * relief can never drive a stone to lay itself. With no smith the factor is exactly 1, and the
+ * 200-tick canon (no smith drawn until the first reckoning at tick 364) never enters the relief.
+ */
+export const SMITH_DRESS_RELIEF = 0.15; // each smith cuts the lay debt by this fraction
+export const SMITH_RELIEF_MAX = 0.3; // but the crew's smiths together can speed it no more than this
 
 /**
  * HOUSING QUALITY (SIM 25, step 4): a house is a HOVEL, a COTTAGE, or a HALL — its TIER

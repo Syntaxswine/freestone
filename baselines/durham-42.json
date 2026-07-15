@@ -2,7 +2,7 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 26,
+      "simVersion": 27,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 200
@@ -408,7 +408,7 @@
   "milestones": [
     {
       "tick": 1,
-      "hash": "0c9c95d0",
+      "hash": "9ad9900d",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
@@ -429,7 +429,7 @@
     },
     {
       "tick": 7,
-      "hash": "4dc954bb",
+      "hash": "d2a6ba04",
       "stones": 54,
       "events": 58,
       "wallsComplete": 0,
@@ -450,7 +450,7 @@
     },
     {
       "tick": 30,
-      "hash": "6b9af428",
+      "hash": "cd586695",
       "stones": 604,
       "events": 619,
       "wallsComplete": 1,
@@ -471,7 +471,7 @@
     },
     {
       "tick": 65,
-      "hash": "e0d05abc",
+      "hash": "149e9867",
       "stones": 1144,
       "events": 1164,
       "wallsComplete": 1,
@@ -492,7 +492,7 @@
     },
     {
       "tick": 80,
-      "hash": "87c77fa4",
+      "hash": "fe8b932f",
       "stones": 1890,
       "events": 1913,
       "wallsComplete": 2,
@@ -513,7 +513,7 @@
     },
     {
       "tick": 100,
-      "hash": "289a5600",
+      "hash": "2f28082d",
       "stones": 2028,
       "events": 2054,
       "wallsComplete": 3,
@@ -534,7 +534,7 @@
     },
     {
       "tick": 130,
-      "hash": "92199224",
+      "hash": "dcf8cde1",
       "stones": 2515,
       "events": 2546,
       "wallsComplete": 5,
@@ -555,7 +555,7 @@
     },
     {
       "tick": 200,
-      "hash": "70010e9d",
+      "hash": "73270894",
       "stones": 2470,
       "events": 2567,
       "wallsComplete": 5,

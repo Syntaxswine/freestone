@@ -1152,11 +1152,17 @@ async function boot(): Promise<void> {
         : 'the masons lay';
     // THE LIFT (SIM 26): a great wheel is turning at a wall climbing high
     const wheeling = stoneWalls.some((w) => w.wheel && w.stonesLaid < w.stonesTotal);
+    // THE FIRST TECHNIQUE (SIM 27): a smith at the forge is sharpening the crew's irons,
+    // speeding the dress — shown only while stone is actually being laid, so the player
+    // sees WHY the wall climbs faster once the specialization pyramid draws a smith
+    const forging =
+      world.people.some((p) => p.trade === 'smith') &&
+      stoneWalls.some((w) => w.stonesLaid < w.stonesTotal);
     const supply = !hasStoneEconomy
       ? ''
       : stoneWalls.length === 0
         ? ` — won ${Math.round(world.stockpile)} m³`
-        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ${bind}${wheeling ? ' · ⚙ the great wheel turns' : ''}`;
+        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ${bind}${wheeling ? ' · ⚙ the great wheel turns' : ''}${forging ? ' · 🔨 the forge sharpens the irons' : ''}`;
     // THE WOODS read (SIM 19): the timber stock, and the coppice's return clock
     const felling = world.stands.filter((s) => s.felling).length;
     const regrowing = world.stands.filter((s) => !s.felling && s.feltTick >= 0);

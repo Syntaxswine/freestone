@@ -30,7 +30,9 @@ import {
   HUNGER_LEAVE_RATE,
   MIGRANTS_PER_YEAR_FULL,
   MORTALITY_BANDS,
+  SMITH_DRESS_RELIEF,
   SMITH_MIN_POP,
+  SMITH_RELIEF_MAX,
   TICKS_PER_YEAR,
   VARIETY_FOR_SMITH,
   dayOfYear,
@@ -1475,6 +1477,13 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
       : w.haulRate === null
         ? state.stockpile >= DRESS_DRAW[w.dressLevel]
         : w.faceBuffer >= DRESS_DRAW[w.dressLevel];
+  // THE FIRST TECHNIQUE (SIM 27): a smith at the forge keeps the crew's irons sharp, so
+  // the masons dress and lay faster. Count the smiths ONCE — no soul changes trade within a
+  // day — and turn it into a lay-debt multiplier: each relieves SMITH_DRESS_RELIEF, saturating
+  // at SMITH_RELIEF_MAX. With no smith the factor is EXACTLY 1 (byte-identical to before, and
+  // the 200-tick canon never draws one), so a world without a forge lays stone as it always did.
+  const smiths = state.people.reduce((n, p) => (p.trade === 'smith' ? n + 1 : n), 0);
+  const smithMult = 1 - Math.min(SMITH_RELIEF_MAX, smiths * SMITH_DRESS_RELIEF);
   for (const person of state.people) {
     if (person.trade !== 'mason' || !isAdult(person, state.tick)) continue; // SIM 20: children don't lay
     let quota = person.pace;
@@ -1524,7 +1533,9 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];
       }
       layOneStone(state, site, rng, wall, person.id, pick, decomp.spacing);
-      quota -= DRESS_SPEC[wall.dressLevel].layDebt * liftMult; // the LIFT taxes the mason's day (SIM 26)
+      // the LIFT taxes the mason's day (SIM 26); the SMITH relieves it (SIM 27). smithMult is
+      // 1 with no forge, so this is byte-identical to SIM 26 until a smith stands at the base.
+      quota -= DRESS_SPEC[wall.dressLevel].layDebt * liftMult * smithMult;
     }
   }
 }
