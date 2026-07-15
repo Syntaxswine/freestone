@@ -36,8 +36,12 @@ orchard bears food toward the harvest (area/ORCHARD_AREA_PER_PERSON, a supplemen
 keeps a draft horse that hauls more surplus to the store (HORSE_HAUL, grazing free); HUD fieldYield widened
 to include the orchard + shows "N draft horses". All three inert on the canon (livingYear never reckons in
 200 ticks) → one clean commit each, NOT the two-commit dance (the lesson: check whether the canon RUNS the
-feature first). **TWENTY-THREE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎) + two ⛬ seals; 180 tests green; live.**
-Debts still standing (none blocking): plain renders (carpenter's-yard/wheel/forge/orchard-trees/hall-roofline),
+feature first). **(4, IN PART) THE RENDER PASS (🎨)** — render-only, no sim: the ORCHARD dots fruit-tree rows
+(`6da302b`, orchard.ts) and the WORKSHOPS wear their tools — a lit forge on the smithy, logs + a sawhorse on
+the yard (`4d5a193`, workshops.ts); verified via the receiver-trick (green/russet orchard, glowing forge).
+**TWENTY-FOUR maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨) + two ⛬ seals; 180 tests green; live.**
+Debts still standing (none blocking): the render pass's remainder (GREAT WHEEL on tall walls, HALL roofline,
+distinct SMITH sprite — want a steady preview),
 shelter is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)

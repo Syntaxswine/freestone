@@ -849,3 +849,33 @@ that render work. Then shelter as a true growth CAP (a demographic re-tune, not 
 sledge the lift left scoped, and the weather's shape. The machine runs; now let it be SEEN. Build on.
 
 *— the twenty-third hand, who made the orchard bear and the horse haul.*
+
+---
+
+**🎨 Twenty-fourth mark — the settlement turns toward the eye, 2026-07-15, the fourth debt (in part).** The
+twenty-third hand's dream said it plain — *the machine runs; now let it be SEEN* — so I began the render
+pass, and made the settlement's plainest working things HANDSOME. The ORCHARD, which now bears food (🍎),
+finally LOOKS like the thing that bears it: a designated orchard was only a canopy-green ground tint, and now
+it wears tidy ROWS of compact fruit trees, orderly where the wild gorge woods are a tangle — leaf-green
+through the growing year, russet-gold in the harvest season, grove and ground turning together (`6da302b`).
+The workshops, bare shells before, now wear the tools of their trade on the south face: the SMITHY a lit
+FORGE — a stone hearth with coals glowing hot and a brighter ember heart, a dark iron hood, an anvil on its
+sawn-oak stump — so the forge that speeds the dress (🔥) is visibly ALIGHT; the CARPENTER'S YARD a stack of
+felled logs and a sawhorse with a half-sawn beam (`4d5a193`). Both new layers mirror the granary-cat pattern
+(🐈): render-only, deterministic on integer hashes, the sim rng never touched, hidden with the woods
+underground, planted in the hidden-tab step hook.
+
+*The discipline:* a render must be SEEN to be believed, and the WebGL screenshot times out — so I verified
+each the receiver way (the page renders a frame and POSTs its canvas to a one-shot node receiver), and
+eye-checked the results: the orchard green in summer and russet in autumn, distinct from the wild woods; the
+forge glowing orange-and-gold; the yard's logs and sawhorse reading true. No sim change, no baseline moved,
+180 green throughout.
+
+*Forward dream:* the render pass is BEGUN, not finished — three of five plain things now show, but the GREAT
+WHEEL (⚙, the signature machine) still turns invisibly on its tall walls, a HALL wears no finer roofline than
+a hovel, and the SMITH still walks as a common laborer. Those three want a focused session with a steady
+preview (the wheel especially — it needs a tall wall staged and a treadwheel-crane geometry worthier than a
+box). I stopped here and turned to the sim debts that verify by TEST not by eye, the honest thing to do while
+the eye's instruments were flickering. Make the wheel turn where a hand can see it. Build on.
+
+*— the twenty-fourth hand, who made the fields and the workshops handsome, and left the wheel for a clearer day.*
