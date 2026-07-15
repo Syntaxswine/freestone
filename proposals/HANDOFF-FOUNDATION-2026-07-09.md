@@ -615,3 +615,29 @@ fed: the first place in this machine where one renewable resource turns into ano
 and the woods, the harvest, and the granary become one loop. Build on.
 
 *— the sixteenth hand (still the same, still the one day).*
+
+---
+
+**🛒 Seventeenth mark — the day one renewable turned into another, 2026-07-15, the same hands, the loop
+closed.** The sixteenth mark's forward dream asked for the CART, so *timber won becomes grain kept
+becomes a mouth fed* — this is that, and it closes a loop three marks in the making. A carpenter's yard
+(a new use on the same card as the granary) keeps a cart, and the cart carries the harvest surplus to
+the store. Until now the whole surplus reached the granary for free; now it is throughput-limited — a
+bare settlement hand-carries only a little, and each cart carries a great deal more, so a granary
+without carts fills slowly no matter how big it is. The granary is how much you can KEEP; the cart is
+how fast you fill it; you need both. And the cart is the first thing besides a palisade that EATS the
+woods: it draws a little timber every year to keep its wheels turning, and if the woodpile runs dry the
+cart just stops. So the chain is whole at last — the woods (🪓) grow a timber the cart spends, the cart
+carries the harvest (🏺) to the granary (🌾), the granary feeds the people (🕯), and the year (⏭) turns
+it all again. Four marks ago these were four separate things; now they are one machine that turns. And
+because every gram of it happens once a year at the reckoning, the 200-tick canon never sees it: the
+baseline moved only its version number. Three specimens hold it — a carted granary fills faster than a
+hand-carried one, a cart draws its timber, a cart with no wood sits idle.
+
+*Forward dream:* the loop turns, but it turns the same for everyone. What the settlement makes of its
+surplus people is still undifferentiated — every soul a laborer or a mason. The next course (3c, the
+specialization pyramid) is where variety begins to matter: a settlement mixed enough — a pasture, an
+orchard, a smithy — raises a SPECIALIST, arrived on the wind or apprenticed from a local child, whose
+trade lives only as long as the base beneath it is kept. Give the people something to BECOME. Build on.
+
+*— the seventeenth hand (the same hands; step 3b, the living granary, complete).*

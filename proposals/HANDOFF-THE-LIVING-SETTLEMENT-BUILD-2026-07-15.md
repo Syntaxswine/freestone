@@ -58,7 +58,7 @@ reshaped step 3 is in that section. Tree clean, 159 green, live.
 | **0** | **The year made real + Sit-the-Season** | ✅ **SHIPPED** (`02465ac`, SIM-neutral) |
 | **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
 | **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
-| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a GRANARY** (SIM 21) + **3b-i CAT + sacks** (`e8af0f7`, 🐈15) + **3b-ii the GRAIN STOCK** (SIM 22, `243c8d6`, 🏺16 — granary = a real buffer) SHIPPED; **3b-iii** the cart + carpenter's yard (SIM 23), **3c** the pyramid = NEXT |
+| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a GRANARY** (SIM 21) + **3b the LIVING GRANARY COMPLETE**: 3b-i CAT+sacks (`e8af0f7`, 🐈15), 3b-ii GRAIN STOCK (SIM 22, `243c8d6`, 🏺16), 3b-iii the CART (SIM 23, `ca05631`, 🛒17 — woods→grain→people loop closed); **3c** the specialization pyramid = NEXT |
 | 4 | Housing quality tiers (hovel/cottage/hall) | pending |
 | 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
 
@@ -241,6 +241,18 @@ tracks capacity (4→4, 20→20, 50→49); the new weather churn is the demand a
 larder spoils becomes the store a carted granary keeps — the first renewable-into-renewable loop).
 TUNING KNOB left for later: the weather distribution is uniform [0.7,1.3]; a more peaked shape (e.g.
 mean-of-two-uniforms) would make extreme years rarer if the churn ever reads as too harsh.
+
+**✅ 3b-iii — THE CART (SIM 23, `ca05631`) SHIPPED — STEP 3b COMPLETE** — the seventeenth mark (🛒),
+and the loop the woods, the harvest and the granary were built toward. `BUILDING_KINDS += 'carpentry'`
+(🪚 on the card): a carpenter's yard keeps a CART, and the cart is throughput on the grain flow — a bare
+settlement hand-carries only `BASE_HAUL` (2) mouth-years of surplus to the store a year, each maintained
+cart adds `CART_HAUL` (6), the rest spoils. So a granary fills SLOWLY without carts (granary = capacity,
+cart = fill rate). And the cart is the woods' first consumer besides walls: it draws `CART_UPKEEP` (2 m³)
+timber a year, rolls only while the woodpile can keep it, else sits idle. Timber won → grain kept → mouth
+fed — the first renewable-into-renewable loop. In livingYear → inert on canon (regen: simVersion 22→23
+only). `cart.test.ts` (3): throughput, timber draw, idle-without-wood. 163 green. **Step 3b (the living
+granary — cat, stock, cart) is DONE; 3c (the specialization pyramid) is next.** Deferred render polish
+(free, low priority): a distinct carpenter's-yard render + a cart PROP by it (the granary sacks pattern).
 
 **The seams (from the census + bible):**
 - **Variety** — the shipped designation grammar (`farm/livestock/fallow`) grows two tenants: **horse
