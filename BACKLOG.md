@@ -1,7 +1,13 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)**
-(reads the FOUNDATION keystone first — the soul, the nine laws, TEN maker's marks — then the
+**🗿 Current handoff: [proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md)**
+— building the living-settlement ladder (§9 of the design bible) course by course under the boss's
+directive *keep going until the ladder is done; a handoff + a keystone between tasks*. **Step 0 —
+the year made real + Sit-the-Season — SHIPPED `02465ac`, SIM-neutral (145 tests, baseline
+byte-identical); NEXT step 1 THE WOODS, SIM 19.** The eleventh maker's mark (⏭) is on the
+FOUNDATION. The PRIOR course's handoff (carriage/dress):
+[HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
+(reads the FOUNDATION keystone first — the soul, the nine laws, now ELEVEN maker's marks — then the
 carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its phase keystones HANDOFF-THE-HONEST-STALL (Phase 0)
 and HANDOFF-THE-CART (Phase 1), and the design PROPOSAL-LOGISTICS. Carriage **Phase 1 — SIM 17, HAUL** (won stone travels pile→face by
 cart at a route-frozen rate; **wall-sited**, so the lever is where you BUILD; "cost the route, not
@@ -250,6 +256,19 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         it teaches the dry/drowned reading, but tying the readout to the camera is the pending
         prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
         settings are the natural follow-ons.
+- [x] THE LIVING SETTLEMENT — step 0: THE YEAR MADE REAL + SIT THE SEASON (2026-07-15, SIM-neutral,
+      `02465ac`): the prerequisite for the generational ladder — you cannot watch a coppice or a
+      childhood at ×1. **The civic calendar** (`src/sim/types.ts`) — `SEASONS` (winter|spring|summer|
+      autumn, CONSTANT strings) + `seasonOf`/`ticksUntilNextSeason`/`yearOf`/`dayOfYear`, all PURE
+      functions of the tick (no state, never hashed; bounds = coarsening of farms.ts `seasonBand` so
+      HUD & fields agree; winter = the dormant felling season). **Sit the Season** (`main.ts`) — a
+      ⏭ transport verb that pumps `worldStep` to the next season turn within an 8 ms/frame budget,
+      forecast on the button, any speed press cancels (pause never advances). HUD now `Year · Season ·
+      day`. **No SIM_VERSION bump — baseline byte-identical**; +6 calendar tests → **145 green**.
+      Verified at the kernel (rAF is paused in a backgrounded preview tab, so the HUD paint is proven
+      by importing the shipped fns against real `__cc` ticks + pumping to the Sit target 321→425,
+      landing exactly, winter→spring). Handoff: HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.
+      NEXT: step 1 THE WOODS, SIM 19 (the first baseline move of the arc — two commits).
 - [x] SIM 18 — THE DRESS DIAL (carriage Phase 2, 2026-07-14): each stone wall is worked to a block
       class — rubble | scappled | ashlar — frozen at plan time, setting a LAY DEBT + a HAUL WEIGHT.
       · **the physics** (`78b03df` plan-row readout, byte-identical → `1ea7bf4` SIM 18): DRESS_SPEC —

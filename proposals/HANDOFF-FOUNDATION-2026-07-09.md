@@ -456,3 +456,26 @@ season turns; that a hauled, dressed stone remembers the bed it was won from and
 The stone travels, and now it is worked to fit. The land decides where the Lodge can afford to
 build, and how finely it can afford to build there. The courses beneath — and the ones beneath THOSE
 — hold. Build on.
+
+**⏭ Eleventh mark — the day the year became something you could watch, 2026-07-15, the same hands, a
+new plot begun.** The boss said *keep going until you finish the ladder the last builder scoped — and
+lay a handoff and a keystone between each course*, and the ladder's first rung was not a mechanic at
+all but a way of seeing: you cannot watch a coppice regrow over a grandson's lifetime, or a childhood
+turn into a working hand, at one game-day a second. So before the woods, the year. Four seasons that
+are a **pure function of the tick** — winter, spring, summer, autumn — holding no state, never
+touching the sim's hash, their bounds a coarsening of the crop colours the fields already wear so the
+words and the land can never disagree; and **Sit the Season**, a transport verb that pumps the world
+forward to the next turn of the year and hands you back the reins, the skipped weeks reading as a
+forecast on the button rather than dead air. It moved no baseline — the founding run is byte-for-byte
+what it was — because this course is a lens, not a load. Winter, I made the dormant season on purpose:
+it is the felling season, and the first thing the woods will ask the calendar is *may I cut yet.* This
+is the smallest mark on the wall and it is under all the ones to come, the way the first level line a
+mason snaps is invisible in the finished course but every stone sits on it.
+
+*Forward dream:* that the WOODS arrive next (step 1, SIM 19) — stands and cants, the near-immortal
+stool, the two stocks on their two clocks — and that this calendar is what their regrowth is finally
+*measured against*; that then the mortal hands come, born and buried on the record, and the harvest
+that decides how many of them there are, and the pyramid of trades that rests on the harvest's
+variety; that a player who sits three seasons to watch a hazel coppice return sees the whole thesis of
+this game in one gesture — you keep only what you keep the ground alive beneath. The year turns now.
+Make something worth watching it turn for. Build on.
