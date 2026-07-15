@@ -74,7 +74,7 @@
 // each), so the food capacity reads the granaries beside the arable. Grounds §4's
 // soul (the granary embodies mutual aid AND is the population engine, one object)
 // and gives the cart a place to carry grain TO. Step 3a of the pyramid arc.
-export const SIM_VERSION = 23;
+export const SIM_VERSION = 24;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -507,6 +507,19 @@ export const BIRTH_RATE_FULL = 0.2; // births per adult per year at full tilt (a
 export const HUNGER_LEAVE_RATE = 0.12; // fraction who emigrate per year of hunger (S < 1.0)
 
 /**
+ * THE SPECIALIZATION PYRAMID (SIM 24, 3c): a settlement VARIED enough — this many
+ * distinct productive tenants + workshops (farm / livestock / pasture / orchard /
+ * blacksmith / carpentry; fallow doesn't count) — and populous enough to spare a
+ * hand from the fields, draws a SPECIALIST to a workshop it holds. The first is the
+ * SMITH, drawn to a blacksmith. The trade is as permanent as the base you keep under
+ * it: a smith stays for life and never leaves in hunger, but a NEW one is only ever
+ * drawn while the base holds — so lose the smithy or the variety and the trade dies
+ * out with the last master, and rebuild the base and it returns. One smith per smithy.
+ */
+export const VARIETY_FOR_SMITH = 3; // distinct tenants + workshops before a smith is drawn
+export const SMITH_MIN_POP = 6; // souls before the settlement can spare one for a trade
+
+/**
  * Enclosure recognition thresholds (SCOPE §6 — the plot is the plan). A wall's
  * GEOMETRY declares what it makes; the pencil mode is not sim data.
  * Boss canon 2026-07-09: "farms are made by building a low wall, .5m around a
@@ -631,7 +644,12 @@ export interface PlacedStone {
 export interface Person {
   id: number;
   name: string;
-  trade: 'mason' | 'laborer';
+  /**
+   * mason (lays stone), laborer (moves earth, tends fields), or a SPECIALIST — smith
+   * (SIM 24, 3c) is the first: drawn to a settlement varied enough to keep one, works
+   * the blacksmith, digs and lays nothing. Its production effect is a later bump.
+   */
+  trade: 'mason' | 'laborer' | 'smith';
   /**
    * Daily work rate by trade: masons in stones laid, laborers in m³ of earth
    * moved (stubs; real pacing arrives with M2's quarry loop).
@@ -801,6 +819,11 @@ export type SimEvent =
   | { kind: 'person_died'; tick: number; personId: number; name: string; age: number }
   /** hunger drove a soul to leave for another manor */
   | { kind: 'person_left'; tick: number; personId: number; name: string }
+  /**
+   * THE SPECIALIST (SIM 24): a settlement varied enough drew a tradesperson to a
+   * workshop it holds — the first is the smith, to the blacksmith.
+   */
+  | { kind: 'specialist_arrived'; tick: number; personId: number; name: string; trade: 'smith' }
   /**
    * THE GRAIN STOCK (SIM 22): the year's harvest reckoned — produced (weather-varied),
    * eaten by the mouths, and what stands in the store after (a lean year draws it down).

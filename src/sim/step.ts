@@ -22,7 +22,9 @@ import {
   HUNGER_LEAVE_RATE,
   MIGRANTS_PER_YEAR_FULL,
   MORTALITY_BANDS,
+  SMITH_MIN_POP,
   TICKS_PER_YEAR,
+  VARIETY_FOR_SMITH,
   dayOfYear,
   yearOf,
   type Person,
@@ -1180,8 +1182,9 @@ function livingYear(state: WorldState): void {
   // HUNGER — souls leave for another manor (the boss: "really bad, like starvation,
   // and they leave"), but ONLY when the store couldn't cover the shortfall either
   // (effectiveS < 1). One soul always holds on — the settlement never empties here.
+  // SPECIALISTS never leave: their trade is rooted to the base (SIM 24).
   if (effectiveS < 1.0) {
-    let leaving = state.people.filter(() => rng.float() < HUNGER_LEAVE_RATE);
+    let leaving = state.people.filter((p) => p.trade !== 'smith' && rng.float() < HUNGER_LEAVE_RATE);
     if (leaving.length >= state.people.length) leaving = leaving.slice(0, state.people.length - 1);
     const gone = new Set(leaving.map((p) => p.id));
     for (const p of leaving) {
@@ -1189,6 +1192,42 @@ function livingYear(state: WorldState): void {
     }
     state.people = state.people.filter((p) => !gone.has(p.id));
   }
+
+  // 4. SPECIALIZATION (SIM 24) — a settlement varied + populous enough draws a SMITH
+  // to a blacksmith it holds. The trade is as permanent as the base: a smith is only
+  // ever drawn while the base holds (variety + a smithy + the people to spare one), so
+  // if a smith dies and the base still stands, another comes; if the base has failed,
+  // the trade dies out with the last master. One smith per smithy.
+  const smithies = state.buildings.reduce((n, b) => (b.kind === 'blacksmith' ? n + 1 : n), 0);
+  const baseHolds =
+    smithies >= 1 && countVariety(state) >= VARIETY_FOR_SMITH && state.people.length >= SMITH_MIN_POP;
+  const smiths = state.people.reduce((n, p) => (p.trade === 'smith' ? n + 1 : n), 0);
+  if (baseHolds && smiths < smithies) {
+    const p = newAdult(state, rng, state.tick);
+    p.trade = 'smith';
+    state.people.push(p);
+    state.events.push({
+      kind: 'specialist_arrived',
+      tick: state.tick,
+      personId: p.id,
+      name: p.name,
+      trade: 'smith',
+    });
+  }
+}
+
+/**
+ * The settlement's VARIETY (SIM 24): distinct productive tenants + workshops. Fallow
+ * doesn't count (it produces nothing); the more kinds of work a place holds, the more
+ * it can keep a specialist.
+ */
+function countVariety(state: WorldState): number {
+  const kinds = new Set<string>();
+  for (const f of state.farms) if (f.use !== 'fallow') kinds.add(`field:${f.use}`);
+  for (const b of state.buildings) {
+    if (b.kind === 'blacksmith' || b.kind === 'carpentry') kinds.add(`shop:${b.kind}`);
+  }
+  return kinds.size;
 }
 
 /**

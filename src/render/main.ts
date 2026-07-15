@@ -1200,11 +1200,13 @@ async function boot(): Promise<void> {
       woods +
       harvest +
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
+    const nSmiths = world.people.reduce((n, p) => (p.trade === 'smith' ? n + 1 : n), 0);
+    const souls = `souls ${world.people.length}${nSmiths ? ` (${nSmiths} smith${nSmiths > 1 ? 's' : ''})` : ''}`;
     setText(
       status,
       `Year ${year} · ${season.charAt(0).toUpperCase()}${season.slice(1)} · day ${day} — ` +
         `stones ${laid}${total ? `/${total}` : ''} — ` +
-        `souls ${world.people.length}${holdings} — site ${site.id}`,
+        `${souls}${holdings} — site ${site.id}`,
     );
 
     setText(hVal, `h ${planner.height.toFixed(1)} m`);
