@@ -58,8 +58,8 @@ reshaped step 3 is in that section. Tree clean, 159 green, live.
 | **0** | **The year made real + Sit-the-Season** | ✅ **SHIPPED** (`02465ac`, SIM-neutral) |
 | **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
 | **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
-| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a GRANARY** (SIM 21) + **3b the LIVING GRANARY COMPLETE**: 3b-i CAT+sacks (`e8af0f7`, 🐈15), 3b-ii GRAIN STOCK (SIM 22, `243c8d6`, 🏺16), 3b-iii the CART (SIM 23, `ca05631`, 🛒17 — woods→grain→people loop closed); **3c** the specialization pyramid = NEXT |
-| 4 | Housing quality tiers (hovel/cottage/hall) | pending |
+| 3 | The pyramid + carpenter's shop + the cart + granary cat | ✅ **COMPLETE** — 3a GRANARY (SIM 21); **3b** cat (`e8af0f7`,🐈15) + grain stock (SIM 22,`243c8d6`,🏺16) + cart (SIM 23,`ca05631`,🛒17); **3c** variety tenants (SIM-neutral,`3e087e4`) + the SMITH specialist (SIM 24,`beee2fc`,🔨18 — base sustains the lineage) |
+| 4 | Housing quality tiers (hovel/cottage/hall) | ◐ **NEXT** |
 | 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
 
 **The build directive** (boss, 2026-07-15): *keep going until you complete the tasks the previous
@@ -253,6 +253,20 @@ fed — the first renewable-into-renewable loop. In livingYear → inert on cano
 only). `cart.test.ts` (3): throughput, timber draw, idle-without-wood. 163 green. **Step 3b (the living
 granary — cat, stock, cart) is DONE; 3c (the specialization pyramid) is next.** Deferred render polish
 (free, low priority): a distinct carpenter's-yard render + a cart PROP by it (the granary sacks pattern).
+
+**✅ 3c — THE SPECIALIZATION PYRAMID (`3e087e4` + SIM 24 `beee2fc`) SHIPPED — STEP 3 COMPLETE.**
+Two slices. **3c-i variety tenants** (SIM-neutral): `FIELD_USES += pasture, orchard` — the field grammar
+grows a horse paddock + an orchard (distinct render tints, on the card), the variety a specialist needs.
+Byte-identical (canon plants neither), no bump. **3c-ii the SMITH** (SIM 24, 🔨 mark 18): `Person.trade
++= 'smith'`; a settlement with `≥ VARIETY_FOR_SMITH` (3) distinct tenants+workshops, a blacksmith, and
+`≥ SMITH_MIN_POP` (6) souls draws ONE smith per smithy. **Base-sustains-the-lineage** (the boss's key
+refinement): a smith never leaves (excluded from hunger), and a new one is drawn ONLY while the base holds
+— so keep the smithy+variety and the trade passes down the generations (replaced on death), lose it and
+the last master's craft dies with him until the base is rebuilt. Structure only; the smith's PRODUCTION
+EFFECT (smith → faster dress, touches masonry) is a deferred bump per the pyramid's trap. `specialists.
+test.ts` (4). Inert on canon (no smithy in it). 168 green. **DEFERRED follow-ups (documented, not blocking):**
+the local-apprentice EMERGE path (raise a child under a master); the smith's production effect; a distinct
+smith sprite (renders as a laborer today); orchard-fruit + horse-haul effect bumps.
 
 **The seams (from the census + bible):**
 - **Variety** — the shipped designation grammar (`farm/livestock/fallow`) grows two tenants: **horse

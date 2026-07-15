@@ -641,3 +641,32 @@ orchard, a smithy — raises a SPECIALIST, arrived on the wind or apprenticed fr
 trade lives only as long as the base beneath it is kept. Give the people something to BECOME. Build on.
 
 *— the seventeenth hand (the same hands; step 3b, the living granary, complete).*
+
+---
+
+**🔨 Eighteenth mark — the day a soul could become something, 2026-07-15, the same hands, step three
+complete.** The seventeenth mark's forward dream asked for a settlement where *variety begins to matter*,
+where a mixed place *raises a specialist whose trade lives only as long as the base beneath it is kept* —
+this is that, and it finishes the whole third course of the ladder. First the variety: the field grammar
+grew two tenants, a horse pasture and an orchard, so a settlement can be more than one kind of ground
+(that half was byte-neutral — the canon plants neither, so the baseline never moved). Then the thing the
+variety is FOR: a place varied and peopled enough now draws a SMITH to its blacksmith — the first soul in
+this game who is neither a laborer nor a mason but a *specialist*, a named tradesman come to a settlement
+worth coming to. And the rule the boss cared most about is the rule I built most carefully: the trade is
+as permanent as the ground you keep under it. A smith never leaves — not for hunger, not for anything —
+but a NEW smith is only ever drawn while the base still holds, so the lineage is exactly as long as your
+commitment to it. Keep the smithy and the mixed fields and the trade passes master to master down the
+generations; let the base fail and the last smith works out his life and then the craft is simply gone
+from the valley, until some later hand rebuilds the ground and draws another. I shipped only that the
+smith EXISTS and persists and dies-with-its-base — what a smith DOES (works stone faster) waits for its
+own honest bump, because that one touches the wall and must be earned a mark of its own. Four specimens
+hold the structure; the canon, which keeps no smithy, never felt a thing.
+
+*Forward dream:* the specialist has arrived but has nowhere to LIVE that says anything about him — every
+soul, smith or hand, sleeps in the same undifferentiated shelter. The next course (step 4) is HOUSING
+made to matter: a hovel, a cottage, a hall, tiers a settlement climbs, so that what you build for your
+people is legible in the roofline and not just the count. And after that (step 5) the heavy accelerants
+and the LIFT — the rollers and the great wheel that let the wall climb past what a hand could ever raise.
+The people can become something now. Give them somewhere to become it. Build on.
+
+*— the eighteenth hand (the same hands; STEP 3, the pyramid, complete — the living settlement stands).*
