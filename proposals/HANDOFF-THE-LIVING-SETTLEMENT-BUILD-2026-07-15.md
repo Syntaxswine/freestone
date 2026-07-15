@@ -19,8 +19,8 @@ This arc discharges the roadmap's Beats 0–4.
 | step | course | state |
 |---|---|---|
 | **0** | **The year made real + Sit-the-Season** | ✅ **SHIPPED** (`02465ac`, SIM-neutral) |
-| 1 | THE WOODS — stands, `plan_fell`, two stocks, regrowth clock, age-classed render | ▶ **NEXT** (SIM 19) |
-| 2 | The living population — harvest engine + demographic pass | pending (likely one batched SIM bump) |
+| **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
+| 2 | The living population — harvest engine + demographic pass | ▶ **NEXT** (likely one batched SIM bump) |
 | 3 | The pyramid + carpenter's shop + the cart + granary cat | pending |
 | 4 | Housing quality tiers (hovel/cottage/hall) | pending |
 | 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
@@ -33,9 +33,13 @@ handoff (this doc, updated) + a keystone (a maker's mark on the FOUNDATION) betw
 
 - SIM 18 — the DRESS dial (before this arc).
 - **Step 0 added no SIM version** — the calendar is a pure derivation, Sit-the-Season is transport;
-  the baseline is byte-identical. **Step 1 THE WOODS will be SIM 19** — the first baseline move of
-  this arc, and it must ride the two-commit discipline (inert record first, then the attributable
-  bump + a re-authored baseline with its reason).
+  the baseline is byte-identical.
+- **SIM 19 — THE WOODS** (`df01154` inert scaffold + `02f7736` the bite): the arc's first baseline
+  move, ridden on the two-commit discipline. The re-authored `baselines/durham-42.json` now
+  fingerprints the timber loop (a wood wall spends the woodpile 30→10; a coppice fell wins it back to
+  40; `timber` + `standsFelled` are new milestone fields) with zero id ripple.
+- **Step 2 the living population is likely one BATCHED SIM bump** (roadmap §4 — don't pay eight
+  re-baselines for the spine). Isolate any new demographic RNG on a `seed+year` stream (§10).
 
 ---
 
@@ -78,31 +82,79 @@ HUD paints normally. If you need a visual, drive it with `__cc.step` + the rende
 
 ---
 
-## Step 1 — THE WOODS (NEXT, SIM 19)
+## Step 1 — DONE (THE WOODS, SIM 19)
 
-The boss-picked arc; §2 of the bible. The first baseline move — **two commits.**
+The boss-picked arc; §2 of the bible. Shipped two commits: `df01154` (inert scaffold — new
+state/commands/loops proven byte-identical on the canon) + `02f7736` (the bite — wood draws timber,
+the canon fells, the tool + render + HUD). The twelfth maker's mark (🪓) records the day.
 
-**The seams (from the census, verified in code):**
+**What shipped:**
+- **Timber is real** — `state.timber` (a global stock, seeded `SEED_TIMBER`) + `state.stands`
+  (managed cants). `plan_fell` freezes a cant's `timberTotal`/`workTotal` from the tree model at the
+  boundary (`trees.timberInPolygon`); a laborer fells the oldest stand under the axe (`moveEarth`,
+  ranked under the adit); on felling-through, timber is credited and the stool's `feltTick` is set.
+- **The palisade draws it** — `layStones`: a wood post spends `TIMBER_PER_POST` and the masons STALL
+  when the stock is dry (the "WOODS aren't a cost yet" seam retired).
+- **Regrowth** — `regrowWoods` matures a felled stool after `REGROWTH_TICKS` (~7 yr); a mature stand
+  is re-fellable via the `fell` command (rejected until grown — "the wood has not grown back").
+- **The tool + render** — a `🪓 fell (T)` ground-ring tool (planner `fell` mode); drawing over
+  woodland → `plan_fell`, over a mature regrown stand → `fell` (re-cut). `trees.ts` clears a cant
+  felled through (the open coupe) and restores the EXACT trees when it matures (deterministic
+  `placeTree(i)`). HUD: the timber stock + a "a cant returns in ~Ny" line.
+- **Tests**: `woods.test.ts` (5 red specimens) + the canon fingerprints the loop → **150 green**.
 
-- **Render → sim promotion.** The 16,872 canopies live in `src/render/trees.ts` (render-only today,
-  `trees.update(world)` in the frame loop). The woods become **sim stands partitioned into cants**;
-  a new `plan_fell` command **freezes a `timberTotal` + a regrowth clock at the boundary**, exactly
-  as `plan_cut` freezes the quarry (grep `plan_cut` / the `cuts` array for the pattern to mirror).
-- **The draw site is already marked.** In `src/sim/step.ts`'s `layStones`, the `w.material === 'wood'`
-  branch carries the comment *"the WOODS aren't a cost yet."* That is where timber stops being free.
-- **The clock is already exported.** `TICKS_PER_YEAR` + the new `seasonOf` are the regrowth clock and
-  the winter-felling gate; state every duration in the other's terms (§1). Two stocks: underwood/poles
-  (~7–8 yr) and oak standards (~50 yr). Felling ≠ death — the stool regrows; over-cut is a dated scar.
-- **`plan_fell` is the arc's drawing verb** (the roadmap's standing rule: one per arc). Ship also the
-  age-classed render ladder (open coupe → 1.5 m shoots → re-closed canopy → poles), the
-  sustainable-harvest HUD read (the 1356 Hayley Wood idiom), and the wood-pasture/coppice word-card.
+**Laws this course set (carry them):**
+1. **The woods are the quarry's twin.** `plan_fell` freezes economics from the tree model exactly as
+   `plan_cut` freezes from the bed model; the sim core never counts a tree; the render (`trees.ts`)
+   is the single tree authority the boundary reads (`timberInPolygon`).
+2. **Felling is not death.** A cant regrows to EXACTLY its old form; re-cut is a deliberate `fell`,
+   never automatic; you cannot cut what has not grown.
+3. **The late-fell canon trick**: a new id-minting command placed AFTER all id-sensitive commands
+   (tick 137, past the last wall/roof) fingerprints a new mechanic with ZERO wallId ripple — reach
+   for it before re-probing every hardcoded id.
 
-**Discipline for step 1 (do not skip):** two commits (inert record, then SIM 19 + re-authored
-baseline); isolate any new RNG the woods introduce so it does not cascade the masonry baseline
-(§10 — the demographic day gets its own `seed+year` stream; the woods, if they consume rng, likewise);
-red-specimen tests for the regrowth clock before the mechanism; verify at the kernel (`__cc.step`),
-not the screenshot; push per completed step; add the twelfth maker's mark.
+**Deferred follow-ons (noted, NOT built — the honest minimum shipped):**
+- **The second stock (oak standards, ~50 yr)** — deferred to step 5 (LIFT/the crane is its only
+  consumer; shipping it now = unused state). One `timber` stock (poles) with real consumers (wood
+  walls now, the cart in step 3) was the honest SIM-19 scope.
+- **The winter-felling season gate** — the step-0 calendar is READY (gate `plan_fell`/felling on
+  `seasonOf`); deferred so SIM 19 stayed focused. Its consumer today is Sit-the-Season watching the
+  coppice regrow.
+- **The age-classed render ladder** (open coupe → 1.5 m shoots → re-closed canopy) — shipped the
+  two-state version (felled = cleared, mature = restored); the intermediate shoot stages are polish.
+- **The sustainable-harvest 1356 Hayley-Wood read** + the **wood-pasture/coppice word-card** — the
+  designation-grammar tenants; a clean follow-on on the shipped `fell` verb.
+- **Bare-ground-from-over-cut** (convert/abandon a cant → it reseeds through scrub over decades) —
+  needs conversion/abandonment semantics; the current model refuses an early cut rather than scarring.
 
 ---
 
-*Step 0 laid the level line. The year turns; now build the wood that heals as fast as you cut it.*
+## Step 2 — THE LIVING POPULATION (NEXT, likely one batched SIM bump)
+
+§3 (the mortal hands) + §4 (the harvest) of the bible. This is what the woods' regrowth is finally
+*measured against* — the generations. Roadmap §4: batch the spine into ONE SIM bump.
+
+**The seams (from the census):**
+- **`state.people`** is four founder stubs (`id/name/trade/pace`, already hashed sim state); the
+  labor loops (`moveEarth`, `layStones`) already iterate it, so production breathes with the roster.
+- **The demographic pass** slots into `worldStep`'s daily order (beside `moveEarth`/`layStones`), run
+  ONE day a year (gate on `dayOfYear(tick) === 0`): seeded survival rolls on an age curve (staggered
+  lifespans from commit one — the cohort-death-wave trap), niche-gated household formation (Razi
+  land-availability, NOT the early-modern EMP), vacancy-on-heirless-death.
+- **Determinism (the load-bearing risk)**: isolate the demographic RNG on its own `seed + year`
+  derived stream so people-churn does NOT cascade into the masonry baselines (§10).
+- **The harvest** (§4): space-gated food (~5 acres/person; `Farm.workdays`/area is already the
+  substrate) → the 1.25× surplus ramp → migration (fast) + births (slow).
+- **Rides in**: the clerk (SCOPE §7), sprite↔person binding, the funeral protocol, `name_apprentice`
+  + coarse skill bands + the First Technique.
+- **The instrument** (§10): a headless **century-sweep** (100 yr × N seeds) to tune the surplus
+  threshold, mortality curve + variance, growth rates — none tunable by eye on a 400-tick baseline.
+
+**Discipline**: batch the SIM bump; the `seed+year` RNG isolation is mandatory; red specimens for
+mortality + household formation + the surplus ramp; a century-sweep tool as part of the deliverable;
+verify at the kernel; push; add the thirteenth mark.
+
+---
+
+*Step 0 laid the level line; step 1 grew the wood that heals as fast as you cut it. Now give it
+people to outlive it.*

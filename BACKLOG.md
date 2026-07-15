@@ -3,11 +3,15 @@
 **🗿 Current handoff: [proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md)**
 — building the living-settlement ladder (§9 of the design bible) course by course under the boss's
 directive *keep going until the ladder is done; a handoff + a keystone between tasks*. **Step 0 —
-the year made real + Sit-the-Season — SHIPPED `02465ac`, SIM-neutral (145 tests, baseline
-byte-identical); NEXT step 1 THE WOODS, SIM 19.** The eleventh maker's mark (⏭) is on the
-FOUNDATION. The PRIOR course's handoff (carriage/dress):
+the year made real + Sit-the-Season — SHIPPED `02465ac` (SIM-neutral). Step 1 — THE WOODS —
+SHIPPED SIM 19 (`df01154` inert scaffold + `02f7736` the bite): timber is a real WON/SPENT/REGROWING
+resource — a `plan_fell` freezes a cant's timber from the tree model (quarry-twin), the palisade
+DRAWS it and stalls dry, the felled stool regrows over ~7 years and re-cuts, a 🪓 fell (T) tool +
+the coppice returning its exact trees; 150 tests. NEXT step 2 THE LIVING POPULATION (§3+§4, one
+batched SIM bump — the generations the regrowth is measured against).** Twelve maker's marks now
+(⏭ the year, 🪓 the woods). The PRIOR course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
-(reads the FOUNDATION keystone first — the soul, the nine laws, now ELEVEN maker's marks — then the
+(reads the FOUNDATION keystone first — the soul, the nine laws, now TWELVE maker's marks — then the
 carriage-layer PLOT: HANDOFF-THE-CARRIAGE-LAYER, its phase keystones HANDOFF-THE-HONEST-STALL (Phase 0)
 and HANDOFF-THE-CART (Phase 1), and the design PROPOSAL-LOGISTICS. Carriage **Phase 1 — SIM 17, HAUL** (won stone travels pile→face by
 cart at a route-frozen rate; **wall-sited**, so the lever is where you BUILD; "cost the route, not
@@ -256,6 +260,25 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
         it teaches the dry/drowned reading, but tying the readout to the camera is the pending
         prospect-on-hover course (task 48). Save/Load persistence + difficulty/economy
         settings are the natural follow-ons.
+- [x] THE LIVING SETTLEMENT — step 1: THE WOODS, SIM 19 (2026-07-15, `df01154` inert scaffold +
+      `02f7736` the bite): timber is a real WON/SPENT/REGROWING resource — the generational heart.
+      **Scaffold** proven byte-identical inert on the canon (0 non-hash milestone diffs; only the new
+      `stands: []` / `timber: 30` fields moved the hashes). **The bite**: a `plan_fell` freezes a
+      cant's timberTotal/workTotal from the tree model at the boundary (`trees.timberInPolygon`) like
+      plan_cut freezes stone from the bed model; a laborer fells the oldest stand under the axe
+      (`moveEarth`, ranked under the adit), crediting `state.timber`; a WOOD wall DRAWS the stock
+      (`TIMBER_PER_POST`/post) and STALLS dry (the "WOODS aren't a cost yet" seam retired); the felled
+      stool REGROWS after `REGROWTH_TICKS` (~7 yr, `regrowWoods`) and re-cuts via the `fell` command
+      (refused until grown). Tool: `🪓 fell (T)` ground-ring (planner `fell` mode) — draw over woods →
+      plan_fell, over a mature regrown stand → re-cut; `trees.ts` clears the coppice and restores the
+      EXACT trees on maturity. HUD: timber stock + "a cant returns in ~Ny". Canon re-authored (timber
+      30→10 as wall B builds, →40 on a tick-137 coppice fell; ZERO wallId ripple — the late-fell
+      trick). `woods.test.ts` 5 red specimens; **150 tests**; verified live via __cc (a 3 m³ cant
+      felled → stock +3 → 3 trees cleared → matured → trees back to 16,872). Twelfth mark (🪓). LAWS:
+      the woods are the quarry's twin; felling≠death (deterministic `placeTree` regrow); a late
+      id-minting canon command = zero ripple. DEFERRED (noted in the handoff): the 2nd stock (oak
+      standards, → step 5), the winter-felling season gate, the shoot-stage render ladder, the
+      wood-pasture/coppice word-card, bare-ground-from-over-cut.
 - [x] THE LIVING SETTLEMENT — step 0: THE YEAR MADE REAL + SIT THE SEASON (2026-07-15, SIM-neutral,
       `02465ac`): the prerequisite for the generational ladder — you cannot watch a coppice or a
       childhood at ×1. **The civic calendar** (`src/sim/types.ts`) — `SEASONS` (winter|spring|summer|

@@ -479,3 +479,25 @@ that decides how many of them there are, and the pyramid of trades that rests on
 variety; that a player who sits three seasons to watch a hazel coppice return sees the whole thesis of
 this game in one gesture — you keep only what you keep the ground alive beneath. The year turns now.
 Make something worth watching it turn for. Build on.
+
+**🪓 Twelfth mark — the day the woods became a crop you keep, 2026-07-15, the same hands, the ladder's
+first stone laid.** The eleventh mark laid the year down as a lens; this one is the first real thing
+seen through it. Timber stopped being free. A wood you fell now yields real **timber** — a stock the
+palisade DRAWS post by post, and stalls on when it runs dry, exactly as a stone wall stalls on an
+empty pile; and the felled cant does not die. Its stool **regrows over ~seven years** and stands
+ready to cut again — the medieval coppice, the woodland-as-crop, felling as the way a worked wood
+*lives*. The whole thing is the quarry's twin: a `plan_fell` freezes the cant's timber and its
+felling cost from the tree model at the boundary, and the sim core never counts a tree, so the save
+stays self-contained and the sixteen-thousand render canopies became countable timber without ever
+entering the hash. I built it the disciplined way — a scaffold proven byte-for-byte inert on the
+canon first, then the bite: the founder's woodpile spent down as the palisade rose, a coppice felled
+to fill it back, the two sides of the loop in one fingerprint, no wall id so much as shifted. And the
+eleventh mark's calendar earned its keep the first hour — I sat the seasons forward and watched the
+exact trees I had felled grow back to their old form. You can *see* the one law now: keep the wood a
+wood, and it keeps you.
+
+*Forward dream:* that the people come next (step 2, the living population) — born and buried on the
+record, on the same clock the coppice runs, so the seven-year return finally has generations to be
+measured against; that the harvest decides how many hands there are to fell and lift and lay; and
+that a line one day inherits a wood its grandfather left uncut, or the bare ground he didn't. The
+wood heals as fast as you cut it. Now give it someone to outlive. Build on.
