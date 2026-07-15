@@ -5,16 +5,18 @@ the "it is done, here is the map forward" companion to the in-progress build led
 [HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md)
 (read that for the per-step detail — this doc does not duplicate it). Read the FOUNDATION keystone
 [HANDOFF-FOUNDATION-2026-07-09.md](HANDOFF-FOUNDATION-2026-07-09.md) FIRST — the soul, the nine laws,
-now **twenty-four maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨) and **two ⛬ seals**; add yours BELOW, never above.
-Marks 🔥 (FIRST TECHNIQUE, 27), 🤝 (APPRENTICE BOND, 28), 🍎 (VARIETY BEARS FRUIT, 29) and 🎨 (the render pass —
-orchard + workshops made visible) sit below the second seal — the arc closed, then the debt-knockoff began.*
+now **twenty-five maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘) and **two ⛬ seals**; add yours BELOW, never above.
+Marks 🔥 (FIRST TECHNIQUE, 27), 🤝 (APPRENTICE BOND, 28), 🍎 (VARIETY BEARS FRUIT, 29), 🎨 (the render pass —
+orchard + workshops visible) and 🏘 (SHELTER GATES GROWTH, 30) sit below the second seal — the arc closed, then
+the debt-knockoff began.*
 
 > **Post-arc (2026-07-15, continuing):** the boss reopened the closed arc — *keep going till we knock off
 > the items in the handoff* — so the "honest debts" below are being discharged in order. **Done so far:
 > (1)** the smith's production effect — THE FIRST TECHNIQUE (SIM 27, `89c88f1`, 🔥); **(2)** the local-apprentice
 > emerge path — THE APPRENTICE BOND (SIM 28, `af0d983`, 🤝); **(3)** variety-to-yield — VARIETY BEARS FRUIT
 > (SIM 29, `807db0b`, 🍎); **(4, in part)** the plain renders — the ORCHARD (`6da302b`) and the WORKSHOPS
-> (a lit forge + carpenter's yard, `4d5a193`) made visible (🎨), render-only. The rest of the debts stand.
+> (a lit forge + carpenter's yard, `4d5a193`) made visible (🎨), render-only; **(5)** shelter as a growth CAP —
+> SHELTER GATES GROWTH (SIM 30, `d32b25c`, 🏘), the food equilibrium re-verified intact. The rest of the debts stand.
 
 ---
 
@@ -114,8 +116,11 @@ carries its own list; this is the consolidated view, mapped to the master plot
   toward the harvest (area / ORCHARD_AREA_PER_PERSON, a supplement to the grain staple) and each pasture
   keeps a draft horse that hauls more surplus to the store (HORSE_HAUL, grazing free). The HUD's harvest
   readout was widened to include the orchard so it stays honest.
-- **Shelter as a hard CAP** — housing is a retention nudge today; the roadmap's fuller reading has
-  shelter gate GROWTH (build houses to grow), which needs the century-sweep re-tuned to account for it.
+- ~~**Shelter as a hard CAP**~~ — ✅ **DONE (SIM 30, `d32b25c`, the 🏘 mark).** Housing now GATES growth: a
+  settlement grows only while it has room to house more (growthRoom on births + migrants), so the population
+  settles at min(food, shelter); a no-house hamlet caps at ~FOUNDING_SHELTER + SHELTER_GROWTH_SLACK (~10).
+  The century-sweep now houses its settlements so it still tunes FOOD; the food equilibrium was re-verified
+  intact (cap 20 → 20, cap 50 → 51). SHELTER_GROWTH_SLACK is the harshness knob (conservative for now).
 - **Step 5's rollers/sledge** — the heavy-block *haul* accelerant was scoped in the course title; the
   LIFT was the substantial deliverable, the sledge is a clean extension of the SIM-17 haul model.
 - **Weather distribution shape** — uniform [0.7, 1.3]; a peaked shape (mean-of-two-uniforms) would make
@@ -142,9 +147,10 @@ strands remain, and they suit different conditions:
 - **Finish the renders** (needs a steady preview): the GREAT WHEEL on tall walls (the signature ⚙, and the
   hardest — stage a tall wall, build a treadwheel-crane geometry worthier than a box), a HALL's finer
   ROOFLINE (a cresting keyed on `houseTier==='hall'`), a distinct SMITH sprite (apron + hammer).
-- **The sim debts** (verify by TEST, no preview): **shelter as a true growth CAP** (a demographic re-tune
-  via the century-sweep, not today's nudge), the heavy-block **rollers/sledge** the lift left scoped, and
-  the **weather's distribution shape**.
+- **The sim debts** (verify by TEST, no preview): shelter-as-a-cap is now paid (🏘); what remains is the
+  heavy-block **rollers/sledge** the lift left scoped (a haul accelerant — likely a two-commit bump, since it
+  touches the canon's hauled walls, unlike the inert livingYear courses), and the **weather's distribution
+  shape** (a small triangular-vs-uniform polish, lowest priority).
 When the preview flickers (as the classifier did here), the sim debts are the honest choice — they prove out
 on the determinism instrument, not the eye.
 
@@ -162,9 +168,9 @@ bite harder. Build on.
 The living-settlement ladder is written on the FOUNDATION as marks **eleven through twenty**
 (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙), bracketed by two ⛬ seals — the first closing its hard foundation, the second, the
 same day, closing the whole ladder that stands on it. Below the second seal now sit marks **twenty-one** (🔥 THE FIRST TECHNIQUE, SIM 27), **twenty-two** (🤝 THE
-APPRENTICE BOND, SIM 28), **twenty-three** (🍎 VARIETY BEARS FRUIT, SIM 29) and **twenty-four** (🎨 the render
-pass — orchard + workshops made visible) — the arc closed, then the debts began to be paid, in order. The
-next hand's mark goes below the twenty-fourth.
+APPRENTICE BOND, SIM 28), **twenty-three** (🍎 VARIETY BEARS FRUIT, SIM 29), **twenty-four** (🎨 the render
+pass — orchard + workshops made visible) and **twenty-five** (🏘 SHELTER GATES GROWTH, SIM 30) — the arc
+closed, then the debts began to be paid, in order. The next hand's mark goes below the twenty-fifth.
 
 *— the eleventh-through-twentieth hand, who laid the living settlement's foundation and then, the same
 day the seal was meant to close it, built the whole ladder that stands on it. The settlement stands.*

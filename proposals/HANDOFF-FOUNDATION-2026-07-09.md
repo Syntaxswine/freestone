@@ -879,3 +879,33 @@ box). I stopped here and turned to the sim debts that verify by TEST not by eye,
 the eye's instruments were flickering. Make the wheel turn where a hand can see it. Build on.
 
 *— the twenty-fourth hand, who made the fields and the workshops handsome, and left the wheel for a clearer day.*
+
+---
+
+**🏘 Twenty-fifth mark — the roof bounds the people, 2026-07-15, the fifth debt.** With the eye's instruments
+flickering (the preview classifier came and went), I turned to the sim debts that prove out by TEST, and took
+the one worth most: SHELTER GATES GROWTH (SIM 30). Housing was only a hunger-RETENTION nudge (the twentieth
+day's 🏠, SIM 25) — well-housed folk left less in a hard year. Now it also GATES growth: a settlement grows,
+by birth or by the migration wind, only while it has ROOM to house more, tapering to nothing as the mouths
+meet the shelter its roofs give. So the population no longer settles at its FIELDS alone — it settles at the
+LESSER of its fields and its roofs. A hamlet on the founders' first roofs still grows to about ten souls on
+its own (a generous SHELTER_GROWTH_SLACK), but past that you must BUILD HOUSES to grow, and the mason's houses
+matter for the first time as more than warmth in winter. Feed your people AND house them, or they cannot grow.
+
+*The discipline:* inert on the canon like every livingYear course — one clean commit, only simVersion and the
+hashes moved. The care was in the SECOND limiter: a shelter cap sits beside the food cap, so the century-sweep
+— the instrument that tunes the FOOD demographics — would have read the new roof-limit as noise. I HOUSED its
+settlements generously so shelter never binds there, re-ran, and confirmed the food equilibrium is untouched
+(final pop still tracks capacity — cap 20 → 20, cap 50 → 51, born≈died at rest). The housing GATE itself is
+proven in its own specimen: at abundant food a housed settlement grows PAST the unhoused cap, the bare hamlet
+stays capped. This is the "century re-tune" the debt named, done honestly: the new lever proven, the old
+equilibrium shown undisturbed. 181 green. `d32b25c`.
+
+*Forward dream:* four of the five post-arc debts are paid (🔥🤝🍎 and now 🏘), and the render pass is begun
+(🎨). What's left: the render REMAINDER (the great wheel most of all — still turning unseen), and two sim
+debts — the heavy-block ROLLERS/SLEDGE the lift left scoped (a haul accelerant, likely two-commit since it
+touches the canon's hauled walls), and the WEATHER's distribution shape (a small triangular-vs-uniform polish,
+lowest priority). The settlement is now bounded by field AND roof, its people alive and their trades passing
+down. Raise the wheel where a hand can see it, and let the heavy stone ride a sledge. Build on.
+
+*— the twenty-fifth hand, who bound the settlement's growth to its roofs, and kept the food equilibrium true.*

@@ -39,10 +39,14 @@ to include the orchard + shows "N draft horses". All three inert on the canon (l
 feature first). **(4, IN PART) THE RENDER PASS (🎨)** — render-only, no sim: the ORCHARD dots fruit-tree rows
 (`6da302b`, orchard.ts) and the WORKSHOPS wear their tools — a lit forge on the smithy, logs + a sawhorse on
 the yard (`4d5a193`, workshops.ts); verified via the receiver-trick (green/russet orchard, glowing forge).
-**TWENTY-FOUR maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨) + two ⛬ seals; 180 tests green; live.**
+**(5) SHELTER GATES GROWTH (SIM 30 `d32b25c`, 🏘)** — housing now GATES growth (growthRoom on births +
+migrants), so population settles at min(food, shelter); a no-house hamlet caps at ~FOUNDING_SHELTER +
+SHELTER_GROWTH_SLACK (~10). The century-sweep now HOUSES its settlements so it still tunes FOOD; the food
+equilibrium re-verified intact (cap 20→20, cap 50→51). Inert on canon → one commit.
+**TWENTY-FIVE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘) + two ⛬ seals; 181 tests green; live.**
 Debts still standing (none blocking): the render pass's remainder (GREAT WHEEL on tall walls, HALL roofline,
 distinct SMITH sprite — want a steady preview),
-shelter is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
+step-5 rollers/sledge (heavy-block haul accelerant, likely two-commit) + weather-shape (small polish). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the
