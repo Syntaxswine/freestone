@@ -75,6 +75,7 @@ import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
 import { GranaryLayer } from './granary';
 import { OrchardLayer } from './orchard';
+import { WorkshopLayer } from './workshops';
 import { describeFootprint, KIND_LABEL, WallPlanner } from './planner';
 import { TreeLayer } from './trees';
 import { createHomeScreen } from './homescreen';
@@ -834,6 +835,8 @@ async function boot(): Promise<void> {
   const granary = new GranaryLayer(world, site, scene, groundShow);
   // the orchard made visible: tidy rows of fruit trees on each designated orchard (render-only)
   const orchard = new OrchardLayer(world, scene, groundShow);
+  // the workshops made visible: a lit forge on each smithy, a log stack + sawhorse on each yard
+  const workshops = new WorkshopLayer(world, scene, groundShow);
   const paceSum = world.people
     .filter((p) => p.trade === 'mason')
     .reduce((n, p) => n + p.pace, 0);
@@ -960,6 +963,7 @@ async function boot(): Promise<void> {
     terrainMat.needsUpdate = true;
     trees.setVisible(!on); // the woods are surface clutter over a ghosted hill
     orchard.setVisible(!on); // and the planted orchard rows with them
+    workshops.setVisible(!on); // and the forge/yard props
     undergroundBtn.classList.toggle('active', on);
     if (on) tutorial.saw('underground'); // tutorial step 1
     updateDepthRuler();
@@ -1109,6 +1113,7 @@ async function boot(): Promise<void> {
     gates.update();
     trees.update(world);
     orchard.update();
+    workshops.update();
     people.update(dt, speed > 0);
     granary.update(dt, speed > 0);
     updateCard();
@@ -1550,6 +1555,7 @@ async function boot(): Promise<void> {
     buildings,
     trees,
     orchard,
+    workshops,
     underworld,
     home,
     tutorial,
@@ -1571,6 +1577,7 @@ async function boot(): Promise<void> {
       gates.update();
       trees.update(world);
       orchard.update(); // plant a hidden tab's orchard rows (rAF is paused)
+      workshops.update(); // set a hidden tab's forge/yard props
       granary.update(0, false); // place a hidden tab's sacks/cat (rAF is paused)
       updateCard();
       return world.tick;
