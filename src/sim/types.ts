@@ -53,7 +53,15 @@
 // generous inversion of the real recovery — production exceeds removal, to
 // reward great works (boss directive 2026-07-10). — 13: level coursing; 12:
 // drawings before the build; 11: uncovered spans; 10: designation; 9: doors
-export const SIM_VERSION = 18;
+// 19: THE WOODS — timber is a real WON, SPENT, and REGROWING resource. A
+// `plan_fell` freezes a cant's mature timber + felling cost from the tree model
+// at the boundary (like plan_cut freezes stone from the bed model); laborers fell
+// it and win TIMBER to the global stock; building with wood DRAWS that stock (the
+// palisade stops being free); and the felled stool REGROWS over a coppice rotation
+// (~7 years) — felling is not death, it is how a worked wood lives. A mature stand
+// is re-fellable (the `fell` command), the same yield again. The generational
+// heart (PROPOSAL-THE-LIVING-SETTLEMENT §2).
+export const SIM_VERSION = 19;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -341,6 +349,54 @@ export interface AditPlan {
 }
 
 /**
+ * THE WOODS (SIM 19). Timber is won by FELLING, spent by BUILDING, and REGROWN on
+ * a rotation — the generational heart. Numbers are GENEROUS, like the quarry yield
+ * (boss directive: production rewards great works), so the loop is forgiving.
+ */
+export const TIMBER_PER_TREE = 1.0; // m³ of timber a mature render-tree yields when felled (generous)
+/**
+ * The timber one wood-wall unit (a post) draws from the stock — the palisade's
+ * real cost since SIM 19. Reuses STONE_VOLUME's exact-dyadic bit pattern (product
+ * of fixed constants → one value on every engine; plain subtraction is IEEE-exact,
+ * so the draw never threatens the cross-engine hash), a small generous cost.
+ */
+export const TIMBER_PER_POST = STONE_VOLUME;
+export const FELL_TREES_PER_DAY = 12; // trees a laborer fells in a person-day (sets workTotal)
+export const REGROWTH_TICKS = 7 * TICKS_PER_YEAR; // the coppice rotation — ~7 years to a re-cut
+export const SEED_TIMBER = 30; // the founder's woodpile: a first palisade before the first fell
+
+/**
+ * A STAND (SIM 19): a managed cant of woodland, felled for timber and REGROWING on
+ * a rotation. `plan_fell` freezes its mature timber (`timberTotal`) and felling
+ * cost (`workTotal`) from the tree model at the boundary — so the sim core stays
+ * tree-free and the save is self-contained, exactly as the quarry freezes from the
+ * bed model. Laborers fell it like a quarry is dug; on the day it is felled
+ * through, TIMBER is credited to the global stock and the stool begins to regrow.
+ * Felling is NOT death: once regrown (feltTick + REGROWTH_TICKS), the mature stand
+ * is re-fellable (the `fell` command), the same yield again — the coppice-as-crop.
+ */
+export interface Stand {
+  id: number;
+  points: Vec2[]; // the cant ring, site-local meters
+  timberTotal: number; // m³ won at a full fell (generous), frozen from the tree model
+  workTotal: number; // person-days to fell, frozen from the tree count
+  workDone: number; // felling progress on the current cut
+  /**
+   * The crew is actively cutting this stand now (workDone climbs to workTotal).
+   * True from plan_fell / a `fell` re-cut until the cant is felled through.
+   */
+  felling: boolean;
+  /**
+   * -1 while the crop STANDS (virgin, or regrown and mature — ready to fell). Set
+   * to the tick on the day the cant is felled through; the stool is then regrowing
+   * and matures again at feltTick + REGROWTH_TICKS, whereupon it resets to -1. The
+   * phase is derived: `felling` → being cut; else `feltTick >= 0` → regrowing; else
+   * mature. You cannot cut what has not grown (a `fell` on a regrowing stand rejects).
+   */
+  feltTick: number;
+}
+
+/**
  * Enclosure recognition thresholds (SCOPE §6 — the plot is the plan). A wall's
  * GEOMETRY declares what it makes; the pencil mode is not sim data.
  * Boss canon 2026-07-09: "farms are made by building a low wall, .5m around a
@@ -538,6 +594,25 @@ export type Command =
       stoneTotal: number;
     }
   | {
+      kind: 'plan_fell';
+      tick: number;
+      points: Vec2[]; // the cant ring, ≥3
+      /**
+       * Timber economics FROZEN at the command boundary (where the tree model
+       * lives): timberTotal is m³ of timber won at a full fell (generous), workTotal
+       * is person-days to fell (from the tree count). Both finite, ≥ 0; NaN/Infinity
+       * arrive as null from a save. The sim core never counts a tree.
+       */
+      timberTotal: number;
+      workTotal: number;
+    }
+  | {
+      kind: 'fell';
+      tick: number;
+      /** a MATURE stand (regrown, standing) to re-cut — the coppice's next harvest */
+      standId: number;
+    }
+  | {
       kind: 'add_gate';
       tick: number;
       wallId: number; // must be a farm's wall, complete and idle
@@ -588,6 +663,14 @@ export type SimEvent =
   | { kind: 'adit_complete'; tick: number; aditId: number }
   /** dewatered building stone won from a holed-through adit, credited to the stockpile */
   | { kind: 'adit_stone_won'; tick: number; aditId: number; stone: number }
+  /** a cant is marked for felling — the crew will fell it and win its timber (SIM 19) */
+  | { kind: 'fell_planned'; tick: number; standId: number; timberTotal: number; workTotal: number }
+  /** a mature stand is re-cut — the coppice's next harvest on the rotation */
+  | { kind: 'fell_recut'; tick: number; standId: number }
+  /** the cant is felled through: its timber is credited to the global stock */
+  | { kind: 'timber_won'; tick: number; standId: number; timber: number }
+  /** the stool has regrown — the stand is mature and fellable again */
+  | { kind: 'stand_regrown'; tick: number; standId: number }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
   /** the covering chosen: decking may begin */
   | { kind: 'roof_covered'; tick: number; roofId: number; material: RoofMaterial }
@@ -636,6 +719,8 @@ export interface WorldState {
   cuts: CutPlan[];
   /** adits being driven into the hillsides, self-draining (SIM 15) */
   adits: AditPlan[];
+  /** managed woodland cants, felled for timber and regrowing on a rotation (SIM 19) */
+  stands: Stand[];
   /**
    * Building stone won from finished quarries and adits and not yet spent, m³
    * (SIM 14). Masonry DRAWS it since SIM 16: each stone laid spends its dress
@@ -648,6 +733,14 @@ export interface WorldState {
    * draw the pile directly (no cart), so the pile remains the shared reservoir.
    */
   stockpile: number;
+  /**
+   * Timber won from felled stands and not yet spent, m³ (SIM 19) — the wood
+   * analogue of the stone stockpile. Building with wood DRAWS it (TIMBER_PER_POST a
+   * post) and the masons stall when it runs dry; felling a cant credits it. Seeded
+   * with a founder's woodpile (SEED_TIMBER) so a first palisade stands before the
+   * first fell. One GLOBAL stock, like the stockpile.
+   */
+  timber: number;
   roofs: Roof[];
   /**
    * Wall ids of completed enclosures awaiting designation (SIM 10). Just the

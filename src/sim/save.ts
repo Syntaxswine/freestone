@@ -31,7 +31,12 @@ export function makeSave(state: WorldState, commandLog: readonly Command[]): Sav
       // scalars, the plans carry `points` (the husbandry course's law 8: a
       // copy that assumes one shape crashes on the first command without it)
       if (c.kind === 'add_gate' || c.kind === 'remove_gate') return { ...c, at: { ...c.at } };
-      if (c.kind === 'designate' || c.kind === 'designate_roof' || c.kind === 'choose_roof') {
+      if (
+        c.kind === 'designate' ||
+        c.kind === 'designate_roof' ||
+        c.kind === 'choose_roof' ||
+        c.kind === 'fell' // re-cut carries only a standId (no points), like designate
+      ) {
         return { ...c };
       }
       if (c.kind === 'plan_adit') return { ...c, portal: { ...c.portal }, head: { ...c.head } };

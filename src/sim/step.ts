@@ -19,6 +19,7 @@ import {
   GATE_W,
   HAUL_METHODS,
   MATERIALS,
+  REGROWTH_TICKS,
   ROOF_MATERIALS,
   ROOF_SNAP,
   ROOF_DECK,
@@ -31,6 +32,7 @@ import {
   type FieldUse,
   type FillPlan,
   type PlacedStone,
+  type Stand,
   type Vec2,
   type WallPlan,
   type WorldState,
@@ -63,6 +65,7 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
   moveEarth(state);
   haulStone(state);
   layStones(state, site, rng);
+  regrowWoods(state); // SIM 19: stools that have finished their rotation stand mature again
 
   state.tick += 1;
   state.rng = rng.state;
@@ -176,6 +179,39 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
         return 'adit stoneTotal must be a finite non-negative number';
       }
+      return null;
+    }
+    case 'plan_fell': {
+      if (!Array.isArray(cmd.points) || cmd.points.length < 3) {
+        return 'a fell needs at least three points';
+      }
+      if (badPoints(cmd.points)) return 'fell points must have finite x and y';
+      // the same ring hygiene as a fill/quarry (a cant is a fill's plan gesture)
+      const ring = normalizedFillRing(cmd.points);
+      if (ring.length < 3) return 'a fell needs at least three points';
+      if (ringSelfIntersects(ring)) return 'fell ring must not cross itself';
+      if (ringSelfOverlaps(ring)) return 'fell ring must not overlap itself';
+      if (polygonArea(ring) < 1) return 'fell ring must enclose area';
+      // the tree-model economics are frozen into the log; guard them like any
+      // float that enters hashed state (NaN/Infinity arrive as null from a save)
+      if (typeof cmd.timberTotal !== 'number' || !Number.isFinite(cmd.timberTotal) || cmd.timberTotal < 0) {
+        return 'fell timberTotal must be a finite non-negative number';
+      }
+      if (typeof cmd.workTotal !== 'number' || !Number.isFinite(cmd.workTotal) || cmd.workTotal < 0) {
+        return 'fell workTotal must be a finite non-negative number';
+      }
+      return null;
+    }
+    case 'fell': {
+      const stand =
+        typeof cmd.standId === 'number'
+          ? state.stands.find((s) => s.id === cmd.standId)
+          : undefined;
+      if (!stand) return 'no such stand';
+      // you cannot cut what has not grown: a re-cut is legal only on a MATURE
+      // stand — standing (feltTick < 0) and not already under the axe
+      if (stand.felling) return 'the stand is already being felled';
+      if (stand.feltTick >= 0) return 'the wood has not grown back';
       return null;
     }
     case 'plan_roof': {
@@ -714,6 +750,41 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       });
       break;
     }
+    case 'plan_fell': {
+      // A managed cant: the felling gesture over woodland. timberTotal and workTotal
+      // were read from the tree model at the command boundary and are frozen here —
+      // the sim core never counts a tree. The crew begins felling at once (like a
+      // quarry begins digging); on completion the timber is won and the stool regrows.
+      const stand: Stand = {
+        id: state.nextId++,
+        points: normalizedFillRing(cmd.points),
+        timberTotal: cmd.timberTotal,
+        workTotal: Math.max(1, cmd.workTotal), // at least a day's work, like cuts and adits
+        workDone: 0,
+        felling: true,
+        feltTick: -1,
+      };
+      state.stands.push(stand);
+      state.events.push({
+        kind: 'fell_planned',
+        tick: state.tick,
+        standId: stand.id,
+        timberTotal: stand.timberTotal,
+        workTotal: stand.workTotal,
+      });
+      break;
+    }
+    case 'fell': {
+      // re-cut a MATURE stand — the coppice's next harvest on the rotation. Its
+      // yield and cost are its own (frozen at plan_fell); we just put it back under
+      // the axe. Validated mature (standing, not already felling) in rejectReason.
+      const stand = state.stands.find((s) => s.id === cmd.standId)!;
+      stand.felling = true;
+      stand.workDone = 0;
+      stand.feltTick = -1;
+      state.events.push({ kind: 'fell_recut', tick: state.tick, standId: stand.id });
+      break;
+    }
     case 'plan_roof': {
       // the deck sits on the HIGHEST supporting wall top among the corners —
       // and since SIM 13 a wall's top IS its surveyed level datum, so the
@@ -885,6 +956,30 @@ function moveEarth(state: WorldState): void {
       }
     }
     if (moved === 0) {
+      // THE WOODS are felled like a quarry is dug (SIM 19), ranked just under the
+      // adit: an idle laborer fells the oldest stand still under the axe, one
+      // person-day. On the day the cant is felled through, its timber is credited to
+      // the global stock and the stool begins to regrow (regrowWoods matures it
+      // later). No stand being felled, no felling — the field path below is
+      // untouched, so a world with no woods work is byte-identical to before SIM 19.
+      const stand = state.stands.find((s) => s.felling && s.workDone < s.workTotal);
+      if (stand) {
+        stand.workDone += 1;
+        moved = 1;
+        if (stand.workDone >= stand.workTotal) {
+          stand.felling = false;
+          stand.feltTick = state.tick;
+          state.timber += stand.timberTotal;
+          state.events.push({
+            kind: 'timber_won',
+            tick: state.tick,
+            standId: stand.id,
+            timber: stand.timberTotal,
+          });
+        }
+      }
+    }
+    if (moved === 0) {
       // ARABLE only: pasture is grazed by its herd (later), fallow rests —
       // hands go to the tilled fields alone
       let target: { workdays: number } | null = null;
@@ -893,6 +988,23 @@ function moveEarth(state: WorldState): void {
         if (target === null || f.workdays < target.workdays) target = f;
       }
       if (target !== null) target.workdays += 1;
+    }
+  }
+}
+
+/**
+ * THE REGROWTH (SIM 19): a felled stool that has finished its rotation stands
+ * mature again — fellable once more (the near-immortal coppice; felling is not
+ * death). Pure tick arithmetic, no rng: a world with no felled stand is
+ * byte-identical to before SIM 19. Re-cutting a mature stand is a deliberate act
+ * (the `fell` command), so regrowth only reopens the option, it does not auto-fell.
+ */
+function regrowWoods(state: WorldState): void {
+  for (const stand of state.stands) {
+    if (!stand.felling && stand.feltTick >= 0 && state.tick >= stand.feltTick + REGROWTH_TICKS) {
+      stand.feltTick = -1;
+      stand.workDone = 0;
+      state.events.push({ kind: 'stand_regrown', tick: state.tick, standId: stand.id });
     }
   }
 }

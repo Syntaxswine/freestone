@@ -1,5 +1,5 @@
 import { hashSeed, Rng } from './rng';
-import { SIM_VERSION, type Person, type WorldState } from './types';
+import { SEED_TIMBER, SIM_VERSION, type Person, type WorldState } from './types';
 
 /** Stub founding party for M1 groundwork; the real people sim arrives in M3. */
 const FOUNDER_NAMES = [
@@ -35,7 +35,9 @@ export function createWorld(seed: string, siteId: string): WorldState {
     fills: [],
     cuts: [],
     adits: [],
+    stands: [],
     stockpile: 0,
+    timber: SEED_TIMBER, // the founder's woodpile (SIM 19) — a first palisade before the first fell
     roofs: [],
     pending: [],
     farms: [],
