@@ -1,5 +1,12 @@
 import { hashSeed, Rng } from './rng';
-import { SEED_TIMBER, SIM_VERSION, type Person, type WorldState } from './types';
+import {
+  FOUNDER_AGE,
+  SEED_TIMBER,
+  SIM_VERSION,
+  TICKS_PER_YEAR,
+  type Person,
+  type WorldState,
+} from './types';
 
 /** Stub founding party for M1 groundwork; the real people sim arrives in M3. */
 const FOUNDER_NAMES = [
@@ -21,6 +28,11 @@ export function createWorld(seed: string, siteId: string): WorldState {
       // masons: 24–36 stones/day; laborers: 3–5 m³ of earth/day (both stubs
       // until M2's economy — a laborer's pace feeds fills, a mason's feeds walls)
       pace: i < 2 ? 24 + rng.int(13) : 3 + rng.int(3),
+      // SIM 20: the founders begin as young adults, STAGGERED in age (22, 25, 28,
+      // 31) so they never die in one cohort wave (the Banished failure). A fixed
+      // spread, NOT from rng — advancing the cursor here would shift every stone's
+      // jitter and move the masonry baseline for a field the masons never read.
+      bornTick: -(FOUNDER_AGE + i * 3) * TICKS_PER_YEAR,
     });
   }
   return {

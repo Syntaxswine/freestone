@@ -61,7 +61,14 @@
 // (~7 years) — felling is not death, it is how a worked wood lives. A mature stand
 // is re-fellable (the `fell` command), the same yield again. The generational
 // heart (PROPOSAL-THE-LIVING-SETTLEMENT §2).
-export const SIM_VERSION = 19;
+// 20: THE LIVING YEAR — people are MORTAL and the settlement GROWS. Once a year
+// (the demographic pass, on its OWN seed+year rng so people-churn never shifts the
+// masonry jitter), each adult rolls survival on an age curve and dies on the
+// record; and the HARVEST — food is a function of enclosed field AREA (space-gated,
+// easy per boss) — sets a surplus ratio that draws MIGRANTS (fast) and lifts the
+// BIRTH rate (slow, a lineage), or thins the village in hunger. Aging is real:
+// a child born in-game does not lift a stone until it comes of age. §3 + §4.
+export const SIM_VERSION = 20;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -397,6 +404,62 @@ export interface Stand {
 }
 
 /**
+ * THE LIVING YEAR (SIM 20 — PROPOSAL-THE-LIVING-SETTLEMENT §3 + §4). People age,
+ * die, are born, arrive and leave; the harvest decides how many there are. Every
+ * number here is an ORDER-OF-MAGNITUDE knob (§11 dating flags), tuned by the
+ * headless century-sweep, never a citation.
+ */
+export const ADULT_AGE = 15; // years: a child lifts no stone until it comes of age
+export const FOUNDER_AGE = 22; // years: the founding party begins as young adults
+
+/**
+ * Per-YEAR probability of death, by the age band the person falls in (1200s-honest
+ * order of magnitude: survive to adulthood and expect ~50; the productive window is
+ * ~25–35 years). Children share the youngest rate. Staggered from commit one via
+ * FOUNDER_AGE's seeded spread — the verified cohort-death-wave failure (Banished).
+ */
+export const MORTALITY_BANDS: readonly { untilAge: number; annual: number }[] = [
+  { untilAge: 45, annual: 0.008 }, // young + prime adult — death is rare
+  { untilAge: 55, annual: 0.03 }, // the body slows
+  { untilAge: 65, annual: 0.08 }, // old
+  { untilAge: Infinity, annual: 0.2 }, // the last years
+];
+
+/**
+ * THE HARVEST (§4): food is SPACE-gated and EASY (boss). Food CAPACITY, in mouths,
+ * is a founding floor (stores + foraging, before any field) plus enclosed arable
+ * AREA over AREA_PER_PERSON. The binding constraint is FLAT ARABLE LAND, contested
+ * with the quarry, the woods and the great work — a land tension that suits a
+ * map-drawing builder. GAME-scaled, not the literal ~5-acre virgate (drawn fields
+ * are small), so a modest farm feeds several — "easy, hindered mostly by space".
+ */
+export const AREA_PER_PERSON = 200; // m² of enclosed arable that feeds one mouth
+export const FOUNDING_CAPACITY = 4; // mouths fed before any field (the founding stores)
+
+/**
+ * The surplus ratio S = food capacity / mouths sets the year's demographic weather:
+ * below 1.0 the village THINS (emigration — the boss's "things get really bad, like
+ * starvation, and they leave"); 1.0–1.25 HOLDS; at/above GROWTH_THRESHOLD it GROWS,
+ * ramping to full by GROWTH_FULL. The boss opened at 2×; 1.25 makes growth a
+ * deliberate over-plant while a comfortable hold band never punishes breaking even.
+ * Two speeds, both: MIGRANTS the fast valve (working adults this year), BIRTHS the
+ * slow (a lineage that lifts no stone for ~15 years). Knobs for the sweep.
+ */
+export const GROWTH_THRESHOLD = 1.25; // S at/above which MIGRANTS are drawn (the fast valve)
+export const GROWTH_FULL = 1.5; // S at which births + migration are at full tilt
+export const MIGRANTS_PER_YEAR_FULL = 2; // adults drawn per year at full-tilt surplus (FAST)
+/**
+ * BIRTHS are the CONTINUOUS valve — unlike migration they scale from a floor, so a
+ * HOLD-band settlement (S ~1.0–1.25) roughly REPLACES its dead (births ≈ deaths, no
+ * death-spiral), a surplus grows it, and hunger (S < BIRTH_FLOOR_S) suppresses it.
+ * The per-adult chance ramps clamp((S − BIRTH_FLOOR_S)/(GROWTH_FULL − BIRTH_FLOOR_S))
+ * × BIRTH_RATE_FULL.
+ */
+export const BIRTH_FLOOR_S = 0.9; // below this surplus, fertility collapses toward zero
+export const BIRTH_RATE_FULL = 0.2; // births per adult per year at full tilt (a lineage)
+export const HUNGER_LEAVE_RATE = 0.12; // fraction who emigrate per year of hunger (S < 1.0)
+
+/**
  * Enclosure recognition thresholds (SCOPE §6 — the plot is the plan). A wall's
  * GEOMETRY declares what it makes; the pencil mode is not sim data.
  * Boss canon 2026-07-09: "farms are made by building a low wall, .5m around a
@@ -522,6 +585,13 @@ export interface Person {
    * moved (stubs; real pacing arrives with M2's quarry loop).
    */
   pace: number;
+  /**
+   * The tick this person was born (SIM 20). Age in years = (tick − bornTick) /
+   * TICKS_PER_YEAR. Founders begin ~FOUNDER_AGE (a seeded spread, so they do not
+   * all die in one cohort wave); a child born in-game carries the current tick and
+   * lifts no stone until it is ADULT_AGE. Negative for founders (born before tick 0).
+   */
+  bornTick: number;
 }
 
 export type Command =
@@ -671,6 +741,14 @@ export type SimEvent =
   | { kind: 'timber_won'; tick: number; standId: number; timber: number }
   /** the stool has regrown — the stand is mature and fellable again */
   | { kind: 'stand_regrown'; tick: number; standId: number }
+  /** THE LIVING YEAR (SIM 20): a child is born to the settlement — a lineage begins */
+  | { kind: 'person_born'; tick: number; personId: number; name: string }
+  /** a working adult arrives on the migration wind — word of a full granary spread */
+  | { kind: 'person_arrived'; tick: number; personId: number; name: string }
+  /** a named soul dies on the record — chronicled, never a bare subtraction */
+  | { kind: 'person_died'; tick: number; personId: number; name: string; age: number }
+  /** hunger drove a soul to leave for another manor */
+  | { kind: 'person_left'; tick: number; personId: number; name: string }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
   /** the covering chosen: decking may begin */
   | { kind: 'roof_covered'; tick: number; roofId: number; material: RoofMaterial }

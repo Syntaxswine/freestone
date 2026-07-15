@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "gen-baseline": "node tools/gen-baseline.mjs",
+    "sweep": "node tools/century-sweep.mjs",
     "preview": "vite preview --port 8745"
   },
   "dependencies": {

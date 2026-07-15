@@ -1,12 +1,26 @@
 import { classifyFootprint, reduceCorners, type FootprintKind } from './classify';
-import { Rng } from './rng';
+import { hashSeed, Rng } from './rng';
 import type { SiteData } from './site';
 import {
+  ADULT_AGE,
+  AREA_PER_PERSON,
+  BIRTH_FLOOR_S,
+  BIRTH_RATE_FULL,
   BUILDING_KINDS,
   BUILDING_MIN_H,
   BUILDING_ROOFS,
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
+  FOUNDING_CAPACITY,
+  GROWTH_FULL,
+  GROWTH_THRESHOLD,
+  HUNGER_LEAVE_RATE,
+  MIGRANTS_PER_YEAR_FULL,
+  MORTALITY_BANDS,
+  TICKS_PER_YEAR,
+  dayOfYear,
+  yearOf,
+  type Person,
   DRESS_DRAW,
   DRESS_LEVELS,
   DRESS_SPEC,
@@ -67,6 +81,7 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
   haulStone(state);
   layStones(state, site, rng);
   regrowWoods(state); // SIM 19: stools that have finished their rotation stand mature again
+  livingYear(state); // SIM 20: once a year — deaths, births, migrants, departures (own rng stream)
 
   state.tick += 1;
   state.rng = rng.state;
@@ -891,7 +906,7 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
  */
 function moveEarth(state: WorldState): void {
   for (const person of state.people) {
-    if (person.trade !== 'laborer') continue;
+    if (person.trade !== 'laborer' || !isAdult(person, state.tick)) continue; // SIM 20: children don't dig
     let quota = person.pace;
     let moved = 0;
     while (quota > 0) {
@@ -1007,6 +1022,124 @@ function regrowWoods(state: WorldState): void {
       stand.workDone = 0;
       state.events.push({ kind: 'stand_regrown', tick: state.tick, standId: stand.id });
     }
+  }
+}
+
+/** A person's age in whole-and-fractional years (SIM 20). */
+function ageInYears(bornTick: number, tick: number): number {
+  return (tick - bornTick) / TICKS_PER_YEAR;
+}
+
+/** An adult digs and lays; a child does neither, until ADULT_AGE (SIM 20). */
+function isAdult(p: Person, tick: number): boolean {
+  return ageInYears(p.bornTick, tick) >= ADULT_AGE;
+}
+
+/** the folk pool new souls are named from — CONSTANT strings, like the founders */
+const FOLK_NAMES = [
+  'Agnes', 'Alwin', 'Beorn', 'Cecily', 'Drogo', 'Emma', 'Frideswide', 'Gilbert',
+  'Hawise', 'Ivo', 'Juliana', 'Leofric', 'Matilda', 'Nicholas', 'Osgood', 'Petronilla',
+  'Roger', 'Sibyl', 'Turold', 'Wulfric',
+] as const;
+
+/** a working adult drawn on the migration wind (arrives aged ADULT_AGE..+14) */
+function newAdult(state: WorldState, rng: Rng, tick: number): Person {
+  return {
+    id: state.nextId++,
+    name: rng.pick(FOLK_NAMES),
+    trade: 'laborer', // migrants arrive as hands; the trades split in step 3
+    pace: 3 + rng.int(3),
+    bornTick: tick - Math.round((ADULT_AGE + rng.int(15)) * TICKS_PER_YEAR),
+  };
+}
+
+/** a child born to the settlement — lifts no stone until it comes of age */
+function newChild(state: WorldState, rng: Rng, tick: number): Person {
+  return {
+    id: state.nextId++,
+    name: rng.pick(FOLK_NAMES),
+    trade: 'laborer',
+    pace: 3 + rng.int(3),
+    bornTick: tick,
+  };
+}
+
+/**
+ * THE LIVING YEAR (SIM 20): once a year — the last day — the settlement is
+ * reckoned. On its OWN rng stream (`seed:demo:<year>`), so people-churn never
+ * advances the masonry jitter cursor (§10 isolation): each soul rolls survival on
+ * the age curve; then the HARVEST — food capacity in mouths, space-gated by
+ * enclosed arable area — sets the surplus S, which draws MIGRANTS (fast) and lifts
+ * BIRTHS (slow) at surplus, or thins the village in hunger. A world stepped less
+ * than a year (the 200-tick canon) never enters here: byte-identical but for the
+ * new `bornTick` fields.
+ */
+function livingYear(state: WorldState): void {
+  if (dayOfYear(state.tick) !== TICKS_PER_YEAR - 1) return;
+  const rng = new Rng(hashSeed(`${state.seed}:demo:${yearOf(state.tick)}`));
+
+  // 1. MORTALITY — each soul rolls survival on the age curve; deaths leave the record
+  const survivors: Person[] = [];
+  for (const p of state.people) {
+    const age = ageInYears(p.bornTick, state.tick);
+    const band = MORTALITY_BANDS.find((b) => age < b.untilAge) ?? MORTALITY_BANDS[MORTALITY_BANDS.length - 1]!;
+    if (rng.float() < band.annual) {
+      state.events.push({
+        kind: 'person_died',
+        tick: state.tick,
+        personId: p.id,
+        name: p.name,
+        age: Math.floor(age),
+      });
+    } else {
+      survivors.push(p);
+    }
+  }
+  state.people = survivors;
+
+  // 2. THE HARVEST — food capacity in mouths, space-gated by enclosed arable (§4)
+  const arable = state.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
+  const capacity = FOUNDING_CAPACITY + arable / AREA_PER_PERSON;
+  const S = capacity / Math.max(1, state.people.length);
+
+  // 3. BIRTHS (continuous), MIGRANTS (surplus only), HUNGER (dearth) — all off one S.
+  // BIRTHS — the SLOW valve, always on above the fertility floor: at HOLD they
+  // roughly replace the dead (no death-spiral), at surplus they grow the line, in
+  // hunger they collapse. A child lifts no stone for ~ADULT_AGE years — a lineage.
+  const birthFactor = Math.min(1, Math.max(0, (S - BIRTH_FLOOR_S) / (GROWTH_FULL - BIRTH_FLOOR_S)));
+  if (birthFactor > 0) {
+    const adults = state.people.filter((p) => isAdult(p, state.tick)).length;
+    for (let i = 0; i < adults; i++) {
+      if (rng.float() < BIRTH_RATE_FULL * birthFactor) {
+        const p = newChild(state, rng, state.tick);
+        state.people.push(p);
+        state.events.push({ kind: 'person_born', tick: state.tick, personId: p.id, name: p.name });
+      }
+    }
+  }
+  // MIGRANTS — the FAST valve, only when there is real surplus to draw them: word of
+  // a full granary spreads and working adults arrive THIS year (responsiveness).
+  if (S >= GROWTH_THRESHOLD) {
+    const g = Math.min(1, (S - GROWTH_THRESHOLD) / (GROWTH_FULL - GROWTH_THRESHOLD));
+    const want = MIGRANTS_PER_YEAR_FULL * g;
+    let migrants = Math.floor(want);
+    if (rng.float() < want - migrants) migrants += 1;
+    for (let i = 0; i < migrants; i++) {
+      const p = newAdult(state, rng, state.tick);
+      state.people.push(p);
+      state.events.push({ kind: 'person_arrived', tick: state.tick, personId: p.id, name: p.name });
+    }
+  }
+  // HUNGER — souls leave for another manor (the boss: "really bad, like starvation,
+  // and they leave"). One soul always holds on — the settlement never empties here.
+  if (S < 1.0) {
+    let leaving = state.people.filter(() => rng.float() < HUNGER_LEAVE_RATE);
+    if (leaving.length >= state.people.length) leaving = leaving.slice(0, state.people.length - 1);
+    const gone = new Set(leaving.map((p) => p.id));
+    for (const p of leaving) {
+      state.events.push({ kind: 'person_left', tick: state.tick, personId: p.id, name: p.name });
+    }
+    state.people = state.people.filter((p) => !gone.has(p.id));
   }
 }
 
@@ -1237,7 +1370,7 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         ? state.stockpile >= DRESS_DRAW[w.dressLevel]
         : w.faceBuffer >= DRESS_DRAW[w.dressLevel];
   for (const person of state.people) {
-    if (person.trade !== 'mason') continue;
+    if (person.trade !== 'mason' || !isAdult(person, state.tick)) continue; // SIM 20: children don't lay
     let quota = person.pace;
     while (quota > 0) {
       const wall = state.walls.find(

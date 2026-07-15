@@ -41,7 +41,10 @@ import {
   STONE_DEPTH,
   STONE_LEN,
   STONE_VOLUME,
+  AREA_PER_PERSON,
   FELL_TREES_PER_DAY,
+  FOUNDING_CAPACITY,
+  GROWTH_THRESHOLD,
   REGROWTH_TICKS,
   TICKS_PER_YEAR,
   TIMBER_PER_TREE,
@@ -1152,6 +1155,13 @@ async function boot(): Promise<void> {
       (regrowing.length && Number.isFinite(soonestReturn)
         ? ` — a cant returns in ~${Math.max(1, Math.round(soonestReturn / TICKS_PER_YEAR))}y`
         : '');
+    // THE HARVEST read (SIM 20): food capacity in mouths + the surplus that draws
+    // migrants and lifts births — the growth lever, mirroring the sim's own formula
+    const arableArea = world.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
+    const capacity = FOUNDING_CAPACITY + arableArea / AREA_PER_PERSON;
+    const surplus = capacity / Math.max(1, world.people.length);
+    const weather = surplus >= GROWTH_THRESHOLD ? ' growing' : surplus < 1 ? ' hungry' : ' holding';
+    const harvest = ` — food ${Math.round(capacity)} mouths (${surplus.toFixed(2)}×${weather})`;
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
@@ -1160,6 +1170,7 @@ async function boot(): Promise<void> {
       (nQuarries ? ` — quarries ${nQuarries}` : '') +
       supply +
       woods +
+      harvest +
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,
