@@ -21,7 +21,7 @@ renewable-into-renewable loop (SIM 23 `ca05631`); **3c** the VARIETY TENANTS pas
 `beee2fc`); **step 4** HOUSING TIERS hovel/cottage/hall, the roof holds people in hunger (SIM 25
 `ecf0910`); **step 5** THE LIFT — high courses cost more, a great wheel drawing timber relieves them,
 on the two-commit discipline (A `b58fb5a` + B SIM 26 `90c404d`). **TWENTY maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙)
-+ two ⛬ seals; 201 tests green; live.** Honest debts left (none blocking): smith does no work yet, no
++ two ⛬ seals; 173 tests green; live.** Honest debts left (none blocking): smith does no work yet, no
 local-apprentice path, orchard/horse are variety-not-yield, no carpenter's-yard/wheel render, shelter
 is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
 course's handoff (carriage/dress):

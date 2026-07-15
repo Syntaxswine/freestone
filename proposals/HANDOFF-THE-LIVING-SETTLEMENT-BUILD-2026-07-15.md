@@ -36,7 +36,7 @@ this one hand carried it the rest of the way:
 | 5 | **THE LIFT** — high courses cost more; a great wheel relieves them | A `b58fb5a` + B 26 `90c404d` | ⚙ |
 
 Marks eleven through twenty on the FOUNDATION: **⏭ 🪓 🕯 🌾 🐈 🏺 🛒 🔨 🏠 ⚙** (+ two SIM-neutral courses),
-sealed twice (⛬ at four, ⛬ at ten). **201 tests green, live.** The through-line is whole: a *year* you can
+sealed twice (⛬ at four, ⛬ at ten). **173 tests green, live.** The through-line is whole: a *year* you can
 watch makes a *wood* that regrows mean something; the wood is measured against a *people* born and buried
 on the record; the *harvest* decides how many hands there are and fills a *granary* that buffers the lean
 years; a *cart* carries that harvest (spending the wood), a *smith* is drawn to a settlement varied

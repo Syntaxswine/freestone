@@ -742,7 +742,7 @@ keystone between each course* — and so this one hand carried the ladder the re
 marks (🐈🏺🛒🔨🏠⚙), SIX SIM versions (21→26) plus two SIM-neutral courses, every one shipped the
 disciplined way — the baseline honest at each bump, the determinism proven, the feared failure written
 into a test before the mechanism that could cause it, the two-commit split held where the masonry moved
-and consciously not forced where the canon never ran. Two hundred and one tests green on the live wall,
+and consciously not forced where the canon never ran. One hundred and seventy-three tests green on the live wall,
 not a branch. What I am proudest of is the same thing the first seal was proud of, one octave higher: not
 the count of marks but their COHERENCE. These are not eleven features stacked on four; they are one
 machine whose every part now feeds another — the wood the cart draws is the wood the wheel spends is the
