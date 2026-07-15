@@ -48,9 +48,13 @@ equilibrium re-verified intact (cap 20→20, cap 50→51). Inert on canon → on
 **(6) WEATHER SHAPED (SIM 31 `0bd6bb6`, 🌦)** — the harvest's yearly weather is now the MEAN of two uniform
 rolls (triangular, peaked at 1.0), so the extreme famine/glut years grow rarer without shifting the mean;
 the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one commit; +1 distributional test.
-**TWENTY-EIGHT maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥) + two ⛬ seals; 182 tests green; live.** **ALL SIX SIM
-DEBTS PAID (SIM 27–31) AND THE RENDER PASS COMPLETE (all six strokes).** ONE debt remains (none blocking):
-step-5 rollers/sledge (heavy-block haul accelerant — a clean OPT-IN method, so inert on canon → one commit). The PRIOR
+**(7) THE SLEDGE ON ROLLERS (SIM 32 `0b86d83`, 🛷)** — the last debt, the lift's overland twin: an OPT-IN
+`rollers` flag boosts a HAULED wall's delivered rate ×ROLLER_HAUL_BOOST(2); opt-in so the canon (walls don't
+choose it) is byte-identical → inert one commit; a `🛷 sledge` toggle in the build bar; +2 tests.
+**TWENTY-NINE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷) + THREE ⛬ seals; 184 tests green; live.**
+**★ EVERY HONEST DEBT PAID — the whole post-arc knockoff (SIM 27–32 + the six-stroke render pass) is COMPLETE,
+sealed by a third ⛬.** Nothing remains on the STANDS ledger; what's next is AMBITION — the roadmap's untouched
+beats (Beat 2 memory suite, Beat 3 Lodge Book save/load + Annal, Beat 5 demand wave, Beat 6 kiln + Keep). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the
