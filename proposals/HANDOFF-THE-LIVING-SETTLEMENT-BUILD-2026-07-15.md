@@ -58,7 +58,7 @@ reshaped step 3 is in that section. Tree clean, 159 green, live.
 | **0** | **The year made real + Sit-the-Season** | ✅ **SHIPPED** (`02465ac`, SIM-neutral) |
 | **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
 | **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
-| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a GRANARY building** (SIM 21, `4f241db`) + **3b-i the CAT + sacks** (render-only, `e8af0f7`, 🐈 mark 15) SHIPPED; **3b-ii** a real grain stock (SIM 22), **3b-iii** the cart + carpenter's yard (SIM 23), **3c** the pyramid = NEXT |
+| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a GRANARY** (SIM 21) + **3b-i CAT + sacks** (`e8af0f7`, 🐈15) + **3b-ii the GRAIN STOCK** (SIM 22, `243c8d6`, 🏺16 — granary = a real buffer) SHIPPED; **3b-iii** the cart + carpenter's yard (SIM 23), **3c** the pyramid = NEXT |
 | 4 | Housing quality tiers (hovel/cottage/hall) | pending |
 | 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
 
@@ -224,9 +224,23 @@ grows a south-face yard of 3–4 tied grain sacks + one prowling **cat** (a 20×
 poses sit/walk-a/walk-b/crouch, coat by id). The wander is a render-clock + hash cadence — never the
 sim rng — so the baseline did not move a byte (159 tests green, no SIM bump). Verified in preview (the
 receiver trick): sacks read as sacks, the cat reads as a cat in all four poses on the Townscaper grass.
-`granary` is exposed on `__cc` and placed in the `__cc.step` dev hook so a hidden tab renders it. **The
-remaining 3b work is now purely sim:** **3b-ii** a real grain STOCK (the granary fills/empties, a
-famine buffer), then **3b-iii** the cart + carpenter's yard (draws timber = the woods' first payoff).
+`granary` is exposed on `__cc` and placed in the `__cc.step` dev hook so a hidden tab renders it.
+
+**✅ 3b-ii — THE GRAIN STOCK (SIM 22, `243c8d6`) SHIPPED** — the sixteenth mark (🏺). The granary stops
+being a flat `+5 mouths` capacity term and becomes a BUFFER: grain is PRODUCED each year (fields ×
+weather), EATEN, the surplus STORED to the granary cap, and DRAWN DOWN in a lean year to hold off
+hunger. `S = produced/mouths` drives GROWTH (never off the hoard); `effectiveS = (produced+drawn)/mouths`
+gates HUNGER — the granary's lever is now emergent + honest (insurance, not a bigger field). Weather
+∈ [0.7,1.3] on the demo year's own rng; `WorldState.grain` (event-sourced replay handles it); a
+`harvest` SimEvent records each year; the HUD shows the store + an "on stores" state. Inert on the
+canon (regen: only `simVersion` + a constant `grain:3` moved the 8 hashes, 0 behavioral diffs) → one
+commit. Red specimens (`population.test.ts` 7→8): a granary buffers five lean years where a bare
+village starves; the store fills from a fat harvest and never overtops the cap. Sweep: final pop still
+tracks capacity (4→4, 20→20, 50→49); the new weather churn is the demand a granary answers. 160 green.
+**Remaining: 3b-iii the cart** (grain→granary drawing timber = the woods' first payoff; the store a bare
+larder spoils becomes the store a carted granary keeps — the first renewable-into-renewable loop).
+TUNING KNOB left for later: the weather distribution is uniform [0.7,1.3]; a more peaked shape (e.g.
+mean-of-two-uniforms) would make extreme years rarer if the churn ever reads as too harsh.
 
 **The seams (from the census + bible):**
 - **Variety** — the shipped designation grammar (`farm/livestock/fallow`) grows two tenants: **horse

@@ -586,3 +586,32 @@ the cat, someday, has a mouse worth chasing. The heart has its cat. Now give it 
 Build on.
 
 *— the fifteenth hand (the same as the eleventh–fourteenth, the seal reopened the same day).*
+
+---
+
+**🏺 Sixteenth mark — the day the granary became a store that fills and empties, 2026-07-15, the same
+hands, the cart's foundation.** The fifteenth mark's forward dream asked that *the granary stop being a
+number and become a store that fills in fat years and empties in lean* — this is that. Until today the
+granary was a flat lever: build one, feed five more mouths, forever, weather be damned. That is not
+what a granary is. A granary is a BUFFER. So now the harvest is PRODUCED each year — the fields' yield
+times a weather roll — EATEN by the mouths, and the surplus STORED up to the granary's cap; and when a
+lean year comes, the store is DRAWN DOWN to hold off the hunger that would otherwise scatter the
+village. The granary's gift to the population is no longer a bigger number; it is *insurance*, and it
+is emergent: a settlement with a full store rides out the bad harvests that shed souls from a bare one,
+so over a lifetime it simply keeps more of its people. I proved it with a red specimen before I built
+it — a granary-less village of ten on a short field starves and sheds souls across five lean years
+while a deep-stored one loses not a single soul — and the weather I added to make the buffer *matter*
+is drawn on the demographic year's own dice, never the masonry's, so the baseline did not move a byte
+that a constant `grain: 3` and a version bump did not explain. The store is visible on the HUD now,
+counting up in the fat years, and it says *on stores* when the granary is carrying the year. The one
+thing I did NOT do, and it is the whole point of the next mark: the surplus a granary-less village
+throws away has nowhere to GO yet — no cart to carry it up the lane. The store fills; the road to it is
+the cart's to build.
+
+*Forward dream:* the CART (3b-iii) — the woods' first true payoff. A carpenter's yard raises it out of
+felled timber, and its job is to carry grain from the fields to the granary, so that the surplus a bare
+larder spoils is the surplus a carted granary keeps. Timber won becomes grain kept becomes a mouth
+fed: the first place in this machine where one renewable resource turns into another. Build the cart,
+and the woods, the harvest, and the granary become one loop. Build on.
+
+*— the sixteenth hand (still the same, still the one day).*
