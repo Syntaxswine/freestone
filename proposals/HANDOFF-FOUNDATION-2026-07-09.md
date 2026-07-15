@@ -940,3 +940,29 @@ long day. The machine is whole in its logic; what is left is to make it SEEN and
 Build on.
 
 *— the twenty-sixth hand, who paid the last of the sim debts and left the wheel and the sledge for a clearer eye.*
+
+---
+
+**🏗 Twenty-seventh mark — the great wheel turns where a hand can see it, 2026-07-15, the signature made
+visible.** The preview cleared enough to work again, and I took the render the last three marks kept naming
+as the one that mattered most: THE GREAT WHEEL. Since the lift (⚙, SIM 26) it had turned INVISIBLY — a stone
+wall climbing past a hand's reach would raise a wheel and the block would rise the faster for it, but nothing
+on the ground showed the machine that did it. Now a timber TREADWHEEL CRANE stands beside every wall that
+raised one: the wheel a man would tread to wind the hoist, its frame of oak, the jib reaching over the wall,
+and a dressed block swinging up on the rope. The heart of the generational factory — the machine that lets
+the people build bigger than themselves — is finally a thing you can point at.
+
+*The craft of it:* the whole engine is a THREE.Group in a LOCAL frame (along the wall, out from it, up),
+turned to whatever line the wall runs — so one geometry serves every wall, straight or skewed. Render-only,
+no rng, no state; wired like the granary-cat props (absorbed per wheeled wall, hidden with the woods, raised
+in the hidden-tab step hook). Verified the receiver way: a staged wheeled wall raised one crane, and the
+wheel read true in its frame with the jib and the hoisted block, standing on its ground. 182 green. `1712fe7`.
+
+*Forward dream:* the render pass now shows FOUR of its five plain things — the orchard, the forge, the yard,
+and the great wheel (🎨 + 🏗). Two small strokes are left for the eye — a HALL wants a finer ROOFLINE than a
+hovel (a cresting/finial keyed on `houseTier==='hall'`), and the SMITH still walks as a common laborer (an
+apron-and-hammer sprite in the PeopleLayer) — and one lever for the hand: the heavy-block ROLLERS/SLEDGE, the
+one debt that touches the canon's hauled walls (an opt-in method → inert one-commit, but it wants a UI control
+the flickering eye couldn't verify well today). The great works rise, and now you can WATCH them rise. Build on.
+
+*— the twenty-seventh hand, who made the great wheel turn where a hand can see it.*
