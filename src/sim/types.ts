@@ -88,7 +88,12 @@
 // learn from (the first smith, or after the last master dies) does a journeyman MIGRATE in. The
 // `origin` on the arrival event ('apprentice' | 'migrant') carries the lineage for the chronicle.
 // All in livingYear §4 — INERT on the 200-tick canon (never reckoned there), so one clean commit.
-export const SIM_VERSION = 28;
+// 29: VARIETY BEARS FRUIT — the pyramid's variety tenants stop being decoration and start to PAY.
+// An ORCHARD now bears food toward the harvest (its area over ORCHARD_AREA_PER_PERSON, a supplement to
+// the grain staple), and a PASTURE keeps a draft HORSE that hauls more surplus to the store each year
+// (HORSE_HAUL, grazing free on its own field). So the mixed farm the smith needed is now worth keeping
+// for its own sake — diversity feeds and carries, not just varies. In livingYear §2 → INERT on canon.
+export const SIM_VERSION = 29;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -462,6 +467,10 @@ export const MORTALITY_BANDS: readonly { untilAge: number; annual: number }[] = 
  */
 export const AREA_PER_PERSON = 200; // m² of enclosed arable that feeds one mouth
 export const FOUNDING_CAPACITY = 4; // the base yearly harvest, in mouth-years, before any field
+// THE ORCHARD BEARS (SIM 29): fruit, nuts and cider are a SUPPLEMENT to the grain staple, so an orchard
+// feeds fewer mouths per m² than arable — more land for the same food. A settlement that plants orchards
+// broadens its food base beyond the one crop the weather can fail.
+export const ORCHARD_AREA_PER_PERSON = 300; // m² of orchard that bears one mouth's food (< arable's yield)
 
 /**
  * THE GRAIN STOCK (SIM 22): the harvest is no longer an instantaneous ratio — grain is
@@ -500,6 +509,10 @@ export const WEATHER_MAX = 1.3;
 export const BASE_HAUL = 2; // mouth-years of surplus hand-carried to the store each year (no cart)
 export const CART_HAUL = 6; // extra mouth-years each maintained cart carries a year
 export const CART_UPKEEP = 2; // m³ timber a cart draws a year to stay in repair
+// THE HORSE HAULS (SIM 29): a PASTURE keeps a draft horse, and a horse moves more grain than a hand-pushed
+// cart — sledge, pannier or shaft. It grazes free on its own field, so unlike the cart it draws no timber
+// upkeep; the pasture IS its keep. Each pasture adds this to the year's haul capacity.
+export const HORSE_HAUL = 8; // extra mouth-years each pasture's draft horse carries to the store a year
 
 /**
  * The surplus ratio S = the year's HARVEST (produced) / mouths sets the demographic

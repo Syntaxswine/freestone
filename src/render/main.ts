@@ -42,6 +42,7 @@ import {
   STONE_LEN,
   STONE_VOLUME,
   AREA_PER_PERSON,
+  ORCHARD_AREA_PER_PERSON,
   FELL_TREES_PER_DAY,
   FOUNDING_CAPACITY,
   FOUNDING_STORAGE,
@@ -1180,8 +1181,12 @@ async function boot(): Promise<void> {
     // migrants + births track it) and the GRAIN STORE that buffers the lean years,
     // out of the granaries' cap. Mirrors the sim's own formula (mean weather).
     const arableArea = world.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
+    // SIM 29: the orchard bears food too — the readout mirrors the sim's fuller formula, so
+    // "harvest N mouths" stays TRUE once fruit joins the grain (else the HUD would understate it)
+    const orchardArea = world.farms.reduce((a, f) => (f.use === 'orchard' ? a + f.area : a), 0);
     const nGranaries = world.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
-    const fieldYield = FOUNDING_CAPACITY + arableArea / AREA_PER_PERSON;
+    const fieldYield =
+      FOUNDING_CAPACITY + arableArea / AREA_PER_PERSON + orchardArea / ORCHARD_AREA_PER_PERSON;
     const surplus = fieldYield / Math.max(1, world.people.length);
     const nCarts = world.buildings.reduce((n, b) => (b.kind === 'carpentry' ? n + 1 : n), 0);
     const grainCap = FOUNDING_STORAGE + nGranaries * GRANARY_STORAGE;
@@ -1196,7 +1201,9 @@ async function boot(): Promise<void> {
     const harvest =
       ` — harvest ${Math.round(fieldYield)} mouths (${surplus.toFixed(2)}× ${foodState})` +
       ` — grain ${Math.round(world.grain)}/${grainCap}` +
-      (nCarts ? ` — ${nCarts} cart${nCarts > 1 ? 's' : ''}` : '');
+      (nCarts ? ` — ${nCarts} cart${nCarts > 1 ? 's' : ''}` : '') +
+      // SIM 29: the pasture's draft horses haul surplus to the store too — legible beside the carts
+      (nPasture ? ` — ${nPasture} draft horse${nPasture > 1 ? 's' : ''}` : '');
     // housing by tier (SIM 25) — legible in the count as well as the roofline
     let nHovel = 0;
     let nCottage = 0;

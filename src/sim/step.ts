@@ -27,9 +27,11 @@ import {
   houseTier,
   tierShelter,
   GROWTH_THRESHOLD,
+  HORSE_HAUL,
   HUNGER_LEAVE_RATE,
   MIGRANTS_PER_YEAR_FULL,
   MORTALITY_BANDS,
+  ORCHARD_AREA_PER_PERSON,
   SMITH_DRESS_RELIEF,
   SMITH_MIN_POP,
   SMITH_RELIEF_MAX,
@@ -1122,10 +1124,16 @@ function livingYear(state: WorldState): void {
   // surplus STORED up to the granaries' cap. A lean year DRAWS the store down to hold off
   // hunger — the granary's one true job (mutual aid = a buffer, not a bigger field).
   const arable = state.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
+  // SIM 29: the variety tenants pay now — an ORCHARD bears food (a supplement to the grain staple, at a
+  // gentler yield per m²), and each PASTURE keeps a draft horse that hauls more surplus to the store
+  // (below, in the haul cap). Fallow still rests, livestock still only feeds its own herd (later).
+  const orchard = state.farms.reduce((a, f) => (f.use === 'orchard' ? a + f.area : a), 0);
+  const pastures = state.farms.reduce((n, f) => (f.use === 'pasture' ? n + 1 : n), 0);
   const granaries = state.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
   const carts = state.buildings.reduce((n, b) => (b.kind === 'carpentry' ? n + 1 : n), 0);
   const weather = WEATHER_MIN + rng.float() * (WEATHER_MAX - WEATHER_MIN);
-  const produced = (FOUNDING_CAPACITY + arable / AREA_PER_PERSON) * weather;
+  const produced =
+    (FOUNDING_CAPACITY + arable / AREA_PER_PERSON + orchard / ORCHARD_AREA_PER_PERSON) * weather;
   const mouths = Math.max(1, state.people.length);
   // S = the FIELDS' abundance (harvest per mouth): drives GROWTH, never touched by the
   // store, so a settlement never breeds off its hoard.
@@ -1139,7 +1147,7 @@ function livingYear(state: WorldState): void {
     // the surplus spoils in the field — carts are what actually FILL a granary.
     const maintained = Math.min(carts, Math.floor(state.timber / CART_UPKEEP));
     state.timber -= maintained * CART_UPKEEP;
-    const haulCap = BASE_HAUL + maintained * CART_HAUL;
+    const haulCap = BASE_HAUL + maintained * CART_HAUL + pastures * HORSE_HAUL; // SIM 29: pasture horses haul too
     const carried = Math.min(produced - mouths, haulCap);
     const cap = FOUNDING_STORAGE + granaries * GRANARY_STORAGE;
     state.grain = Math.min(cap, state.grain + carried); // the surplus that reaches the store
