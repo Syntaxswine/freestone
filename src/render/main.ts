@@ -40,7 +40,10 @@ import {
   STONE_DEPTH,
   STONE_LEN,
   STONE_VOLUME,
-  TICKS_PER_YEAR,
+  dayOfYear,
+  seasonOf,
+  ticksUntilNextSeason,
+  yearOf,
   type BuildingKind,
   type BuildingRoof,
   type Command,
@@ -66,6 +69,7 @@ import { createTutorial } from './tutorial';
 const SEED = 'durham-first-wall';
 const STONE_CAPACITY = 20000;
 const SPEEDS = [0, 1, 4, 16] as const; // ticks (game days) per real second — transport only
+const FF_BUDGET_MS = 8; // Sit-the-Season: max wall-clock spent stepping per frame
 
 async function loadSite(): Promise<SiteData> {
   try {
@@ -279,17 +283,34 @@ async function boot(): Promise<void> {
   hud.append(status, plan, buttons, build, hint, attribution);
 
   let speed: (typeof SPEEDS)[number] = 1;
+  // SIT THE SEASON (step 0): when set, the loop fast-forwards worldStep to this
+  // target tick — the next season turn — then hands control back. Transport only;
+  // it changes how often worldStep is called, never what it does. Any speed press
+  // (pause included) cancels it, so pausing never advances the clock.
+  let sitUntil: number | null = null;
   for (const s of SPEEDS) {
     const b = document.createElement('button');
     b.textContent = s === 0 ? '❚❚' : `×${s}`;
     b.onclick = () => {
       speed = s;
+      sitUntil = null; // an explicit speed choice ends the sit
       for (const other of buttons.children) other.classList.remove('active');
       b.classList.add('active');
     };
     if (s === speed) b.classList.add('active');
     buttons.appendChild(b);
   }
+  // the fast-forward button rides with the speed controls (it is a transport verb):
+  // press to sit until the season turns, press again to stop short.
+  const ffBtn = document.createElement('button');
+  ffBtn.className = 'ff';
+  ffBtn.textContent = '⏭ sit the season';
+  ffBtn.title = 'Fast-forward to the next turn of the season';
+  ffBtn.onclick = () => {
+    if (!started) return; // nothing to sit through before a game begins
+    sitUntil = sitUntil === null ? world.tick + ticksUntilNextSeason(world.tick) : null;
+  };
+  buttons.appendChild(ffBtn);
 
   const wallBtn = document.createElement('button');
   wallBtn.textContent = '⚒ wall (B)';
@@ -1010,10 +1031,23 @@ async function boot(): Promise<void> {
     lastTime = now;
     // step only while actually playing: not before New Game, not behind the home menu
     if (started && !home.isOpen()) {
-      acc += dt * speed;
-      while (acc >= 1) {
-        worldStep(world, site, byTick.get(world.tick) ?? []);
-        acc -= 1;
+      if (sitUntil !== null) {
+        // SIT THE SEASON: pump worldStep toward the target within a wall-clock
+        // budget so the frame stays responsive and the render shows the year
+        // blurring past, until the season turns (or a future honest interrupt —
+        // a death, a wood coming of age — is OR'd into the stop test here).
+        const budgetEnd = performance.now() + FF_BUDGET_MS;
+        while (world.tick < sitUntil && performance.now() < budgetEnd) {
+          worldStep(world, site, byTick.get(world.tick) ?? []);
+        }
+        if (world.tick >= sitUntil) sitUntil = null; // arrived; hand control back
+        acc = 0;
+      } else {
+        acc += dt * speed;
+        while (acc >= 1) {
+          worldStep(world, site, byTick.get(world.tick) ?? []);
+          acc -= 1;
+        }
       }
     } else {
       acc = 0; // don't bank elapsed time into a lurch on resume
@@ -1029,8 +1063,18 @@ async function boot(): Promise<void> {
     people.update(dt, speed > 0);
     updateCard();
 
-    const year = Math.floor(world.tick / TICKS_PER_YEAR) + 1;
-    const day = (world.tick % TICKS_PER_YEAR) + 1;
+    const year = yearOf(world.tick);
+    const day = dayOfYear(world.tick) + 1;
+    const season = seasonOf(world.tick);
+    // the fast-forward forecast: name the season being sat toward and the days
+    // left, so skipped time reads as anticipation rather than dead air
+    if (sitUntil !== null) {
+      const left = Math.max(0, sitUntil - world.tick);
+      const into = seasonOf(sitUntil);
+      ffBtn.textContent = `⏭ → ${into.charAt(0).toUpperCase()}${into.slice(1)} · ${left}d ✕`;
+    } else {
+      ffBtn.textContent = '⏭ sit the season';
+    }
     const laid = world.walls.reduce((n, w) => n + w.stonesLaid, 0);
     const total = world.walls.reduce((n, w) => n + w.stonesTotal, 0);
     const nFarms = world.farms.filter((f) => f.use === 'farm').length;
@@ -1075,7 +1119,8 @@ async function boot(): Promise<void> {
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,
-      `Year ${year}, day ${day} — stones ${laid}${total ? `/${total}` : ''} — ` +
+      `Year ${year} · ${season.charAt(0).toUpperCase()}${season.slice(1)} · day ${day} — ` +
+        `stones ${laid}${total ? `/${total}` : ''} — ` +
         `souls ${world.people.length}${holdings} — site ${site.id}`,
     );
 

@@ -58,6 +58,62 @@ export const SIM_VERSION = 18;
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
 
+/**
+ * THE CIVIC CALENDAR (step 0 of PROPOSAL-THE-LIVING-SETTLEMENT §1) — the one
+ * clock the whole living settlement reads. Four seasons, a PURE FUNCTION of the
+ * absolute tick: it holds no state, never enters the sim hash, and is safe to
+ * call from render, the HUD, and — frozen at a command boundary, never recomputed
+ * live inside worldStep — any future season-gated command (the woods' winter
+ * felling first). The bounds are the COARSENING of the shipped farm crop calendar
+ * (render/farms.ts `seasonBand`), so the HUD season and the field colours can
+ * never disagree: a long northern winter, a short spring, a long summer running
+ * through harvest, a short autumn after the stubble.
+ *
+ * CONSTANT strings: if a season ever rides into hashed state it must do so as one
+ * of these literals, chosen at a boundary — never as a recomputed float.
+ */
+export const SEASONS = ['winter', 'spring', 'summer', 'autumn'] as const;
+export type Season = (typeof SEASONS)[number];
+
+/**
+ * Day-of-year (0-based) at which each season BEGINS, in calendar order from the
+ * year's start (deep winter): spring 60, summer 121, autumn 244, winter-return
+ * 305. Kept in step with `seasonOf`'s bounds below and with farms.ts's bands.
+ */
+const SEASON_STARTS = [60, 121, 244, 305] as const;
+
+/** Day of year (0..364) for an absolute tick; safe for negative ticks. */
+export function dayOfYear(tick: number): number {
+  return ((tick % TICKS_PER_YEAR) + TICKS_PER_YEAR) % TICKS_PER_YEAR;
+}
+
+/** The whole year number (Year 1 = ticks 0..364), for display. */
+export function yearOf(tick: number): number {
+  return Math.floor(tick / TICKS_PER_YEAR) + 1;
+}
+
+/** The season of an absolute tick — pure, allocation-free, hash-neutral. */
+export function seasonOf(tick: number): Season {
+  const d = dayOfYear(tick);
+  if (d < 60 || d >= 305) return 'winter';
+  if (d < 121) return 'spring';
+  if (d < 244) return 'summer';
+  return 'autumn';
+}
+
+/**
+ * Whole days from `tick` until the NEXT season change — always in 1..365. This
+ * is the honest interrupt Sit-the-Season runs to, and the forecast it shows;
+ * `seasonOf(tick + ticksUntilNextSeason(tick))` is the season being entered.
+ */
+export function ticksUntilNextSeason(tick: number): number {
+  const d = dayOfYear(tick);
+  for (const b of SEASON_STARTS) {
+    if (d < b) return b - d;
+  }
+  return TICKS_PER_YEAR - d + SEASON_STARTS[0]!; // wrap through the year's end to spring
+}
+
 /** Ashlar block dimensions, meters. Course height per Guédelon's 20–35 cm range. */
 export const STONE_LEN = 0.45;
 export const STONE_DEPTH = 0.3;
