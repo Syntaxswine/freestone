@@ -74,7 +74,7 @@
 // each), so the food capacity reads the granaries beside the arable. Grounds §4's
 // soul (the granary embodies mutual aid AND is the population engine, one object)
 // and gives the cart a place to carry grain TO. Step 3a of the pyramid arc.
-export const SIM_VERSION = 22;
+export const SIM_VERSION = 23;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -466,6 +466,21 @@ export const WEATHER_MIN = 0.7;
 export const WEATHER_MAX = 1.3;
 
 /**
+ * THE CART (SIM 23): the woods' first payoff. A CARPENTER'S YARD (a BuildingKind) keeps a
+ * cart, and the cart's job is to carry the harvest surplus from the fields to the granary.
+ * How much surplus reaches the store each year is THROUGHPUT-limited: a bare settlement
+ * hand-carries only BASE_HAUL mouth-years; each maintained cart adds CART_HAUL more. So a
+ * granary without carts fills SLOWLY (the surplus a bare larder can't carry in time spoils),
+ * and carts are what actually FILL it — granary = how much you can KEEP, cart = how fast you
+ * fill it. A cart draws CART_UPKEEP timber a year to stay in repair (wheels, axles): the
+ * woods feed the carts feed the granary feed the people — the first renewable-into-renewable
+ * loop. Run the woodpile dry and the carts sit idle. Numbers the century-sweep tunes.
+ */
+export const BASE_HAUL = 2; // mouth-years of surplus hand-carried to the store each year (no cart)
+export const CART_HAUL = 6; // extra mouth-years each maintained cart carries a year
+export const CART_UPKEEP = 2; // m³ timber a cart draws a year to stay in repair
+
+/**
  * The surplus ratio S = the year's HARVEST (produced) / mouths sets the demographic
  * weather. GROWTH (births + migrants) tracks S — the FIELDS' abundance, the sustainable
  * signal, so a settlement never breeds off its hoard. HUNGER is gated separately, on the
@@ -556,7 +571,7 @@ export type FieldUse = (typeof FIELD_USES)[number];
  * not the footprint's — the mason's vernacular reading (classify.ts) stays
  * advisory. Constant strings; they enter hashed state via Building.kind.
  */
-export const BUILDING_KINDS = ['house', 'blacksmith', 'tower', 'tavern', 'granary'] as const;
+export const BUILDING_KINDS = ['house', 'blacksmith', 'tower', 'tavern', 'granary', 'carpentry'] as const;
 export type BuildingKind = (typeof BUILDING_KINDS)[number];
 
 /** A designated field enclosure — the plot its lord put to a use. */

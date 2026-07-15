@@ -4,11 +4,14 @@ import type { SiteData } from './site';
 import {
   ADULT_AGE,
   AREA_PER_PERSON,
+  BASE_HAUL,
   BIRTH_FLOOR_S,
   BIRTH_RATE_FULL,
   BUILDING_KINDS,
   BUILDING_MIN_H,
   BUILDING_ROOFS,
+  CART_HAUL,
+  CART_UPKEEP,
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
   FOUNDING_CAPACITY,
@@ -1107,6 +1110,7 @@ function livingYear(state: WorldState): void {
   // hunger — the granary's one true job (mutual aid = a buffer, not a bigger field).
   const arable = state.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
   const granaries = state.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
+  const carts = state.buildings.reduce((n, b) => (b.kind === 'carpentry' ? n + 1 : n), 0);
   const weather = WEATHER_MIN + rng.float() * (WEATHER_MAX - WEATHER_MIN);
   const produced = (FOUNDING_CAPACITY + arable / AREA_PER_PERSON) * weather;
   const mouths = Math.max(1, state.people.length);
@@ -1116,8 +1120,16 @@ function livingYear(state: WorldState): void {
   let eaten: number;
   if (produced >= mouths) {
     eaten = mouths;
+    // THE CART (SIM 23): only so much surplus reaches the store each year — hand-carry
+    // (BASE_HAUL) plus the maintained carts. A cart rolls only if the woodpile can keep it
+    // in repair (CART_UPKEEP a year); run the wood dry and the carts sit idle. The rest of
+    // the surplus spoils in the field — carts are what actually FILL a granary.
+    const maintained = Math.min(carts, Math.floor(state.timber / CART_UPKEEP));
+    state.timber -= maintained * CART_UPKEEP;
+    const haulCap = BASE_HAUL + maintained * CART_HAUL;
+    const carried = Math.min(produced - mouths, haulCap);
     const cap = FOUNDING_STORAGE + granaries * GRANARY_STORAGE;
-    state.grain = Math.min(cap, state.grain + (produced - mouths)); // the surplus goes to store
+    state.grain = Math.min(cap, state.grain + carried); // the surplus that reaches the store
   } else {
     // a lean year: the store covers what shortfall it can before anyone goes hungry
     const drawn = Math.min(state.grain, mouths - produced);

@@ -674,6 +674,7 @@ async function boot(): Promise<void> {
     { use: 'tower', label: '🗼 tower' },
     { use: 'tavern', label: '🍺 tavern' },
     { use: 'granary', label: '🏛 granary' }, // SIM 21: the civic heart — stores the harvest, feeds more
+    { use: 'carpentry', label: '🪚 carpenter' }, // SIM 23: keeps a cart — carries grain to the granary, draws timber
   ];
   const ROOF_CHOICES: { material: RoofMaterial; label: string }[] = [
     { material: 'wood', label: '🪵 wood' },
@@ -1169,6 +1170,7 @@ async function boot(): Promise<void> {
     const nGranaries = world.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
     const fieldYield = FOUNDING_CAPACITY + arableArea / AREA_PER_PERSON;
     const surplus = fieldYield / Math.max(1, world.people.length);
+    const nCarts = world.buildings.reduce((n, b) => (b.kind === 'carpentry' ? n + 1 : n), 0);
     const grainCap = FOUNDING_STORAGE + nGranaries * GRANARY_STORAGE;
     const foodState =
       surplus >= GROWTH_THRESHOLD
@@ -1180,7 +1182,8 @@ async function boot(): Promise<void> {
             : 'hungry';
     const harvest =
       ` — harvest ${Math.round(fieldYield)} mouths (${surplus.toFixed(2)}× ${foodState})` +
-      ` — grain ${Math.round(world.grain)}/${grainCap}`;
+      ` — grain ${Math.round(world.grain)}/${grainCap}` +
+      (nCarts ? ` — ${nCarts} cart${nCarts > 1 ? 's' : ''}` : '');
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
