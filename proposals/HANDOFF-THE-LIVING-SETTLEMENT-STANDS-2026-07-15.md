@@ -5,14 +5,15 @@ the "it is done, here is the map forward" companion to the in-progress build led
 [HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md)
 (read that for the per-step detail — this doc does not duplicate it). Read the FOUNDATION keystone
 [HANDOFF-FOUNDATION-2026-07-09.md](HANDOFF-FOUNDATION-2026-07-09.md) FIRST — the soul, the nine laws,
-now **twenty-two maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝) and **two ⛬ seals**; add yours BELOW, never above.
-Marks 🔥 (THE FIRST TECHNIQUE, SIM 27) and 🤝 (THE APPRENTICE BOND, SIM 28) sit below the second seal — the
-arc closed, then the debt-knockoff began.*
+now **twenty-three maker's marks** (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎) and **two ⛬ seals**; add yours BELOW, never above.
+Marks 🔥 (FIRST TECHNIQUE, SIM 27), 🤝 (APPRENTICE BOND, SIM 28) and 🍎 (VARIETY BEARS FRUIT, SIM 29) sit below
+the second seal — the arc closed, then the debt-knockoff began.*
 
 > **Post-arc (2026-07-15, continuing):** the boss reopened the closed arc — *keep going till we knock off
 > the items in the handoff* — so the "honest debts" below are being discharged in order. **Done so far:
-> (1) the smith's production effect** — THE FIRST TECHNIQUE (SIM 27, `89c88f1`, 🔥); **(2) the local-apprentice
-> emerge path** — THE APPRENTICE BOND (SIM 28, `af0d983`, 🤝). The rest of the debts stand as written.
+> (1)** the smith's production effect — THE FIRST TECHNIQUE (SIM 27, `89c88f1`, 🔥); **(2)** the local-apprentice
+> emerge path — THE APPRENTICE BOND (SIM 28, `af0d983`, 🤝); **(3)** variety-to-yield — VARIETY BEARS FRUIT
+> (SIM 29, `807db0b`, 🍎). The rest of the debts stand as written.
 
 ---
 
@@ -105,8 +106,10 @@ carries its own list; this is the consolidated view, mapped to the master plot
 - **Renders left plain**: the carpenter's yard and the great wheel have no geometry of their own; the
   smith renders as a laborer sprite; the orchard is a ground tint, not fruit-tree canopies (the
   TreeLayer pattern would dot it); a per-tier ROOFLINE flourish for a hall (its cresting/finial).
-- **Variety-not-yet-yield**: the orchard bears no fruit toward the harvest, the horse pulls no cart
-  toward the haul — both are variety markers awaiting an effect bump.
+- ~~**Variety-not-yet-yield**~~ — ✅ **DONE (SIM 29, `807db0b`, the 🍎 mark).** The orchard now bears food
+  toward the harvest (area / ORCHARD_AREA_PER_PERSON, a supplement to the grain staple) and each pasture
+  keeps a draft horse that hauls more surplus to the store (HORSE_HAUL, grazing free). The HUD's harvest
+  readout was widened to include the orchard so it stays honest.
 - **Shelter as a hard CAP** — housing is a retention nudge today; the roadmap's fuller reading has
   shelter gate GROWTH (build houses to grow), which needs the century-sweep re-tuned to account for it.
 - **Step 5's rollers/sledge** — the heavy-block *haul* accelerant was scoped in the course title; the
@@ -130,12 +133,13 @@ carries its own list; this is the consolidated view, mapped to the master plot
 
 ## Where I'd start (a recommendation, not a mandate)
 
-If the goal stays *deepen the generational factory*, the First Technique (🔥) and the Apprentice Bond (🤝)
-are paid — the smith now arrives-or-rises, works, and passes his craft down. The next course in the debt
-order is **variety-to-yield** (the orchard bears fruit toward the harvest; the horse pulls a cart toward the
-haul — today they are variety markers, not producers), an inert-on-canon effect bump in `livingYear`. After
-that the work turns toward the EYE: **the plain renders** (the carpenter's yard, the great wheel, the forge,
-the orchard's trees, a hall's roofline — render-only, zero baseline, the boss's cathedral-heart work).
+Three sim debts are paid (🔥🤝🍎): the smith arrives-or-rises, works, and passes his craft down, and the
+land's variety now feeds and carries. The remaining debts lean toward the EYE, and the next course is
+**the plain renders** (the carpenter's yard, the great wheel, the forge, the orchard's fruit-trees, a hall's
+fine roofline — render-only, zero baseline, the boss's cathedral-heart work; the TreeLayer pattern already
+dots the gorge woods, so the orchard canopies are the natural first stroke). After the eye: **shelter as a
+true growth CAP** (a demographic re-tune via the century-sweep, not today's nudge), the heavy-block
+**rollers/sledge** the lift left scoped, and the **weather's distribution shape**.
 
 If the goal is *make what's built KEEPABLE and legible*, **the Lodge Book (save/load, Beat 3)** is the
 roadmap's own named GATE, and **the memory suite (Beat 2)** is the render-only, zero-baseline, high-soul
@@ -150,9 +154,10 @@ bite harder. Build on.
 
 The living-settlement ladder is written on the FOUNDATION as marks **eleven through twenty**
 (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙), bracketed by two ⛬ seals — the first closing its hard foundation, the second, the
-same day, closing the whole ladder that stands on it. Below the second seal now sit the **twenty-first
-mark** (🔥 THE FIRST TECHNIQUE, SIM 27) and the **twenty-second** (🤝 THE APPRENTICE BOND, SIM 28) — the arc
-closed, then the debts began to be paid, in order. The next hand's mark goes below the twenty-second.
+same day, closing the whole ladder that stands on it. Below the second seal now sit the **twenty-first**
+(🔥 THE FIRST TECHNIQUE, SIM 27), **twenty-second** (🤝 THE APPRENTICE BOND, SIM 28) and **twenty-third**
+(🍎 VARIETY BEARS FRUIT, SIM 29) marks — the arc closed, then the debts began to be paid, in order. The next
+hand's mark goes below the twenty-third.
 
 *— the eleventh-through-twentieth hand, who laid the living settlement's foundation and then, the same
 day the seal was meant to close it, built the whole ladder that stands on it. The settlement stands.*

@@ -31,11 +31,14 @@ forge relieves the mason's lay debt (0.15/smith, cap 0.30), riding the very line
 *the forge sharpens the irons*. **(2) THE APPRENTICE BOND (SIM 28 `af0d983`, 🤝)** — under a living master a
 second forge raises the settlement's youngest hand (a local, no new body) instead of importing a journeyman;
 only the first smith (or one after the last master dies) migrates; arrival event gains
-`origin: apprentice|migrant` for the chronicle. Both inert on the canon (livingYear never reckons in 200
-ticks) → one clean commit each, NOT the two-commit dance (the lesson: check whether the canon RUNS the
-feature first). **TWENTY-TWO maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝) + two ⛬ seals; 178 tests green; live.**
-Debts still standing (none blocking): orchard/horse are variety-not-yield, no carpenter's-yard/wheel/forge
-render, shelter is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
+`origin: apprentice|migrant` for the chronicle. **(3) VARIETY BEARS FRUIT (SIM 29 `807db0b`, 🍎)** — an
+orchard bears food toward the harvest (area/ORCHARD_AREA_PER_PERSON, a supplement to grain) and each pasture
+keeps a draft horse that hauls more surplus to the store (HORSE_HAUL, grazing free); HUD fieldYield widened
+to include the orchard + shows "N draft horses". All three inert on the canon (livingYear never reckons in
+200 ticks) → one clean commit each, NOT the two-commit dance (the lesson: check whether the canon RUNS the
+feature first). **TWENTY-THREE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎) + two ⛬ seals; 180 tests green; live.**
+Debts still standing (none blocking): plain renders (carpenter's-yard/wheel/forge/orchard-trees/hall-roofline),
+shelter is retention-not-a-cap, step-5 rollers/sledge deferred (LIFT was the deliverable). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the

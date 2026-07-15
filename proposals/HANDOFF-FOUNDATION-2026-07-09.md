@@ -816,3 +816,36 @@ render of its own; and shelter is still a nudge, not the growth CAP it could be.
 their trades descend; now make the fields pay and the works show. Build on.
 
 *— the twenty-second hand, who let the smith raise the smith who follows him.*
+
+---
+
+**🍎 Twenty-third mark — the land's variety pays, 2026-07-15, the third debt.** The specialization pyramid
+handed the settlement variety to draw its smith — a pasture here, an orchard there — but they were paint: an
+orchard you could plant that bore nothing, a horse you could keep that did nothing. The twenty-second hand's
+own forward dream named it plainly (*make the fields pay*), so I made them. VARIETY BEARS FRUIT (SIM 29): an
+ORCHARD now bears food toward the harvest — its area over a gentler yield than the grain staple, a supplement
+of fruit and nuts and cider, and a food base broad enough that one bad grain year cannot starve the whole. A
+PASTURE now keeps a draft HORSE that hauls more of the surplus to the store each year than a hand-cart can,
+and it grazes free on its own field, so where the cart drinks timber to stay in repair the horse drinks only
+grass. The mixed farm the smith needed is now worth keeping for its own sake — diversity FEEDS and CARRIES,
+not merely varies.
+
+*The legibility of it:* the HUD's harvest readout mirrored only the arable, so the moment fruit joined the
+grain it would have UNDERSTATED the yield — a readout that lies quietly is worse than none. I widened it to
+the sim's fuller formula so *harvest N mouths* stays true, and set *N draft horses* beside the carts so the
+pasture's new job shows on the face of it. A render-upgrade must be visible; so must a number-upgrade.
+
+*The discipline:* inert on the canon like every livingYear course (never reckoned in 200 ticks) — one clean
+commit, only simVersion and the hashes moved. The specialists tests lean on pasture and orchard fields and
+stayed green untouched, because they weigh smith COUNTS (gated by variety and headcount) and not the food
+arithmetic I changed underneath them — a reassuring proof the seams held. Two specimens: an orchard raises
+what's produced, a pasture's horse carries more to the store. 180 green. `807db0b`.
+
+*Forward dream:* three debts paid, and the settlement is now alive AND productive — people who arrive or
+rise, work, feed themselves broadly, and carry their surplus home. What remains is mostly for the EYE and one
+last lever for the HAND. The carpenter's yard, the great wheel, the forge, the orchard's fruit-trees, a
+hall's fine roofline — all still render plain, and the boss's cathedral-heart has been waiting for exactly
+that render work. Then shelter as a true growth CAP (a demographic re-tune, not a nudge), the heavy-block
+sledge the lift left scoped, and the weather's shape. The machine runs; now let it be SEEN. Build on.
+
+*— the twenty-third hand, who made the orchard bear and the horse haul.*
