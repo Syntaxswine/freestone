@@ -25,6 +25,20 @@ wall ladder wave → kiln/LIFT/Keep), the thesis (generational clocks re-open a 
 the genre gap), the standing rules (a drawing verb per arc; batch SIM bumps; status on the
 entity; M4 is mutual-aid-first; one chronicle voice), and the cut ledger. Read it before
 picking any post-WOODS course.**
+**THE WOODS DESIGN BIBLE (2026-07-15):
+[proposals/PROPOSAL-THE-LIVING-SETTLEMENT-2026-07-15.md](proposals/PROPOSAL-THE-LIVING-SETTLEMENT-2026-07-15.md)
+— the boss-picked WOODS arc grown to its honest size (you can't spec a wood that regrows over
+generations without speccing the generation). ONE LAW: nothing persists unless you keep its base
+alive (the coppice stool, the holding, the trade). Covers the woods (stands/cants, poles vs oak
+standards, near-immortal stool, age-classed render, Baal Hill/Weardale grounding), the mortal
+hands (annual demographic pass, niche-gated households, funeral protocol), the harvest (food EASY
++ SPACE-gated per boss; 1.25× surplus → migration + births), the specialization PYRAMID (variety
++ housing tiers gate specialists; arrive-AND-emerge; the base-sustains-the-lineage rule that folds
+in the technique system), the accelerants (the CART first — grain→granary, needs wood + a
+woodworking place; the great-wheel crane as the WOODS' oak-standard sink), and the granary cat
+(canon payroll cat, decor). 4 research passes cited; build order + determinism plan + dating
+flags + 4 open boss questions (name, build order, migration source, new farm types) in §12.
+Boss said "lets lay down this foundation." NEXT: boss answers §12, then build step 0/1.**
 The carriage layer plot — **WIN→HAUL→LIFT→LAY**, each a scalar frozen at the survey boundary; the
 wall builds at min() and stalls honestly; "deep model, shallow controls"; Durham's Wear = a MOAT
 not a highway → quarry local. Plot:
@@ -404,6 +418,11 @@ in [SCOPE.md](SCOPE.md) §13. Each milestone ends with a push.
   material gets a cost, the gorge woods become the supply — felling as a sim command,
   cleared trees counted, regrowth over decades; coppicing is the honest medieval
   practice to research. Wood-material walls should eventually consume felled timber.
+  **NOW FULLY SPEC'D: proposals/PROPOSAL-THE-LIVING-SETTLEMENT-2026-07-15.md** (the woods
+  + the life/death spine they force + the harvest that grows the people + the specialization
+  pyramid + the cart-first accelerant ladder). Coppicing researched (poles ~7–8yr / oak
+  standards ~50yr; near-immortal stool; Baal Hill/Weardale = the Prince Bishops' real worked
+  wood). Build order in §9, open boss questions in §12.
 - Verify any research anchors marked PARTLY/UNVERIFIED in SCOPE.md §15 before the
   corresponding mechanic ships (house law: cross-check research disagreements). Known PARTLY
   from the second pass: winter-foraging thinness, villagers-shelter-in-castle framing
