@@ -97,6 +97,20 @@ describe('the living year (SIM 20)', () => {
     expect(w.events.some((e) => e.kind === 'person_left')).toBe(true);
   });
 
+  it('a GRANARY feeds more mouths — the civic heart is a population lever (SIM 21)', () => {
+    // six mouths, no field: founding capacity 4 → hunger (S ≈ 0.67), the village thins
+    const noG = fresh();
+    noG.people = Array.from({ length: 6 }, (_, i) => adult(200 + i, 0));
+    // the same, but with a GRANARY: capacity 4 + GRANARY_CAPACITY = 9 → surplus (S 1.5), it grows
+    const wG = fresh();
+    wG.people = Array.from({ length: 6 }, (_, i) => adult(200 + i, 0));
+    wG.buildings = [{ id: 8001, wallId: 8000, kind: 'granary', roof: 'none', area: 30 }];
+    stepN(noG, TICKS_PER_YEAR * 5); // five reckonings — the contrast is stark and seed-robust
+    stepN(wG, TICKS_PER_YEAR * 5);
+    expect(wG.people.length).toBeGreaterThan(6); // the granary's surplus grew it
+    expect(wG.people.length).toBeGreaterThan(noG.people.length); // and out-fed the granary-less village
+  });
+
   it('the demographic rng is ISOLATED — a growing settlement lays the SAME stones', () => {
     const wall: Command = { kind: 'plan_wall', tick: 0, points: [{ x: 0, y: 0 }, { x: 6, y: 0 }], height: 0.25 };
     const stable = fresh('iso');

@@ -68,7 +68,13 @@
 // easy per boss) — sets a surplus ratio that draws MIGRANTS (fast) and lifts the
 // BIRTH rate (slow, a lineage), or thins the village in hunger. Aging is real:
 // a child born in-game does not lift a stone until it comes of age. §3 + §4.
-export const SIM_VERSION = 20;
+// 21: THE GRANARY — the civic heart made a real building (BUILDING_KINDS gains
+// 'granary'). It is the population engine's STORE: a granary's mutual-aid stock
+// lets the settlement feed more mouths than its fields alone (GRANARY_CAPACITY
+// each), so the food capacity reads the granaries beside the arable. Grounds §4's
+// soul (the granary embodies mutual aid AND is the population engine, one object)
+// and gives the cart a place to carry grain TO. Step 3a of the pyramid arc.
+export const SIM_VERSION = 21;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -435,6 +441,14 @@ export const MORTALITY_BANDS: readonly { untilAge: number; annual: number }[] = 
  */
 export const AREA_PER_PERSON = 200; // m² of enclosed arable that feeds one mouth
 export const FOUNDING_CAPACITY = 4; // mouths fed before any field (the founding stores)
+/**
+ * A GRANARY (SIM 21) is the harvest's STORE: its mutual-aid stock carries grain
+ * from the fat years into the lean and cuts the waste, so a settlement with a
+ * granary feeds more mouths than its bare fields would — this many more, each. The
+ * civic heart as a population lever (§4's soul made mechanical); the number the
+ * century-sweep tunes. Read beside the arable in the harvest capacity.
+ */
+export const GRANARY_CAPACITY = 5; // extra mouths a built granary feeds
 
 /**
  * The surplus ratio S = food capacity / mouths sets the year's demographic weather:
@@ -524,7 +538,7 @@ export type FieldUse = (typeof FIELD_USES)[number];
  * not the footprint's — the mason's vernacular reading (classify.ts) stays
  * advisory. Constant strings; they enter hashed state via Building.kind.
  */
-export const BUILDING_KINDS = ['house', 'blacksmith', 'tower', 'tavern'] as const;
+export const BUILDING_KINDS = ['house', 'blacksmith', 'tower', 'tavern', 'granary'] as const;
 export type BuildingKind = (typeof BUILDING_KINDS)[number];
 
 /** A designated field enclosure — the plot its lord put to a use. */

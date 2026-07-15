@@ -12,6 +12,7 @@ import {
   COURSE_HEIGHT,
   DOOR_GAP_MAX,
   FOUNDING_CAPACITY,
+  GRANARY_CAPACITY,
   GROWTH_FULL,
   GROWTH_THRESHOLD,
   HUNGER_LEAVE_RATE,
@@ -1097,9 +1098,11 @@ function livingYear(state: WorldState): void {
   }
   state.people = survivors;
 
-  // 2. THE HARVEST — food capacity in mouths, space-gated by enclosed arable (§4)
+  // 2. THE HARVEST — food capacity in mouths: the founding stores, the enclosed
+  // arable (§4), and the GRANARIES that store it (SIM 21 — the civic heart feeds more)
   const arable = state.farms.reduce((a, f) => (f.use === 'farm' ? a + f.area : a), 0);
-  const capacity = FOUNDING_CAPACITY + arable / AREA_PER_PERSON;
+  const granaries = state.buildings.reduce((n, b) => (b.kind === 'granary' ? n + 1 : n), 0);
+  const capacity = FOUNDING_CAPACITY + arable / AREA_PER_PERSON + granaries * GRANARY_CAPACITY;
   const S = capacity / Math.max(1, state.people.length);
 
   // 3. BIRTHS (continuous), MIGRANTS (surplus only), HUNGER (dearth) — all off one S.
