@@ -17,7 +17,7 @@ import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import { STONE_VOLUME, type Command, type Vec2 } from '../src/sim/types';
+import { SEED_TIMBER, STONE_VOLUME, type Command, type Vec2 } from '../src/sim/types';
 
 // a short, low wall — a known, modest stone demand on flat ground (one course)
 const WALL: Vec2[] = [
@@ -82,11 +82,12 @@ describe('the consumption loop (SIM 16)', () => {
     expect(w.stockpile).toBeCloseTo(5 * STONE_VOLUME, 6);
   });
 
-  it('a timber wall builds with a dry stockpile — the WOODS are free, not yet a cost', () => {
+  it('a timber wall draws no STONE — its cost is timber, not the pile (SIM 19)', () => {
     const woodWall: Command = { kind: 'plan_wall', tick: 0, points: WALL, height: 0.25, material: 'wood' };
     const w = run([woodWall], 20);
-    expect(w.stockpile).toBe(0); // drew no stone
-    expect(w.stones).toHaveLength(w.walls[0]!.stonesTotal); // yet fully built
+    expect(w.stockpile).toBe(0); // drew no STONE — masonry supply is orthogonal to the palisade
+    expect(w.stones).toHaveLength(w.walls[0]!.stonesTotal); // fully built from the founder's woodpile
+    expect(w.timber).toBeLessThan(SEED_TIMBER); // but it DID spend timber (SIM 19; see woods.test.ts)
     expect(w.events.some((e) => e.kind === 'wall_complete')).toBe(true);
   });
 

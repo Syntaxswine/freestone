@@ -347,6 +347,30 @@
         ]
       },
       {
+        "kind": "plan_fell",
+        "tick": 137,
+        "points": [
+          {
+            "x": 1900,
+            "y": 2030
+          },
+          {
+            "x": 1912,
+            "y": 2030
+          },
+          {
+            "x": 1912,
+            "y": 2042
+          },
+          {
+            "x": 1900,
+            "y": 2042
+          }
+        ],
+        "timberTotal": 30,
+        "workTotal": 3
+      },
+      {
         "kind": "add_gate",
         "tick": 140,
         "wallId": 225,
@@ -398,11 +422,13 @@
       "roofsComplete": 0,
       "cutsComplete": 0,
       "aditsComplete": 0,
-      "stockpile": 0
+      "stockpile": 0,
+      "timber": 30,
+      "standsFelled": 0
     },
     {
       "tick": 7,
-      "hash": "084d60eb",
+      "hash": "72374543",
       "stones": 54,
       "events": 58,
       "wallsComplete": 0,
@@ -416,11 +442,13 @@
       "roofsComplete": 0,
       "cutsComplete": 0,
       "aditsComplete": 0,
-      "stockpile": 0
+      "stockpile": 0,
+      "timber": 28,
+      "standsFelled": 0
     },
     {
       "tick": 30,
-      "hash": "48d859aa",
+      "hash": "40d8f254",
       "stones": 604,
       "events": 619,
       "wallsComplete": 1,
@@ -434,11 +462,13 @@
       "roofsComplete": 0,
       "cutsComplete": 0,
       "aditsComplete": 0,
-      "stockpile": 0
+      "stockpile": 0,
+      "timber": 10,
+      "standsFelled": 0
     },
     {
       "tick": 65,
-      "hash": "6e080f18",
+      "hash": "91adcb14",
       "stones": 1144,
       "events": 1164,
       "wallsComplete": 1,
@@ -452,11 +482,13 @@
       "roofsComplete": 0,
       "cutsComplete": 1,
       "aditsComplete": 0,
-      "stockpile": 37
+      "stockpile": 37,
+      "timber": 10,
+      "standsFelled": 0
     },
     {
       "tick": 80,
-      "hash": "54d3eb6f",
+      "hash": "de67c663",
       "stones": 1891,
       "events": 1913,
       "wallsComplete": 2,
@@ -470,11 +502,13 @@
       "roofsComplete": 0,
       "cutsComplete": 1,
       "aditsComplete": 0,
-      "stockpile": 6
+      "stockpile": 6,
+      "timber": 10,
+      "standsFelled": 0
     },
     {
       "tick": 100,
-      "hash": "a3e6cdce",
+      "hash": "64e83b98",
       "stones": 2028,
       "events": 2053,
       "wallsComplete": 3,
@@ -488,11 +522,13 @@
       "roofsComplete": 0,
       "cutsComplete": 1,
       "aditsComplete": 0,
-      "stockpile": 0
+      "stockpile": 0,
+      "timber": 10,
+      "standsFelled": 0
     },
     {
       "tick": 130,
-      "hash": "1f12d814",
+      "hash": "91e82524",
       "stones": 2515,
       "events": 2545,
       "wallsComplete": 5,
@@ -506,25 +542,29 @@
       "roofsComplete": 0,
       "cutsComplete": 2,
       "aditsComplete": 0,
-      "stockpile": 8
+      "stockpile": 8,
+      "timber": 10,
+      "standsFelled": 0
     },
     {
       "tick": 200,
-      "hash": "d44c150a",
+      "hash": "34e3055b",
       "stones": 2470,
-      "events": 2564,
+      "events": 2566,
       "wallsComplete": 5,
       "fillsComplete": 2,
       "pending": 0,
       "farms": 1,
       "buildings": 1,
-      "farmWorkdays": 190,
+      "farmWorkdays": 187,
       "gates": 1,
       "roofsUncovered": 0,
       "roofsComplete": 1,
       "cutsComplete": 2,
       "aditsComplete": 0,
-      "stockpile": 8
+      "stockpile": 8,
+      "timber": 40,
+      "standsFelled": 1
     }
   ]
 }

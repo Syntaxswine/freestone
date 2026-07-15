@@ -83,7 +83,7 @@ export interface SnapWall {
   complete: boolean;
 }
 
-export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut';
+export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell';
 
 export class WallPlanner {
   active = false;
@@ -235,7 +235,9 @@ export class WallPlanner {
           ? 0xb08968
           : this.mode === 'cut'
             ? 0x8a8574 // quarry grey — cut ground, not tipped dirt
-            : 0xd8d3c4;
+            : this.mode === 'fell'
+              ? 0x6f7a48 // woods green — the cant marked to fell
+              : 0xd8d3c4;
     (this.line.material as THREE.LineBasicMaterial).color.setHex(tone);
     (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(tone);
     document.body.classList.add('planning');
@@ -279,7 +281,10 @@ export class WallPlanner {
   previewPolyline(): Vec2[] {
     if (this.mode === 'building') return this.buildingLoop();
     const poly = this.rawPolyline();
-    if ((this.mode === 'fill' || this.mode === 'roof' || this.mode === 'cut') && poly.length >= 3) {
+    if (
+      (this.mode === 'fill' || this.mode === 'roof' || this.mode === 'cut' || this.mode === 'fell') &&
+      poly.length >= 3
+    ) {
       return [...poly, poly[0]!];
     }
     return poly;
@@ -392,7 +397,8 @@ export class WallPlanner {
     // commit exactly what the preview shows — ribbon and stats both come from
     // the same polyline, so the rubber-band cursor point is part of the plan
     // (fill and roof commit the OPEN ring; the display's closing point is not data)
-    const ringMode = this.mode === 'fill' || this.mode === 'roof' || this.mode === 'cut';
+    const ringMode =
+      this.mode === 'fill' || this.mode === 'roof' || this.mode === 'cut' || this.mode === 'fell';
     const poly = ringMode ? this.rawPolyline() : this.previewPolyline();
     if (poly.length < 2) return;
     if (this.mode === 'building' && poly.length < 6) return; // no loop, no shell
@@ -662,7 +668,12 @@ export class WallPlanner {
     // a roof previews as a thin deck band, not a wall body; a QUARRY previews as
     // a thin ground marker (the pit sinks only once the crew digs — a tall band
     // would read as building UP, the opposite of a cut)
-    const bandTop = this.mode === 'roof' ? ROOF_DECK : this.mode === 'cut' ? 0.05 : this.height;
+    const bandTop =
+      this.mode === 'roof'
+        ? ROOF_DECK
+        : this.mode === 'cut' || this.mode === 'fell'
+          ? 0.05
+          : this.height;
     // a BUILDING ribbon tops out at the SURVEYED level datum (SIM 13): the
     // pencil promises the one flat bearing its roof will need. Plain walls
     // STEP with the land, which the old per-column ribbon already reads as.
@@ -847,6 +858,10 @@ export class WallPlanner {
     }
     if ((ev.key === 'q' || ev.key === 'Q') && clean) {
       this.toggle('cut');
+      return;
+    }
+    if ((ev.key === 't' || ev.key === 'T') && clean) {
+      this.toggle('fell');
       return;
     }
     if (!this.active) return;

@@ -60,7 +60,13 @@ const MILESTONE_TICKS = [1, 7, 30, 65, 80, 100, 130, 200];
  *    bricked into a deck (~167), and four invalid commands reject with their constant
  *    reasons. The wallIds/roofId hold under SIM 18 — dress moves TIMING, not counts,
  *    and all walls finish before the span is drawn, so FR 225, BS 334 and the span
- *    2531 are unchanged; the dress levels and retuned relief moved the milestones.
+ *    2531 are unchanged; the dress levels and retuned relief moved the milestones;
+ *  - and SIM 19 THE WOODS: the wood wall B DRAWS timber (the palisade is no longer
+ *    free), spending the founder's woodpile 30 → 10 by tick 30; then a late coppice
+ *    FELL (tick 137 — after every wall/roof id is minted, so no ripple) is felled
+ *    through ~139 and wins 30 m³ back (timber 10 → 40, standsFelled 1) for three
+ *    person-days of the laborers' time (farmWorkdays 190 → 187) — the SPENT and WON
+ *    sides of the timber loop in one run.
  */
 const CANON_COMMANDS: Command[] = [
   // Q1 — THE FOUNDING QUARRY (SIM 16): the crew opens the outcrop Low Main Post
@@ -80,9 +86,12 @@ const CANON_COMMANDS: Command[] = [
   // days/stone) — quick to lay when supplied, but A is haul-bound, so the CART still
   // binds. A waits first on the PIT, then on the CART; done ~82.
   { kind: 'plan_wall', tick: 5, points: [{ x: 1960, y: 2000 }, { x: 1995, y: 2000 }], height: 1, haulRate: 0.6, method: 'ox-cart uphill', dressLevel: 'rubble' },
-  // B — a WOOD wall: timber draws no stone (the WOODS aren't a cost yet), so it
-  // builds FREE from tick 6 while A stands stalled beside it — the loop, in one
-  // fingerprint. Its ~600 posts set the ids of everything planned after it.
+  // B — a WOOD wall: since SIM 19 timber is a COST — its ~590 posts DRAW the global
+  // timber stock (TIMBER_PER_POST each), spending the founder's woodpile down from
+  // SEED_TIMBER 30 to ~10 by tick 30, while sandstone A stands stalled on an empty
+  // stone pile beside it. The palisade builds without STONE, not without cost. Its
+  // posts set the ids of everything planned after it. (The FELL at tick 137 tops the
+  // timber back up to 40 — the two sides of the wood loop in one fingerprint.)
   { kind: 'plan_wall', tick: 6, points: [{ x: 1940, y: 1980 }, { x: 1940, y: 1955 }], height: 2.5, material: 'wood' },
   // FR — a closed low ring on the gorge bank: stepped footings bill 629 stones
   // (SIM 13). A field wall is light RUBBLE (SIM 18) — it lays 0.5 days/stone, twice
@@ -121,6 +130,16 @@ const CANON_COMMANDS: Command[] = [
   // a span drawn over the finished tavern — it stands UNCOVERED (SIM 11) until the
   // word bricks it into a deck (~167). Corners rest on finished walls; roofId re-probed.
   { kind: 'plan_roof', tick: 135, points: [{ x: 2040, y: 1960 }, { x: 2048, y: 1960 }, { x: 2048, y: 1966 }, { x: 2040, y: 1966 }] },
+  // FELL — a coppice cut (SIM 19): the crew, done with the pit and the walls, fells
+  // a wooded cant late in the run. Economics FROZEN as the render would from the
+  // tree model: ~30 trees ≈ 30 m³ of timber won for ~3 person-days' felling. Placed
+  // tick 137 — AFTER every wall and the roof span are minted (≤135) so no
+  // wallId/roofId shifts — and the two laborers (idle since Q2 holed through) fell
+  // it through in a couple of days. The wood wall B already drew its posts from the
+  // founder's woodpile (SEED_TIMBER), so this coppice tops the stock back up: the
+  // WON side of the timber loop fingerprinted, beside B's SPENT side (the timber
+  // milestone falls as B builds, then rises when the cant is felled through).
+  { kind: 'plan_fell', tick: 137, points: [{ x: 1900, y: 2030 }, { x: 1912, y: 2030 }, { x: 1912, y: 2042 }, { x: 1900, y: 2042 }], timberTotal: 30, workTotal: 3 },
   // gate ops (SIM 6/7/9) on finished walls: a second gate into the farm's east
   // wall, a back DOOR in the tavern; then the farm gate is taken down and the
   // masons wall it back up through the daily loop — the infill DRAWS stone (SIM 16).
@@ -148,6 +167,8 @@ interface Milestone {
   cutsComplete: number;
   aditsComplete: number;
   stockpile: number;
+  timber: number;
+  standsFelled: number;
 }
 
 interface Baseline {
@@ -190,6 +211,9 @@ function runCanon(site: SiteData): Baseline {
         cutsComplete: world.cuts.filter((c) => c.workDone >= c.workTotal).length,
         aditsComplete: world.adits.filter((a) => a.workDone >= a.workTotal).length,
         stockpile: Math.round(world.stockpile),
+        timber: Math.round(world.timber),
+        // felled-through stands: standing (feltTick>=0) or regrown after a completed cut
+        standsFelled: world.stands.filter((s) => !s.felling && s.workDone >= s.workTotal).length,
       });
     }
   }

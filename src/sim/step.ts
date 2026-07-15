@@ -20,6 +20,7 @@ import {
   HAUL_METHODS,
   MATERIALS,
   REGROWTH_TICKS,
+  TIMBER_PER_POST,
   ROOF_MATERIALS,
   ROOF_SNAP,
   ROOF_DECK,
@@ -1220,20 +1221,21 @@ function haulStone(state: WorldState): void {
 }
 
 function layStones(state: WorldState, site: SiteData, rng: Rng): void {
-  // a wall the masons can WORK this moment (SIM 16 + 17): drawings settled (a
-  // plotted building waits on its roof and trade), and its supply in hand —
-  // timber is free (the WOODS aren't a cost yet), a 'local' wall draws the
-  // global pile as before, a HAULED wall draws the stone the carts have brought
-  // to its FACE. A hauled wall whose face is dry stalls on the CART even while
-  // the pile is full; a local wall with a dry pile stalls on the quarry. The
-  // supply one stone needs is its dress DRAW (SIM 18): an ashlar block wants half
-  // again as much rough stone as rubble/scappled. When nothing can be worked the
-  // crew stalls honestly, and the line names why.
+  // a wall the masons can WORK this moment (SIM 16 + 17 + 19): drawings settled (a
+  // plotted building waits on its roof and trade), and its supply in hand — a WOOD
+  // wall now DRAWS the global TIMBER stock (SIM 19: the WOODS are a cost; a post
+  // spends TIMBER_PER_POST), a 'local' stone wall draws the global pile, a HAULED
+  // wall draws the stone the carts brought to its FACE. A wood wall with a dry
+  // timber stock stalls on the WOODS; a hauled wall whose face is dry stalls on the
+  // CART even while the pile is full; a local wall with a dry pile stalls on the
+  // quarry. The supply one unit needs is its dress DRAW (SIM 18) for a stone, or
+  // TIMBER_PER_POST for a post. When nothing can be worked the crew stalls honestly.
   const supplied = (w: WallPlan): boolean =>
-    w.material === 'wood' ||
-    (w.haulRate === null
-      ? state.stockpile >= DRESS_DRAW[w.dressLevel]
-      : w.faceBuffer >= DRESS_DRAW[w.dressLevel]);
+    w.material === 'wood'
+      ? state.timber >= TIMBER_PER_POST
+      : w.haulRate === null
+        ? state.stockpile >= DRESS_DRAW[w.dressLevel]
+        : w.faceBuffer >= DRESS_DRAW[w.dressLevel];
   for (const person of state.people) {
     if (person.trade !== 'mason') continue;
     let quota = person.pace;
@@ -1242,16 +1244,20 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         (w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w) && supplied(w),
       );
       if (!wall) return;
-      // a laid stone spends its dress DRAW, from wherever the wall draws: the FACE
-      // if it is hauled, the global pile if it is local; timber spends nothing (the
-      // generous quarry yield already rewarded the winning). And it spends the dress
-      // level's LAY DEBT of the mason's day (SIM 18): rubble is quick (0.5), ashlar
-      // slow (2.0), scappled the neutral 1.0 — so all-scappled play is byte-identical
-      // to SIM 17. The day's last stone is affordable whenever quota remains (the
-      // mason finishes the block begun); quota resets each day, no cross-day carry.
-      if (wall.material !== 'wood') {
-        if (wall.haulRate === null) state.stockpile -= DRESS_DRAW[wall.dressLevel];
-        else wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];
+      // a laid unit spends its supply: a WOOD post draws TIMBER_PER_POST from the
+      // global timber stock (SIM 19 — the palisade is no longer free; the generous
+      // fell yield rewarded the winning); a STONE spends its dress DRAW from wherever
+      // the wall draws — the FACE if hauled, the global pile if local. And it spends
+      // the dress level's LAY DEBT of the mason's day (SIM 18): rubble quick (0.5),
+      // ashlar slow (2.0), scappled 1.0 — wood is always scappled, so posts lay at
+      // the neutral rate. The day's last unit is affordable whenever quota remains
+      // (the mason finishes the block begun); quota resets each day, no carry.
+      if (wall.material === 'wood') {
+        state.timber -= TIMBER_PER_POST;
+      } else if (wall.haulRate === null) {
+        state.stockpile -= DRESS_DRAW[wall.dressLevel];
+      } else {
+        wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];
       }
       layOneStone(state, site, rng, wall, person.id);
       quota -= DRESS_SPEC[wall.dressLevel].layDebt;

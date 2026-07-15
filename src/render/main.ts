@@ -24,6 +24,7 @@ import {
   effectiveGroundAt,
   nearestOnPolyline,
   planGates,
+  pointInPolygon,
   polygonArea,
   ringSelfIntersects,
   ringSelfOverlaps,
@@ -40,6 +41,10 @@ import {
   STONE_DEPTH,
   STONE_LEN,
   STONE_VOLUME,
+  FELL_TREES_PER_DAY,
+  REGROWTH_TICKS,
+  TICKS_PER_YEAR,
+  TIMBER_PER_TREE,
   dayOfYear,
   seasonOf,
   ticksUntilNextSeason,
@@ -339,13 +344,15 @@ async function boot(): Promise<void> {
   roofBtn.textContent = '⛉ roof (R)';
   const quarryBtn = document.createElement('button');
   quarryBtn.textContent = '⛏ quarry (Q)';
+  const fellBtn = document.createElement('button');
+  fellBtn.textContent = '🪓 fell (T)';
   const shapeBtn = document.createElement('button');
   shapeBtn.textContent = '⬓ flat fill';
   // no roof-material picker: the covering is chosen on the card AFTER the
   // span is drawn, like every designation (boss canon 2026-07-10 — default none)
   const undergroundBtn = document.createElement('button');
   undergroundBtn.textContent = '☷ underground (U)';
-  build3.append(roofBtn, quarryBtn, shapeBtn, undergroundBtn);
+  build3.append(roofBtn, quarryBtn, fellBtn, shapeBtn, undergroundBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
@@ -417,6 +424,23 @@ async function boot(): Promise<void> {
       workTotal: plan.workDays,
       stoneTotal: plan.stone,
     };
+  }
+  // THE FELL (SIM 19): a cant marked over woodland. Like the quarry, the economics
+  // are read HERE (only the render holds the tree model) and FROZEN into plan_fell.
+  function fellCommand(points: Vec2[]): Command | null {
+    const { cx, cy } = centroid(points);
+    // re-cut: a fell ring landing on an existing MATURE stand harvests it again (the
+    // coppice's next rotation) rather than stacking a second cant on the same ground
+    const mature = world.stands.find(
+      (s) => !s.felling && s.feltTick < 0 && pointInPolygon(cx, cy, s.points),
+    );
+    if (mature) return { kind: 'fell', tick: world.tick, standId: mature.id };
+    // a new cant: freeze its timber + felling cost from the tree model (the boundary
+    // read; the sim never counts a tree), exactly as quarryPlanAt freezes plan_cut
+    const timberTotal = trees.timberInPolygon(points);
+    if (timberTotal <= 0) return null; // no standing timber here — onConfirm refuses
+    const workTotal = Math.max(1, Math.ceil(timberTotal / TIMBER_PER_TREE / FELL_TREES_PER_DAY));
+    return { kind: 'plan_fell', tick: world.tick, points, timberTotal, workTotal };
   }
 
   // --- THE HAUL (SIM 17): the route a wall's stone must travel. main.ts alone
@@ -538,6 +562,10 @@ async function boot(): Promise<void> {
         }
         return false; // the land didn't afford an open cut — the plan row says why
       }
+      if (mode === 'fell') {
+        const cmd = fellCommand(points);
+        return cmd ? enqueue(cmd) : false; // no standing timber — the plan row says why
+      }
       if (mode === 'fill') {
         return enqueue({ kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape });
       }
@@ -573,6 +601,7 @@ async function boot(): Promise<void> {
       gateBtn.classList.toggle('active', active && mode === 'gate');
       roofBtn.classList.toggle('active', active && mode === 'roof');
       quarryBtn.classList.toggle('active', active && mode === 'cut');
+      fellBtn.classList.toggle('active', active && mode === 'fell');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing;
@@ -843,6 +872,7 @@ async function boot(): Promise<void> {
   gateBtn.onclick = () => planner.toggle('gate');
   roofBtn.onclick = () => planner.toggle('roof');
   quarryBtn.onclick = () => planner.toggle('cut');
+  fellBtn.onclick = () => planner.toggle('fell');
   shapeBtn.onclick = () => {
     shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
   };
@@ -1109,6 +1139,19 @@ async function boot(): Promise<void> {
       : stoneWalls.length === 0
         ? ` — won ${Math.round(world.stockpile)} m³`
         : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ${bind}`;
+    // THE WOODS read (SIM 19): the timber stock, and the coppice's return clock
+    const felling = world.stands.filter((s) => s.felling).length;
+    const regrowing = world.stands.filter((s) => !s.felling && s.feltTick >= 0);
+    const soonestReturn = regrowing.reduce(
+      (min, s) => Math.min(min, s.feltTick + REGROWTH_TICKS - world.tick),
+      Infinity,
+    );
+    const woods =
+      (world.timber >= 1 || world.stands.length > 0 ? ` — timber ${Math.round(world.timber)} m³` : '') +
+      (felling ? ` — felling ${felling}` : '') +
+      (regrowing.length && Number.isFinite(soonestReturn)
+        ? ` — a cant returns in ~${Math.max(1, Math.round(soonestReturn / TICKS_PER_YEAR))}y`
+        : '');
     const holdings =
       (nFarms ? ` — farms ${nFarms}` : '') +
       (nPaddocks ? ` — paddocks ${nPaddocks}` : '') +
@@ -1116,6 +1159,7 @@ async function boot(): Promise<void> {
       (world.buildings.length ? ` — buildings ${world.buildings.length}` : '') +
       (nQuarries ? ` — quarries ${nQuarries}` : '') +
       supply +
+      woods +
       (nAsks ? ` — ${nAsks} awaiting the word` : '');
     setText(
       status,
@@ -1202,6 +1246,37 @@ async function boot(): Promise<void> {
         setText(
           hint,
           'click: ring the ground · right-click/Backspace: undo · double-click/Enter: open the quarry · Esc: put the tool down',
+        );
+      } else if (planner.mode === 'fell') {
+        const ring = planner.previewPolyline();
+        if (ring.length >= 4) {
+          const open = ring.slice(0, -1);
+          const area = polygonArea(open);
+          const { cx, cy } = centroid(open);
+          const mature = world.stands.find(
+            (s) => !s.felling && s.feltTick < 0 && pointInPolygon(cx, cy, s.points),
+          );
+          const timber = trees.timberInPolygon(open);
+          if (mature) {
+            setText(
+              plan,
+              `plan: re-cut this coppice — the stool has regrown, ≈${Math.round(mature.timberTotal)} m³ again`,
+            );
+          } else if (timber > 0) {
+            const days = Math.max(1, Math.ceil(timber / TIMBER_PER_TREE / FELL_TREES_PER_DAY));
+            setText(
+              plan,
+              `plan: fell the cant ${area.toFixed(0)} m² · ~${days} person-days · wins ≈${Math.round(timber)} m³ of timber · regrows in ~7 years`,
+            );
+          } else {
+            setText(plan, 'plan: ✗ no standing timber here — nothing to fell');
+          }
+        } else {
+          setText(plan, 'plan: ring a wooded cant to fell it — win its timber; the stool regrows over the years');
+        }
+        setText(
+          hint,
+          'click: ring the woods · right-click/Backspace: undo · double-click/Enter: fell the cant · Esc: put the tool down',
         );
       } else if (planner.mode === 'roof') {
         const poly = planner.previewPolyline();
@@ -1358,7 +1433,7 @@ async function boot(): Promise<void> {
                     ? 'the word is given'
                     : 'wall committed — the crew takes it up'
           : world.walls.length === 0 && world.fills.length === 0 && world.cuts.length === 0
-            ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F) · ⛏ quarry (Q) · right-drag to look, wheel to zoom'
+            ? 'the hill is bare — ⚒ wall (B) · ⌂ building (H) · ⛰ fill (F) · ⛏ quarry (Q) · 🪓 fell (T) · right-drag to look, wheel to zoom'
             : '',
       );
     }
