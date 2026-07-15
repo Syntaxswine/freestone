@@ -58,7 +58,7 @@ reshaped step 3 is in that section. Tree clean, 159 green, live.
 | **0** | **The year made real + Sit-the-Season** | ✅ **SHIPPED** (`02465ac`, SIM-neutral) |
 | **1** | **THE WOODS — `plan_fell`, the timber stock, wood-draws-timber, the regrowth clock, the fell tool + tree clear/regrow** | ✅ **SHIPPED** (SIM 19: `df01154` scaffold + `02f7736` bite) |
 | **2** | **THE LIVING YEAR — aging + mortality, the space-gated harvest, births + migration + hunger, the isolated demographic rng, the century-sweep** | ✅ **SHIPPED** (SIM 20: `7577667`) |
-| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a the GRANARY building SHIPPED** (SIM 21, `4f241db`); **3b** cart + the granary cat + a real grain stock, **3c** the pyramid = NEXT |
+| 3 | The pyramid + carpenter's shop + the cart + granary cat | ◐ **IN PROGRESS** — **3a GRANARY building** (SIM 21, `4f241db`) + **3b-i the CAT + sacks** (render-only, `e8af0f7`, 🐈 mark 15) SHIPPED; **3b-ii** a real grain stock (SIM 22), **3b-iii** the cart + carpenter's yard (SIM 23), **3c** the pyramid = NEXT |
 | 4 | Housing quality tiers (hovel/cottage/hall) | pending |
 | 5 | Heavier accelerants + LIFT (rollers/sledge, windlass, great wheel) | pending |
 
@@ -217,6 +217,16 @@ flips a 6-mouth village hunger→growth). **Left honestly undone (the immediate 
 distinct granary RENDER (draws as a plain shell today); the **granary CAT** (§7, boss-requested — now
 it has a place to prowl); a real grain STOCK/flow (the granary is a capacity term, not a filling
 store). Then **3b** the cart, **3c** the pyramid below.
+
+**✅ 3b-i — THE CAT + SACKS (render-only, `e8af0f7`) SHIPPED** — the fifteenth mark (🐈), and the
+seal's own request answered. `src/render/granary.ts` (new `GranaryLayer`): every designated granary
+grows a south-face yard of 3–4 tied grain sacks + one prowling **cat** (a 20×16 pixel sprite, four
+poses sit/walk-a/walk-b/crouch, coat by id). The wander is a render-clock + hash cadence — never the
+sim rng — so the baseline did not move a byte (159 tests green, no SIM bump). Verified in preview (the
+receiver trick): sacks read as sacks, the cat reads as a cat in all four poses on the Townscaper grass.
+`granary` is exposed on `__cc` and placed in the `__cc.step` dev hook so a hidden tab renders it. **The
+remaining 3b work is now purely sim:** **3b-ii** a real grain STOCK (the granary fills/empties, a
+famine buffer), then **3b-iii** the cart + carpenter's yard (draws timber = the woods' first payoff).
 
 **The seams (from the census + bible):**
 - **Variety** — the shipped designation grammar (`farm/livestock/fallow`) grows two tenants: **horse

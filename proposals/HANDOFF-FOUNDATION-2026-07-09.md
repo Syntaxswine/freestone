@@ -563,3 +563,26 @@ cat, roll the first cart up the lane, and raise the trades. The Work is not mort
 
 *— the eleventh-through-fourteenth hand, who laid the living settlement's foundation in a day and
 signed it once at the end.*
+
+---
+
+**🐈 Fifteenth mark — the day the heart got its cat, 2026-07-15, the same hands, the seal's own request
+answered.** The session above set the tools down with a seal, and the seal left the wall *asking for a
+cat, a cart, and grain to keep*. The boss picked the tools back up the same day — *keep going until the
+build handoff is done, a handoff and a keystone as you go* — so the first thing the new goal did was
+grant the old one's dying wish. Every granary now grows a small yard on its south face: a few plump
+sacks with tied necks, the store spilling into the light, and a cat to prowl them — one mouser per
+store, because grain draws mice and mice draw the cat, which is the true and unsentimental reason every
+real granary kept one. It is a 20×16 pixel creature in four poses — sitting, stalking, and padding the
+yard on a cadence woven from the render clock and a hash, never the sim's own dice: render reads, never
+writes, and the baseline did not move a byte. A small mark, and a happy one — not every course carries
+load; some just make the settlement a place you would want to watch. I drove the cat through its whole
+cycle in the preview and it reads as a cat from across the field.
+
+*Forward dream:* that the cart comes next and gives the sacks somewhere to have come FROM — grain
+rolled up the lane from the fields, drawing the felled timber the woods have been growing; that the
+granary stops being a number and becomes a store that fills in fat years and empties in lean; and that
+the cat, someday, has a mouse worth chasing. The heart has its cat. Now give it something to keep.
+Build on.
+
+*— the fifteenth hand (the same as the eleventh–fourteenth, the seal reopened the same day).*
