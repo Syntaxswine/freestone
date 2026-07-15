@@ -1081,3 +1081,36 @@ adit will need (and the adit is nearer than it looks: `adits.test.ts` and a `pla
 Give the miner eyes, then give the hill its wound. Build on.
 
 *— the thirtieth hand, who found the front door already built, and kept the castle instead.*
+
+---
+
+**⛏ Thirty-first mark — the land reads its own worth, and the scar shows the cost, 2026-07-15.** The boss picked
+Save/Load with a "but" — prospecting was not CLEAR — and gave a sharp three-part steer. This is two-thirds of it,
+shipped as one render course (`f27e858`, SIM-neutral, the durham baseline untouched, 188 green): validity is a
+render-side read of the SAME quarryPlanAt oracle the commit already freezes, so the hover-read and the cut never
+disagree.
+
+*The red warning (inverted, as the boss asked):* pick the Quarry tool and the ring goes RUST-RED over ground that
+won't afford an open cut — drowned, too deep, no stone — quarry-grey where it will. You mark the HAZARD, not the
+affordance, and it only WARNS: the red never blocks. A field-guide card trails the cursor — "⛏ sandstone · 12 m
+dry · open cut ✓" on good ground, "⚠ the post here is drowned … drive an adit" on bad (the reason the oracle
+already speaks). Preview-verified: the ring flips grey↔red on the cursor across the map, both grounds present.
+
+*Dig anyway, and the scar shows why:* cutCommand no longer refuses a drowned cut — the architects may dig it and
+find out. It digs to full reach, wins only a token of stone, and FLOODS: a cut whose sinking floor dips below the
+water table fills to the table, a pond of the underworld's own drowned blue. The warning and its consequence are
+the SAME picture. Waste heaps ring the rim, rising as the crew digs. Preview-verified the grid way: of 49 cuts
+scattered across the 4 km map, the TWELVE over drowned ground flooded — each pond exactly at its local water
+table (≈28–34 m AOD) — and 200 spoil heaps (4 per pit) rose; the dry ground, correctly, stayed dry.
+
+*The lesson, once more:* I nearly proposed rebuilding what the tree already held — the pit already sank, the water
+model already knew the table, quarryPlanAt already spoke the reason. The whole course was WIRING existing truth
+into sight, not new machinery. Census first; the data is usually already there.
+
+*Forward dream:* one-third of the boss's steer remains — his soft "probably": SNAP the ring to the valid-area
+edge while drawing, so you cut clean right up to the good ground's boundary. It is the hardest of the three (an
+implicit water-table contour to magnetize to) and the least urgent, so it waits for its own focused course. Then
+the deeper ladder the tutorial still promises — the adit (nearer than it reads: `adits.test.ts` + a `plan_adit`
+command already stand). Give the miner eyes, then his tunnel.
+
+*— the thirty-first hand, who taught the ground to warn, and the wound to weep.*

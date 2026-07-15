@@ -51,7 +51,7 @@ the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one 
 **(7) THE SLEDGE ON ROLLERS (SIM 32 `0b86d83`, 🛷)** — the last debt, the lift's overland twin: an OPT-IN
 `rollers` flag boosts a HAULED wall's delivered rate ×ROLLER_HAUL_BOOST(2); opt-in so the canon (walls don't
 choose it) is byte-identical → inert one commit; a `🛷 sledge` toggle in the build bar; +2 tests.
-**THIRTY maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖) + THREE ⛬ seals; 188 tests green; live.**
+**THIRTY-ONE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏) + THREE ⛬ seals; 188 tests green; live.**
 **★ EVERY HONEST DEBT PAID — the whole post-arc knockoff (SIM 27–32 + the six-stroke render pass) is COMPLETE,
 sealed by a third ⛬.** Nothing remains on the STANDS ledger; what's next is AMBITION — the roadmap's untouched
 beats (Beat 2 memory suite, Beat 3 Lodge Book save/load + Annal, Beat 5 demand wave, Beat 6 kiln + Keep).
@@ -64,10 +64,16 @@ New-Game's ghost-free reload rails — a one-shot `freestone_load` token, boot()
 SIM-version + site) instead of seeding fresh, then autostarts. A format-lock test (`save.test.ts`, +4) proves a
 byte-identical round-trip; verified end-to-end in preview (save@600 → reload → restored@600 → continue →
 re-save@720, console clean). Known limit: no cross-version save migration yet (surfaced with a message, not a
-crash — a later course). **NEXT (boss-steered): PROSPECTING CLARITY + THE SCAR — (a) make plain what land is a
-VALID quarry target, (b) show which areas are being WORKED, (c) the ground should SCAR where it's mined.** Then
-the deeper ladder (#48 prospect-on-hover, #49 the adit — note `adits.test.ts` + a `plan_adit` command already
-exist, so it is further along than "coming soon", #50 method gates). The PRIOR
+crash — a later course). **PROSPECTING CLARITY + THE SCAR (⛏ 31st mark) — 2/3 SHIPPED `f27e858` (render-only,
+SIM-neutral, 188 green, inert on the canon): the RED WARNING (invalid ground → rust-red ring `#c0472e`,
+boss-INVERTED — warn the HAZARD not the affordance; the red never blocks) + the field-guide READOUT (`⛏ sandstone
+· 12 m dry · open cut ✓` / `⚠ <why>`, both reading quarryPlanAt) + DIG-ANYWAY (cutCommand no longer refuses a
+drowned cut — dig it and find out) + THE FLOOD (a cut whose floor dips below the water table pools the
+underworld's drowned blue) + SPOIL heaps ringing the rim. Preview-verified: ring grey↔red on the cursor; 12/49
+grid cuts flooded at their local water table (≈28–34 m AOD); 200 spoil cones. REMAINING (boss's soft "probably"):
+SNAP the ring to the valid-area edge while drawing — the hardest third (an implicit water-table contour), its own
+focused course.** Then the deeper ladder (#49 the adit — `adits.test.ts` + a `plan_adit` command already exist,
+further along than "coming soon"; #50 method gates). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the
