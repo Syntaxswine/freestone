@@ -76,6 +76,7 @@ import { PeopleLayer } from './people';
 import { GranaryLayer } from './granary';
 import { OrchardLayer } from './orchard';
 import { WorkshopLayer } from './workshops';
+import { WheelLayer } from './wheel';
 import { describeFootprint, KIND_LABEL, WallPlanner } from './planner';
 import { TreeLayer } from './trees';
 import { createHomeScreen } from './homescreen';
@@ -837,6 +838,8 @@ async function boot(): Promise<void> {
   const orchard = new OrchardLayer(world, scene, groundShow);
   // the workshops made visible: a lit forge on each smithy, a log stack + sawhorse on each yard
   const workshops = new WorkshopLayer(world, scene, groundShow);
+  // the great wheel made visible: a treadwheel crane beside every wall that raised one (SIM 26)
+  const wheel = new WheelLayer(world, scene, groundShow);
   const paceSum = world.people
     .filter((p) => p.trade === 'mason')
     .reduce((n, p) => n + p.pace, 0);
@@ -964,6 +967,7 @@ async function boot(): Promise<void> {
     trees.setVisible(!on); // the woods are surface clutter over a ghosted hill
     orchard.setVisible(!on); // and the planted orchard rows with them
     workshops.setVisible(!on); // and the forge/yard props
+    wheel.setVisible(!on); // and the great-wheel cranes
     undergroundBtn.classList.toggle('active', on);
     if (on) tutorial.saw('underground'); // tutorial step 1
     updateDepthRuler();
@@ -1114,6 +1118,7 @@ async function boot(): Promise<void> {
     trees.update(world);
     orchard.update();
     workshops.update();
+    wheel.update();
     people.update(dt, speed > 0);
     granary.update(dt, speed > 0);
     updateCard();
@@ -1556,6 +1561,7 @@ async function boot(): Promise<void> {
     trees,
     orchard,
     workshops,
+    wheel,
     underworld,
     home,
     tutorial,
@@ -1578,6 +1584,7 @@ async function boot(): Promise<void> {
       trees.update(world);
       orchard.update(); // plant a hidden tab's orchard rows (rAF is paused)
       workshops.update(); // set a hidden tab's forge/yard props
+      wheel.update(); // raise a hidden tab's cranes
       granary.update(0, false); // place a hidden tab's sacks/cat (rAF is paused)
       updateCard();
       return world.tick;
