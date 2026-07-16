@@ -65,6 +65,7 @@ import {
   type BuildingKind,
   type BuildingRoof,
   type AditPlan,
+  type BellPitPlan,
   type Command,
   type CutPlan,
   type FieldUse,
@@ -217,6 +218,20 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
         return 'adit stoneTotal must be a finite non-negative number';
+      }
+      return null;
+    }
+    case 'plan_bell_pit': {
+      if (!cmd.at || badPoints([cmd.at])) return 'bell pit mouth must have finite x and y';
+      if (typeof cmd.depth !== 'number' || !Number.isFinite(cmd.depth) || cmd.depth <= 0) {
+        return 'a bell pit needs a positive depth';
+      }
+      // the bed-model + water economics are frozen into the log; guard the floats like the adit's
+      if (typeof cmd.workTotal !== 'number' || !Number.isFinite(cmd.workTotal) || cmd.workTotal < 0) {
+        return 'bell pit workTotal must be a finite non-negative number';
+      }
+      if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
+        return 'bell pit stoneTotal must be a finite non-negative number';
       }
       return null;
     }
@@ -792,6 +807,30 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       });
       break;
     }
+    case 'plan_bell_pit': {
+      // A bell pit: a shaft sunk into flat ground for deeper DRY post than an open cut reaches.
+      // depth, workTotal and stoneTotal (dry, resink-penalised) were read from the bed model +
+      // the water table at the command boundary and are frozen here — the sim core never touches
+      // beds, heights or the water table.
+      const bellPit: BellPitPlan = {
+        id: state.nextId++,
+        at: { x: cmd.at.x, y: cmd.at.y },
+        depth: cmd.depth,
+        workTotal: Math.max(1, cmd.workTotal), // at least a day's work, like cuts and adits
+        workDone: 0,
+        stoneTotal: cmd.stoneTotal,
+        stoneWon: false,
+      };
+      state.bellPits.push(bellPit);
+      state.events.push({
+        kind: 'bell_pit_planned',
+        tick: state.tick,
+        bellPitId: bellPit.id,
+        depth: bellPit.depth,
+        workTotal: bellPit.workTotal,
+      });
+      break;
+    }
     case 'plan_fell': {
       // A managed cant: the felling gesture over woodland. timberTotal and workTotal
       // were read from the tree model at the command boundary and are frozen here —
@@ -994,6 +1033,23 @@ function moveEarth(state: WorldState): void {
           state.stockpile += adit.stoneTotal;
           state.events.push({ kind: 'adit_complete', tick: state.tick, aditId: adit.id });
           state.events.push({ kind: 'adit_stone_won', tick: state.tick, aditId: adit.id, stone: adit.stoneTotal });
+        }
+      }
+    }
+    if (moved === 0) {
+      // A BELL PIT is sunk like a quarry is dug (SIM 15), ranked just under the adit: an idle
+      // laborer sinks + works the oldest unfinished pit one person-day (the strata's pace baked
+      // into workTotal). On the day it is worked out, the dry building stone is credited. No bell
+      // pit, no sinking — the field path below is untouched, so a world with none is byte-identical.
+      const bellPit = state.bellPits.find((b) => b.workDone < b.workTotal);
+      if (bellPit) {
+        bellPit.workDone += 1;
+        moved = 1;
+        if (bellPit.workDone >= bellPit.workTotal && !bellPit.stoneWon) {
+          bellPit.stoneWon = true;
+          state.stockpile += bellPit.stoneTotal;
+          state.events.push({ kind: 'bell_pit_complete', tick: state.tick, bellPitId: bellPit.id });
+          state.events.push({ kind: 'bell_pit_stone_won', tick: state.tick, bellPitId: bellPit.id, stone: bellPit.stoneTotal });
         }
       }
     }

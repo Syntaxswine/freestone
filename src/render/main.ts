@@ -71,6 +71,7 @@ import {
 import { BuildingLayer } from './buildings';
 import { CutLayer } from './cuts';
 import { AditLayer } from './adits';
+import { BellPitLayer } from './bellpits';
 import { UnderworldLayer } from './underworld';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
@@ -404,13 +405,15 @@ async function boot(): Promise<void> {
   fellBtn.textContent = '🪓 fell (T)';
   const aditBtn = document.createElement('button');
   aditBtn.textContent = '⛏ adit (A)';
+  const bellBtn = document.createElement('button');
+  bellBtn.textContent = '⛏ bell pit (P)';
   const shapeBtn = document.createElement('button');
   shapeBtn.textContent = '⬓ flat fill';
   // no roof-material picker: the covering is chosen on the card AFTER the
   // span is drawn, like every designation (boss canon 2026-07-10 — default none)
   const undergroundBtn = document.createElement('button');
   undergroundBtn.textContent = '☷ underground (U)';
-  build3.append(roofBtn, quarryBtn, fellBtn, aditBtn, shapeBtn, undergroundBtn);
+  build3.append(roofBtn, quarryBtn, fellBtn, aditBtn, bellBtn, shapeBtn, undergroundBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
@@ -418,6 +421,7 @@ async function boot(): Promise<void> {
   const fills = new FillLayer(world, scene, terrain.groundAt);
   const cuts = new CutLayer(world, scene, terrain.groundAt, water.tableAt); // water.tableAt: a drowned cut floods
   const adits = new AditLayer(world, scene, terrain.groundAt); // the self-draining drift, an X-ray at grade
+  const bellPits = new BellPitLayer(world, scene, terrain.groundAt); // shaft-mouths + spoil rings on flat ground
   // the underworld made VISIBLE (2026-07-11): a toggle-on strata map + working
   // plane the tunnel tool will draw on. View/input only — the sim never sees it.
   const underworld = new UnderworldLayer(scene, site, beds, water);
@@ -708,6 +712,64 @@ async function boot(): Promise<void> {
     prospectEl.style.display = 'block';
   }
 
+  // --- THE BELL PIT (SIM 15, the method ladder's third rung): a narrow shaft sunk into FLAT
+  //     ground for deeper DRY post than an open cut reaches — the flat-ground answer where the
+  //     adit has no hill. Reaches to BELL_REACH (deeper than the open cut's 12 m) but stays above
+  //     the water table (no pump), and is WASTEFUL (a resink penalty on the yield). Economics are
+  //     READ here and FROZEN into plan_bell_pit, like the quarry and the adit. ---
+  const BELL_REACH = 25; // m — a shaft reaches deeper dry than an open cut (less overburden per m³)
+  const BELL_AREA = 4; // m² — the shaft footprint the yield is reckoned over (narrow)
+  const BELL_YIELD_FRAC = 0.6; // the resink penalty: pillars left + frequent re-sinking waste the seam
+  function bellPitReach(x: number, y: number): number {
+    return Math.min(water.dryDepthAt(x, y), BELL_REACH); // dry AND within a shaft's reach
+  }
+  function bellPitCommand(at: Vec2): Command | null {
+    const reach = bellPitReach(at.x, at.y);
+    if (reach <= 1) return null; // drowned — a bell pit can't pump; the readout points at the shaft engine
+    const { workDays, stone } = cutEconomics(beds, at.x, at.y, reach, BELL_AREA);
+    const won = stone * BELL_YIELD_FRAC;
+    if (won <= 0.5) return null; // no dry post in the shaft's reach here
+    return {
+      kind: 'plan_bell_pit',
+      tick: world.tick,
+      at,
+      depth: round6(reach),
+      workTotal: Math.max(1, round6(workDays)),
+      stoneTotal: round6(won),
+    };
+  }
+  // THE BELL-PIT READOUT: what the shaft under the cursor would win — reuses #prospect (one
+  // planner tool active at a time), the SAME water + bed oracle bellPitCommand freezes.
+  function showBellPit(at: Vec2 | null): void {
+    if (!at) {
+      prospectEl.style.display = 'none';
+      return;
+    }
+    const reach = bellPitReach(at.x, at.y);
+    if (reach <= 1) {
+      prospectEl.className = 'bad';
+      prospectEl.textContent = '⚠ drowned here — a bell pit can’t pump · wants a shaft engine (a later rung)';
+    } else {
+      const { stone } = cutEconomics(beds, at.x, at.y, reach, BELL_AREA);
+      const won = stone * BELL_YIELD_FRAC;
+      if (won <= 0.5) {
+        prospectEl.className = 'bad';
+        prospectEl.textContent = '⚠ no dry post in a shaft’s reach here';
+      } else {
+        const post = beds
+          .nearestHole(at.x, at.y)
+          ?.column.find((s) => s.m === 'sandstone' || s.m === 'limestone');
+        const cheaper = water.dryDepthAt(at.x, at.y) <= MAX_OPEN_REACH ? ' · an open cut is cheaper' : '';
+        prospectEl.className = 'ok';
+        prospectEl.textContent = `⛏ bell pit · ${won.toFixed(0)} m³ ${post?.m ?? 'post'} · ${reach.toFixed(0)} m deep, dry ✓${cheaper}`;
+      }
+    }
+    const { sx, sy } = prospectToScreen(at.x, at.y);
+    prospectEl.style.left = `${sx + 14}px`;
+    prospectEl.style.top = `${sy + 14}px`;
+    prospectEl.style.display = 'block';
+  }
+
   // explicit annotation: onConfirm's closure reads planner.fillShape /
   // roofMaterial, so inference would otherwise chase its own tail
   const planner: WallPlanner = new WallPlanner({
@@ -725,6 +787,11 @@ async function boot(): Promise<void> {
     cutValid: (x, y) => quarryPlanAt(x, y, PROSPECT_PROBE).ok,
     onCutCursor: showProspect,
     onAditCursor: showAdit, // the adit tool prices its drive in the same #prospect card
+    onBellPit: (at) => {
+      const cmd = bellPitCommand(at);
+      if (cmd) enqueue(cmd); // a click sinks the shaft; a drowned/barren spot is refused (readout says why)
+    },
+    onBellPitCursor: showBellPit,
 
     onConfirm: (mode, points, height, material) => {
       if (mode === 'cut') {
@@ -784,6 +851,7 @@ async function boot(): Promise<void> {
       quarryBtn.classList.toggle('active', active && mode === 'cut');
       fellBtn.classList.toggle('active', active && mode === 'fell');
       aditBtn.classList.toggle('active', active && mode === 'adit');
+      bellBtn.classList.toggle('active', active && mode === 'bellpit');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing;
@@ -1097,6 +1165,7 @@ async function boot(): Promise<void> {
   quarryBtn.onclick = () => planner.toggle('cut');
   fellBtn.onclick = () => planner.toggle('fell');
   aditBtn.onclick = () => planner.toggle('adit');
+  bellBtn.onclick = () => planner.toggle('bellpit');
   shapeBtn.onclick = () => {
     shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
   };
@@ -1316,6 +1385,7 @@ async function boot(): Promise<void> {
     fills.update();
     cuts.update();
     adits.update();
+    bellPits.update();
     roofs.update();
     farms.update();
     buildings.update();
@@ -1783,6 +1853,7 @@ async function boot(): Promise<void> {
       fills.update();
       cuts.update();
       adits.update();
+      bellPits.update();
       roofs.update();
       farms.update();
       buildings.update();

@@ -111,7 +111,13 @@
 // ROLLER_HAUL_BOOST times faster (the cart/sledge fills the face sooner). Opt-in per wall at plan time, so a
 // wall that doesn't choose it — and the whole 200-tick canon, whose walls don't — hauls byte-for-byte as
 // before: INERT on the canon, one clean commit. A rollers field defaulting false is the only new state.
-export const SIM_VERSION = 32;
+// 33: THE BELL PIT — the method ladder's third rung (open cut → adit → BELL PIT → shaft+pump). A narrow shaft
+// sunk into FLAT ground for deeper DRY post than an open cut reaches, where the adit has no hill. New state:
+// a bellPits array (empty on the canon, which sinks none) + a plan_bell_pit command; idle laborers sink the
+// oldest pit like a quarry, crediting the dry stone once on working-out. INERT on the canon behaviour — the
+// only reason the durham hash moves is the new empty `bellPits:[]` field in the serialisation (diff-confirmed:
+// nothing but the milestone hashes changed). One clean commit + a baseline regen.
+export const SIM_VERSION = 33;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -410,6 +416,25 @@ export interface AditPlan {
   workTotal: number; // person-days to drive — MATERIAL-AWARE, frozen from the bed model
   workDone: number;
   stoneTotal: number; // m³ of building stone won along the drive (generous yield), frozen
+  stoneWon: boolean; // one-shot: the stockpile is credited on completion
+}
+
+/**
+ * THE BELL PIT (SIM 15, the method ladder's third rung) — a narrow vertical shaft sunk to
+ * a shallow seam and worked outward at the bottom until the roof threatens, then abandoned
+ * for a fresh sinking nearby. It reaches DEEPER dry post than an open cut (a shaft moves far
+ * less overburden than a hole) but stays ABOVE the water table (no pump) and is WASTEFUL (a
+ * resink penalty on the yield — pillars left, frequent re-sinking). The flat-ground answer
+ * where the adit has no hill. Like the quarry and the adit, its economics are frozen at the
+ * command boundary; the sim core stays bed-model- and water-free.
+ */
+export interface BellPitPlan {
+  id: number;
+  at: Vec2; // the shaft mouth, site-local metres (a bell pit is a POINT, not a ring)
+  depth: number; // metres the shaft sinks — the dry reach, frozen from the water table + overburden
+  workTotal: number; // person-days to sink + work, MATERIAL-AWARE, frozen from the bed model
+  workDone: number;
+  stoneTotal: number; // m³ of building stone won (generous yield, less the resink penalty), frozen
   stoneWon: boolean; // one-shot: the stockpile is credited on completion
 }
 
@@ -871,6 +896,19 @@ export type Command =
       stoneTotal: number;
     }
   | {
+      kind: 'plan_bell_pit';
+      tick: number;
+      at: Vec2; // the shaft mouth (a bell pit is a point)
+      /**
+       * Frozen at the command boundary: depth is the dry reach the shaft sinks to;
+       * workTotal is material-aware person-days to sink + work; stoneTotal is the building
+       * stone won, LESS the resink penalty (generous). All finite; depth/work/stone ≥ 0.
+       */
+      depth: number;
+      workTotal: number;
+      stoneTotal: number;
+    }
+  | {
       kind: 'plan_fell';
       tick: number;
       points: Vec2[]; // the cant ring, ≥3
@@ -942,6 +980,11 @@ export type SimEvent =
   | { kind: 'adit_complete'; tick: number; aditId: number }
   /** dewatered building stone won from a holed-through adit, credited to the stockpile */
   | { kind: 'adit_stone_won'; tick: number; aditId: number; stone: number }
+  /** a bell pit is marked out — the crew will sink + work it (SIM 15, the method ladder) */
+  | { kind: 'bell_pit_planned'; tick: number; bellPitId: number; depth: number; workTotal: number }
+  | { kind: 'bell_pit_complete'; tick: number; bellPitId: number }
+  /** dry building stone won from a worked-out bell pit, credited to the stockpile */
+  | { kind: 'bell_pit_stone_won'; tick: number; bellPitId: number; stone: number }
   /** a cant is marked for felling — the crew will fell it and win its timber (SIM 19) */
   | { kind: 'fell_planned'; tick: number; standId: number; timberTotal: number; workTotal: number }
   /** a mature stand is re-cut — the coppice's next harvest on the rotation */
@@ -1016,6 +1059,8 @@ export interface WorldState {
   cuts: CutPlan[];
   /** adits being driven into the hillsides, self-draining (SIM 15) */
   adits: AditPlan[];
+  /** bell pits being sunk into flat ground for deeper dry post (SIM 15, method ladder rung 3) */
+  bellPits: BellPitPlan[];
   /** managed woodland cants, felled for timber and regrowing on a rotation (SIM 19) */
   stands: Stand[];
   /**

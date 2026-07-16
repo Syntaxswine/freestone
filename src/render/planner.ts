@@ -96,6 +96,11 @@ export interface PlannerDeps {
    * which main computes from `aditEconomics`. Both null on exit.
    */
   onAditCursor?: (portal: Vec2 | null, head: Vec2 | null) => void;
+  /** Bell-pit mode (SIM 15): a click sinks a shaft here — main freezes plan_bell_pit (a POINT tool,
+   *  like the gate; no ring, the click is the whole gesture). Return decides nothing; main enqueues. */
+  onBellPit?: (at: Vec2) => void;
+  /** Bell-pit mode: the cursor moved to ground point p (null on exit) — drives the bell-pit readout. */
+  onBellPitCursor?: (at: Vec2 | null) => void;
 }
 
 /** a wall plan as the snap sees it */
@@ -105,7 +110,7 @@ export interface SnapWall {
   complete: boolean;
 }
 
-export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell' | 'adit';
+export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell' | 'adit' | 'bellpit';
 
 export class WallPlanner {
   active = false;
@@ -275,7 +280,9 @@ export class WallPlanner {
               ? 0x6f7a48 // woods green — the cant marked to fell
               : this.mode === 'adit'
                 ? 0x8a6f4a // drift timber — the drive marked into the hill
-                : 0xd8d3c4;
+                : this.mode === 'bellpit'
+                  ? 0x7a6a52 // shaft earth — the pit marked to sink
+                  : 0xd8d3c4;
     (this.line.material as THREE.LineBasicMaterial).color.setHex(tone);
     (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(tone);
     this.cutInvalid = false;
@@ -294,6 +301,7 @@ export class WallPlanner {
     this.cutInvalid = false;
     this.deps.onCutCursor?.(null); // clear the prospect readout
     this.deps.onAditCursor?.(null, null); // clear the adit readout
+    this.deps.onBellPitCursor?.(null); // clear the bell-pit readout
     document.body.classList.remove('planning');
     this.rebuild();
     this.deps.onModeChange?.(false, this.mode);
@@ -872,6 +880,12 @@ export class WallPlanner {
         if (p) this.deps.onGate?.(p);
         return;
       }
+      if (this.mode === 'bellpit') {
+        // the bell-pit tool places no points either: a click sinks the shaft (main freezes it)
+        const p = this.pick(ev);
+        if (p) this.deps.onBellPit?.(p);
+        return;
+      }
       if (this.mode === 'adit') {
         // two clicks: the hillside MOUTH, then the HEAD — the second commits the drive
         if (this.points.length >= 2) return; // a drive is exactly portal→head
@@ -1004,6 +1018,10 @@ export class WallPlanner {
     if (this.mode === 'adit') {
       this.deps.onAditCursor?.(this.points[0] ?? null, this.cursor);
     }
+    // bell-pit mode (SIM 15): price the shaft under the cursor
+    if (this.mode === 'bellpit') {
+      this.deps.onBellPitCursor?.(this.cursor);
+    }
     this.rebuild();
   };
 
@@ -1051,6 +1069,10 @@ export class WallPlanner {
     }
     if ((ev.key === 'a' || ev.key === 'A') && clean) {
       this.toggle('adit');
+      return;
+    }
+    if ((ev.key === 'p' || ev.key === 'P') && clean) {
+      this.toggle('bellpit');
       return;
     }
     if (!this.active) return;
