@@ -1,9 +1,13 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)**
-— the arc-closing keystone: the §9 living-settlement ladder is FULLY BUILT (steps 0–5). It carries the
-laws proven this arc, the honest debts left, and the map forward (mapped to the master plot's remaining
-beats); the per-step build detail lives in its companion
+**🗿 Current handoff: [proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md)**
+— the AMBITION opener (the first courses built ON the sealed frame): 📖 THE LODGE BOOK (Save/Load, `55ce8ed`) and
+⛏ THE PROSPECTING SCAR (red warning + readout + dig-anyway + flood, 2/3, `f27e858`) — both render-only, both LIVE.
+It carries their laws + traps + the forward map (the snap, the adit, the roadmap beats); read the FOUNDATION
+keystone (31 marks + FOUR ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
+debt-knockoff, all sealed) is
+[HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)
++ its companion
 [HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-BUILD-2026-07-15.md).
 Built course by course under the boss's directive *keep going until the ladder is done; a handoff + a
 keystone between tasks*. **Step 0 —
@@ -51,7 +55,7 @@ the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one 
 **(7) THE SLEDGE ON ROLLERS (SIM 32 `0b86d83`, 🛷)** — the last debt, the lift's overland twin: an OPT-IN
 `rollers` flag boosts a HAULED wall's delivered rate ×ROLLER_HAUL_BOOST(2); opt-in so the canon (walls don't
 choose it) is byte-identical → inert one commit; a `🛷 sledge` toggle in the build bar; +2 tests.
-**THIRTY-ONE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏) + THREE ⛬ seals; 188 tests green; live.**
+**THIRTY-ONE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏) + FOUR ⛬ seals; 188 tests green; live.**
 **★ EVERY HONEST DEBT PAID — the whole post-arc knockoff (SIM 27–32 + the six-stroke render pass) is COMPLETE,
 sealed by a third ⛬.** Nothing remains on the STANDS ledger; what's next is AMBITION — the roadmap's untouched
 beats (Beat 2 memory suite, Beat 3 Lodge Book save/load + Annal, Beat 5 demand wave, Beat 6 kiln + Keep).
