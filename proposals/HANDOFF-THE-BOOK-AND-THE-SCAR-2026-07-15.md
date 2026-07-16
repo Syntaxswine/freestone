@@ -182,8 +182,10 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
    MOUTH sat below ground (`grade+0.25−sink`) and vanished under the spoil — fixed to a raised
    WELL-HEAD (ring wall + amber/dark cap) that reads at a glance. The adit's X-ray drift was
    eyeballed too — a clean thin line, NOT garish (the `depthTest`-off worry didn't bear out); left
-   as is. Only the FLOOD's blue remains un-eyeballed (older + simple, a plane at the table) — a
-   genuinely boss-subjective one-liner if he wants it. **The receiver trick is proven — use it.**
+   as is. The FLOOD was GEOMETRY-verified too (its plane sits at Y = the water table exactly,
+   `floodAtTable:true`; unchanged this session, probe-verified prior) — it is correct; a shallow
+   drowned cut just makes an inherently subtle pond, and its blue's PROMINENCE (opacity 0.62) is a
+   genuinely boss-subjective one-liner. **The receiver trick is proven — use it, not just the probe.**
 2. ✅ **The method LADDER (#50) — rung 3, the BELL PIT, is BUILT** (`6f35aab`, ⛏ 33rd mark, SIM 33).
    Scoped in [PROPOSAL-THE-METHOD-LADDER](PROPOSAL-THE-METHOD-LADDER-2026-07-15.md), then the loop
    said keep going and geology carried the design, so I built its recommended next rung: a single-
