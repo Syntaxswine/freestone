@@ -61,30 +61,42 @@ export class BellPitLayer {
     const won = b.stoneWon;
     const g = this.terrainGroundAt(b.at.x, b.at.y);
 
-    // the shaft MOUTH: a short dark cylinder well-head, sinking a little as the shaft deepens.
-    // Capped AMBER (a timber lid over the worked-out shaft) once the stone is won.
-    const collar = 1.1;
-    const sink = 0.15 + 0.5 * prog; // the mouth recesses as it is sunk
-    const mouth = new THREE.Mesh(
-      new THREE.CylinderGeometry(collar, collar * 0.85, 0.5, 12),
+    // the shaft MOUTH: a raised dark WELL-HEAD collar that reads as a shaft from above (a
+    // recessed mouth vanishes under the spoil). It sinks a touch as the shaft deepens but
+    // keeps its rim above the turf.
+    const collar = 1.35;
+    const rimH = 0.9;
+    const sink = 0.1 + 0.25 * prog; // the rim settles a little as it is worked, never below ground
+    const rimY = g + rimH / 2 - sink;
+    const wall = new THREE.Mesh(
+      new THREE.CylinderGeometry(collar, collar * 0.82, rimH, 14, 1, true), // open-ended: a ring wall
+      new THREE.MeshLambertMaterial({ color: 0x3a322a, side: THREE.DoubleSide }), // dark stone rim
+    );
+    wall.position.set(b.at.x, rimY, b.at.y);
+    wall.frustumCulled = false;
+    v.group.add(wall);
+    // the CAP across the mouth: an AMBER timber lid once worked out, else the dark OPEN shaft
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(collar * 0.86, collar * 0.86, 0.14, 14),
       new THREE.MeshLambertMaterial({ color: won ? SHAFT_WORKED : SHAFT_UNSTRUCK, side: THREE.DoubleSide }),
     );
-    mouth.position.set(b.at.x, g + 0.25 - sink, b.at.y);
-    mouth.frustumCulled = false;
-    v.group.add(mouth);
+    cap.position.set(b.at.x, rimY + rimH / 2 - 0.06, b.at.y); // seated at the rim top
+    cap.frustumCulled = false;
+    v.group.add(cap);
 
-    // SPOIL: a ring of upcast heaps around the mouth, rising with the sinking — the bell pit's
-    // signature dimpled ring. A few cones just outside the collar.
+    // SPOIL: a ring of upcast heaps AROUND the well-head, rising with the sinking — the bell
+    // pit's signature dimpled ring. Kept low + set out a little, so they frame the shaft rather
+    // than drown it.
     if (prog > 0.05) {
-      const h = 0.4 + 1.1 * prog;
+      const h = 0.35 + 0.7 * prog;
       const n = 6;
-      const rad = collar + 1.3;
+      const rad = collar + 1.6;
       for (let i = 0; i < n; i++) {
         const a = (2 * Math.PI * i) / n + b.id; // rotate per-pit so rings don't line up
         const ox = b.at.x + Math.cos(a) * rad;
         const oy = b.at.y + Math.sin(a) * rad;
         const cone = new THREE.Mesh(
-          new THREE.ConeGeometry(0.9, h, 7),
+          new THREE.ConeGeometry(0.72, h, 7),
           new THREE.MeshLambertMaterial({ color: SPOIL, side: THREE.DoubleSide }),
         );
         cone.position.set(ox, this.terrainGroundAt(ox, oy) + h / 2, oy);
