@@ -2041,6 +2041,7 @@ async function boot(): Promise<void> {
       orchard.update(); // plant a hidden tab's orchard rows (rAF is paused)
       workshops.update(); // set a hidden tab's forge/yard props
       wheel.update(); // raise a hidden tab's cranes
+      people.update(0, false); // sync a hidden tab's crowd — positions AND the age-tint (was missing)
       granary.update(0, false); // place a hidden tab's sacks/cat (rAF is paused)
       updateCard();
       return world.tick;

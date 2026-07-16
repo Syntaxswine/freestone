@@ -18,6 +18,7 @@ import type { SiteData } from '../sim/site';
 import { awaitsDrawings, decomposeWall, pointAt, pointInPolygon, polylineLength } from '../sim/step';
 import {
   COURSE_HEIGHT,
+  TICKS_PER_YEAR,
   type Farm,
   type Person,
   type Vec2,
@@ -29,6 +30,15 @@ import { FRAMES, personTexture, SPRITE_H, SPRITE_W } from './pixelart';
 const ARRIVE = 0.35; // meters: close enough to a walk target to stop
 const WORK_RADIUS = 1.6; // meters: close enough to the station to work / hand off
 const TOGGLE_DWELL = 1.2; // seconds a laborer spends at either end of the shuttle
+
+// SIM 20 gave every soul a birthTick; make the crowd a CLOCK by fading each sprite toward the grey
+// of age (render-only — the stone-patina trick, now for folk). A young hand reads vivid, an elder
+// muted; the whole village becomes the player's gut-gauge for how long a generation runs (roadmap
+// Beat 4's clerk trick, "stolen for everyone"). A whisper — the science is the spectacle.
+const AGE_ELDER_YEARS = 50; // an elder by here — the tint reaches its cap (fills the adult range)
+const AGE_TINT_MAX = 0.7; // how far toward the grey of age an elder's sprite fades (readable, tunable)
+const AGE_GREY = new THREE.Color(0.63, 0.6, 0.52); // the warm grey of years
+const AGE_YOUNG = new THREE.Color(1, 1, 1); // texture unchanged — youth reads as drawn
 
 interface Puppet {
   person: Person;
@@ -47,6 +57,7 @@ interface Puppet {
   carrying: boolean;
   lastToggle: number;
   tradeIndex: number;
+  shownAge: number; // last age-band tinted (5-year bands), so we retint rarely
 }
 
 interface WorkSite {
@@ -133,6 +144,7 @@ export class PeopleLayer {
       carrying: false,
       lastToggle: -10,
       tradeIndex: 0,
+      shownAge: -1,
     };
     this.puppets.push(pup);
     this.byId.set(person.id, pup);
@@ -391,6 +403,17 @@ export class PeopleLayer {
           ? Math.abs(Math.sin(this.clock * 6 + p.person.id)) * 0.05
           : 0;
       p.sprite.position.set(p.x, p.z + bob, p.y);
+
+      // the village clock: fade this sprite toward the grey of age by its years (render-only,
+      // reads bornTick; banded in 5-year steps so a retint is rare). Founders start middle-aged
+      // (bornTick < 0), a newborn reads vivid — the crowd shows its generations at a glance.
+      const ageYears = (this.world.tick - p.person.bornTick) / TICKS_PER_YEAR;
+      const band = Math.max(0, Math.floor(ageYears / 5));
+      if (band !== p.shownAge) {
+        p.shownAge = band;
+        const f = Math.min(1, Math.max(0, ageYears) / AGE_ELDER_YEARS) * AGE_TINT_MAX;
+        (p.sprite.material as THREE.SpriteMaterial).color.copy(AGE_YOUNG).lerp(AGE_GREY, f);
+      }
     }
   }
 }
