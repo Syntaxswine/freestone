@@ -59,7 +59,10 @@ import {
   yearOf,
   ADULT_AGE,
   BUILDING_KINDS,
+  DRESS_DRAW,
+  FARM_AREA_PER_HAND,
   FIELD_USES,
+  TIMBER_PER_POST,
   earthRateOf,
   layRateOf,
   type BuildingKind,
@@ -85,6 +88,7 @@ import { FillLayer } from './fills';
 import { GateLayer } from './gates';
 import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
+import { PileLayer } from './piles';
 import { GranaryLayer } from './granary';
 import { OrchardLayer } from './orchard';
 import { WorkshopLayer } from './workshops';
@@ -1168,7 +1172,131 @@ async function boot(): Promise<void> {
     card.style.top = `${behind ? window.innerHeight - ch - 8 : Math.min(Math.max(sy - ch - 12, 8), window.innerHeight - ch - 8)}px`;
   }
 
-  const people = new PeopleLayer(world, site, scene, groundShow);
+  // THE PROGRESS CHIPS (Course 2, boss: "structures that are being built should show
+  // their progress, even just a simple bubble… 0 / X blocks", always-on per his word;
+  // multi-line when a work has more than one input). One reusable DOM chip per
+  // incomplete entity, projected at its middle every frame; done work fades away.
+  // Field-guide restraint: small, monospace, low-saturation. The mason verb is LAID
+  // (dressing is absorbed upstream in the quarry yield — the research digest's law).
+  const chipsBox = document.createElement('div');
+  chipsBox.id = 'chips';
+  chipsBox.style.cssText = 'position:fixed;left:0;top:0;pointer-events:none;z-index:5;';
+  document.body.appendChild(chipsBox);
+  const chipEls = new Map<string, HTMLDivElement>();
+  const chipVec = new THREE.Vector3();
+  function chip(key: string, x: number, y: number, z: number, lines: string[]): void {
+    let el = chipEls.get(key);
+    if (!el) {
+      el = document.createElement('div');
+      el.style.cssText =
+        'position:absolute;transform:translate(-50%,-100%);font:11px ui-monospace,monospace;' +
+        'color:#e8e0d0;background:rgba(24,22,18,0.72);border:1px solid rgba(232,224,208,0.25);' +
+        'border-radius:3px;padding:2px 6px;white-space:pre;line-height:1.35;';
+      chipsBox.appendChild(el);
+      chipEls.set(key, el);
+    }
+    chipVec.set(x, z, y).project(camera);
+    const text = lines.join('\n');
+    if (el.textContent !== text) el.textContent = text;
+    const behind = chipVec.z > 1;
+    el.style.display = behind ? 'none' : '';
+    if (!behind) {
+      el.style.left = `${(chipVec.x * 0.5 + 0.5) * window.innerWidth}px`;
+      el.style.top = `${(-chipVec.y * 0.5 + 0.5) * window.innerHeight}px`;
+    }
+  }
+  function updateChips(): void {
+    if (!started || home.isOpen()) {
+      for (const [, el] of chipEls) el.style.display = 'none';
+      return;
+    }
+    const live = new Set<string>();
+    const mid = (pts: readonly Vec2[]): Vec2 => {
+      let cx = 0;
+      let cy = 0;
+      for (const p of pts) {
+        cx += p.x;
+        cy += p.y;
+      }
+      return { x: cx / pts.length, y: cy / pts.length };
+    };
+    for (const w of world.walls) {
+      if (w.stonesLaid >= w.stonesTotal) continue;
+      const key = `w${w.id}`;
+      live.add(key);
+      const m = mid(w.points);
+      const lines = [
+        w.material === 'wood'
+          ? `🪵 ${w.stonesLaid} / ${w.stonesTotal} posts`
+          : `⚒ ${w.stonesLaid} / ${w.stonesTotal} stones laid`,
+      ];
+      // the stall, named AT the structure (the HUD's bottleneck line, brought home)
+      if (w.material === 'wood' && world.timber < TIMBER_PER_POST) lines.push('waiting on timber');
+      else if (w.material !== 'wood') {
+        const draw = DRESS_DRAW[w.dressLevel];
+        if (w.haulRate !== null && w.faceBuffer < draw) lines.push('waiting on the cart');
+        else if (w.haulRate === null && world.stockpile < draw) lines.push('waiting on stone');
+      }
+      chip(key, m.x, m.y, groundSim(m.x, m.y) + w.height + 1.2, lines);
+    }
+    const workings: Array<{ key: string; at: Vec2; icon: string; done: number; total: number; stone: number; stoneTotal: number }> = [];
+    for (const c of world.cuts) workings.push({ key: `c${c.id}`, at: mid(c.points), icon: '⛏', done: c.workDone, total: c.workTotal, stone: c.stoneTotal * Math.min(1, c.workDone / c.workTotal), stoneTotal: c.stoneTotal });
+    for (const a of world.adits) workings.push({ key: `a${a.id}`, at: a.portal, icon: '⛏', done: a.workDone, total: a.workTotal, stone: a.stoneTotal * Math.min(1, a.workDone / a.workTotal), stoneTotal: a.stoneTotal });
+    for (const b of world.bellPits) workings.push({ key: `b${b.id}`, at: b.at, icon: '⛏', done: b.workDone, total: b.workTotal, stone: b.stoneTotal * Math.min(1, b.workDone / b.workTotal), stoneTotal: b.stoneTotal });
+    for (const s of world.shafts) workings.push({ key: `s${s.id}`, at: s.at, icon: '⛏', done: s.workDone, total: s.workTotal, stone: s.stoneTotal * Math.min(1, s.workDone / s.workTotal), stoneTotal: s.stoneTotal });
+    for (const wk of workings) {
+      if (wk.done >= wk.total) continue;
+      live.add(wk.key);
+      chip(wk.key, wk.at.x, wk.at.y, groundSim(wk.at.x, wk.at.y) + 2.2, [
+        `${wk.icon} ${Math.floor(wk.done)} / ${Math.ceil(wk.total)} days`,
+        `${wk.stone.toFixed(0)} of ${wk.stoneTotal.toFixed(0)} m³ won`,
+      ]);
+    }
+    for (const s of world.stands) {
+      if (!s.felling || s.workDone >= s.workTotal) continue;
+      const key = `t${s.id}`;
+      live.add(key);
+      const m = mid(s.points);
+      chip(key, m.x, m.y, groundSim(m.x, m.y) + 2.2, [
+        `🪓 ${Math.floor(s.workDone)} / ${Math.ceil(s.workTotal)} days`,
+        `${(s.timberTotal * Math.min(1, s.workDone / s.workTotal)).toFixed(0)} of ${s.timberTotal.toFixed(0)} m³ felled`,
+      ]);
+    }
+    for (const f of world.fills) {
+      if (f.volumeMoved >= f.volumeTotal) continue;
+      const key = `f${f.id}`;
+      live.add(key);
+      const m = mid(f.points);
+      chip(key, m.x, m.y, groundSim(m.x, m.y) + 2.2, [
+        `⛰ ${f.volumeMoved.toFixed(0)} / ${f.volumeTotal.toFixed(0)} m³ of earth`,
+      ]);
+    }
+    for (const r of world.roofs) {
+      if (r.material === null || r.workDone >= r.workTotal) continue;
+      const key = `r${r.id}`;
+      live.add(key);
+      const m = mid(r.points);
+      chip(key, m.x, m.y, r.level + 1.4, [`⛉ ${r.workDone.toFixed(0)} / ${r.workTotal.toFixed(0)} decked`]);
+    }
+    for (const [key, el] of chipEls) {
+      if (!live.has(key)) {
+        el.remove();
+        chipEls.delete(key); // finished work fades from the air
+      }
+    }
+  }
+
+  // THE VISIBLE PILES (Course 2): blocks stack beside the workings, logs drop where
+  // felled, a hauled face shows its buffer — and the carriers pick up from REAL piles
+  const piles = new PileLayer(world, scene, groundShow);
+  const people = new PeopleLayer(
+    world,
+    site,
+    scene,
+    groundShow,
+    (x, y) => cuts.floorAtShow(x, y), // the digger descends as the pit deepens
+    piles,
+  );
   // the granary comes alive: sacks + a prowling cat per designated store (3b)
   const granary = new GranaryLayer(world, site, scene, groundShow);
   // the orchard made visible: tidy rows of fruit trees on each designated orchard (render-only)
@@ -1342,6 +1470,81 @@ async function boot(): Promise<void> {
     inspectDownX = ev.clientX;
     inspectDownY = ev.clientY;
   });
+
+  /** click-time ground pick: a full mesh raycast (~4 ms) is fine ONCE per click —
+   *  the pointermove path keeps its microsecond march; this is the lazy cousin */
+  function groundPick(clientX: number, clientY: number): Vec2 | null {
+    const rect = renderer.domElement.getBoundingClientRect();
+    const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
+    const ny = -((clientY - rect.top) / rect.height) * 2 + 1;
+    inspectRay.setFromCamera(new THREE.Vector2(nx, ny), camera);
+    const hit = inspectRay.intersectObject(terrain.mesh)[0];
+    if (!hit) return null;
+    return { x: hit.point.x, y: hit.point.z }; // three (x, up, north) → sim (x, y)
+  }
+
+  /**
+   * THE ENTITY CARDS (Course 2): the details a click on the LAND can speak — the
+   * farm's expected yield (the livingYear arithmetic, labelled space-gated), a
+   * building's biography + occupants-as-data (boss 0b: "occupants should just be
+   * data in the details"), a working's progress + a stand's regrowth clock, and a
+   * PENDING plot's open words. Pure reads; the render never writes.
+   */
+  function entityCardAt(x: number, y: number): string | null {
+    for (const f of world.farms) {
+      if (f.points.length >= 3 && pointInPolygon(x, y, f.points)) {
+        if (f.use === 'farm') {
+          const mouths = f.area / AREA_PER_PERSON;
+          return `🌾 an arable farm · ${f.area.toFixed(0)} m² · feeds ~${mouths.toFixed(1)} mouths a year (space-gated — skill moves tending, not yield) · ${f.workdays.toFixed(1)} workdays tended · wants ${Math.ceil(f.area / FARM_AREA_PER_HAND)} hand(s) a day`;
+        }
+        if (f.use === 'orchard') {
+          return `🍎 an orchard · ${f.area.toFixed(0)} m² · bears ~${(f.area / ORCHARD_AREA_PER_PERSON).toFixed(1)} mouths of fruit toward the harvest`;
+        }
+        if (f.use === 'pasture') return `🐎 a pasture · ${f.area.toFixed(0)} m² · keeps a draft horse that hauls surplus to the store`;
+        if (f.use === 'livestock') return `🐄 a paddock · ${f.area.toFixed(0)} m² · grazed (herds are a later system)`;
+        return `⚹ fallow · ${f.area.toFixed(0)} m² · the land rests`;
+      }
+    }
+    for (const b of world.buildings) {
+      const wall = world.walls.find((w) => w.id === b.wallId);
+      if (!wall || wall.points.length < 3 || !pointInPolygon(x, y, wall.points)) continue;
+      const kin = world.stones.filter((st) => st.wallId === b.wallId);
+      let begun = Infinity;
+      for (const st of kin) if (st.tickLaid < begun) begun = st.tickLaid;
+      const tier = b.kind === 'house' ? ` · a ${houseTier(b.area, b.roof)}` : '';
+      // occupants as DATA (0b Q1): a deterministic render-side listing — the youngest
+      // souls by id-hash keep the house; real per-house binding is a later sim course
+      const roll = world.people.filter((p) => (p.id * 2654435761 >>> 0) % Math.max(1, world.buildings.length) === world.buildings.indexOf(b)).map((p) => p.name);
+      const folk = b.kind === 'house' && roll.length ? ` · home of ${roll.slice(0, 3).join(', ')}${roll.length > 3 ? '…' : ''}` : '';
+      return `⌂ a ${b.kind}${tier} · roof: ${b.roof} · ${b.area.toFixed(0)} m² · ${kin.length} stones, begun Year ${Number.isFinite(begun) ? yearOf(begun) : '—'}${folk}`;
+    }
+    for (const id of world.pending) {
+      const wall = world.walls.find((w) => w.id === id);
+      if (!wall || wall.points.length < 3 || !pointInPolygon(x, y, wall.points)) continue;
+      if (wall.plans !== null) {
+        const open = [wall.plans.roof === null ? 'its roof' : '', wall.plans.kind === null ? 'its trade' : ''].filter(Boolean).join(' and ');
+        return `⌂ an unnamed shell · still asking for ${open} — the word-card takes the answer`;
+      }
+      return `🌾 an enclosed plot · still asking for its use — the word-card takes the answer`;
+    }
+    for (const c of world.cuts) {
+      if (pointInPolygon(x, y, c.points)) {
+        const won = c.stoneTotal * Math.min(1, c.workDone / c.workTotal);
+        return `⛏ an open cut · ${Math.floor(c.workDone)} of ${Math.ceil(c.workTotal)} days dug · ${won.toFixed(0)} of ${c.stoneTotal.toFixed(0)} m³ won${c.workDone >= c.workTotal ? ' · worked out' : ''}`;
+      }
+    }
+    for (const st of world.stands) {
+      if (st.points.length >= 3 && pointInPolygon(x, y, st.points)) {
+        if (st.felling) return `🪓 a cant under the axe · ${Math.floor(st.workDone)} of ${Math.ceil(st.workTotal)} days`;
+        if (st.feltTick >= 0) {
+          const back = Math.max(0, Math.ceil((st.feltTick + REGROWTH_TICKS - world.tick) / TICKS_PER_YEAR));
+          return `🌳 a felled coppice · the stool regrows — mature in ~${back} year(s)`;
+        }
+        return `🌳 a mature stand · ready to fell`;
+      }
+    }
+    return null;
+  }
   renderer.domElement.addEventListener('pointerup', (ev) => {
     if (ev.button !== 0 || planner.active) return; // a tool owns the click; inspect only when the pencil is down
     if (Math.hypot(ev.clientX - inspectDownX, ev.clientY - inspectDownY) > 6) return; // a drag (orbit/pan), not a click
@@ -1352,7 +1555,21 @@ async function boot(): Promise<void> {
     const instanceId = inspectRay.intersectObject(stones)[0]?.instanceId;
     const s = instanceId != null ? world.stones[instanceId] : undefined;
     if (!s) {
-      prospectEl.style.display = 'none';
+      // THE ENTITY CARDS (Course 2, on the memory suite's spine): a stone miss falls
+      // through to the GROUND — click a farm, a building, a working, a stand, and the
+      // record speaks its details (boss: "selectable… show you details" / "farms too…
+      // expected yields"). Pure reads of recorded state + the livingYear arithmetic.
+      const gp = groundPick(ev.clientX, ev.clientY);
+      const line = gp ? entityCardAt(gp.x, gp.y) : null;
+      if (line) {
+        prospectEl.className = 'ok';
+        prospectEl.textContent = line;
+        prospectEl.style.left = `${ev.clientX + 14}px`;
+        prospectEl.style.top = `${ev.clientY + 14}px`;
+        prospectEl.style.display = 'block';
+      } else {
+        prospectEl.style.display = 'none';
+      }
       return;
     }
     const mason = world.people.find((p) => p.id === s.masonId);
@@ -1652,6 +1869,7 @@ async function boot(): Promise<void> {
     adits.update();
     bellPits.update();
     shafts.update(); // was missing from the live frame — a shaft placed in play never entered the scene
+    piles.update(); // Course 2: the visible piles (Law 6 — BOTH update sites)
     tracingFloor.update();
     roofs.update();
     farms.update();
@@ -1664,6 +1882,7 @@ async function boot(): Promise<void> {
     people.update(dt, speed > 0);
     granary.update(dt, speed > 0);
     updateCard();
+    updateChips(); // Course 2: the always-on progress chips (Law 6 - both update sites)
 
     const year = yearOf(world.tick);
     const day = dayOfYear(world.tick) + 1;
@@ -2123,6 +2342,7 @@ async function boot(): Promise<void> {
       adits.update();
       bellPits.update();
       shafts.update();
+      piles.update(); // Course 2: the visible piles (Law 6 — BOTH update sites)
       tracingFloor.update();
       roofs.update();
       farms.update();
@@ -2135,6 +2355,7 @@ async function boot(): Promise<void> {
       people.update(0, false); // sync a hidden tab's crowd — positions AND the age-tint (was missing)
       granary.update(0, false); // place a hidden tab's sacks/cat (rAF is paused)
       updateCard();
+      updateChips(); // Course 2: the always-on progress chips (Law 6 — both update sites)
       return world.tick;
     },
   };

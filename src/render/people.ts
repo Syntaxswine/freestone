@@ -94,6 +94,11 @@ export class PeopleLayer {
     private site: SiteData,
     private scene: THREE.Scene,
     private groundAt: (x: number, y: number) => number,
+    /** Course 2: the pit's SINKING floor (CutLayer.floorAtShow) — a digger stands in
+     *  the pit, not hovering at the rim; absent ⇒ diggers stand on the turf. */
+    private pitFloorAt?: (x: number, y: number) => number,
+    /** Course 2: the visible piles — carriers pick their blocks up from a REAL stack. */
+    private piles?: { nearestStonePile(x: number, y: number): Vec2 | null },
   ) {
     this.campX = site.extentX / 2;
     this.campY = site.extentY / 2;
@@ -128,12 +133,17 @@ export class PeopleLayer {
    * station count; every group re-indexes by array order so posts stay stable.
    */
   private assignments = new Map<number, Assignment>();
+  private layCount = 0;
   private reindex(): void {
     this.assignments = computeAssignments(this.world);
-    this.masonCount = Math.max(
-      1,
-      this.puppets.reduce((n, p) => n + (this.assignments.get(p.person.id) === 'lay' ? 1 : 0), 0),
+    this.layCount = this.puppets.reduce(
+      (n, p) => n + (this.assignments.get(p.person.id) === 'lay' ? 1 : 0),
+      0,
     );
+    // THE CLOSED CHAIN (Course 2): the day's lay crew splits itself — the first half
+    // work STATIONS along the wall, the rest CARRY blocks from the visible piles to
+    // their masons (mine → pile → carry → place, watchable end to end)
+    this.masonCount = Math.max(1, Math.ceil(this.layCount / 2));
     let m = 0;
     let l = 0;
     for (const pup of this.puppets) {
@@ -320,11 +330,27 @@ export class PeopleLayer {
       let ty: number;
       let tz: number | null = null; // null → stand on the ground
       let inField = false;
-      if (ws && assigned === 'lay') {
+      if (ws && assigned === 'lay' && p.tradeIndex < this.masonCount) {
+        // a station mason: at the working course, hammer up
         const st = this.station(ws, p.tradeIndex);
         tx = st.x;
         ty = st.y;
         tz = st.z;
+      } else if (ws && assigned === 'lay') {
+        // a CARRIER (Course 2): pick a block up at the nearest visible pile, walk it
+        // to "their" mason's station, hand off, walk back — the boss's chain closed
+        const st = this.station(ws, p.tradeIndex % this.masonCount);
+        if (p.carrying) {
+          const sin = Math.sin(0);
+          const away = 1.4 + (p.tradeIndex % 2) * 0.8; // hand off short of the mason
+          tx = st.x - sin * away;
+          ty = st.y + Math.cos(0) * away;
+        } else {
+          const pile = this.piles?.nearestStonePile(st.x, st.y);
+          const start = pointAt(ws.wall.points, 0);
+          tx = pile ? pile.x : start.x - 3.5;
+          ty = pile ? pile.y : start.y + 3.5;
+        }
       } else if (haul && (assigned === 'fill' || assigned === 'roof')) {
         // barrow dirt (or deck timber) from a point outside the ring to the middle
         let cx = 0;
@@ -358,14 +384,18 @@ export class PeopleLayer {
         tx = end.x;
         ty = end.y;
       } else if (assigned === 'dig' || assigned === 'fell') {
-        // SIM 36 shim: a digger/feller at least STANDS AT their working (the sim has
-        // them there; the old theater showed them elsewhere — the lie the boss caught).
-        // Course 2 gives them the pit-floor descent, the swing, and the block piles.
+        // Course 2: the digger works IN the pit — feet on the SINKING floor
+        // (floorAtShow, the dead code the census found, called at last); a feller
+        // works the cant. The sim always had them here; now the eye agrees.
         const w = this.workingSpot(assigned);
         if (w) {
           const slice = Math.floor(this.clock / 5) + p.person.id;
           tx = w.x + (hash2(p.person.id, slice) - 0.5) * 3;
           ty = w.y + (hash2(p.person.id, slice + 1) - 0.5) * 3;
+          if (assigned === 'dig' && this.pitFloorAt) {
+            const f = this.pitFloorAt(tx, ty);
+            if (Number.isFinite(f)) tz = f; // descend as the pit deepens
+          }
         } else {
           tx = this.campX;
           ty = this.campY;
@@ -414,8 +444,9 @@ export class PeopleLayer {
         if (Math.abs(dx) > 0.02) p.facing = dx >= 0 ? 1 : -1;
       } else if (
         d <= WORK_RADIUS &&
-        (haul !== null || inField) &&
-        (assigned === 'fill' || assigned === 'roof' || assigned === 'farm') &&
+        ((haul !== null && (assigned === 'fill' || assigned === 'roof')) ||
+          (inField && assigned === 'farm') ||
+          (ws !== null && assigned === 'lay' && p.tradeIndex >= this.masonCount)) &&
         simActive &&
         this.clock - p.lastToggle > TOGGLE_DWELL
       ) {
@@ -429,13 +460,17 @@ export class PeopleLayer {
       p.z += (goalZ - p.z) * Math.min(1, step * 4); // step, not dt: pause freezes this too
 
       // --- pick a frame ---
+      const isCarrier = assigned === 'lay' && p.tradeIndex >= this.masonCount;
       let frame = 0;
       if (walking) {
         frame =
-          (assigned === 'fill' || assigned === 'roof') && p.carrying
-            ? 3 // carry pose while hauling — in the field there is no block
+          ((assigned === 'fill' || assigned === 'roof') && p.carrying) ||
+          (isCarrier && p.carrying)
+            ? 3 // carry pose while hauling a block — in the field there is no block
             : 1 + (Math.floor(this.clock * 4 * p.speed) % 2);
-      } else if (assigned === 'lay' && ws && d < WORK_RADIUS && laying && simActive) {
+      } else if ((assigned === 'dig' || assigned === 'fell') && d < WORK_RADIUS && simActive) {
+        frame = Math.floor(this.clock * 2.5) % 3 === 0 ? 3 : 0; // the pick swings, now and then
+      } else if (assigned === 'lay' && !isCarrier && ws && d < WORK_RADIUS && laying && simActive) {
         frame = Math.floor(this.clock * 3) % 2 === 0 ? 3 : 0; // hammer swing
       } else if (p.person.trade === 'smith' && d < WORK_RADIUS && simActive) {
         frame = Math.floor(this.clock * 2.5) % 3 === 0 ? 3 : 0; // strikes the anvil now and then
@@ -452,7 +487,7 @@ export class PeopleLayer {
 
       // carried blocks bob a little; sim → three: (x, up, north)
       const bob =
-        (assigned === 'fill' || assigned === 'roof') && p.carrying && walking
+        ((assigned === 'fill' || assigned === 'roof') || isCarrier) && p.carrying && walking
           ? Math.abs(Math.sin(this.clock * 6 + p.person.id)) * 0.05
           : 0;
       p.sprite.position.set(p.x, p.z + bob, p.y);
