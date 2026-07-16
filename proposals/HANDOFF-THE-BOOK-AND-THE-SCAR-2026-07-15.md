@@ -22,7 +22,7 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
   only the 8 milestone hashes changed, no count/stockpile/position; the canon sinks no bell pit, so
   its BEHAVIOUR is byte-identical (drift at tick 1 = the field-appearance signature). One commit + regen.
 - **33 maker's marks, 4 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `6f35aab`. All pushed and deploying.
+- HEAD `46e8a39`. All pushed and deploying.
 - **PROSPECTING IS NOW 3/3** — the edge snap (`fc73bea`) closed it; see §2.
 - **THE ADIT IS NOW PLAYABLE** — the drift tool + render (`e7d0019`, ⛏ 32nd mark); see §3.
 - **THE BELL PIT IS BUILT** — the method ladder's 3rd rung (`6f35aab`, ⛏ 33rd mark, SIM 33); see the
@@ -176,10 +176,15 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
 - ✅ **The adit — the miner's tunnel** — DONE (`e7d0019`, §3, ⛏ 32nd mark). Its whole SIM was
   already built + tested; only the tool + render were missing — render-only, inert on canon.
 
-1. **A first-eye tune: the two mining LOOKS.** The flood's blue (opacity 0.62) + spoil, and now
-   the adit's X-ray drift line (`depthTest`-off ghost at grade) + amber-on-holed, all render
-   correctly but were verified by PROBE, not a screenshot (WebGL times out). First real eye on the
-   live deploy may want a one-line tweak to either. Low-stakes, boss-subjective — hold for his eye.
+1. ✅ **The mining LOOKS — EYE-VERIFIED (`46e8a39`).** The receiver-trick screenshot works after all
+   (the page renders to an offscreen-SIZED canvas + POSTs the pixels — `setSize(w,h)` beats the 0×0
+   hidden-tab canvas that blanks `toDataURL`; a WebGLRenderTarget needs the `THREE` module, which
+   isn't global, but sizing the default canvas suffices). It CAUGHT a real bug: the bell-pit shaft
+   MOUTH sat below ground (`grade+0.25−sink`) and vanished under the spoil — fixed to a raised
+   WELL-HEAD (ring wall + amber/dark cap) that reads at a glance. The adit's X-ray drift was
+   eyeballed too — a clean thin line, NOT garish (the `depthTest`-off worry didn't bear out); left
+   as is. Only the FLOOD's blue remains un-eyeballed (older + simple, a plane at the table) — a
+   genuinely boss-subjective one-liner if he wants it. **The receiver trick is proven — use it.**
 2. ✅ **The method LADDER (#50) — rung 3, the BELL PIT, is BUILT** (`6f35aab`, ⛏ 33rd mark, SIM 33).
    Scoped in [PROPOSAL-THE-METHOD-LADDER](PROPOSAL-THE-METHOD-LADDER-2026-07-15.md), then the loop
    said keep going and geology carried the design, so I built its recommended next rung: a single-

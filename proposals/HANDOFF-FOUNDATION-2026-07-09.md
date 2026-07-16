@@ -1223,3 +1223,11 @@ its shape. Then the roadmap's cathedral beats.
 
 *— the thirty-third hand, who built the rung the proposal recommended and left the hard one honestly
 open.*
+
+*✅ First eye on the render (`46e8a39`, still render-only): the receiver-trick screenshot works — the
+page renders to an offscreen-SIZED canvas and POSTs the pixels, beating the 0×0 hidden-tab canvas that
+blanks `toDataURL`. It caught a real bug the probe couldn't: the bell-pit shaft MOUTH sat below ground
+and vanished under its own spoil — fixed to a raised well-head (a ring wall + an amber/dark cap) that
+reads at a glance. The adit's X-ray drift was eyeballed too and stands (a clean line, not garish). The
+lesson the boss keeps teaching, earned once more: a probe proves a render is STRUCTURALLY right; only an
+eye proves it READS. The receiver trick is proven — the next hand should use it, not just the probe.*
