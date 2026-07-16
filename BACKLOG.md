@@ -57,7 +57,7 @@ the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one 
 **(7) THE SLEDGE ON ROLLERS (SIM 32 `0b86d83`, 🛷)** — the last debt, the lift's overland twin: an OPT-IN
 `rollers` flag boosts a HAULED wall's delivered rate ×ROLLER_HAUL_BOOST(2); opt-in so the canon (walls don't
 choose it) is byte-identical → inert one commit; a `🛷 sledge` toggle in the build bar; +2 tests.
-**THIRTY-FIVE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏⛏⛏⛏🪨) + FIVE ⛬ seals; 196 tests green; SIM 34; live. THE MINING LADDER IS WHOLE; THE MEMORY SUITE (Beat 2) OPENS.**
+**THIRTY-SIX maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏⛏⛏⛏🪨📜) + FIVE ⛬ seals; 196 tests green; SIM 34; live. THE MINING LADDER IS WHOLE; THE MEMORY SUITE (Beat 2) IS TWO READERS DEEP.**
 **★ EVERY HONEST DEBT PAID — the whole post-arc knockoff (SIM 27–32 + the six-stroke render pass) is COMPLETE,
 sealed by a third ⛬.** Nothing remains on the STANDS ledger; what's next is AMBITION — the roadmap's untouched
 beats (Beat 2 memory suite, Beat 3 Lodge Book save/load + Annal, Beat 5 demand wave, Beat 6 kiln + Keep).
@@ -108,9 +108,12 @@ progression call — NOT built, per PROPOSAL §3).**
 196 green untouched):** stones weather by AGE (now − tickLaid) — a year-throttled re-tint greys/darkens each block, so
 lifts laid years/generations apart read as banded colour (the castle's archaeology in its own fabric). Verified via the
 receiver trick (1121-stone wall fresh vs aged 20y = visibly greyer). **KEY REFRAME:** Beat 2 is GREP-THE-TREE, not
-boss-vision — tickLaid/masonId recorded since M1, write-only/unread; the readers are all render-only + buildable. NEXT
-Beat-2 readers: founder's stone (smallest), the INSPECTION CARD (click a stone → hand/day/dress — the heart), mason's
-marks, tracing-floor ghosts (all spec'd in ROADMAP §Beat-2). The PRIOR
+boss-vision — tickLaid/masonId recorded since M1, write-only/unread; the readers are all render-only + buildable. **⛏ 36th mark 📜 THE INSPECTION CARD `7404162`** (render-only, ZERO baseline, the suite's HEART): click a laid stone
+(no tool out) → the raycast reads the stone InstancedMesh (instanceId === world.stones index) → masonId→person,
+tickLaid→year, wallId→dress+material → a card "laid by Edith the mason · Year 1"; a miss clears it. Verified via a
+real dispatched click. The raycast + card are now the suite's SPINE. NEXT readers hang off it: founder's stone (proud
++ founding party on the card), mason's marks (glyph from id, ashlar, on the card), structure biography (card widened
+stone→wall), tracing-floor ghosts (no click needed) — all ROADMAP §Beat-2. The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the

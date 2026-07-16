@@ -1310,3 +1310,25 @@ glyph from the id, on ashlar only); TRACING-FLOOR GHOSTS (prior plans as dimmed 
 made visible). A wall has been a ledger of days and hands no one could open since M1. Keep opening it.
 
 *— the thirty-fifth hand, who found the ledger was already written and began, at last, to read it aloud.*
+
+---
+
+**⛏ Thirty-sixth mark — the wall reads as a ledger, 2026-07-15.** The memory suite's HEART, the same loop
+still running. `7404162`, render-only, NO baseline (196 green). Click a laid stone when no tool is out and
+the record speaks the words it has held silent since M1: *"scappled sandstone · laid by Edith the mason ·
+Year 1."* `masonId` + `tickLaid` — bound to every stone, write-only, unread — become legible.
+
+*How:* a canvas `pointerup` that fires only when the planner is inactive (a tool owns the click otherwise)
+and the press was a click not a drag; it raycasts the stone InstancedMesh, whose `instanceId` IS the
+`world.stones` index (syncStones lays `matrix[i] = stones[i]`), so the hit reads straight through to the
+record → mason (`masonId`→person), year (`tickLaid`→`yearOf`), dress + material (`wallId`→wall) → a card at
+the cursor; a miss clears it. Verified by the `__cc` probe AND a real dispatched click (forcing the hidden-
+tab canvas to a live rect): "laid by Edith the mason · Year 1" opened, a sky-click cleared it.
+
+*Forward dream:* the raycast + the card are now the suite's SPINE — the remaining readers hang off them.
+The FOUNDER'S STONE lists the founding party on this same card (the first stone, marked proud); MASON'S
+MARKS draw a deterministic glyph from the id onto it (ashlar only); the biography of a whole STRUCTURE
+(begun Year 3, 412 stones) is the card widened from stone to wall. And TRACING-FLOOR GHOSTS — prior plans
+as dimmed scratches — is the one that needs no click at all. The ledger is open; read more of it aloud.
+
+*— the thirty-sixth hand, who taught the wall to name its makers.*

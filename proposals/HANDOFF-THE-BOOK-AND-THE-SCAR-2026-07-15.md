@@ -21,11 +21,12 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
   SIM_VERSION field), so the hash moved; DIFF-CONFIRMED pure serialisation BOTH times (only the milestone
   hashes + `simVersion`, no count/stockpile/position; the canon runs neither method, so its BEHAVIOUR is
   byte-identical). One commit + regen apiece.
-- **35 maker's marks, 5 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `1fadac4`. All pushed and deploying.
-- **THE MEMORY SUITE (roadmap Beat 2) IS OPEN** — the campaign patina (`1fadac4`, ⛏ 35th mark, render-
-  only): stones weather by age, the castle's archaeology in its own fabric. The census reframed Beat 2 as
-  GREP-THE-TREE (tickLaid/masonId recorded since M1, unread) — the remaining readers are all buildable.
+- **36 maker's marks, 5 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
+- HEAD `7404162`. All pushed and deploying.
+- **THE MEMORY SUITE (roadmap Beat 2) IS OPEN, TWO READERS DEEP** — the campaign patina (`1fadac4`, ⛏ 35th,
+  stones weather by age) + THE INSPECTION CARD (`7404162`, ⛏ 36th, its HEART: click a stone → "laid by Edith
+  the mason · Year 1"). Both render-only, ZERO baseline. The census reframed Beat 2 as GREP-THE-TREE
+  (tickLaid/masonId recorded since M1, unread); the card + raycast are now the suite's spine — more readers hang off them.
 - **THE MINING LADDER IS COMPLETE** — open cut ✅ → adit ✅ (`e7d0019`, 32nd) → bell pit ✅ (`6f35aab`,
   33rd, SIM 33) → shaft-and-pump ✅ (`b098c4b`, 34th, SIM 34). Prospecting 3/3 (`fc73bea` snap). The
   5th ⛬ seal punctuates the whole mining vision, now WHOLE.
@@ -204,14 +205,14 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
     trivial add). The pump-tax number is a labelled game-choice, not yet sourced (PROPOSAL §5 Q3, if he
     wants it firmed). Readout teaches the ladder ("all dry — a bell pit is cheaper" / "N m pumped —
     drowned post won ✓"). Render: a headframe with winding gear, eye-verified.
-3. **The MEMORY SUITE (Beat 2) — OPENED, and the rest is GREP-THE-TREE.** The campaign patina shipped
-   (`1fadac4`, 35th mark). The census's key reframe: Beat 2 is NOT the boss's-vision-to-conceive — it's
-   readers of data ALREADY recorded (`tickLaid`/`masonId` bound since M1, write-only, unread), all
-   render-only + ZERO baseline, spec'd in `ROADMAP-THE-GENERATIONAL-FACTORY §Beat-2`. Remaining, all
-   buildable on the same pattern: **the FOUNDER'S STONE** (first stone proud + founding party, smallest);
-   **the INSPECTION CARD** (click a stone → hand/day/dress — the HEART, biggest value; needs InstancedMesh
-   raycast-picking → instance id → stone → person lookup → a card); **MASON'S MARKS** (a deterministic glyph
-   from the id, on ashlar); **TRACING-FLOOR GHOSTS** (prior plans as dimmed scratches). Build the next reader.
+3. **The MEMORY SUITE (Beat 2) — TWO READERS in, the SPINE built.** Shipped: the campaign patina (`1fadac4`,
+   35th) + **the INSPECTION CARD** (`7404162`, 36th — the HEART: click a stone → "laid by Edith the mason ·
+   Year 1"; the raycast + card are now the shared spine). The census's reframe holds: Beat 2 is GREP-THE-TREE,
+   readers of data recorded since M1 (unread), all render-only + ZERO baseline (`ROADMAP §Beat-2`). Remaining
+   readers, all hanging off the card/raycast now in place: **the FOUNDER'S STONE** (first stone proud + the
+   founding party on the same card, smallest); **MASON'S MARKS** (a deterministic glyph from the id, ashlar
+   only, drawn on the card); **the STRUCTURE BIOGRAPHY** (the card widened stone→wall: begun Year 3, N stones);
+   **TRACING-FLOOR GHOSTS** (prior plans as dimmed scratches — the one needing no click). Build the next reader.
 4. **The design-heavy beats — the boss's calls.** Beat 5 the demand wave (the Wall Ladder + SPOIL + Lots),
    Beat 6 the kiln + the Keep, the mortality SPINE (Beat 4) — these are the roadmap's SIM arcs with real
    design forks (batch as ONE bump each; §6 of the roadmap has the open questions). And the shaft's GATE
