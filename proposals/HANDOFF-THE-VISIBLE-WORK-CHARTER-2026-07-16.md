@@ -113,25 +113,26 @@ dropping where felled. Dispositions table in the proposal §0.
 - **The shell cwd resets mid-session** (hit twice, once at a git commit) — `Set-Location` before
   any repo command after a long gap; exit-128 "not a git repository" means cwd, not repo damage.
 
-## Where to start (the forward map — Course 1 is scoped, gated, and waiting)
+## Where to start (the forward map — LIVING LEDGER, updated as courses land)
 
-1. **Get §6.4 answered FIRST** (the save-forward promise): Course 1's first bump **invalidates
-   the boss's existing Lodge Book saves** (refused with a message). He must rule on flag days
-   before the bump lands — this is his data being voided, not a technicality.
-2. **Course 1 — THE VISIBLE ECONOMY** (proposal §5): commit A incremental credit (conservation
-   specimens first) → commit B′ 13 founders + the skill system (sweep re-run + retunes + the
-   threshold-crossing specimen) → commit F′ the word at the plot. Three SIM bumps 35/36/37; the
-   canon STORY designed once, the script touched three times; ids ALL shift (founders move
-   nextId — re-probe everything hardcoded).
-3. **Course 2 — the theater** (render-only, zero baseline): diggers dig (call `floorAtShow` at
-   last), piles + scattered logs, the closed carry chain, chips, entity cards.
-4. **Course 3** — irregular-ring roofs (default) + animals + the boss's §6.1 picks.
-   **Course 4** — THE TIMBER WAY (blocked on §6.3 re-freeze).
+**All four §6 questions RULED 2026-07-16 (proposal §0b):** saves = flag days ("so far in alpha") —
+bump 35 UNBLOCKED; occupants = E-card data, no occupancy course; at-plot 'none' EXTENDS to fields +
+spans (F′ grows to one enclosure grammar); the way = a WORKER-SPEED mechanic (haul-as-labor +
+pathing — Course 4 redesigned, §3H updated). Plus two new boss items the same message: **THE CHEAT
+MENU** (spawn materials/objects/people at a point — built as `cheat_*` COMMANDS so replay holds;
+Course 1.5) and **the enclosure reframe** ("any enclosed space is a building; the enclosure type
+determines what it can become" — F′/E implement it for drawn enclosures + spans; quarries fold in
+later).
 
-The remaining §6 questions, verbatim short: (1) which lived-in layers next — floor / occupants;
-(2) extend at-plot 'none' to fields + spans now or later; (3) the way's re-freeze — new walls
-only (recommended) or re-price existing; (4) the save-forward promise — flag days or a
-compatibility line, ruled before bump 35.
+- [ ] **Course 1 — THE VISIBLE ECONOMY**: commit A incremental credit (SIM 35, conservation
+      specimens first) → commit B′ 13 founders + the skill system (SIM 36; sweep re-run + retunes +
+      the threshold specimen) → commit F′ the word at the plot, ONE grammar for buildings + fields +
+      spans (SIM 37). The canon STORY designed once, the script touched three times; ids ALL shift.
+- [ ] **Course 1.5 — the cheat menu** (commands, Settings-gated; after B′).
+- [ ] **Course 2 — the theater** (render-only, zero baseline): diggers dig (call `floorAtShow` at
+      last), piles + scattered logs, the closed carry chain, chips, entity cards (occupants as data).
+- [ ] **Course 3** — irregular-ring roofs + animals (pasture horse sim-true; paddock decor named).
+- [ ] **Course 4** — THE TIMBER WAY as worker-speed/haul-as-labor (its own design pass first; §3H).
 
 ---
 

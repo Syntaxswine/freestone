@@ -21,6 +21,28 @@ SCOPE §7's ~15 is superseded). Message 2 answers, by v1's question numbers:
 | Q4 conveyor | **"it should replace it"** | The 🛷 toggle + `rollers` flag retire in the road's own bump (Course 4) — the toggle visibly persists until then **by design, not omission**. The FICTION keeps the sledge: research shows the honest medieval shape is a laid timber way the sledge RIDES (§3H) |
 | Q5 timber | **"definitely incremental felling. wood should just drop where its felled."** | Incremental credit covers timber; logs visibly scatter AT the fell positions, and carriers fetch from there |
 
+## 0b. Second dispositions (boss, 2026-07-16 — the §6 answers; the build is GO)
+
+| §6 question | Boss's answer | Consequence |
+|---|---|---|
+| §6.4 saves | **"this game is so far in alpha no one is going to expect the saves to work for the next version"** | FLAG DAYS. Bump 35 unblocked; the guard's message is the whole contract. (A snapshot-fallback loader stays a later course if ever wanted) |
+| §6.1 lived-in | **"occupants should just be data in the details of the building when you select it"** | No occupancy course — occupants ride the E card as data (deterministic render-side listing). Floors not asked for; irregular-ring roofs stay the Course-3 default |
+| §6.2 symmetry | **"Extend to fields + spans now"** | F′ grows: ONE designation grammar — fields and roof-spans get at-plot answers + 'none' + choose-later alongside buildings |
+| §6.3 the way | **"if the workers are moving faster the bricks reach their destination quicker… a more complicated ask because the workers would have to have a more complicated pathing"** | The re-freeze fork DISSOLVES: the way is a WORKER-SPEED model — haul becomes labor (people carrying along paths, faster on the way), which needs pathing. Course 4 is redesigned around that (proposal §H note) and sized accordingly |
+
+**The enclosure reframe (boss, same message):** *"any enclosed space is a building. this would
+include farms and quarries. the types of enclosures can determine what kinds of buildings that
+enclosure can be."* — The designation grammar's mental model: ONE enclosure entity; its geometry
+class (low ring / tall shell / span / working) determines its legal words. F′ + E implement this
+for drawn enclosures + spans now; folding the QUARRY tools into the same grammar is recorded as
+the stated direction for a later course (the cut/adit/pit tools already take rings/points — the
+unification is UI grammar, not new sim).
+
+**New item (boss, same message): THE CHEAT MENU** — *"something that lets you spawn physical
+materials, objects, or people, at a point in space"* for testing. Built as **commands**
+(`cheat_*` in the log) so replay-equals-live holds even for cheats; gated behind a Settings
+toggle. Slotted after B′ (spawning people needs the new Person model). Slot: Course 1.5.
+
 ## 1. The diagnosis, measured (v1, unchanged — why building "feels slow")
 
 The clock is healthy. Verified live (`__cc` probes on a fresh world at `97882da`):
@@ -254,18 +276,22 @@ cow/pig have NO sim substrate (herds are BACKLOG-reserved) — they ship, if shi
 hold for the herds course. Granary-cat pattern throughout; Law 6 both update sites. Orchards
 already have trees; nothing to do.
 
-### H. THE TIMBER WAY — the sledge rides a laid road (SIM, its own later course)
+### H. THE TIMBER WAY — carriers move faster on a laid way (SIM, its own later arc; §0b Q3 redesign)
 
-Q4's mechanic, research-corrected into its honest medieval shape: a drawn polyline entity — a
-**timber causeway** (corduroy/plank way; Ely 1071, Berlin 1238, greased-baulk slipways
-experimentally proven for 40-ton blocks) — that the SLEDGE rides. Wheels-on-rails and conveyor
-imagery are post-1500 (Reisszug 1515; wagonways 1550s+) and stay out of the fiction; "the sledge
-rides the way" keeps history right-side-up while delivering the boss's function: rapid transfer
-along a pre-planned path. Mechanics: timber cost per laid meter; walls whose haul route rides the
-way haul at `WAY_HAUL_BOOST` (named constant, ≥ the sledge's old ×2); **blocks on the way visibly
-outpace walking carriers (≥3× walker speed)** so "rapid" is a property, not a hope. The `rollers`
-wall flag and 🛷 toggle retire in this bump (Q4's "replace"). Sized ≈ the adit course; designed
-together with per-pile logistics (haul-as-labor) if the boss wants that depth. Gated on §6.3.
+The boss's ruling reshaped this from a rate-multiplier to a **worker-speed** mechanic: *"if the
+workers are moving faster the bricks reach their destination quicker… the workers would have to
+have a more complicated pathing."* So the way's course IS the haul-as-labor course: carriers
+become real labor with routes (per-pile logistics — pick up at a working's pile, walk a path, put
+down at the face), and a drawn timber way multiplies CARRIER SPEED on its segments. The fiction
+stays research-honest: a **timber causeway** (corduroy/plank way; Ely 1071, Berlin 1238;
+greased-baulk slipways proven for 40-ton blocks) that the SLEDGE rides — wheels-on-rails and
+conveyor imagery are post-1500 and stay out of the flavor. The frozen-`haulRate` model, the
+`rollers` flag, and the 🛷 toggle all retire together when this lands (Q4's "replace"). Carriers
+on the way visibly outpace off-way walkers (≥3×) so "rapid" is a property. Pathing note for the
+design: routes can stay cheap — polyline-with-way-segments cost fields, not full A* over terrain —
+but that call belongs to the course's own proposal. Sized as its own arc (it touches haul, the
+theater, and the skill taxonomy — a `carter` job becomes honest here, and the Carter surname gains
+its substrate).
 
 ## 4. Already resolved / already true
 
@@ -289,30 +315,40 @@ discovered mid-arc.
 
 1. **A** incremental credit (stone + timber) — conservation specimens first.
 2. **B′** 13 founders + the skill system — sweep re-run + retunes + the threshold specimen inside.
-3. **F′** the word at the plot + none-builds + the choose-later command.
+3. **F′** the word at the plot + none-builds + the choose-later command — **grown per §0b Q2 to ONE
+   enclosure grammar: buildings AND fields AND roof-spans** all take at-plot answers, 'none' legal,
+   answer-later by the word on the entity.
+
+**Course 1.5 — THE CHEAT MENU** (§0b new item): `cheat_give` (stone/timber/grain to the stocks),
+`cheat_spawn_person` (a villager at a point), `cheat_grow` (a working/wall completed a day's worth
+instantly?) — exact verb set kept small; every cheat is a COMMAND in the log (replay-equals-live
+holds for cheats too), validated at the boundary, gated behind a Settings toggle. After B′ (people
+spawning needs the new Person shape).
 
 **Course 2 — render-only, zero baseline:** C (theater + piles + the closed chain) → D (chips) →
-E (cards + F′'s choose-later UI half). Law 6 both update sites; receiver-trick eye checks;
-probe + eye.
+E (cards + F′'s choose-later UI half + **occupants as card data** per §0b Q1). Law 6 both update
+sites; receiver-trick eye checks; probe + eye.
 
-**Course 3 — render-only:** **roofs for irregular rings** (promoted from open-question to default
-deliverable — the census's own "biggest visual win," and the boss called buildings broken; a
-designated dwelling must stop looking like a roofless shell) + G (animals) + whichever remaining
-lived-in layers the boss picks (§6.1).
+**Course 3 — render-only:** **roofs for irregular rings** (the census's own "biggest visual win," and
+the boss called buildings broken; a designated dwelling must stop looking like a roofless shell) +
+G (animals).
 
-**Course 4 —** H (the timber way, replacing the sledge) — **blocked on §6.3.**
+**Course 4 —** H, REDESIGNED per §0b Q3: the timber way as a **worker-speed** mechanic — haul
+becomes labor (carriers physically move stone along routes; the way multiplies their speed on its
+segments), which requires pathing + per-pile logistics. The frozen-haulRate model retires WITH the
+sledge flag when this lands. Sized as its own arc; design section §3H updated in place.
 
-## 6. What remains open for the boss
+## 6. What remains open for the boss — ALL FOUR ANSWERED (see §0b)
 
-1. **Buildings' remaining lived-in layers** (irregular-ring roofs now ship by default in Course 3):
-   painted interior floor · occupants shown on the card. Which, and in what order?
-2. **Symmetry taste:** extend at-plot/'none' to FIELD enclosures and span coverings now, or leave
-   their asks as-is this course (spec'd as leave-as-is + click-answer unification)?
-3. **The timber way's re-freeze** (BLOCKS Course 4): only walls planned after the way is laid ride
-   it (recommended — the survey-boundary law; it teaches planning), or existing walls re-price?
-4. **Save-forward promise** (ROADMAP §6 Q4, now urgent): Course 1 **invalidates your existing Lodge
-   Book saves** (refused with a message, not a crash). Promise forward-compat from some version on,
-   or reserve flag days like this one? Your call before the bump lands.
+~~1 lived-in layers~~ → occupants are E-card data; irregular roofs stay the Course-3 default.
+~~2 symmetry~~ → extend to fields + spans NOW (F′ scope grown).
+~~3 the way's re-freeze~~ → dissolved into the worker-speed model (Course 4 redesigned: haul-as-labor
++ pathing; the way makes carriers faster along it).
+~~4 save-forward~~ → flag days ("so far in alpha no one is going to expect the saves to work").
+
+Still genuinely reserved for later words: painted interior floors (never asked for — dropped from
+the default map); quarries folded into the enclosure grammar (stated direction, later course);
+Beat 4's spine (bond, journeyman/master, funeral, Testament — untouched by this arc).
 
 ## 7. Research grounding (the digest, honest about strength)
 
