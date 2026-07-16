@@ -2,9 +2,10 @@
 
 **🗿 Current handoff: [proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md)**
 — the AMBITION opener (the first courses built ON the sealed frame): 📖 THE LODGE BOOK (Save/Load, `55ce8ed`) and
-⛏ THE PROSPECTING SCAR (red warning + readout + dig-anyway + flood + **the edge snap `fc73bea` — now 3/3 ✅**) —
-all render-only, all LIVE. It carries their laws + traps + the forward map (the adit, the roadmap beats); read the FOUNDATION
-keystone (31 marks + FOUR ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
+⛏ THE PROSPECTING SCAR (red warning + readout + dig-anyway + flood + **the edge snap `fc73bea` — now 3/3 ✅**), and
+**⛏ THE ADIT made playable** (`e7d0019`, 32nd mark — the drift tool + render; its sim was already built + tested) —
+all render-only, all LIVE. It carries their laws + traps + the forward map (the method ladder, the roadmap beats); read the FOUNDATION
+keystone (32 marks + FOUR ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
 debt-knockoff, all sealed) is
 [HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)
 + its companion
@@ -55,7 +56,7 @@ the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one 
 **(7) THE SLEDGE ON ROLLERS (SIM 32 `0b86d83`, 🛷)** — the last debt, the lift's overland twin: an OPT-IN
 `rollers` flag boosts a HAULED wall's delivered rate ×ROLLER_HAUL_BOOST(2); opt-in so the canon (walls don't
 choose it) is byte-identical → inert one commit; a `🛷 sledge` toggle in the build bar; +2 tests.
-**THIRTY-ONE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏) + FOUR ⛬ seals; 188 tests green; live.**
+**THIRTY-TWO maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏⛏) + FOUR ⛬ seals; 188 tests green; live.**
 **★ EVERY HONEST DEBT PAID — the whole post-arc knockoff (SIM 27–32 + the six-stroke render pass) is COMPLETE,
 sealed by a third ⛬.** Nothing remains on the STANDS ledger; what's next is AMBITION — the roadmap's untouched
 beats (Beat 2 memory suite, Beat 3 Lodge Book save/load + Annal, Beat 5 demand wave, Beat 6 kiln + Keep).
@@ -79,8 +80,15 @@ screen-verified like `geoSnap`, capped 20 m so a zoom-out can't grab across the 
 within 14 px, so dig-anyway holds). Preview-verified: ring grey↔red on the cursor; 12/49 grid cuts flooded at their
 local water table (≈28–34 m AOD); 200 spoil cones; the snap CLINGS-then-RELEASES across a boundary sweep, cream+swell
 +"workable edge" readout at an edge, red+"no building stone" deep-invalid, a placed vertex lands ON the boundary.**
-Then the deeper ladder (#49 the adit — `adits.test.ts` + a `plan_adit` command already exist,
-further along than "coming soon"; #50 method gates). The PRIOR
+**THE ADIT (⛏ 32nd mark) — #49 DONE `e7d0019` (render-only, inert on canon, one commit, 188 green): made PLAYABLE.
+Its whole sim was ALREADY built + tested (aditEconomics + plan_adit + driving + one-time credit, 6 tests in
+adits.test.ts) — grep-the-tree, a THIRD time. Added the TOOL (planner.ts, two-click mouth→head, hotkey A + HUD
+button), the FREEZE (main.ts aditCommand: grade = surface under the mouth → level, self-draining; freezes plan_adit
+like cutCommand freezes plan_cut), the READOUT (showAdit reuses #prospect: "235 m³ post · 19 m cover · self-
+draining ✓" / "aim into the rising hill for post"), and the RENDER (new src/render/adits.ts: an X-ray ghost drift
+at grade boring in from a dark mouth, spoil rising, AMBER on holing-through). Verified via the real tool (__cc):
+45 m drive → workDone 276 ≥ 275.9, stockpile +234.8 once, adit_planned/complete/stone_won fired, drift drew amber.**
+Then the method ladder (#50: bell pit, shaft+pump — a real SIM course, tech-gated by the age). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the

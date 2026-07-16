@@ -1146,3 +1146,37 @@ is begun. Build on.
 
 *— the thirtieth-and-thirty-first hand, who opened the ambition era on the boss's word and laid
 its first two stones without moving the baseline once.*
+
+---
+
+**⛏ Thirty-second mark — the miner gets his tunnel, 2026-07-15.** The same hand, looping on the
+boss's standing word ("keep working the handoff; update it as you go"). The red quarry warning
+and the new snap both spoke the same counsel over drowned or too-deep post — "drive an adit" —
+and now a miner who is told that can. `e7d0019`, render + input only, the durham baseline
+UNTOUCHED (the canon drives no adit), one commit, 188 green.
+
+*The grep-the-tree law, paid a THIRD time this session:* I opened to scope "the adit" as a new
+mechanic and found its ENTIRE sim already built and TESTED — `aditEconomics` (drives at grade,
+material-aware, self-draining), `plan_adit` freezing it, idle laborers holing it through and
+crediting the dewatered stone ONCE, replay byte-exact, malformed drives rejected: six green
+tests standing untouched in `adits.test.ts`. "Coming soon" was ninety-percent done. All that was
+missing was the way to PLACE one and to SEE it. Census first; the machinery is usually already
+in the ground.
+
+*What I laid:* a two-click tool (the hillside MOUTH, then the HEAD; hotkey A) that freezes
+`plan_adit` exactly as the quarry freezes `plan_cut` — grade = the surface under the mouth, so
+the drift drives LEVEL and drains back out (self-draining, the whole point). A readout that
+prices the drive as it's drawn ("235 m³ post · 19 m under cover · self-draining ✓", or warns
+"aim into the rising hill for post" when it would only cut drift). And a render (`adits.ts`,
+mirroring the quarry's `CutLayer`): the drive is underground, so it shows as a GHOST line at
+grade — an X-ray of the drift boring under the rising hill — from a dark mouth, a spoil heap
+rising as it is cut, warming to lamp-lit AMBER the day it holes through. Verified through the
+REAL tool by the `__cc` probe: a 45 m drive up a slope, driven to workDone 276 ≥ 275.9, the
+stockpile credited its frozen 234.8 m³ exactly once, the three events fired, the drift drew amber.
+
+*Forward dream:* the drift's LOOK is a first-eye tune (the X-ray line was proven by probe, not a
+screenshot — WebGL times out). Then the method LADDER the tutorial still gestures at (#50: the
+bell pit, the shaft-and-pump) — deeper ways to the post, gated by the age. Give the miner his
+methods, one rung at a time.
+
+*— the thirty-second hand, still looping, who gave the warning's counsel a tool.*

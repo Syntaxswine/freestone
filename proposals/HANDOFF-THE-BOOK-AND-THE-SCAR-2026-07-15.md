@@ -18,9 +18,10 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
   The snap added no unit test — it is input geometry, verified live by the `__cc` probe.
 - **The durham baseline (`baselines/durham-42.json`) is UNTOUCHED.** No course moved a
   value; all are inert on the canon (the 200-tick Durham run neither saves nor cuts).
-- **31 maker's marks, 4 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `fc73bea`. All pushed and deploying.
+- **32 maker's marks, 4 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
+- HEAD `e7d0019`. All pushed and deploying.
 - **PROSPECTING IS NOW 3/3** — the edge snap (`fc73bea`) closed it; see §2 + §3.
+- **THE ADIT IS NOW PLAYABLE** — the drift tool + render (`e7d0019`, ⛏ 32nd mark); see §4.
 
 ## What this session shipped
 
@@ -102,6 +103,31 @@ already freezes, so **the hover-read and the cut can never disagree.**
   only **18%** of the 4 km map affords an open cut (invalid: ~46% drowned, ~36% no-stone, ~21% too-
   deep), `boundaryCellFrac 0.047` — edges tens of metres apart, so the snap reads clean, not choppy.
 
+### 3. ⛏ THE ADIT MADE PLAYABLE · `e7d0019` + keystone (⛏ 32nd mark)
+
+The method the red warning and the snap's readout both point at ("drive an adit") is now a tool.
+**GREP-THE-TREE, a THIRD time:** the adit's whole SIM was ALREADY built and tested (6 green tests
+in `adits.test.ts` — `aditEconomics` drives at grade material-aware + self-draining, `plan_adit`
+freezes it, idle laborers hole it through and credit the dewatered stone ONCE, replay byte-exact).
+Only the way to PLACE one and SEE it was missing — so this is **render + input only, inert on the
+canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
+
+- **The tool** (`planner.ts`, hotkey **A** + HUD button): two clicks — the hillside MOUTH, then
+  the HEAD (a second click ≥ `MIN_EDGE` commits; a too-short tap is refused). Drift-timber toned.
+- **The freeze** (`main.ts` `aditCommand`, mirrors `cutCommand`): grade = the surface under the
+  MOUTH, so the drift drives LEVEL and drains back out (self-draining). `aditEconomics(beds,
+  site.heightAt, portal, head, grade)` is read here and FROZEN into `plan_adit`; the sim replays
+  the scalars, never sees rock or water. `stoneTotal` may be 0 (a drive into barren cover — dig-anyway).
+- **The readout** (`showAdit`, reuses `#prospect`): "adit · 235 m³ post · 19 m under cover · self-
+  draining ✓", or "this drive stays in drift — aim into the rising hill for post".
+- **The render** (new `src/render/adits.ts`, mirrors `CutLayer`): the drive is underground, so it's
+  a GHOST line at grade (`depthTest` off — an X-ray of the drift under the rising hill), boring in
+  from a dark mouth with a SPOIL heap rising, warming to lamp-lit AMBER on holing-through.
+- **Verified** (the `__cc` probe, the REAL tool): a 45 m drive up a 14 m slope, driven by idle
+  laborers to `workDone 276 ≥ workTotal 275.9`, `stoneWon`; the stockpile gained the frozen
+  `234.8` m³ EXACTLY ONCE; `adit_planned → adit_complete → adit_stone_won` all fired; the drift drew
+  AMBER + mouth + spoil; the barren downhill drive warned; console clean; build clean; 188 green.
+
 ---
 
 ## Laws & patterns this session proved (carry them)
@@ -141,20 +167,24 @@ already freezes, so **the hover-read and the cut can never disagree.**
 - ✅ **The snap — prospecting's remaining third** — DONE (`fc73bea`, §2/§3). The valid/invalid
   boundary turned out to be a COMPOSITE contour (water shore + Voronoi stone-presence + reach),
   not the single `dryDepth` contour the first sketch guessed — so a BLACK-BOX boolean sign-change
-  march beat a gradient march. Prospecting is complete; the remaining items below.
+  march beat a gradient march.
+- ✅ **The adit — the miner's tunnel** — DONE (`e7d0019`, §3, ⛏ 32nd mark). Its whole SIM was
+  already built + tested; only the tool + render were missing — render-only, inert on canon.
 
-1. **A free win: tune the flood's LOOK.** It renders and floods correctly, but the blue's opacity
-   (0.62) and the spoil mounds were verified by probe, not by a screenshot (WebGL screenshots
-   time out). First real eye on the live deploy may want a one-line tweak.
-2. **The adit — the tutorial's promise, nearer than it reads.** `adits.test.ts` AND a `plan_adit`
-   command ALREADY stand (`save.ts` even deep-copies it). Driving a self-draining drift into a
-   drowned/too-deep seam is the METHOD the red warning + the snap's readout both point at ("drive
-   an adit"). Census what's already built before scoping (the grep-the-tree law).
+1. **A first-eye tune: the two mining LOOKS.** The flood's blue (opacity 0.62) + spoil, and now
+   the adit's X-ray drift line (`depthTest`-off ghost at grade) + amber-on-holed, all render
+   correctly but were verified by PROBE, not a screenshot (WebGL times out). First real eye on the
+   live deploy may want a one-line tweak to either. Low-stakes, boss-subjective — hold for his eye.
+2. **The method LADDER (#50): deeper ways to the post.** The tutorial gestures at it; the adit is
+   the first rung. Next: the bell pit, the shaft-and-pump — gated by the age (a tech ladder). This
+   is a real SIM course (new commands → SIM bump → the two-commit dance), not render-only. Scope it
+   by censusing what already stands (the grep-the-tree law has paid THREE times this session).
 3. **The roadmap's untouched beats** (`ROADMAP-THE-GENERATIONAL-FACTORY`): Beat 2 the memory /
    homage suite (the boss's cathedral heart), Beat 5 the demand wave, Beat 6 the kiln + the Keep.
 
-The frame is sealed and whole; the first cathedral stones are laid on it. Build on.
+The frame is sealed and whole; the mining vision — read the land, warn, cut, flood, and now
+tunnel under cover — stands complete on it. Build on.
 
-*— the thirtieth-and-thirty-first hand, who kept the castle in a book and taught the land to
-warn — two courses on the boss's word, "lets go, i trust you," and did not ship a stone unseen
-that a probe could see.*
+*— the thirtieth-through-thirty-second hand, who kept the castle in a book, taught the land to
+warn, and gave the miner his tunnel — looping on the boss's word "keep working the handoff," and
+did not ship a stone unseen that a probe could see.*
