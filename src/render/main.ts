@@ -10,6 +10,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
+  aditEconomics,
   bedModelFromJson,
   cutEconomics,
   emptyBedModel,
@@ -69,6 +70,7 @@ import {
 } from '../sim/types';
 import { BuildingLayer } from './buildings';
 import { CutLayer } from './cuts';
+import { AditLayer } from './adits';
 import { UnderworldLayer } from './underworld';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
@@ -400,19 +402,22 @@ async function boot(): Promise<void> {
   quarryBtn.textContent = '⛏ quarry (Q)';
   const fellBtn = document.createElement('button');
   fellBtn.textContent = '🪓 fell (T)';
+  const aditBtn = document.createElement('button');
+  aditBtn.textContent = '⛏ adit (A)';
   const shapeBtn = document.createElement('button');
   shapeBtn.textContent = '⬓ flat fill';
   // no roof-material picker: the covering is chosen on the card AFTER the
   // span is drawn, like every designation (boss canon 2026-07-10 — default none)
   const undergroundBtn = document.createElement('button');
   undergroundBtn.textContent = '☷ underground (U)';
-  build3.append(roofBtn, quarryBtn, fellBtn, shapeBtn, undergroundBtn);
+  build3.append(roofBtn, quarryBtn, fellBtn, aditBtn, shapeBtn, undergroundBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
   const trees = new TreeLayer(site, terrain.groundAt, scene);
   const fills = new FillLayer(world, scene, terrain.groundAt);
   const cuts = new CutLayer(world, scene, terrain.groundAt, water.tableAt); // water.tableAt: a drowned cut floods
+  const adits = new AditLayer(world, scene, terrain.groundAt); // the self-draining drift, an X-ray at grade
   // the underworld made VISIBLE (2026-07-11): a toggle-on strata map + working
   // plane the tunnel tool will draw on. View/input only — the sim never sees it.
   const underworld = new UnderworldLayer(scene, site, beds, water);
@@ -650,6 +655,59 @@ async function boot(): Promise<void> {
     prospectEl.style.display = 'block';
   }
 
+  // --- THE ADIT (SIM 15): a self-draining drift driven INTO the hillside at the portal's
+  //     grade — the method the red quarry warning points at ("drive an adit"), winning post
+  //     the open cut can't reach (drowned / too deep). Like the quarry + haul, the economics
+  //     are READ here (only main holds beds + surface) and FROZEN into plan_adit; the sim core
+  //     replays the scalars and never sees rock or water (the SIM 14 freeze law). The drive is
+  //     LEVEL at grade = the surface under the mouth, so it drains back out to the portal. ---
+  const aditSurface = (x: number, y: number): number => site.heightAt(x, y);
+  function aditCommand(points: Vec2[]): Command | null {
+    const portal = points[0];
+    const head = points[1];
+    if (!portal || !head) return null;
+    const grade = site.heightAt(portal.x, portal.y); // drive level from the mouth — self-draining to here
+    const econ = aditEconomics(beds, aditSurface, portal, head, grade);
+    if (econ.length < 1) return null; // too short to be a drive — onConfirm refuses
+    return {
+      kind: 'plan_adit',
+      tick: world.tick,
+      portal,
+      head,
+      grade: round6(grade),
+      workTotal: Math.max(1, round6(econ.workDays)),
+      stoneTotal: round6(econ.stone), // may be 0 — a drive into barren cover wins none (dig-anyway)
+    };
+  }
+  // THE ADIT READOUT: what the drive being drawn would win — reuses #prospect (only one
+  // planner tool is active at a time). Reads the SAME aditEconomics cutCommand's sibling freezes.
+  function showAdit(portal: Vec2 | null, head: Vec2 | null): void {
+    if (!portal && !head) {
+      prospectEl.style.display = 'none';
+      return;
+    }
+    const anchor = head ?? portal!;
+    if (!portal || !head) {
+      prospectEl.className = 'ok';
+      prospectEl.textContent = '⛏ adit · click the hillside mouth, then the head';
+    } else {
+      const grade = site.heightAt(portal.x, portal.y);
+      const econ = aditEconomics(beds, aditSurface, portal, head, grade);
+      const cover = Math.max(0, site.heightAt(head.x, head.y) - grade); // m of hill over the head
+      if (econ.stone > 0.5) {
+        prospectEl.className = 'ok';
+        prospectEl.textContent = `⛏ adit · ${econ.stone.toFixed(0)} m³ post · ${econ.workDays.toFixed(0)} days · ${cover.toFixed(0)} m under cover · self-draining ✓`;
+      } else {
+        prospectEl.className = 'bad';
+        prospectEl.textContent = '⚠ this drive stays in drift — aim into the rising hill for post';
+      }
+    }
+    const { sx, sy } = prospectToScreen(anchor.x, anchor.y);
+    prospectEl.style.left = `${sx + 14}px`;
+    prospectEl.style.top = `${sy + 14}px`;
+    prospectEl.style.display = 'block';
+  }
+
   // explicit annotation: onConfirm's closure reads planner.fillShape /
   // roofMaterial, so inference would otherwise chase its own tail
   const planner: WallPlanner = new WallPlanner({
@@ -666,6 +724,8 @@ async function boot(): Promise<void> {
     // and the cursor's ground point feeds the prospect readout — both read quarryPlanAt
     cutValid: (x, y) => quarryPlanAt(x, y, PROSPECT_PROBE).ok,
     onCutCursor: showProspect,
+    onAditCursor: showAdit, // the adit tool prices its drive in the same #prospect card
+
     onConfirm: (mode, points, height, material) => {
       if (mode === 'cut') {
         // the cut always affords now — the red ring only WARNS; a drowned cut digs and floods
@@ -677,6 +737,11 @@ async function boot(): Promise<void> {
         return false;
       }
 
+      if (mode === 'adit') {
+        // a drift into the hill — the readout priced it; a too-short drive won't commit
+        const cmd = aditCommand(points);
+        return cmd ? enqueue(cmd) : false;
+      }
       if (mode === 'fell') {
         const cmd = fellCommand(points);
         return cmd ? enqueue(cmd) : false; // no standing timber — the plan row says why
@@ -718,6 +783,7 @@ async function boot(): Promise<void> {
       roofBtn.classList.toggle('active', active && mode === 'roof');
       quarryBtn.classList.toggle('active', active && mode === 'cut');
       fellBtn.classList.toggle('active', active && mode === 'fell');
+      aditBtn.classList.toggle('active', active && mode === 'adit');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing;
@@ -1030,6 +1096,7 @@ async function boot(): Promise<void> {
   roofBtn.onclick = () => planner.toggle('roof');
   quarryBtn.onclick = () => planner.toggle('cut');
   fellBtn.onclick = () => planner.toggle('fell');
+  aditBtn.onclick = () => planner.toggle('adit');
   shapeBtn.onclick = () => {
     shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
   };
@@ -1248,6 +1315,7 @@ async function boot(): Promise<void> {
     syncStones();
     fills.update();
     cuts.update();
+    adits.update();
     roofs.update();
     farms.update();
     buildings.update();
@@ -1714,6 +1782,7 @@ async function boot(): Promise<void> {
       syncStones();
       fills.update();
       cuts.update();
+      adits.update();
       roofs.update();
       farms.update();
       buildings.update();

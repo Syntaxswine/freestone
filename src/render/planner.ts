@@ -90,6 +90,12 @@ export interface PlannerDeps {
    * (the workable shore), so the readout can name it instead of the raw reach at the flip.
    */
   onCutCursor?: (p: Vec2 | null, atEdge?: boolean) => void;
+  /**
+   * Adit mode (SIM 15): the drive being drawn — `portal` is the placed mouth (null before the
+   * first click), `head` the live cursor end. Drives the adit readout (its self-draining yield),
+   * which main computes from `aditEconomics`. Both null on exit.
+   */
+  onAditCursor?: (portal: Vec2 | null, head: Vec2 | null) => void;
 }
 
 /** a wall plan as the snap sees it */
@@ -99,7 +105,7 @@ export interface SnapWall {
   complete: boolean;
 }
 
-export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell';
+export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell' | 'adit';
 
 export class WallPlanner {
   active = false;
@@ -267,7 +273,9 @@ export class WallPlanner {
             ? CUT_TONE // quarry grey — cut ground, not tipped dirt
             : this.mode === 'fell'
               ? 0x6f7a48 // woods green — the cant marked to fell
-              : 0xd8d3c4;
+              : this.mode === 'adit'
+                ? 0x8a6f4a // drift timber — the drive marked into the hill
+                : 0xd8d3c4;
     (this.line.material as THREE.LineBasicMaterial).color.setHex(tone);
     (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(tone);
     this.cutInvalid = false;
@@ -285,6 +293,7 @@ export class WallPlanner {
     this.group.visible = false;
     this.cutInvalid = false;
     this.deps.onCutCursor?.(null); // clear the prospect readout
+    this.deps.onAditCursor?.(null, null); // clear the adit readout
     document.body.classList.remove('planning');
     this.rebuild();
     this.deps.onModeChange?.(false, this.mode);
@@ -807,7 +816,7 @@ export class WallPlanner {
     const bandTop =
       this.mode === 'roof'
         ? ROOF_DECK
-        : this.mode === 'cut' || this.mode === 'fell'
+        : this.mode === 'cut' || this.mode === 'fell' || this.mode === 'adit'
           ? 0.05
           : this.height;
     // a BUILDING ribbon tops out at the SURVEYED level datum (SIM 13): the
@@ -861,6 +870,20 @@ export class WallPlanner {
         // the gate tool places no points: a click is the whole gesture
         const p = this.pick(ev);
         if (p) this.deps.onGate?.(p);
+        return;
+      }
+      if (this.mode === 'adit') {
+        // two clicks: the hillside MOUTH, then the HEAD — the second commits the drive
+        if (this.points.length >= 2) return; // a drive is exactly portal→head
+        const picked = this.pick(ev);
+        if (!picked) return;
+        const p = this.geoSnap(ev, picked); // ⇧ can seat the mouth on a wall corner (harmless)
+        if (!p) return;
+        const last = this.points[this.points.length - 1];
+        if (last && dist2d(last, p) < MIN_EDGE) return; // the head must be a real drive from the mouth
+        this.points.push(p);
+        this.rebuild();
+        if (this.points.length >= 2) this.confirm();
         return;
       }
       if (this.mode === 'building' && this.points.length >= 2) {
@@ -977,6 +1000,10 @@ export class WallPlanner {
       );
       this.deps.onCutCursor?.(this.cursor, this.snapped);
     }
+    // adit mode (SIM 15): price the drive as it's drawn — the placed mouth + the live head
+    if (this.mode === 'adit') {
+      this.deps.onAditCursor?.(this.points[0] ?? null, this.cursor);
+    }
     this.rebuild();
   };
 
@@ -1020,6 +1047,10 @@ export class WallPlanner {
     }
     if ((ev.key === 't' || ev.key === 'T') && clean) {
       this.toggle('fell');
+      return;
+    }
+    if ((ev.key === 'a' || ev.key === 'A') && clean) {
+      this.toggle('adit');
       return;
     }
     if (!this.active) return;
