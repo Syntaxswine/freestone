@@ -1,5 +1,12 @@
 # PROPOSAL — THE MINING-METHOD LADDER (#50), 2026-07-15
 
+> **STATUS (updated 2026-07-15):** rung 3, **THE BELL PIT, is BUILT** (`6f35aab`, ⛏ 33rd mark, SIM 33)
+> — the loop said keep going, and §4's recommended defaults held (geology carried the design). What
+> REMAINS is rung 4, the **SHAFT-AND-PUMP** (§1, §4-endgame), which holds the one genuinely new idea
+> (an ONGOING dewatering cost) and still **awaits the boss's steer** on §5 Q2/Q3 (the pump's cost
+> model + its gating engine + a sourced number). The rest of this proposal stands as written.
+
+
 *Scoping the next mining course while the arc is warm. This is a PROPOSAL, not a build:
 the method ladder is a load-bearing SIM system with real design choices, and mining design
 is a thing the boss steers (he inverted the red warning; he set the water levers). It turns

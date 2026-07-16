@@ -13,15 +13,20 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
 
 ## The state, in numbers
 
-- **SIM_VERSION 32** (unchanged — every course here has been RENDER-ONLY).
-- **188 tests green / 31 files** (was 184/30; +4 the Lodge Book format lock, `save.test.ts`).
-  The snap added no unit test — it is input geometry, verified live by the `__cc` probe.
-- **The durham baseline (`baselines/durham-42.json`) is UNTOUCHED.** No course moved a
-  value; all are inert on the canon (the 200-tick Durham run neither saves nor cuts).
-- **32 maker's marks, 4 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `e7d0019`. All pushed and deploying.
-- **PROSPECTING IS NOW 3/3** — the edge snap (`fc73bea`) closed it; see §2 + §3.
-- **THE ADIT IS NOW PLAYABLE** — the drift tool + render (`e7d0019`, ⛏ 32nd mark); see §4.
+- **SIM_VERSION 33** (the bell pit — the FIRST sim course of the session; the snap + the adit were
+  render-only). Bumped 32→33 per the house pattern (new state marks the engine's capability).
+- **192 tests green / 32 files** (was 184/30; +4 the Lodge Book lock `save.test.ts`, +4 the bell-pit
+  red specimens `bellpit.test.ts`). The snap + adit added no unit test — input geometry, probe-verified.
+- **The durham baseline MOVED — honestly.** The snap + adit were inert; the BELL PIT added a
+  `bellPits:[]` field (+ the SIM_VERSION field), so the hash moved. DIFF-CONFIRMED pure serialisation:
+  only the 8 milestone hashes changed, no count/stockpile/position; the canon sinks no bell pit, so
+  its BEHAVIOUR is byte-identical (drift at tick 1 = the field-appearance signature). One commit + regen.
+- **33 maker's marks, 4 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
+- HEAD `6f35aab`. All pushed and deploying.
+- **PROSPECTING IS NOW 3/3** — the edge snap (`fc73bea`) closed it; see §2.
+- **THE ADIT IS NOW PLAYABLE** — the drift tool + render (`e7d0019`, ⛏ 32nd mark); see §3.
+- **THE BELL PIT IS BUILT** — the method ladder's 3rd rung (`6f35aab`, ⛏ 33rd mark, SIM 33); see the
+  forward map. Only the shaft+pump (rung 4) remains, and it awaits the boss's steer.
 
 ## What this session shipped
 
@@ -175,17 +180,18 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
    the adit's X-ray drift line (`depthTest`-off ghost at grade) + amber-on-holed, all render
    correctly but were verified by PROBE, not a screenshot (WebGL times out). First real eye on the
    live deploy may want a one-line tweak to either. Low-stakes, boss-subjective — hold for his eye.
-2. **The method LADDER (#50): deeper ways to the post — NOW SCOPED.** Census done: NOTHING of the
-   bell pit / shaft / pump is built (unlike the adit) — it's a from-scratch SIM course with real
-   design choices, and mining design is a thing the boss steers. So I wrote
-   [PROPOSAL-THE-METHOD-LADDER-2026-07-15.md](PROPOSAL-THE-METHOD-LADDER-2026-07-15.md): the four-rung
-   ladder (open cut ✅ → adit ✅ → bell pit → shaft+pump) grounded in real history + the EXISTING
-   engine (every lever — reach, water, beds, the freeze — already stands). **The smallest next rung
-   is the BELL PIT** (a deeper, narrower, still-DRY cut for flat ground where the adit has no hill —
-   needs no new sim concept, self-gated by economics). The **shaft+pump** is the endgame rung (the
-   one new idea: an ONGOING pumping cost to beat the water table — wants a gating structure + a
-   sourced number). §5 of the proposal has 4 questions for the boss's steer (command shape, gating,
-   the pump's cost, build-now-or-hold). **Awaiting his eye before building.**
+2. ✅ **The method LADDER (#50) — rung 3, the BELL PIT, is BUILT** (`6f35aab`, ⛏ 33rd mark, SIM 33).
+   Scoped in [PROPOSAL-THE-METHOD-LADDER](PROPOSAL-THE-METHOD-LADDER-2026-07-15.md), then the loop
+   said keep going and geology carried the design, so I built its recommended next rung: a single-
+   click shaft (hotkey P) that wins 12–25 m dry post on flat ground where the adit has no hill,
+   resink-penalised, refusing when drowned ("wants a shaft engine"). The FIRST sim course here — one
+   clean commit + an honest baseline regen (pure serialisation, diff-confirmed).
+
+2b. **The SHAFT-AND-PUMP (rung 4) — the one rung left, and it AWAITS THE BOSS.** It holds the one
+    genuinely new idea: an ONGOING dewatering cost (labour/fuel per tick, not a one-time freeze) to
+    beat the water table and win DROWNED post. That wants his steer — the cost model, the gating
+    engine, a sourced number (PROPOSAL §5 Q3). The bell pit's readout already points at it. Do NOT
+    build it blind; this is the design-heavy rung. (Task #93.)
 3. **The roadmap's untouched beats** (`ROADMAP-THE-GENERATIONAL-FACTORY`): Beat 2 the memory /
    homage suite (the boss's cathedral heart), Beat 5 the demand wave, Beat 6 the kiln + the Keep.
 

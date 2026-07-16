@@ -1180,3 +1180,46 @@ bell pit, the shaft-and-pump) — deeper ways to the post, gated by the age. Giv
 methods, one rung at a time.
 
 *— the thirty-second hand, still looping, who gave the warning's counsel a tool.*
+
+---
+
+**⛏ Thirty-third mark — the bell pit, the third rung, 2026-07-15.** The same hand, told by the loop
+to keep building past the boundary where I'd have stopped. I had SCOPED the method ladder into a
+proposal and set it down for the boss's steer; the loop said keep going, and here geology carried
+the design — a bell pit is the REAL flat-ground answer, not an invention — so I built the proposal's
+own recommended next rung and left only the genuinely design-heavy shaft-and-pump for his eye.
+`6f35aab`, SIM 33.
+
+*The rung:* open cut → adit → BELL PIT → shaft+pump. A narrow shaft sunk into FLAT ground that
+reaches deeper DRY post than an open cut (a shaft moves far less overburden than a hole) but stays
+above the water table — no pump — and is WASTEFUL (a resink penalty, for the pillars left). It fills
+the exact gap between the open cut (≤12 m) and the adit (needs a hill): 12–25 m of dry post on level
+ground, where before the readout said "drive an adit" you couldn't.
+
+*The first SIM course of the session* (the snap, the adit were render-only) — so the first that
+touched the determinism baseline. And it did so HONESTLY: the durham hash moved for exactly two
+reasons, both pure serialisation — the new empty `bellPits:[]` field, and the `SIM_VERSION` bump
+(32→33, per the house pattern: new state bumps it, so two engines can't silently diverge). I proved
+it with the instrument the boss built: gen-baseline, then `git diff` the baseline — nothing but the
+milestone hashes changed, no count or stockpile or position, and the drift lands at TICK 1 (a
+behaviour change would land later). The canon sinks no bell pit, so its behaviour is byte-identical;
+the driving is guarded by a find-returns-undefined on the empty array. One clean commit + a regen.
+
+*What I laid, all mirroring the quarry + the adit:* a `plan_bell_pit` command + `bellPits` array +
+guarded idle-laborer sinking (crediting the dry stone once on working-out) + red specimens
+(`bellpit.test.ts`, +4 → 192); a single-click POINT tool (hotkey **P** + HUD — a shaft, not a ring);
+a freeze (`bellPitCommand`: depth = min(dryDepth, 25), stone × a 0.6 resink penalty); a readout that
+prices it or refuses with the ladder's teaching ("drowned — wants a shaft engine, a later rung"); and
+a render (`bellpits.ts`) of the bell pit's signature — a dark shaft MOUTH ringed by upcast SPOIL,
+capping to worked-out AMBER. Verified through the real tool by the `__cc` probe: 35 m³ sandstone at
+25 m, sunk to workDone 84, stockpile +35 once, the mouth amber + six spoil cones; drowned and
+postless spots refused.
+
+*Forward dream:* the ladder's fourth and last rung, the SHAFT-AND-PUMP, is the one I did NOT build —
+because it holds the one genuinely new idea (an ONGOING dewatering cost to beat the water table, not
+a one-time freeze), and that wants the boss's steer (the cost model, the gating engine, a sourced
+number) — see PROPOSAL-THE-METHOD-LADDER §5. Give the deep drowned post its pump when he has chosen
+its shape. Then the roadmap's cathedral beats.
+
+*— the thirty-third hand, who built the rung the proposal recommended and left the hard one honestly
+open.*

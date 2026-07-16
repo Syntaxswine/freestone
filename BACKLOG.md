@@ -3,9 +3,11 @@
 **🗿 Current handoff: [proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md)**
 — the AMBITION opener (the first courses built ON the sealed frame): 📖 THE LODGE BOOK (Save/Load, `55ce8ed`) and
 ⛏ THE PROSPECTING SCAR (red warning + readout + dig-anyway + flood + **the edge snap `fc73bea` — now 3/3 ✅**), and
-**⛏ THE ADIT made playable** (`e7d0019`, 32nd mark — the drift tool + render; its sim was already built + tested) —
-all render-only, all LIVE. It carries their laws + traps + the forward map (the method ladder, the roadmap beats); read the FOUNDATION
-keystone (32 marks + FOUR ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
+**⛏ THE ADIT made playable** (`e7d0019`, 32nd mark — the drift tool + render), and **⛏ THE BELL PIT built**
+(`6f35aab`, 33rd mark, SIM 33 — the method ladder's 3rd rung, deeper dry post on flat ground; the FIRST sim course
+of the session, one clean commit + honest baseline regen) — all LIVE. It carries their laws + traps + the forward
+map (only the shaft+pump rung remains, awaiting the boss; then the roadmap beats); read the FOUNDATION
+keystone (33 marks + FOUR ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
 debt-knockoff, all sealed) is
 [HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)
 + its companion
@@ -56,7 +58,7 @@ the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one 
 **(7) THE SLEDGE ON ROLLERS (SIM 32 `0b86d83`, 🛷)** — the last debt, the lift's overland twin: an OPT-IN
 `rollers` flag boosts a HAULED wall's delivered rate ×ROLLER_HAUL_BOOST(2); opt-in so the canon (walls don't
 choose it) is byte-identical → inert one commit; a `🛷 sledge` toggle in the build bar; +2 tests.
-**THIRTY-TWO maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏⛏) + FOUR ⛬ seals; 188 tests green; live.**
+**THIRTY-THREE maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏⛏⛏) + FOUR ⛬ seals; 192 tests green; SIM 33; live.**
 **★ EVERY HONEST DEBT PAID — the whole post-arc knockoff (SIM 27–32 + the six-stroke render pass) is COMPLETE,
 sealed by a third ⛬.** Nothing remains on the STANDS ledger; what's next is AMBITION — the roadmap's untouched
 beats (Beat 2 memory suite, Beat 3 Lodge Book save/load + Annal, Beat 5 demand wave, Beat 6 kiln + Keep).
@@ -88,11 +90,16 @@ like cutCommand freezes plan_cut), the READOUT (showAdit reuses #prospect: "235 
 draining ✓" / "aim into the rising hill for post"), and the RENDER (new src/render/adits.ts: an X-ray ghost drift
 at grade boring in from a dark mouth, spoil rising, AMBER on holing-through). Verified via the real tool (__cc):
 45 m drive → workDone 276 ≥ 275.9, stockpile +234.8 once, adit_planned/complete/stone_won fired, drift drew amber.**
-Then the method ladder (#50 — NOTHING built yet, a from-scratch SIM course; SCOPED in
-[PROPOSAL-THE-METHOD-LADDER-2026-07-15.md](proposals/PROPOSAL-THE-METHOD-LADDER-2026-07-15.md): the 4-rung ladder
-open cut ✅→adit ✅→bell pit→shaft+pump on the EXISTING engine; smallest next rung = the BELL PIT [deeper dry cut,
-flat ground, no new sim concept]; the shaft+pump [ongoing pump cost] is the endgame; §5 has 4 questions for the boss's
-steer — AWAITING his eye). The PRIOR
+**THE METHOD LADDER (#50) — rung 3 the BELL PIT ✅ BUILT `6f35aab` (⛏ 33rd mark, SIM 33): open cut ✅→adit ✅→BELL
+PIT ✅→shaft+pump. Scoped in [PROPOSAL-THE-METHOD-LADDER-2026-07-15.md](proposals/PROPOSAL-THE-METHOD-LADDER-2026-07-15.md),
+then built on its recommended defaults (the loop said keep going; geology carried the design). SIM: plan_bell_pit +
+bellPits array + guarded idle-laborer sinking (credit once) + bellpit.test.ts (+4→192); the FIRST sim course of the
+session → one clean commit + honest baseline regen (pure serialisation, diff-confirmed only 8 hashes moved; SIM_VERSION
+32→33). TOOL: single-click shaft, hotkey P + HUD. FREEZE: bellPitCommand, depth=min(dryDepth,25), stone×0.6 resink
+penalty. READOUT: "35 m³ sandstone · 25 m deep, dry ✓" / refuses drowned ("wants a shaft engine") + postless. RENDER:
+bellpits.ts — dark shaft mouth + spoil ring, worked-out AMBER. Verified __cc: 35 m³ drive, stockpile +35 once.
+REMAINING = #93 the SHAFT-AND-PUMP (rung 4, the ONGOING pump-cost concept — beats the water table for DROWNED post;
+the one design-heavy rung, AWAITING the boss's steer per PROPOSAL §5).** The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the
