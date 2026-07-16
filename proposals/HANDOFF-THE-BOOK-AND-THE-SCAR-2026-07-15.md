@@ -159,6 +159,13 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
    canon RUNS the feature before reaching for the two-commit dance.
 5. **Census the tree before you build.** (§0 above.) A stale plan file is not proof of unbuilt
    work; grep the code + the task ledger first.
+6. **A new render layer wires into BOTH update sites.** `main.ts` updates its display layers in TWO
+   places — the live rAF `frame()` AND the dev stepper `__cc.step`. The tracing floor caught that
+   `shafts.update()` was in the stepper but NOT the live frame, so a shaft placed in ordinary play
+   never rendered — and the shaft's build had been eye-checked THROUGH the stepper, which masked it.
+   The census after: the live frame is now a superset of the stepper (only `people` is stepper-absent,
+   a harmless dev-tool nicety). LAW: when you add a layer, add its `.update()` to both blocks — and
+   never eye-verify a NEW render solely through `__cc.step`; the player's path is the live frame.
 
 ## Traps hit this session (so you don't)
 
