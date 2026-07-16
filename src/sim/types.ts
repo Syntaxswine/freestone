@@ -122,7 +122,14 @@
 // PUMP TAX in workTotal. New state: a shafts array (empty on the canon, which sinks none) + a plan_shaft command;
 // idle laborers sink the oldest shaft like a bell pit, crediting the dewatered stone once. INERT on the canon
 // behaviour — the durham hash moves only for the new empty `shafts:[]` field + the SIM_VERSION bump. Regen.
-export const SIM_VERSION = 34;
+// SIM 35 — THE VISIBLE FLOW (the VISIBLE WORK arc, commit A): every working (cut, adit, bell pit,
+// shaft, felled stand) pays its yield AS THE WORK IS DONE — a stateless per-person-day checkpoint
+// credit (total·min(1,k/W) − total·min(1,(k−1)/W), exact-total at completion) replaces the lump at
+// working-out. The completion events + the stoneWon/feltTick flags still fire ONCE, so the chronicle
+// and the worked-out render cues are unchanged. This retires the measured pathology behind "time is
+// not advancing": a founding quarry paid nothing for ~445 days, then everything in a week. A
+// BEHAVIORAL change everywhere a working exists — the canon re-authored + regenerated with it.
+export const SIM_VERSION = 35;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -401,7 +408,7 @@ export interface CutPlan {
   workTotal: number; // person-days to dig — MATERIAL-AWARE, frozen from the bed model
   workDone: number;
   stoneTotal: number; // m³ of building stone won (generous yield), frozen from the bed model
-  stoneWon: boolean; // one-shot: the stockpile is credited on completion
+  stoneWon: boolean; // one-shot: completion events + the worked-out render cue (stone FLOWS per person-day since SIM 35)
 }
 
 /**
@@ -421,7 +428,7 @@ export interface AditPlan {
   workTotal: number; // person-days to drive — MATERIAL-AWARE, frozen from the bed model
   workDone: number;
   stoneTotal: number; // m³ of building stone won along the drive (generous yield), frozen
-  stoneWon: boolean; // one-shot: the stockpile is credited on completion
+  stoneWon: boolean; // one-shot: completion events + the worked-out render cue (stone FLOWS per person-day since SIM 35)
 }
 
 /**
@@ -440,7 +447,7 @@ export interface BellPitPlan {
   workTotal: number; // person-days to sink + work, MATERIAL-AWARE, frozen from the bed model
   workDone: number;
   stoneTotal: number; // m³ of building stone won (generous yield, less the resink penalty), frozen
-  stoneWon: boolean; // one-shot: the stockpile is credited on completion
+  stoneWon: boolean; // one-shot: completion events + the worked-out render cue (stone FLOWS per person-day since SIM 35)
 }
 
 /**
@@ -459,7 +466,7 @@ export interface ShaftPlan {
   workTotal: number; // person-days to sink + PUMP, MATERIAL-AWARE + the drowned pump tax, frozen
   workDone: number;
   stoneTotal: number; // m³ of dewatered building stone won (generous yield), frozen
-  stoneWon: boolean; // one-shot: the stockpile is credited on completion
+  stoneWon: boolean; // one-shot: completion events + the worked-out render cue (stone FLOWS per person-day since SIM 35)
 }
 
 /**

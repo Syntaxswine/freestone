@@ -999,6 +999,21 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
 }
 
 /**
+ * THE VISIBLE FLOW (SIM 35): a working pays its yield AS THE WORK IS DONE, not in one
+ * lump at completion. Each person-day k credits total·min(1, k/W) − total·min(1, (k−1)/W)
+ * — a stateless checkpoint read off the integer workDone, no new accumulator state — so
+ * the increments sum to EXACTLY `total` at completion (the final checkpoint is total·1,
+ * and the subtraction is IEEE-exact at every step). A real face yields block by block
+ * from the first day: the pile grows daily, and a wall can rise while its pit deepens.
+ */
+function checkpointCredit(total: number, workDone: number, workTotal: number): number {
+  return (
+    total * Math.min(1, workDone / workTotal) -
+    total * Math.min(1, (workDone - 1) / workTotal)
+  );
+}
+
+/**
  * Laborers move earth to the oldest unfinished fill (m³/day = their pace),
  * then deck the oldest unfinished roof (≈ m²/day at the same pace), and a
  * laborer with NO construction that day tends the ARABLE farm with the fewest
@@ -1038,17 +1053,18 @@ function moveEarth(state: WorldState): void {
     if (moved === 0) {
       // a QUARRY outranks field-work (SIM 14): an idle laborer digs the oldest
       // unfinished cut — one person-day, the strata's pace already baked into
-      // workTotal. On the day the pit is dug out, the building stone won (the
-      // generous yield) is credited to the stockpile. No cut, no digging: the
-      // field path below is untouched, so a world with no quarries is
-      // byte-identical to before SIM 14.
+      // workTotal. The stone flows to the stockpile AS IT IS DUG (SIM 35, the
+      // checkpoint credit — exact-total at completion); the completion events
+      // still fire once, when the pit is worked out. No cut, no digging: the
+      // field path below is untouched, so a world with no quarries behaves
+      // exactly as before SIM 14.
       const cut = state.cuts.find((c) => c.workDone < c.workTotal);
       if (cut) {
         cut.workDone += 1;
         moved = 1;
+        state.stockpile += checkpointCredit(cut.stoneTotal, cut.workDone, cut.workTotal);
         if (cut.workDone >= cut.workTotal && !cut.stoneWon) {
           cut.stoneWon = true;
-          state.stockpile += cut.stoneTotal;
           state.events.push({ kind: 'cut_complete', tick: state.tick, cutId: cut.id });
           state.events.push({ kind: 'stone_won', tick: state.tick, cutId: cut.id, stone: cut.stoneTotal });
         }
@@ -1065,9 +1081,9 @@ function moveEarth(state: WorldState): void {
       if (adit) {
         adit.workDone += 1;
         moved = 1;
+        state.stockpile += checkpointCredit(adit.stoneTotal, adit.workDone, adit.workTotal);
         if (adit.workDone >= adit.workTotal && !adit.stoneWon) {
           adit.stoneWon = true;
-          state.stockpile += adit.stoneTotal;
           state.events.push({ kind: 'adit_complete', tick: state.tick, aditId: adit.id });
           state.events.push({ kind: 'adit_stone_won', tick: state.tick, aditId: adit.id, stone: adit.stoneTotal });
         }
@@ -1082,9 +1098,9 @@ function moveEarth(state: WorldState): void {
       if (bellPit) {
         bellPit.workDone += 1;
         moved = 1;
+        state.stockpile += checkpointCredit(bellPit.stoneTotal, bellPit.workDone, bellPit.workTotal);
         if (bellPit.workDone >= bellPit.workTotal && !bellPit.stoneWon) {
           bellPit.stoneWon = true;
-          state.stockpile += bellPit.stoneTotal;
           state.events.push({ kind: 'bell_pit_complete', tick: state.tick, bellPitId: bellPit.id });
           state.events.push({ kind: 'bell_pit_stone_won', tick: state.tick, bellPitId: bellPit.id, stone: bellPit.stoneTotal });
         }
@@ -1099,9 +1115,9 @@ function moveEarth(state: WorldState): void {
       if (shaft) {
         shaft.workDone += 1;
         moved = 1;
+        state.stockpile += checkpointCredit(shaft.stoneTotal, shaft.workDone, shaft.workTotal);
         if (shaft.workDone >= shaft.workTotal && !shaft.stoneWon) {
           shaft.stoneWon = true;
-          state.stockpile += shaft.stoneTotal;
           state.events.push({ kind: 'shaft_complete', tick: state.tick, shaftId: shaft.id });
           state.events.push({ kind: 'shaft_stone_won', tick: state.tick, shaftId: shaft.id, stone: shaft.stoneTotal });
         }
@@ -1118,10 +1134,13 @@ function moveEarth(state: WorldState): void {
       if (stand) {
         stand.workDone += 1;
         moved = 1;
+        // SIM 35: the wood drops where (and WHEN) it's felled — timber flows per felled
+        // person-day (checkpoint credit, exact-total); the stool's regrowth clock still
+        // starts at completion (feltTick), and the chronicle line still fires once.
+        state.timber += checkpointCredit(stand.timberTotal, stand.workDone, stand.workTotal);
         if (stand.workDone >= stand.workTotal) {
           stand.felling = false;
           stand.feltTick = state.tick;
-          state.timber += stand.timberTotal;
           state.events.push({
             kind: 'timber_won',
             tick: state.tick,
