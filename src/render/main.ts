@@ -1237,6 +1237,28 @@ async function boot(): Promise<void> {
   bellBtn.onclick = () => planner.toggle('bellpit');
   shaftBtn.onclick = () => planner.toggle('shaft');
 
+  // THE MASON'S MARK (Beat 2): each hand cut a personal mark, deterministic from the mason's id —
+  // a central stave with id-selected branches on a 16-grid. Historically cut only on dressed ASHLAR,
+  // so it appears on the card only there (and retroactively deepens the DRESS dial: ashlar buys names
+  // in the wall). A tiny compass-and-straightedge glyph, never the sim rng — keyed on the id.
+  const MARK_STROKES = [
+    'M8 2L8 14', // the stave (always drawn)
+    'M8 5L3 2',
+    'M8 5L13 2',
+    'M8 11L3 14',
+    'M8 11L13 14',
+    'M4 4L12 4',
+    'M4 12L12 12',
+    'M8 8L13 8',
+  ];
+  function masonMark(id: number): string {
+    const bits = (id * 2654435761) >>> 0;
+    let d = MARK_STROKES[0]!;
+    for (let i = 1; i < MARK_STROKES.length; i++) if ((bits >>> i) & 1) d += MARK_STROKES[i];
+    if (d === MARK_STROKES[0]) d += MARK_STROKES[1 + (bits % 4)]!; // never a bare stave
+    return `<svg viewBox="0 0 16 16" width="13" height="13" style="vertical-align:-2px;margin-right:3px"><path d="${d}" fill="none" stroke="#efe6cf" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  }
+
   // --- THE INSPECTION CARD (Beat 2, the memory suite's heart, render-only): a click on a laid stone,
   //     when no tool is out, opens what the record has always known but never shown — the HAND that laid
   //     it and the DAY (masonId + tickLaid, write-only since M1). The stone InstancedMesh's instanceId is
@@ -1281,7 +1303,11 @@ async function boot(): Promise<void> {
       for (const st of kin) if (st.tickLaid < begun) begun = st.tickLaid;
       line += ` · ▦ in a work of ${kin.length} stones, begun Year ${yearOf(begun)}`;
     }
-    prospectEl.textContent = line;
+    // dressed ASHLAR carries the mason's mark, drawn on the card (the DRESS dial deepened: ashlar
+    // buys a named glyph in the wall). Other dress classes read as plain text. `line` is built from
+    // fixed enums + the founder name-list — no HTML metacharacters, so innerHTML is safe here.
+    if (dress === 'ashlar' && mason) prospectEl.innerHTML = `${masonMark(mason.id)}${line}`;
+    else prospectEl.textContent = line;
     prospectEl.style.left = `${ev.clientX + 14}px`;
     prospectEl.style.top = `${ev.clientY + 14}px`;
     prospectEl.style.display = 'block';
