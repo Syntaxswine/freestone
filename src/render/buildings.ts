@@ -58,7 +58,15 @@ export class BuildingLayer {
     const wall = this.world.walls.find((w) => w.id === b.wallId);
     if (!wall) return;
     const corners = reduceCorners(wall.points);
-    if (corners.length !== 4) return; // an irregular shell keeps the sky for now
+    if (corners.length !== 4) {
+      // Course 3 (VISIBLE WORK): an irregular shell no longer keeps the sky — it
+      // wears a TENT (a pavilion fan to one interior peak). Honest and simple where
+      // a true hip/straight-skeleton would be a later refinement; the boss called
+      // roofless shells the broken half of buildings, and a covered irregular
+      // dwelling beats a bare one.
+      this.buildTent(b.id, wall, b.roof as 'wood' | 'straw');
+      return;
+    }
 
     // eaves cap what was actually BUILT: the highest as-laid stone top of this
     // wall. Ground math would mix the decimated display surface with the sim's
@@ -171,5 +179,74 @@ export class BuildingLayer {
         this.scene.add(knob);
       }
     }
+  }
+
+  /**
+   * Course 3: the IRREGULAR ring's roof — a tent/pavilion fan from every overhung
+   * eave vertex to ONE interior peak over the footprint's centroid, plus the same
+   * fascia skirt the gable wears. Eaves cap the AS-BUILT stone tops (the one honest
+   * datum), exactly like the 4-corner path. A concave ring's centroid can sit
+   * outside its own land — the fan still closes; it reads as a folded pavilion,
+   * which is the honest price of a bespoke footprint until a straight-skeleton
+   * course earns its keep.
+   */
+  private buildTent(seed: number, wall: { id: number; points: Vec2[] }, covering: 'wood' | 'straw'): void {
+    const pts = wall.points.map((p) => ({ x: p.x, y: p.y }));
+    // drop a duplicated closing vertex so the fan doesn't fold on itself
+    const first = pts[0]!;
+    const last = pts[pts.length - 1]!;
+    if (pts.length > 3 && Math.hypot(first.x - last.x, first.y - last.y) < 0.5) pts.pop();
+    if (pts.length < 3) return;
+    let topZ = -Infinity;
+    for (const s of this.world.stones) {
+      if (s.wallId === wall.id && s.pos[2] > topZ) topZ = s.pos[2];
+    }
+    if (topZ === -Infinity) return;
+    const eaveZ = topZ + COURSE_HEIGHT / 2 - EAVE_SINK;
+    let cx = 0;
+    let cy = 0;
+    for (const p of pts) {
+      cx += p.x;
+      cy += p.y;
+    }
+    cx /= pts.length;
+    cy /= pts.length;
+    const ov: Vec2[] = pts.map((c) => {
+      const dx = c.x - cx;
+      const dy = c.y - cy;
+      const d = Math.sqrt(dx * dx + dy * dy) || 1;
+      return { x: c.x + (dx / d) * OVERHANG, y: c.y + (dy / d) * OVERHANG };
+    });
+    const meanR = pts.reduce((n, p) => n + Math.hypot(p.x - cx, p.y - cy), 0) / pts.length;
+    const peakZ = eaveZ + Math.min(meanR, 6) * PITCH; // a pavilion pitch, capped so long halls don't spire
+    const j = hash1(seed);
+    const color =
+      covering === 'straw'
+        ? new THREE.Color().setHSL(0.1 + j * 0.02, 0.38, 0.52 + j * 0.08)
+        : new THREE.Color().setHSL(0.075 + j * 0.02, 0.36, 0.4 + j * 0.07);
+    const v = (p: Vec2, z: number): number[] => [p.x, z, p.y];
+    const positions: number[] = [];
+    const lowZ = eaveZ - FASCIA;
+    for (let i = 0; i < ov.length; i++) {
+      const a = ov[i]!;
+      const b2 = ov[(i + 1) % ov.length]!;
+      // the fan face up to the peak
+      positions.push(...v(a, eaveZ), ...v(b2, eaveZ), ...[cx, peakZ, cy]);
+      // the fascia skirt
+      positions.push(
+        ...v(a, eaveZ), ...v(b2, eaveZ), ...v(b2, lowZ),
+        ...v(a, eaveZ), ...v(b2, lowZ), ...v(a, lowZ),
+      );
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+    geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(
+      geo,
+      new THREE.MeshLambertMaterial({ color, side: THREE.DoubleSide }),
+    );
+    mesh.frustumCulled = false;
+    this.meshes.push(mesh);
+    this.scene.add(mesh);
   }
 }

@@ -89,6 +89,7 @@ import { GateLayer } from './gates';
 import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
 import { PileLayer } from './piles';
+import { AnimalLayer } from './animals';
 import { GranaryLayer } from './granary';
 import { OrchardLayer } from './orchard';
 import { WorkshopLayer } from './workshops';
@@ -1301,6 +1302,9 @@ async function boot(): Promise<void> {
   const granary = new GranaryLayer(world, site, scene, groundShow);
   // the orchard made visible: tidy rows of fruit trees on each designated orchard (render-only)
   const orchard = new OrchardLayer(world, scene, groundShow);
+  // THE ANIMALS (Course 3): each pasture's draft horse (sim-true, SIM 29) + paddock
+  // cows/pigs (decor-pending-the-herds-system, the granary-cat precedent)
+  const animals = new AnimalLayer(world, scene, groundShow);
   // the workshops made visible: a lit forge on each smithy, a log stack + sawhorse on each yard
   const workshops = new WorkshopLayer(world, scene, groundShow);
   // the great wheel made visible: a treadwheel crane beside every wall that raised one (SIM 26)
@@ -1699,6 +1703,7 @@ async function boot(): Promise<void> {
     orchard.setVisible(!on); // and the planted orchard rows with them
     workshops.setVisible(!on); // and the forge/yard props
     wheel.setVisible(!on); // and the great-wheel cranes
+    animals.setVisible(!on); // and the herds (Course 3)
     undergroundBtn.classList.toggle('active', on);
     if (on) tutorial.saw('underground'); // tutorial step 1
     updateDepthRuler();
@@ -1879,6 +1884,7 @@ async function boot(): Promise<void> {
     orchard.update();
     workshops.update();
     wheel.update();
+    animals.update(dt, speed > 0); // Course 3 (Law 6 - both update sites)
     people.update(dt, speed > 0);
     granary.update(dt, speed > 0);
     updateCard();
@@ -2352,6 +2358,7 @@ async function boot(): Promise<void> {
       orchard.update(); // plant a hidden tab's orchard rows (rAF is paused)
       workshops.update(); // set a hidden tab's forge/yard props
       wheel.update(); // raise a hidden tab's cranes
+      animals.update(0, false); // Course 3 (Law 6 - both update sites)
       people.update(0, false); // sync a hidden tab's crowd — positions AND the age-tint (was missing)
       granary.update(0, false); // place a hidden tab's sacks/cat (rAF is paused)
       updateCard();
