@@ -1,12 +1,16 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md)**
-— the AMBITION opener (the first courses built ON the sealed frame): 📖 THE LODGE BOOK (Save/Load, `55ce8ed`) and
-⛏ THE PROSPECTING SCAR (red warning + readout + dig-anyway + flood + **the edge snap `fc73bea` — now 3/3 ✅**), and
-**⛏ THE ADIT** (`e7d0019`, 32nd), **⛏ THE BELL PIT** (`6f35aab`, 33rd, SIM 33), and **⛏ THE SHAFT-AND-PUMP**
-(`b098c4b`, 34th, SIM 34) — **THE MINING LADDER IS WHOLE** (open cut→adit→bell pit→shaft+pump), sealed with a 5th ⛬.
-All LIVE. It carries their laws + traps + the forward map (only the shaft's GATE is a boss toggle now; then the
-roadmap's cathedral beats); read the FOUNDATION keystone (39 marks + SIX ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
+**🗿 Current handoff: [proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md](proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md)**
+— the arc that made the castle READABLE, all RENDER-ONLY / ZERO baseline (SIM 34 unmoved): **THE MEMORY SUITE (Beat 2)
+COMPLETE** — six readers (🪨 patina 35th · 📜 inspection card 36th · ⛭ founder's stone · ▦ structure biography · ✍ mason's
+marks 37th · 📐 tracing floor 38th), **sealed by the 6th ⛬, THE CASTLE REMEMBERS** — plus **⏳ THE VILLAGE CLOCK** (⛏ 39th,
+folk tinted by age, the render-only slice of Beat 4). Two sibling bugs fixed (Law 6, both update-site directions) + the
+[DEMOGRAPHIC-SWEEP-READOUT](proposals/DEMOGRAPHIC-SWEEP-READOUT-2026-07-16.md) that arms the boss's §6. **The render-only
+well is DRY — stone AND folk legible;** what remains is the boss's SPINE (Beat 4 emotional layer) + Beats 5/6 + shaft GATE,
+NOT a blind build. It carries the laws + traps + forward map; read the FOUNDATION keystone (39 marks + SIX ⛬ seals) FIRST.
+Its predecessor, the AMBITION opener (📖 the Lodge Book, ⛏ the prospecting scar, and **THE MINING LADDER WHOLE** — adit
+32nd / bell pit 33rd / shaft-and-pump 34th, sealed 5th ⛬), is
+[HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md). The prior arc-closing keystone (the §9 ladder + the post-arc
 debt-knockoff, all sealed) is
 [HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)
 + its companion
