@@ -252,8 +252,12 @@ and now stone AND folk are legible — the wall names its makers and the crowd s
 the tracing floor, the village clock — are in; the rest of Beat 4 was already built or is emotional
 design). What remains is the boss's to open: the SPINE (one batched bump — the STAKES the whole memory
 suite and the clock were built to give meaning to), then Beats 5/6 and the shaft GATE. **The roadmap's
-§6 holds the open questions, and the century-sweep holds the numbers to answer them.** Take him both;
-build on where he points. The honest loop pauses at the edge of the design work — not for want of
+§6 holds the open questions, and the century-sweep holds the numbers to answer them** — captured now in
+[DEMOGRAPHIC-SWEEP-READOUT-2026-07-16.md](DEMOGRAPHIC-SWEEP-READOUT-2026-07-16.md) (the settlement
+equilibrates near food capacity; death is ALREADY the balance, so the spine adds ceremony not danger —
+which de-risks §6 Q1; and a named arc runs ~40–55 yr, calibrating §6 Q2). It is DATA only, not a design
+of the funeral/succession/Testament — that emotional core stays the boss's. Take him both; build on where
+he points. The honest loop pauses at the edge of the design work — not for want of
 effort, but because the next stone is his to place.
 
 *— the thirtieth-through-thirty-ninth hands, who kept the castle in a book, taught the land to
