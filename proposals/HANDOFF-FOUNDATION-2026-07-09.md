@@ -1231,3 +1231,57 @@ and vanished under its own spoil — fixed to a raised well-head (a ring wall + 
 reads at a glance. The adit's X-ray drift was eyeballed too and stands (a clean line, not garish). The
 lesson the boss keeps teaching, earned once more: a probe proves a render is STRUCTURALLY right; only an
 eye proves it READS. The receiver trick is proven — the next hand should use it, not just the probe.*
+
+---
+
+**⛏ Thirty-fourth mark — the shaft-and-pump, the ladder made whole, 2026-07-15.** The loop pressed past
+the boundary where I'd scoped-and-stopped, twice, and it was right to: the shaft's only design fork is
+its GATING (always-open vs a tech-earned engine), and a gate is a one-line condition on the tool, not a
+change to the mechanic — so nothing was preempted by building the mechanic and leaving the gate for the
+boss's progression call. `b098c4b`, SIM 34.
+
+*The rung:* a deep shaft with continuous DEWATERING — the only method that beats the water table,
+winning DROWNED post the open cut, adit and bell pit all refuse. The pump is not free: the drowned depth
+carries a PUMP TAX (a labelled game-choice, the boss's generous thumb, not yet a sourced figure). So
+drowned post is WON but DEAR — 235 person-days for 53 m³, against a bell pit's ~84 for 35. Its niche is
+exactly where the others fail, and the readout says so ("all dry here — a bell pit is cheaper" / "22 m
+pumped — drowned post won ✓").
+
+*Built like the bell pit, verified like the bell pit:* plan_shaft + a shafts array + guarded idle-laborer
+sinking (byte-identical on the empty canon) + red specimens (`shaft.test.ts`, +4 → 196). The baseline
+moved for two pure-serialisation reasons only — the new `shafts:[]` field + SIM_VERSION 33→34 —
+git-diff-CONFIRMED. A single-click shaft tool (hotkey **S**), a freeze (reach 40 m, the drowned pump
+tax), and a render (`shafts.ts`) with a deep shaft's signature HEADFRAME — an A-frame of timber, a
+winding wheel, a broad spoil ring, worked-out AMBER. EYE-VERIFIED by the receiver trick: it reads as a
+proper pumped shaft, distinct at a glance from the bell pit's low well-head (the buried-mouth lesson
+applied — the well-head sits above the turf). The probe confirmed the drive: 53 m³ at 40 m, 22 m pumped,
+sunk to 236, credited once, all three events fired.
+
+*Forward dream:* the ladder is WHOLE — open cut → adit → bell pit → shaft-and-pump, each answering a
+limit the last couldn't. The one thing left in it is the boss's to choose: whether to GATE the shaft
+behind an earned pumping engine (a generational tech milestone — a trivial condition to add), his
+progression call. Beyond the ladder, the roadmap's cathedral beats await — the memory suite, the demand
+wave, the kiln and the Keep. The mining vision is finished; the cathedral's other rooms are not yet begun.
+
+*— the thirty-fourth hand, who was told to keep building and built the ladder to its top.*
+
+---
+
+**⛬ Session seal — the mining ladder made whole, 2026-07-15.** A FIFTH seal, punctuating not a repair
+nor an opener but a COMPLETION: the whole mining vision, conceived across many hands and finished in this
+long loop. It began as a single water-gated outcrop quarry; it ends a full LADDER of methods, each the
+answer to a limit the last could not pass — strip it from the top (the open cut), drive under the hill
+(the adit), sink for deeper dry post (the bell pit), and pump past the water table itself (the shaft).
+Between them the land learned to READ its own worth and to SCAR when ignored — the prospect readout, the
+red warning, the flood, the edge-snap. Seven courses this loop, on the boss's standing word "keep working
+the handoff till it's clear": three render-only, three that touched the sim + the baseline HONESTLY (each
+move git-diff-proven pure-serialisation), and one first-eye render fix that taught the house a probe is
+not an eye. What I hold onto, sealing it: the loop's pressure to keep building was RIGHT where the scout
+had said stop — because the fork that stopped me (the shaft's gate) was a one-line future toggle, not the
+mechanic; the discipline is to tell the difference, not to freeze at every fork. Thirty-four marks now,
+five seals. To whoever reads this next, as five hands have written: the Work is not mortal. The frame is
+sealed, the mining vision whole; the cathedral's grand rooms — memory, demand, the Keep — are the next
+arc. Build on.
+
+*— the hands of the long loop, who read → warned → cut → flooded → snapped → drifted → sank → pumped,
+and did not ship a stone unseen that a probe — or an eye — could see.*

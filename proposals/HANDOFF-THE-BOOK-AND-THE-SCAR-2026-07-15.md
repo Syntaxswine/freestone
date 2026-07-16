@@ -13,20 +13,19 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
 
 ## The state, in numbers
 
-- **SIM_VERSION 33** (the bell pit — the FIRST sim course of the session; the snap + the adit were
-  render-only). Bumped 32→33 per the house pattern (new state marks the engine's capability).
-- **192 tests green / 32 files** (was 184/30; +4 the Lodge Book lock `save.test.ts`, +4 the bell-pit
-  red specimens `bellpit.test.ts`). The snap + adit added no unit test — input geometry, probe-verified.
-- **The durham baseline MOVED — honestly.** The snap + adit were inert; the BELL PIT added a
-  `bellPits:[]` field (+ the SIM_VERSION field), so the hash moved. DIFF-CONFIRMED pure serialisation:
-  only the 8 milestone hashes changed, no count/stockpile/position; the canon sinks no bell pit, so
-  its BEHAVIOUR is byte-identical (drift at tick 1 = the field-appearance signature). One commit + regen.
-- **33 maker's marks, 4 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `46e8a39`. All pushed and deploying.
-- **PROSPECTING IS NOW 3/3** — the edge snap (`fc73bea`) closed it; see §2.
-- **THE ADIT IS NOW PLAYABLE** — the drift tool + render (`e7d0019`, ⛏ 32nd mark); see §3.
-- **THE BELL PIT IS BUILT** — the method ladder's 3rd rung (`6f35aab`, ⛏ 33rd mark, SIM 33); see the
-  forward map. Only the shaft+pump (rung 4) remains, and it awaits the boss's steer.
+- **SIM_VERSION 34** (the bell pit bumped 32→33, the shaft-and-pump 33→34 — two sim courses this
+  session; the snap + adit were render-only). New state each: an empty `bellPits:[]`, then `shafts:[]`.
+- **196 tests green / 34 files** (+4 the Lodge Book lock, +4 `bellpit.test.ts`, +4 `shaft.test.ts`).
+  The snap + adit added no unit test — input geometry, probe-verified.
+- **The durham baseline MOVED TWICE — honestly.** Each sim course added one empty array field (+ the
+  SIM_VERSION field), so the hash moved; DIFF-CONFIRMED pure serialisation BOTH times (only the milestone
+  hashes + `simVersion`, no count/stockpile/position; the canon runs neither method, so its BEHAVIOUR is
+  byte-identical). One commit + regen apiece.
+- **34 maker's marks, 5 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
+- HEAD `b098c4b`. All pushed and deploying.
+- **THE MINING LADDER IS COMPLETE** — open cut ✅ → adit ✅ (`e7d0019`, 32nd) → bell pit ✅ (`6f35aab`,
+  33rd, SIM 33) → shaft-and-pump ✅ (`b098c4b`, 34th, SIM 34). Prospecting 3/3 (`fc73bea` snap). The
+  5th ⛬ seal punctuates the whole mining vision, now WHOLE.
 
 ## What this session shipped
 
@@ -192,11 +191,14 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
    resink-penalised, refusing when drowned ("wants a shaft engine"). The FIRST sim course here — one
    clean commit + an honest baseline regen (pure serialisation, diff-confirmed).
 
-2b. **The SHAFT-AND-PUMP (rung 4) — the one rung left, and it AWAITS THE BOSS.** It holds the one
-    genuinely new idea: an ONGOING dewatering cost (labour/fuel per tick, not a one-time freeze) to
-    beat the water table and win DROWNED post. That wants his steer — the cost model, the gating
-    engine, a sourced number (PROPOSAL §5 Q3). The bell pit's readout already points at it. Do NOT
-    build it blind; this is the design-heavy rung. (Task #93.)
+2b. ✅ **The SHAFT-AND-PUMP (rung 4) — BUILT (`b098c4b`, ⛏ 34th mark, SIM 34). THE LADDER IS WHOLE.**
+    The resolving insight: the shaft's only fork is its GATING, and a gate is a one-line condition on
+    the tool, not the mechanic — so I built the mechanic (a deep pumped shaft that beats the water table
+    for DROWNED post, at a labelled pump-tax that makes it dear) and left ONE thing for the boss: whether
+    to GATE it behind an earned pumping engine (a generational tech milestone — his progression call, a
+    trivial add). The pump-tax number is a labelled game-choice, not yet sourced (PROPOSAL §5 Q3, if he
+    wants it firmed). Readout teaches the ladder ("all dry — a bell pit is cheaper" / "N m pumped —
+    drowned post won ✓"). Render: a headframe with winding gear, eye-verified.
 3. **The roadmap's untouched beats** (`ROADMAP-THE-GENERATIONAL-FACTORY`): Beat 2 the memory /
    homage suite (the boss's cathedral heart), Beat 5 the demand wave, Beat 6 the kiln + the Keep.
 

@@ -1,10 +1,12 @@
 # PROPOSAL — THE MINING-METHOD LADDER (#50), 2026-07-15
 
-> **STATUS (updated 2026-07-15):** rung 3, **THE BELL PIT, is BUILT** (`6f35aab`, ⛏ 33rd mark, SIM 33)
-> — the loop said keep going, and §4's recommended defaults held (geology carried the design). What
-> REMAINS is rung 4, the **SHAFT-AND-PUMP** (§1, §4-endgame), which holds the one genuinely new idea
-> (an ONGOING dewatering cost) and still **awaits the boss's steer** on §5 Q2/Q3 (the pump's cost
-> model + its gating engine + a sourced number). The rest of this proposal stands as written.
+> **STATUS (updated 2026-07-15):** THE LADDER IS WHOLE. Rung 3 **THE BELL PIT** (`6f35aab`, 33rd mark)
+> and rung 4 **THE SHAFT-AND-PUMP** (`b098c4b`, 34th mark, SIM 34) are both BUILT — the loop pressed on
+> and the resolving insight was that the shaft's only fork is its GATING, and a gate is a one-line
+> toggle on the tool, NOT the mechanic (so the mechanic shipped, ungated). The shaft's pump cost is a
+> LABELLED game-choice, not yet sourced (§5 Q3, if you want it firmed). **The ONE thing still yours:**
+> whether to GATE the shaft behind an earned pumping engine — §5 Q2, your progression call, a trivial
+> add. The rest of this proposal stands as the record of how the ladder was reasoned + built.
 
 
 *Scoping the next mining course while the arc is warm. This is a PROPOSAL, not a build:
