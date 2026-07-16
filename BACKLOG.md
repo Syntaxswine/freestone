@@ -8,13 +8,20 @@ folk tinted by age, the render-only slice of Beat 4). Two sibling bugs fixed (La
 [DEMOGRAPHIC-SWEEP-READOUT](proposals/DEMOGRAPHIC-SWEEP-READOUT-2026-07-16.md) that arms the boss's §6. **The render-only
 well is DRY — stone AND folk legible;** what remains is the boss's SPINE (Beat 4 emotional layer) + Beats 5/6 + shaft GATE,
 NOT a blind build. It carries the laws + traps + forward map; read the FOUNDATION keystone (39 marks + SIX ⛬ seals) FIRST.
-**⟶ ACTIVE (2026-07-16): the boss's QoL list is SCOPED, not built —
-[PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md](proposals/PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md): the measured
-diagnosis (890-person-day quarry ÷ 2 laborers + one-shot stone credit + no mining theater = "time isn't
-advancing"), the census (floorAtShow dead code; carry pose anchored to a virtual point; orchard trees already
-shipped), and the spec — A incremental stone credit + B 13 founders (ONE batched SIM bump), C visible
-mining/piles/carrying + D progress bubbles + E entity cards (render-only), F buildings-as-living-spaces and
-H conveyor roller-roads as boss-steered forks. Five §6 questions await him; build courses in §5 order.**
+**⟶ ACTIVE (2026-07-16): THE VISIBLE WORK, v3 — boss's answers folded in, critique-hardened, ready to build —
+[PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md](proposals/PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md)** (+ research
+digest DIGEST-2026-07-16-the-visible-work.md): the measured diagnosis (890-person-day quarry ÷ 2 laborers +
+one-shot credit + no mining theater = "time isn't advancing"; the clock itself verified healthy). Boss ruled:
+13 founders = 3 farmers + 10 unskilled with **skill-by-doing** (a year at a job → GREEN band, a ×9/8 BONUS —
+untrained keep today's rates); chips always-on; roof+kind chosen AT PLOT with 'none' legal, never blocking,
+choose-later by clicking (the first re-designation surface); incremental credit for stone AND timber (logs
+drop where felled); the sledge toggle replaced by THE TIMBER WAY (research: causeway+sledge, wagonways are
+post-1500). Course 1 = THREE attributable commits, THREE SIM bumps 35/36/37 (each replay-visible; canon STORY
+designed once, script touched thrice). SUPERSESSIONS RECORDED: SIM-12 "drawings before the build" retires
+(F′); greenest-first supersedes SIM 4/14 job ordering for skilled hands; the skill FLOOR leaves Beat 4's
+one-batch decree (the remaining spine stays ONE bump). §6 still open: remaining lived-in layers (irregular
+roofs now DEFAULT in Course 3) · field/span symmetry · the way's re-freeze (BLOCKS Course 4) · the
+save-forward promise (Course 1 voids existing Lodge Book saves — boss's call before the bump).
 Its predecessor, the AMBITION opener (📖 the Lodge Book, ⛏ the prospecting scar, and **THE MINING LADDER WHOLE** — adit
 32nd / bell pit 33rd / shaft-and-pump 34th, sealed 5th ⛬), is
 [HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md). The prior arc-closing keystone (the §9 ladder + the post-arc

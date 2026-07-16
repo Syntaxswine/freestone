@@ -1,211 +1,333 @@
-# PROPOSAL — THE VISIBLE WORK (2026-07-16)
+# PROPOSAL — THE VISIBLE WORK (2026-07-16, v3 — answers folded in, critique-hardened)
 
-*Scoping the boss's quality-of-life list. Census first, per the house law — and the census reframed
-the list: these are not eight separate wishes. Six of them are facets of ONE measured problem — the
-stone economy is invisible and all-or-nothing — and the other two (buildings, conveyors) are design
-forks that want the boss's steer before code. Nothing here is built; this is the spec.*
+*v1 scoped the boss's quality-of-life list and measured "time isn't advancing" to its true cause.
+The boss answered all five questions; v2 folded them in on a four-agent census (skill priors, trade
+blast radius, designation flow, test/canon surface). v3 is v2 run through a four-lens adversarial
+critique (determinism · boss-intent · canon-consistency · research grounding, ~30 findings) — the
+assignment pass is pinned against a proven oscillation, the skill step flips from penalty to bonus,
+the roller road takes its honest medieval shape, and the save-compat consequence is surfaced instead
+of buried. §1's diagnosis and measurements stand unchanged from v1.*
 
-> Boss's words (2026-07-16): visible mining · blocks pile at the quarry · people visibly carrying
-> pile→structure · a reusable progress bubble (multi-line for multi-material) · start with 13 people ·
-> "building feels slow… time is not advancing properly" · buildings need a fundamental rework, more
-> like farms, selectable with details · farms selectable with expected yields · pastures get animated
-> animals · rollers reimagined as conveyors on a pre-planned path.
+## 0. Dispositions (boss, 2026-07-16 — the answers)
 
----
+Boss verbatim, message 1: **"the town should start off with 13 people"** (the count's provenance —
+SCOPE §7's ~15 is superseded). Message 2 answers, by v1's question numbers:
 
-## 1. The diagnosis, measured (why building "feels slow")
+| v1 §6 question | Boss's answer | Consequence |
+|---|---|---|
+| Q1 founders' trades | **"3 farmers and the rest unskilled. after a year of doing a job they gain a basic level of skill in it."** | Not a trade split — a SKILL SYSTEM. §3B′; the arc's biggest sim course |
+| Q2 bubble policy | **yes** (always-on while incomplete) | D ships as recommended |
+| Q3 buildings | **"roof should be selected at the time of building, as should the building type, with none being an option… if you select none it should be able to be selected later"** | SIM-12's "drawings before the build" blocker retires; at-plot pickers + the game's first re-designation surface. §3F′ |
+| Q4 conveyor | **"it should replace it"** | The 🛷 toggle + `rollers` flag retire in the road's own bump (Course 4) — the toggle visibly persists until then **by design, not omission**. The FICTION keeps the sledge: research shows the honest medieval shape is a laid timber way the sledge RIDES (§3H) |
+| Q5 timber | **"definitely incremental felling. wood should just drop where its felled."** | Incremental credit covers timber; logs visibly scatter AT the fell positions, and carriers fetch from there |
 
-The clock is healthy. Verified live this session (`__cc` probe on a fresh world):
+## 1. The diagnosis, measured (v1, unchanged — why building "feels slow")
+
+The clock is healthy. Verified live (`__cc` probes on a fresh world at `97882da`):
 
 - A 395-post wood palisade rose in **7 game-days**, 57 posts on day one. Ticks build.
 - The speed transport (`acc += dt × speed`, ×1/×4/×16) and Sit-the-Season both pump `worldStep`
-  correctly — the wiring was read end-to-end and is clean.
+  correctly — the wiring was read end-to-end and is clean. No clock fix is needed or proposed.
 
-What is NOT healthy is the shape of the stone economy at founding scale:
+What is not healthy is the shape of the stone economy at founding scale:
 
-- A modest **8×8 m open cut** froze at **890 person-days** of work (12 m dry reach, 843 m³ yield).
-- The founding party has **2 adult laborers** → 445 game-days ≈ **1¼ game-years** of digging.
-- Stone is credited **all-or-nothing on completion** (`stoneWon`, one lump at `workDone ≥ workTotal`).
-- Measured: the stone wall planned beside that quarry laid its **first stone 351 days later** — then
-  finished all 395 stones in ~8 days.
+- A modest **8×8 m open cut** froze at **890 person-days** (12 m dry reach, 843 m³ yield); the
+  founding party has **2 adult laborers** → ~445 game-days of digging.
+- Stone credits **all-or-nothing at completion** — measured: the wall planned beside that quarry laid
+  its **first stone 351 days later**, then finished all 395 stones in ~8 days.
+- Nothing on screen shows the digging (no theater at the pit, no piles, no per-structure number).
 
-So the player experience is: a whole sat season advances the pit by 20% with **zero visible change
-anywhere** — pile 0, wall 0, no one visibly digging (§2), no progress number. Then a year later
-everything happens in a week. "Time is not advancing properly" is the correct *read* of a world whose
-smallest quantum of visible progress is an entire quarry. The fix is not the clock; it is making the
-work **flow** and making the flow **visible**. Every item in the boss's list lands on one of those two.
+A sat season advances the pit 20% with zero visible change anywhere. "Time is not advancing" is the
+correct read of a world whose smallest quantum of visible progress is an entire quarry. The cure is
+making the work **flow** and making the flow **visible** — every item below lands on one of the two.
 
-## 2. The census (what the tree already holds, what's missing)
+## 2. The census (what the tree holds — v1 §2 + the v2 fleet, v3-corrected)
 
-| Item | Sim truth | Render truth |
-|---|---|---|
-| Labor ladder | fills → roofs → **cut → adit → bell pit → shaft → fell** → fields (moveEarth) | theater knows ONLY fills/roofs, fields, wall-shuttle. **Every mining assignment renders as a lie** (the laborer visibly tends a field while the sim has him digging) |
-| Digger-in-pit | — | `CutLayer.floorAtShow` ("for sprite feet: a laborer stands in the pit") **exists and is dead code — never called** |
-| Carrying | — | carry pose + bobbing block EXIST (people.ts), but the shuttle runs from a **virtual point near the wall's start**, not from any real pile |
-| Stone credit | one lump at completion, all five methods (cut/adit/bell pit/shaft; fell for timber likewise) | pile is a HUD number; nothing stacks at the working |
-| Founders | **4, hardcoded** (2 masons + 2 laborers); each draws rng (name+pace) → founder count moves the masonry jitter cursor | — |
-| Per-structure progress | walls carry stonesLaid/stonesTotal, workings carry workDone/workTotal — all recorded, unread in-world | HUD has the global bottleneck line + supply gauge; **no per-structure readout** |
-| Selection | farm yield arithmetic lives in livingYear (area/AREA_PER_PERSON, orchard supplement, pasture horses); houseTier reads a building | inspection card raycasts **stones only**; farms/buildings/workings not clickable |
-| Buildings | recognition → designation → kind; housing tiers gate growth; smith works | bones + gable (4-corner rings only; irregular = roofless shell) + props (forge/yard/cat/cresting). **No interior, no occupants, not selectable** |
-| Pasture animals | pasture ⇒ 1 draft horse (SIM 29, hauls surplus) | **ground tint only** — the horse exists as arithmetic, never as a sprite. The granary CAT is the shipped pattern to copy |
-| Orchard trees | — | **ALREADY SHIPPED** (`6da302b`, 24th mark): fruit-tree rows, green summer / russet autumn — deployed. (Boss note "orchards should have trees": resolved; worth a look at the live site) |
-| Rollers | per-wall boolean, ×2 haul boost, opt-in toggle | invisible — no path, no moving stone |
+v1's table stands (the labor-ladder/theater mismatch, dead `floorAtShow`, the virtual carry anchor,
+one-shot credit, per-structure progress recorded-but-unread, orchard trees already shipped, pasture
+animals absent, rollers invisible). The binding priors:
+
+- **Skill bands are canon** (roadmap Beat 4): *green / journeyman / master*, total production spread
+  capped **~15–25%**, smooth XP explicitly ruled out ("a shadow tech tree") — the year rule must be
+  a discrete threshold. **Practice-gains-skill is canon** (Living Settlement §3: "a bound apprentice
+  on the same work gains skill faster") — the boss's decree names the unbonded baseline rate.
+- **Techniques are a separate layer** (SCOPE §7, boss-ACCEPTED-CORE): named tokens, bond-transmitted,
+  dying untaught. A year of doing a job never grants a technique. Apprentice-raising of a specialist
+  is double-gated (living master AND base); **arrival is base-gated** — a trade dead with its last
+  master returns by migration on the base alone.
+- **Favor, not puppet** (SCOPE §3): no job-assignment UI, ever. People assign themselves.
+- **`pace` is a trade-relative unit** (mason 24–36 stones **laid**/day ≈ 0.81–1.22 m³/day at
+  STONE_VOLUME — checks out against rubble-walling labor constants; laborer 3–5 m³/day loose earth) —
+  a generalist model needs per-JOB base rates, not the shared scalar.
+- **createWorld draws 2 rng values per founder** — founder count/trades move the tick-0 cursor and
+  every stone's jitter; no inert seam exists. `FOUNDER_NAMES` holds 8 (13 would mint NaN-indexed
+  'Unnamed'); the `i×3` stagger puts founder 13 at 58, inside the death curve.
+- **Founding constants are tuned to 4 souls** (`FOUNDING_CAPACITY=4`, `FOUNDING_SHELTER=4`,
+  `SMITH_MIN_POP=6`, seed grain) — 13 mouths unretuned is a year-one famine by arithmetic.
+- **The designation flow** (SIM 12): plot → classify → `plans={roof:null,kind:null}` → `pending` →
+  the ask-queue card → `choose_roof` then `designate` → completion mints the Building.
+  `awaitsDrawings` holds carts, masons, and theater off the wall meanwhile. Fields share the
+  machinery but pend at completion. **No re-designation surface exists** (all words one-shot;
+  BACKLOG reserves rotation); no click-select beyond the memory suite.
+- **Replay law**: at-plot answers ride `plan_wall` as validated fields or replay forks from live.
+- **The re-author surface batches**: incremental credit's ~8 files sit inside founders/skills'
+  ~21-file surface; at-plot designation is mostly disjoint but shares the canon baseline (whose
+  `choose_roof` t20 / `designate` t25, waiting-shell milestone, and hardcoded ids 334/225/2531
+  retire or shift). Founder count shifts **every minted id**.
+- **Incremental credit deletes the WIN stall as a phenomenon** — the canon's three-stall story must
+  be re-DESIGNED (the trickle story), not just regenerated. HAUL and PILE stalls survive.
+- **Save-compat (boss-visible):** this arc **invalidates existing Lodge Book saves** — the guard
+  refuses them with a message, not a crash, but the boss is saving games TODAY. The save-forward
+  promise (ROADMAP §6 Q4) remains his open call — surfaced in §6.4, not buried.
 
 ## 3. The spec
 
-### A. Incremental stone credit — the bedrock fix (SIM bump)
+### A. Incremental credit — stone AND timber (SIM)
 
-Stone (and felled timber) flows to the stockpile **as the work is done**, not as a lump at the end:
-each person-day of digging credits `stoneTotal / workTotal` m³ (same for adit/bell pit/shaft/fell).
-This is what real workings do — blocks come off the face from day one — and it is the substrate every
-visible item below stands on: piles that grow daily, carriers with something to carry, bubbles that
-tick. The one-shot `stoneWon` flag retires into "the completion event still fires once" (chronicle
-unchanged); conservation pins it (sum of increments === stoneTotal exactly at completion — credit the
-*remainder* on the last day so float drift can't leak stone).
+Stone flows as the work is done, in the **stateless checkpoint form** derived from the existing
+integer `workDone` (no new hashed field):
 
-- Baseline: a REAL behavior change — the canon quarry starts feeding its wall a season early. Canon
-  re-authored to tell the new story (the trickle replaces the cliff), honest regen, red specimens
-  first (conservation, no-double-credit, replay byte-equal). SIM_VERSION bump.
-- Old saves: version guard already surfaces a message instead of crashing (Lodge Book law) — flag it.
+```
+day-k credit = stoneTotal·min(1, k/workTotal) − stoneTotal·min(1, (k−1)/workTotal)
+```
 
-### B. Thirteen founders (SIM bump — batch with A)
+Monotone and never-exceeds by construction; the final checkpoint is `stoneTotal·1` — **exactly**
+`stoneTotal` (each subtraction Sterbenz-exact; probe-verified over 300k trials). The completion
+event still fires once (chronicle unchanged). One law, five workings (cut, adit, bell pit, shaft,
+fell). Guards: strict `===` conservation on single-working-from-zero specimens; `toBeCloseTo` only
+where the shared pile interleaves mason draws; replay byte-equal. The credited-once tests are
+REPLACED by these, not deleted.
 
-`createWorld` founds 13, not 4. Notes the census forces:
+### B′. THE SKILL SYSTEM — skill is earned by doing (SIM, the arc's heart)
 
-- Each founder draws rng for name + pace, so the count itself moves the masonry jitter cursor — the
-  canon re-authors anyway; batching B with A costs **one** re-author instead of two (the roadmap's
-  standing batch-SIM-bumps rule).
-- `FOUNDER_NAMES` holds 8 names — needs 13+ (constant strings from a fixed list, Law 3-safe).
-- The age stagger must change: today's `22 + i×3` puts founder #13 at 58 — inside the death curve's
-  teeth. Spec: a fixed repeating spread in the 20–36 band (still no rng), so no cohort wave and no
-  founder starts elderly.
-- Trade split is a boss call (§6 Q1). Recommendation: **3 masons / 10 laborers** — the measured
-  bottleneck is winning+hauling, not laying (masons finished 395 stones in 8 days once fed).
-- Re-run the century-sweep after: founding size feeds the demographic equilibrium's approach path
-  (not its ceiling — capacity math is unchanged — but verify, don't assume).
+**The model.** `Person.trade` narrows to `'villager' | 'smith'` (the smith's specialist pipeline
+survives verbatim on a re-based predicate). A new hashed field, plain integer data:
 
-### C. The visible work — theater catches up to the sim (render-only, ZERO baseline)
+```
+Person.worked: { mason: days, digger: days, woodsman: days, farmhand: days }
+```
 
-1. **Diggers dig.** PeopleLayer learns the rest of moveEarth's ladder: laborers the sim has at a
-   cut/adit/bell pit/shaft/fell visibly go there and swing. The assignment is derived from the same
-   sim truth moveEarth reads (deterministic, no rng). The dead `floorAtShow` finally gets its caller —
-   diggers stand ON the sinking pit floor, exactly what it was built for.
-2. **Blocks pile at the working.** A representational stack of dressed blocks beside the spoil cones
-   (the granary-sacks pattern: N block meshes ∝ stone won so far, capped — "not every block, a
-   representation"). Depletion read: the global pile is ONE number in the sim, so each working's stack
-   scales by `(its stone won) × (global stockpile / total won)` — piles visibly draw down as walls
-   consume, zero sim change. (A true per-pile logistics model is a real sim course — noted in §5 as
-   the conveyor's natural sibling, not smuggled in here.)
-3. **Carriers carry from the pile.** The existing shuttle re-anchors: pick-up end = the nearest
-   working's block pile (or the wall's face-buffer stack for hauled walls) instead of the virtual
-   point. Same carry pose, same bob — the road just becomes real. The wall face gets its own small
-   stack showing `faceBuffer` (the cart's deliveries made visible).
+- **Four skills** matching the sim's verb groups: **mason** (lay), **digger** (fills, decks, cut,
+  adit, bell pit, shaft), **woodsman** (fell), **farmhand** (tend). Hauling is deliberately NOT a
+  job this arc — it stays the cart's frozen rate; haul-as-labor lands with the timber way's
+  per-pile logistics (§3H), and the C theater draws its visible carriers from the day's actual
+  assignees so the body count never exceeds the census.
+- **The year rule:** each day a villager's assigned job earns them **+1 worked day** — counted only
+  on a day that produced at least one unit of actual work (an honest stall teaches nothing). At
+  `≥ TICKS_PER_YEAR` worked days the villager holds the job's **green** band. Discrete threshold,
+  no curve. Journeyman/master stay Beat 4's (the bond, boss-reserved).
+- **The step is a BONUS, not a penalty** (critique-flipped): untrained hands work at **today's
+  measured rates** — the arc that exists because building feels slow ships no slowdown — and green
+  earns **×9/8 (1.125)** at the job. The envelope arithmetic, done: green +12.5% leaves 2.5–12.5
+  points of the canon ~15–25% green→master spread for Beat 4's upper rungs (which also inherit the
+  option to read the envelope as spanning from untrained — §6 need not decide today; the digest
+  records the constant is design, deliberately conservative against the real ~50–100% craft wage
+  premium). The multiplier is a constant dyadic factor; results are correctly rounded and
+  deterministic; the only hashed consumer (farm.workdays accruing in eighths) is exact.
+- **Pace redesign:** per-job base constants replace the trade-relative scalar — lay
+  `(24 + vigor×12)` stones/day, earth `(3 + vigor×2)` m³/day — with ONE rng draw per person
+  (`vigor`) at creation. Founders: **13 souls, 3 seeded `worked.farmhand = TICKS_PER_YEAR`** (green
+  farmhands), 10 untrained. Names pool extended past 13 (constant strings); the age stagger becomes
+  a fixed cycling table in the 20–36 band (no rng, no elder founders, no cohort wave).
+- **Assignment — favor, not puppet, pinned against the oscillation** (critique-proven): ONE
+  deterministic pass at the top of the day, **after `applyCommand`, before `moveEarth`** (same-tick
+  plan-then-work semantics preserved), frozen for the day (the no-trade-change-within-a-day
+  invariant `smithMult` leans on). The pass skips non-adults and smiths (`isAdult` at assignment
+  time). Each villager, in `state.people` array order, takes their greenest job first **among jobs
+  with bounded outstanding work**, else walks the global ladder (lay → fill → roof → dig → fell →
+  farm) over a constant jobs tuple (never object-key iteration); **yesterday's job wins ties**
+  (deterministic stickiness, so untrained hands actually accrue years instead of scattering).
+  *Lay-has-work is a dawn-decidable predicate:* `stonesLaid < stonesTotal` ∧ not plans-blocked ∧
+  (hauled: `faceBuffer + haulRate ≥ DRESS_DRAW`; local: `stockpile + the day's expected credit ≥
+  DRESS_DRAW`) — never a read of supply that the same day's later phases produce (the proven
+  2–3-day duty-cycle oscillation). *Farm work is bounded:* each farm wants `area/AREA_PER_HAND`
+  hands per day, so tending saturates and surplus farmhands fall through the ladder — which also
+  hands M4 its yield substrate. The pass ships as one pure exported `computeAssignments(state)` so
+  the theater and HUD import the same truth (parity law); it is recomputed each tick and never
+  enters hashed state.
+- **Supersession, named** (the F′.5 pattern): greenest-first supersedes the SIM 4 / SIM 14 global
+  ordering laws ("construction outranks fields", "a quarry outranks fields") **for skilled hands**
+  — the boss's Q1 intent: farmers farm. Untrained hands keep the old ladder. The
+  quarry-before-field fingerprint is re-designed, not just regenerated. Recorded in BACKLOG in the
+  same pass. Likewise recorded: Q1 pulls the skill FLOOR out of Beat 4's decreed one-batch spine;
+  the remaining spine (bond, journeyman/master, funeral, Testament) stays ONE bump.
+- **The farmers visibly farm** (boss-intent guard): the sweep asserts the 3 green farmhands spend
+  the majority of growing-season days at farm work under the year-one retune (fields sized to feed
+  13 help); the E farm card states yield is space-gated (skill moves tending pace, not yield) so
+  the card never implies a consequence the sim doesn't deliver. The sweep also asserts
+  time-to-first-green for an untrained founder lands within ~1.5–2 game-years on a normal build
+  program.
+- **Demographic retunes, sweep-proven:** `FOUNDING_CAPACITY`/`FOUNDING_SHELTER` → 13,
+  `SMITH_MIN_POP` re-examined, seed grain sized lean-but-survivable; `npm run sweep` re-run and the
+  equilibrium claims re-verified (don't tune by eye).
+- **Determinism specimens:** the band flip itself is invisible to the 200-tick canon, so the B′
+  commit carries a threshold-crossing specimen — a person seeded `worked.digger =
+  TICKS_PER_YEAR − 1`, one assigned day flips the band, the rate change lands on the exact tick,
+  replay byte-equal. The provenance suite re-states as "every stone remembers its layer," with the
+  id set built from everyone ever minted (founders + born/arrived events), never end-of-run
+  survivors (the latent 400-tick death flake). *(Parenthetical for T2: layer-provenance stands
+  until the banker shop splits dresser from layer — the mark then follows the dresser per SCOPE.)*
+- **Surnames keep their substrate:** the decreed surname-coalescence rider ("trade persistence,
+  2+ generations") loses `trade` as its signal and gains a richer one — dominant `worked{}` job
+  across generations (the family whose digging dominates becomes the Delvers; Mason / Woodman /
+  Farmer / Smith all reachable). The Carter has no substrate under ANY current design (carting is
+  never person-work) — flagged for whenever haul-as-labor lands.
+- **Render/HUD ride-alongs:** costume follows the day's assignment (retexture on change, banded
+  like the age-tint); the boot-frozen `paceSum`/`earthPace` HUD derivations become live imports of
+  `computeAssignments`; the smith keeps his apron.
 
-### D. The progress bubble (render-only, reusable)
+**What this deliberately does NOT touch:** techniques, the bond, journeyman/master, funerals,
+Testament, succession — Beat 4's boss-reserved spine. The year rule is the spine's floor. (Naming
+note: shipped SIM 27 already answers to THE FIRST TECHNIQUE in the mark ledger; the roadmap's
+unshipped ashlar token needs a distinct name when it comes.)
 
-One chip component, anchored at an entity's centroid, projected per-frame (the #prospect-card DOM
-pattern — crisp, field-guide monospace, no WebGL text):
+### C. The visible work — theater catches up (render-only, ZERO baseline)
 
-- Wall: `⚒ 128 / 395 stones` (+ `waiting on stone/cart/timber` when stalled — the stall named AT the
-  structure, not only in the HUD).
+1. **Diggers dig, fellers fell.** PeopleLayer learns the whole assignment truth (importing
+   `computeAssignments`): villagers the sim has at a working visibly go there and swing; the dead
+   `floorAtShow` finally gets its caller (diggers stand ON the sinking pit floor).
+2. **Piles at the working.** Representational stacks beside the spoil (granary-sacks pattern): won
+   blocks at cuts/adits/pits/shafts; **felled logs scattered at the fell positions within the
+   stand** (the boss's literal "wood drops where it's felled"). Depletion reads by the global-share
+   trick (per-working stack ∝ its contribution × the global stock's remaining fraction) — zero sim
+   change; true per-pile logistics is deferred to the timber-way course, where it belongs.
+3. **Carriers carry, and the chain CLOSES at the wall** (boss: "placing them in the final
+   structure"): pick-up = the nearest working's blocks / stand's logs, drop-off = the mason's
+   station; the mason draws from the face stack and **the wall's next stone appears with the
+   swing** — mine → pile → carry → place, watchable end-to-end. Hauled walls show a small
+   face-buffer stack (the cart's deliveries visible).
+
+### D. The progress bubble (render-only, always-on per boss)
+
+One chip component (the #prospect DOM pattern, field-guide monospace), anchored at the entity,
+visible while incomplete, fading when done. The mason verb is pinned **laid** (dressing is a
+0.5–4 stones/day craft absorbed upstream in the quarry yield — a chip that said "cut and laid"
+would be off by an order of magnitude):
+
+- Wall: `⚒ 128 / 395 stones` + the stall named at the structure (`waiting on stone / cart / timber`).
 - Working: `⛏ 184 / 890 days · 174 m³ won` — the number the boss sat a season staring for.
-- Multi-input structures get multi-line: a wood-roofed stone building shows stone AND roof workdays;
-  a palisade shows timber. Lines are data (`{icon, done, total, unit}[]`) so any future consumer
-  (kiln, Keep) rides free.
-- Show policy is a boss taste call (§6 Q2). Recommendation: chip visible while incomplete, fading
-  when idle-complete; full detail on select (E). Always-on for every entity would clutter the hill.
+- Multi-input = multi-line (data-driven `{icon, done, total, unit}[]`; the kiln and Keep ride free).
 
 ### E. Selection — the inspection card grows up (render-only)
 
-The Beat-2 raycast already owns the click. Extend the miss path: stone hit → stone card (unchanged);
-else ground hit → point-in-polygon over farms / buildings / workings / stands →
+Extend the memory-suite raycast's miss path: ground hit → point-in-polygon → entity card:
 
-- **Farm card:** use, area, **expected yield in mouths** (the livingYear arithmetic finally surfaced:
-  arable/AREA_PER_PERSON, orchard supplement, pasture's draft horse), workdays, season state.
-- **Building card:** kind, house tier (hovel/cottage/hall + what knocks it down), begun year + stones
-  (the biography, already built), roof, occupants (see F).
-- **Working card:** the D bubble's detail + the prospect readout's teaching line.
-- **Stand card:** regrowth countdown ("a cant returns in ~4y").
+- **Farm:** use, area, expected yield in mouths (the livingYear arithmetic surfaced, labelled
+  space-gated), workdays, tending hands + their bands, season state.
+- **Building:** kind (or *unnamed*), house tier, begun year + stones (the biography), roof,
+  **[choose the roof] / [name the trade] actions when unanswered** (§F′).
+- **Working / stand:** the D chip's detail + the prospect readout's teaching line / regrowth
+  countdown.
+- **Person (stretch, cheap):** name, age, bands held — the skill system made legible.
 
-One card system, per-entity data providers. This answers BOTH "buildings selectable with details"
-and "farms selectable with expected yields" on the memory suite's existing spine.
+### F′. The word moves to the plot — 'none' builds, the card answers later (SIM)
 
-### F. Buildings as living spaces — the design fork (boss steer BEFORE code)
-
-The bones are fine (boss's own words). What's missing decomposes into four candidate layers — which
-of these is the itch? (§6 Q3):
-
-1. **The floor** — designation paints the INTERIOR the way a farm tills: rush floor + hearth for a
-   house, cobbles + clutter for a workshop, so a building reads lived-in from above even roofless or
-   irregular. (Render-only; the farm precedent is exactly this.)
-2. **Roofs for irregular rings** — today only clean 4-corner rings gable; everything else is a
-   roofless shell (long-standing backlog: hip/straight-skeleton). Likely a big visual win per effort.
-3. **Occupants** — souls bound to houses ("home of Edith & family"). A render-side deterministic
-   assignment ships cheap and feeds the E card; REAL per-house occupancy (who sleeps where, walks
-   home at dusk) is a sim course with demographic hooks — worth its own proposal if wanted.
-4. **Function props at the door** (the workshops pattern extended: a garden plot behind a cottage, a
-   bench by the hall).
-
-Recommendation: 1 + 2 first (they change what the eye lands on), 3-render + E card beside them, 3-sim
-deferred.
+1. **At-plot pickers.** Building mode gains roof + kind pickers in the build bar (default
+   **none**); answers ride `plan_wall` as validated optional fields (the replay law — the command
+   is the truth). New constant reject strings cover the new fields, including roof/kind on a
+   non-building ring (reject with a constant string, never silently drop the player's word).
+2. **'None' never blocks.** `awaitsDrawings` retires; a shell with unanswered words builds as bare
+   bones. **Plumbing pinned:** none-at-plot stores `plans.roof = null` (re-answerable); completion
+   coalesces null → 'none' on the minted record where a kind exists; no Building is minted for
+   kind-none — the shell pends non-blockingly, exactly as fields pend today.
+3. **Choose later by selecting it.** Clicking the shell (E card) offers the unanswered words — the
+   game's first designation-mutating surface, shaped so field rotation (BACKLOG's reserved M4
+   RE-designation) can later ride it. A later roof word updates BOTH `wall.plans.roof` and
+   `Building.roof`, mints the brick deck at answer-tick (deterministic new id at a new tick), and
+   the houseTier/shelter shift it causes is **intended** — naming a roof changes what the house is
+   worth to the people in it.
+4. **Fields and spans keep their asks this course** (the boss spoke of buildings) — but the E card
+   also answers a pending FIELD by click (gesture unified, card kept), and the span tool's
+   covering-ask gains 'none' for symmetry (an uncovered deck is already a legal state). §6.2 for
+   the boss's taste, not blocking.
+5. **The sweep:** the blocking-behavior tests re-author (~8 enclosure assertions +
+   gates/ramps-roofs mechanical); the retired rejection strings go with them; the 2026-07-10
+   "asked at plot, crew waits" canon comments in types.ts/step.ts/BACKLOG are superseded — swept in
+   the same pass, handoffs left untouched (history is not rewritten; the supersession is recorded
+   here and in BACKLOG).
 
 ### G. Pasture animals (render-only, boss-flagged low priority)
 
-Animated horse on each pasture, cow/pig on each paddock — the granary-cat pattern verbatim (few-pose
-pixel sprite, render-clock cadence + hash, never sim rng, hidden underground, both update sites per
-Law 6). Counts read sim truth (pasture ⇒ its draft horse; paddock herd size is cosmetic until herds
-are a system — BACKLOG stands). Orchards: already have trees; nothing to do.
+The pasture HORSE is sim-true (SIM 29's draft horse rendered — the record on screen). Paddock
+cow/pig have NO sim substrate (herds are BACKLOG-reserved) — they ship, if shipped, explicitly as
+**decor-pending-the-herds-system** (the granary-cat precedent, named as such in the commit), or
+hold for the herds course. Granary-cat pattern throughout; Law 6 both update sites. Orchards
+already have trees; nothing to do.
 
-### H. Rollers → conveyors on a pre-planned path (design fork, boss steer)
+### H. THE TIMBER WAY — the sledge rides a laid road (SIM, its own later course)
 
-Today's sledge is a per-wall ×2 toggle — invisible and placeless. The boss's picture (a drawn path
-that rapidly moves stone along it) is a different, better mechanic — a **roller road**: a polyline
-entity drawn like a wall, costing timber to lay, and any wall whose haul route rides it hauls at the
-boosted rate; the render shows blocks sliding down it (the theater C already needs moving blocks).
-Real design questions before code (§6 Q4): does it REPLACE the toggle (breaking: existing saves'
-`rollers` walls) or absorb it (toggle = "this wall lays its own rollers", road = shared
-infrastructure)? Does the route-freezing boundary (haulRate frozen at plan time) re-freeze when a
-road is laid later — or do only walls planned AFTER the road benefit (the honest survey-boundary
-answer, and it teaches plan-your-logistics)? Sized: sim course + tool + render ≈ the adit's weight.
+Q4's mechanic, research-corrected into its honest medieval shape: a drawn polyline entity — a
+**timber causeway** (corduroy/plank way; Ely 1071, Berlin 1238, greased-baulk slipways
+experimentally proven for 40-ton blocks) — that the SLEDGE rides. Wheels-on-rails and conveyor
+imagery are post-1500 (Reisszug 1515; wagonways 1550s+) and stay out of the fiction; "the sledge
+rides the way" keeps history right-side-up while delivering the boss's function: rapid transfer
+along a pre-planned path. Mechanics: timber cost per laid meter; walls whose haul route rides the
+way haul at `WAY_HAUL_BOOST` (named constant, ≥ the sledge's old ×2); **blocks on the way visibly
+outpace walking carriers (≥3× walker speed)** so "rapid" is a property, not a hope. The `rollers`
+wall flag and 🛷 toggle retire in this bump (Q4's "replace"). Sized ≈ the adit course; designed
+together with per-pile logistics (haul-as-labor) if the boss wants that depth. Gated on §6.3.
 
-## 4. Already resolved / already true (so nothing is rebuilt)
+## 4. Already resolved / already true
 
-- Orchard fruit-tree rows — shipped `6da302b`, live.
-- Carry pose + block bob — shipped; only the anchor is wrong (C.3 fixes).
-- The stall named on the HUD (`⚒ waiting on stone`) + bottleneck line — shipped; D moves it to the
-  structure.
-- The village clock (folk age tints), stone patina, inspection card — the whole legibility spine E
-  extends.
-- Speed transport + Sit-the-Season — verified working; no clock fix needed or proposed.
+Orchard trees (`6da302b`); the carry pose + bobbing block exist (wrong anchor — C.3 re-aims it);
+**mason-at-the-wall theater exists** (stations, hammer swing while stone is laid) — C.3's new links
+close the boss's chain around it; the HUD stall line + bottleneck line exist (D moves them to the
+structure); the legibility spine (inspection card) is what E extends; the clock needs no fix.
 
-## 5. Build order + discipline
+## 5. Build order + discipline (critique-corrected)
 
-1. **Course 1 (ONE batched SIM bump): A + B.** Red specimens first (credit conservation, no double
-   credit, founder count, replay byte-equal), canon re-authored once to tell the trickle's story,
-   honest regen, century-sweep re-run. Two-commit only if an inert seam exists; the credit change is
-   inherently behavioral, so likely one attributable commit like SIM 16.
-2. **Course 2 (render-only, zero baseline): C + D + E** — in that order; C gives D and E something
-   true to point at. Law 6 (both update sites), receiver-trick eye checks, probe + eye both.
-3. **Course 3: F.1 + F.2 + G** after the boss picks F's layers.
-4. **Course 4: H** once its two forks are chosen; PROPOSAL-LOGISTICS §4.1 (route costing) is the
-   substrate to extend, and C.2's noted per-pile logistics limit is the same design surface — decide
-   them together.
+**Course 1 — THE VISIBLE ECONOMY, one arc, three attributable commits, THREE SIM_VERSION bumps
+(35/36/37):** every commit is replay-visible, and the guard forks saves on version inequality
+alone — a batch sharing one bump would let a save written under commit-A physics replay silently
+divergent under commit-B physics. Deploy=push makes intermediate states live, so each commit
+stands alone: its own SIM bump, its own canon-script touch (ids re-probed, vocabulary edited), its
+own `gen-baseline` regen. The canon STORY — a 13-soul founding, a quarry that trickles from its
+first week, a wall that rises as the pit deepens, a bare shell click-named mid-build — is designed
+once; the SCRIPT is touched three times. The standing two-commit law (instrument-neutral seam
+first where one exists) may expand the sequence to as many as six commits; budgeted, not
+discovered mid-arc.
 
-## 6. Open questions for the boss
+1. **A** incremental credit (stone + timber) — conservation specimens first.
+2. **B′** 13 founders + the skill system — sweep re-run + retunes + the threshold specimen inside.
+3. **F′** the word at the plot + none-builds + the choose-later command.
 
-1. **Founders' trades** — 13 souls: 3 masons / 10 laborers (recommended — the measured bottleneck is
-   winning, not laying)? Or another split?
-2. **Bubble policy** — chip always-on while incomplete (recommended), or only on hover/select?
-3. **Buildings** — of §F's four layers (floor / irregular roofs / occupants / door-props), which are
-   the itch? Recommended start: floor + irregular roofs.
-4. **Conveyor forks** — replace the sledge toggle or keep both (toggle = self-laid rollers, road =
-   shared infrastructure)? And do existing walls re-freeze onto a new road, or only walls planned
-   after it (recommended: only after — the survey-boundary law, and it teaches planning)?
-5. **Timber too?** — incremental credit for felling as well as stone (recommended: yes, same law,
-   one discipline)?
+**Course 2 — render-only, zero baseline:** C (theater + piles + the closed chain) → D (chips) →
+E (cards + F′'s choose-later UI half). Law 6 both update sites; receiver-trick eye checks;
+probe + eye.
+
+**Course 3 — render-only:** **roofs for irregular rings** (promoted from open-question to default
+deliverable — the census's own "biggest visual win," and the boss called buildings broken; a
+designated dwelling must stop looking like a roofless shell) + G (animals) + whichever remaining
+lived-in layers the boss picks (§6.1).
+
+**Course 4 —** H (the timber way, replacing the sledge) — **blocked on §6.3.**
+
+## 6. What remains open for the boss
+
+1. **Buildings' remaining lived-in layers** (irregular-ring roofs now ship by default in Course 3):
+   painted interior floor · occupants shown on the card. Which, and in what order?
+2. **Symmetry taste:** extend at-plot/'none' to FIELD enclosures and span coverings now, or leave
+   their asks as-is this course (spec'd as leave-as-is + click-answer unification)?
+3. **The timber way's re-freeze** (BLOCKS Course 4): only walls planned after the way is laid ride
+   it (recommended — the survey-boundary law; it teaches planning), or existing walls re-price?
+4. **Save-forward promise** (ROADMAP §6 Q4, now urgent): Course 1 **invalidates your existing Lodge
+   Book saves** (refused with a message, not a crash). Promise forward-compat from some version on,
+   or reserve flag days like this one? Your call before the bump lands.
+
+## 7. Research grounding (the digest, honest about strength)
+
+Recorded in `research/DIGEST-2026-07-16-the-visible-work.md`: the year rule is the best-grounded
+piece (navvy hardening "up to a year"; annual farm-service contracts as the labor quantum; guild
+apprenticeships 2–7 years safely ABOVE green). The +12.5% green step is **design, not history**
+(the wage record can't quantify a within-laborer gap; the real craft premium was ~50–100%, the
+canon band cap deliberately compresses it). The timber way's attestation boundary (causeway yes,
+rails no) and the laid-vs-dressed rate distinction are in the digest so future sessions don't
+"correct" them backwards.
 
 ---
 
-*Census + measurements by the fortieth hand, 2026-07-16. The probe scripts ran against a live `__cc`
-on a fresh world at HEAD `97882da`; the 890-person-day quarry, the 351-day first stone, and the
-7-day palisade are reproducible numbers, not impressions.*
+*v1 census + measurements by the fortieth hand; v2 dispositions folded the same day on a four-agent
+census fleet; v3 hardened by a four-lens adversarial critique (determinism — the dawn-oscillation
+and farm-sink proofs; boss-intent — the penalty flip and the closed chain; canon — the envelope
+arithmetic and the save-compat surfacing; research — the causeway boundary). The three probe
+numbers (890-person-day quarry, 351-day first stone, 7-day palisade) remain the arc's reason.*
