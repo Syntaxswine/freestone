@@ -73,6 +73,7 @@ import { CutLayer } from './cuts';
 import { AditLayer } from './adits';
 import { BellPitLayer } from './bellpits';
 import { ShaftLayer } from './shafts';
+import { TracingFloorLayer } from './tracingfloor';
 import { UnderworldLayer } from './underworld';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
@@ -426,6 +427,9 @@ async function boot(): Promise<void> {
   const adits = new AditLayer(world, scene, terrain.groundAt); // the self-draining drift, an X-ray at grade
   const bellPits = new BellPitLayer(world, scene, terrain.groundAt); // shaft-mouths + spoil rings on flat ground
   const shafts = new ShaftLayer(world, scene, terrain.groundAt); // deep pumped shafts — headframes over drowned post
+  // the tracing floor (Beat 2): every plan ever drawn, scored faintly into the turf — a
+  // palimpsest of setting-out lines read from the command log. Render-only, no click.
+  const tracingFloor = new TracingFloorLayer(commandLog, scene, terrain.groundAt);
   // the underworld made VISIBLE (2026-07-11): a toggle-on strata map + working
   // plane the tunnel tool will draw on. View/input only — the sim never sees it.
   const underworld = new UnderworldLayer(scene, site, beds, water);
@@ -1556,6 +1560,8 @@ async function boot(): Promise<void> {
     cuts.update();
     adits.update();
     bellPits.update();
+    shafts.update(); // was missing from the live frame — a shaft placed in play never entered the scene
+    tracingFloor.update();
     roofs.update();
     farms.update();
     buildings.update();
@@ -2003,6 +2009,7 @@ async function boot(): Promise<void> {
     roofs,
     farms,
     buildings,
+    tracingFloor,
     trees,
     orchard,
     workshops,
@@ -2025,6 +2032,7 @@ async function boot(): Promise<void> {
       adits.update();
       bellPits.update();
       shafts.update();
+      tracingFloor.update();
       roofs.update();
       farms.update();
       buildings.update();
