@@ -129,9 +129,11 @@ describe('the quarry in the sim', () => {
     expect(later.events.filter((e) => e.kind === 'stone_won')).toHaveLength(1);
   });
 
-  it('a quarry is dug before a field is tended', () => {
-    // a farm plus a quarry: the idle laborers spend the day quarrying, so the
-    // farm gathers NO workdays while the pit is unfinished
+  it('a quarry draws the untrained hands — and costs the farm nothing (SIM 36)', () => {
+    // a farm plus a later quarry: the farm's demand is BOUNDED (its slots, held by the
+    // green farmhands in their groove), so the untrained crew digs the pit while the
+    // tending holds — the quarry-before-fields law survives as the unskilled ladder,
+    // and the field is never the poorer for the digging.
     const farmRing: Command = {
       kind: 'plan_wall',
       tick: 0,
@@ -146,16 +148,15 @@ describe('the quarry in the sim', () => {
     };
     // the ring needs stone to build; a founding quarry wins it at tick 0 (SIM 16),
     // so the ring completes and pends; designate it a farm, then open a LATER
-    // quarry. The 4 founders take ids 1–4, so the first wall is id 5.
+    // quarry. The 13 founders take ids 1–13, so the first wall is id 14.
     const seedQuarry: Command = { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 };
     const w = run(
-      [farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }, cut(45)],
+      [farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 14, use: 'farm' }, cut(45)],
       70,
     );
-    // with the LATER quarry unfinished, the farm's workdays stay put after tick 45
-    const farm = w.farms[0]!;
-    const noQuarry = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }], 70);
-    expect(farm.workdays).toBeLessThan(noQuarry.farms[0]!.workdays);
+    const noQuarry = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 14, use: 'farm' }], 70);
+    expect(w.cuts[1]!.workDone).toBeGreaterThan(0); // the pit was dug…
+    expect(w.farms[0]!.workdays).toBeCloseTo(noQuarry.farms[0]!.workdays, 9); // …at no cost to the field
   });
 
   it('replays a quarry byte-for-byte', () => {

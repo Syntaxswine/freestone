@@ -13,6 +13,7 @@ import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { effectiveGroundAt, fillSurfaceAt, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
+import { GREEN_MULT } from '../src/sim/types';
 import { ROOF_DECK, type Command, type Vec2 } from '../src/sim/types';
 
 const RAMP_RING: Vec2[] = [
@@ -311,9 +312,10 @@ describe('roofs', () => {
     expect(world.roofs[0]!.material).toBe('wood'); // the honest word stood
   });
 
-  it('the earth outranks the deck outranks the fields', () => {
-    // a farm, then simultaneously a fill and a roof: earth moves first, then
-    // carpentry, and tending pauses throughout
+  it('the earth outranks the deck for UNTRAINED hands — and the green farmhand tends through it', () => {
+    // a farm, then simultaneously a fill and a roof: the untrained crew moves earth
+    // first, then decks (the old ordering, kept for the unskilled) — while the green
+    // farmhand keeps her slot straight through (SIM 36, the groove supersession).
     const farmRing: Vec2[] = [
       { x: 100, y: 100 },
       { x: 120, y: 100 },
@@ -324,7 +326,7 @@ describe('roofs', () => {
     const { world, site } = run(
       [
         { kind: 'plan_wall', tick: 0, points: farmRing, height: 0.5 },
-        { kind: 'designate', tick: 20, wallId: 5, use: 'farm' }, // first wall in a fresh world
+        { kind: 'designate', tick: 20, wallId: 14, use: 'farm' }, // first wall in a fresh world (13 founders)
       ],
       60,
     );
@@ -355,16 +357,23 @@ describe('roofs', () => {
         material: 'straw',
       },
     ]);
-    // while EITHER job is open, no workday accrues
-    while (
-      world.fills[0]!.volumeMoved < world.fills[0]!.volumeTotal ||
-      world.roofs[0]!.workDone < world.roofs[0]!.workTotal
-    ) {
-      expect(world.farms[0]!.workdays).toBe(before);
+    // the earth moves BEFORE the deck (the untrained ladder): while the fill is open,
+    // the covered roof gains nothing — and the farm's one slot is tended every day
+    // regardless (the green farmhand's groove, ×9/8 a day)
+    let previous = world.farms[0]!.workdays;
+    expect(previous).toBeGreaterThan(before - 1e-9); // never paused for the shell either
+    while (world.fills[0]!.volumeMoved < world.fills[0]!.volumeTotal) {
+      expect(world.roofs[0]!.workDone).toBe(0); // earth first
       worldStep(world, site, []);
+      expect(world.farms[0]!.workdays).toBeCloseTo(previous + GREEN_MULT, 9); // tended through
+      previous = world.farms[0]!.workdays;
     }
-    worldStep(world, site, []);
-    expect(world.farms[0]!.workdays).toBe(before + 2); // both hands back in the field
+    while (world.roofs[0]!.workDone < world.roofs[0]!.workTotal) {
+      worldStep(world, site, []);
+      expect(world.farms[0]!.workdays).toBeCloseTo(previous + GREEN_MULT, 9); // still tended
+      previous = world.farms[0]!.workdays;
+    }
+    expect(world.events.filter((e) => e.kind === 'roof_complete')).toHaveLength(1); // the deck followed the earth
   });
 
   it('ramps and roofs replay identically from a save', () => {

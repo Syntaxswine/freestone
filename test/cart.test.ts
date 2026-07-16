@@ -15,6 +15,7 @@ import { describe, expect, it } from 'vitest';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
+import { villager } from './helpers';
 import {
   AREA_PER_PERSON,
   CART_UPKEEP,
@@ -39,13 +40,7 @@ function fatField(): Farm {
 }
 const granary = (id: number): Building => ({ id, wallId: 9000, kind: 'granary', roof: 'none', area: 30 });
 const carpentry = (id: number): Building => ({ id, wallId: 9000, kind: 'carpentry', roof: 'none', area: 30 });
-const adult = (id: number): Person => ({
-  id,
-  name: `A${id}`,
-  trade: 'laborer',
-  pace: 4,
-  bornTick: -25 * TICKS_PER_YEAR,
-});
+const adult = (id: number): Person => villager(id, { bornTick: -25 * TICKS_PER_YEAR });
 
 describe('the cart (SIM 23)', () => {
   it('a cart raises grain throughput — a carted granary fills faster than a hand-carried one', () => {

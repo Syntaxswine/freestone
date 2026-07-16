@@ -76,6 +76,13 @@ import {
   type Vec2,
   type WallPlan,
   type WorldState,
+  type JobSkill,
+  FARM_AREA_PER_HAND,
+  GREEN_DAYS,
+  STONE_VOLUME,
+  earthRateOf,
+  jobMult,
+  layRateOf,
 } from './types';
 
 /**
@@ -99,12 +106,14 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
     applyCommand(state, site, cmd);
   }
 
-  // fixed daily order: earth moves (winning stone to the pile) before the carts
-  // haul it to the faces, before the masons lay — so stone won this morning can
-  // be carted and laid the same day. SIM 17 threads HAUL between WIN and LAY.
-  moveEarth(state);
+  // fixed daily order: the DAWN PASS assigns every hand its day (SIM 36 — after the
+  // commands apply, frozen for the day), then earth moves (winning stone to the pile)
+  // before the carts haul it to the faces, before the layers lay — so stone won this
+  // morning can be carted and laid the same day. SIM 17 threads HAUL between WIN and LAY.
+  const assignments = computeAssignments(state);
+  moveEarth(state, assignments);
   haulStone(state);
-  layStones(state, site, rng);
+  layStones(state, site, rng, assignments);
   regrowWoods(state); // SIM 19: stools that have finished their rotation stand mature again
   livingYear(state); // SIM 20: once a year — deaths, births, migrants, departures (own rng stream)
 
@@ -1000,144 +1009,253 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
 
 /**
  * THE VISIBLE FLOW (SIM 35): a working pays its yield AS THE WORK IS DONE, not in one
- * lump at completion. Each person-day k credits total·min(1, k/W) − total·min(1, (k−1)/W)
- * — a stateless checkpoint read off the integer workDone, no new accumulator state — so
- * the increments sum to EXACTLY `total` at completion (the final checkpoint is total·1,
- * and the subtraction is IEEE-exact at every step). A real face yields block by block
- * from the first day: the pile grows daily, and a wall can rise while its pit deepens.
+ * lump at completion. A workday moving workDone from `before` to `after` credits
+ * total·min(1, after/W) − total·min(1, before/W) — a stateless checkpoint read off
+ * workDone, no accumulator state — so the increments telescope to EXACTLY `total` at
+ * completion (the final checkpoint is total·1, and each subtraction is IEEE-exact).
+ * A real face yields block by block from the first day: the pile grows daily, and a
+ * wall can rise while its pit deepens. (SIM 36 made the step fractional — a green
+ * digger's day advances workDone by 9/8 — which the checkpoint form absorbs whole.)
  */
-function checkpointCredit(total: number, workDone: number, workTotal: number): number {
-  return (
-    total * Math.min(1, workDone / workTotal) -
-    total * Math.min(1, (workDone - 1) / workTotal)
-  );
+function checkpointCredit(total: number, after: number, before: number, workTotal: number): number {
+  return total * Math.min(1, after / workTotal) - total * Math.min(1, before / workTotal);
+}
+
+/** THE SKILL SYSTEM's day jobs (SIM 36) and the biography each one writes. */
+export type Assignment = 'lay' | 'fill' | 'roof' | 'dig' | 'fell' | 'farm';
+const ASSIGNMENT_LADDER: readonly Assignment[] = ['lay', 'fill', 'roof', 'dig', 'fell', 'farm'];
+export const JOB_OF: Record<Assignment, JobSkill> = {
+  lay: 'mason',
+  fill: 'digger',
+  roof: 'digger',
+  dig: 'digger',
+  fell: 'woodsman',
+  farm: 'farmhand',
+};
+
+/**
+ * THE DAWN PASS (SIM 36): one deterministic assignment per adult villager per day,
+ * computed after the day's commands apply and before any work runs, frozen for the
+ * day (the no-trade-change-within-a-day invariant smithMult leans on). Favor, not
+ * puppet: the player never assigns anyone — each hand, in state.people array order,
+ * takes (1) their GREENED jobs first, in ladder order (the groove — this supersedes
+ * the SIM 4/14 global ordering for skilled hands: farmers farm), then (2) yesterday's
+ * job if it still has work (deterministic stickiness, so a hand settles in and
+ * actually accrues its year), then (3) the global ladder lay → fill → roof → dig →
+ * fell → farm.
+ *
+ * LAY is supply-governed by a VIRTUAL LEDGER, so the old mason/laborer split becomes
+ * emergent: each lay assignment consumes a day's estimated draw from the ledger, each
+ * dig assignment ADDS its working's per-day yield (today's trickle is laid today —
+ * worldStep wins before it lays), and when the ledger runs dry later hands fall
+ * through to digging. All reads are dawn-decidable (stockpile, face buffers + today's
+ * cart delivery, the workings' frozen economics) — never supply the same day's later
+ * phases produce, which is the duty-cycle oscillation this pass was pinned against.
+ * FARM demand is BOUNDED (area/FARM_AREA_PER_HAND hands per farm per day), so tending
+ * saturates and can never swallow the crew. Recomputed every tick from state; the
+ * map itself is never hashed. Exported so the theater and HUD read the SAME truth.
+ */
+export function computeAssignments(state: WorldState): Map<number, Assignment> {
+  const out = new Map<number, Assignment>();
+  // the dawn work census
+  const fillWork = state.fills.some((f) => f.volumeMoved < f.volumeTotal);
+  const roofWork = state.roofs.some((r) => r.material !== null && r.workDone < r.workTotal);
+  const digTarget =
+    state.cuts.find((c) => c.workDone < c.workTotal) ??
+    state.adits.find((a) => a.workDone < a.workTotal) ??
+    state.bellPits.find((b) => b.workDone < b.workTotal) ??
+    state.shafts.find((s) => s.workDone < s.workTotal) ??
+    null;
+  const digYield = digTarget ? digTarget.stoneTotal / digTarget.workTotal : 0;
+  const fellWork = state.stands.some((s) => s.felling && s.workDone < s.workTotal);
+  let farmSlots = 0;
+  for (const f of state.farms) {
+    if (f.use === 'farm') farmSlots += Math.ceil(f.area / FARM_AREA_PER_HAND);
+  }
+  // the lay ledgers: STONE a mason could draw today — the pile (which feeds local walls
+  // AND the carts) plus stone already standing at the hauled faces. A cart's haulRate is
+  // CAPACITY, never supply: counting it as supply assigned the whole crew to lay against
+  // a phantom delivery while the pit stood undug (the specimen that caught it) — and
+  // TIMBER for the palisades.
+  const layWalls = state.walls.filter((w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w));
+  let stoneLedger = state.stockpile;
+  let stoneWallWork = false;
+  let woodWallWork = false;
+  for (const w of layWalls) {
+    if (w.material === 'wood') woodWallWork = true;
+    else {
+      stoneWallWork = true;
+      if (w.haulRate !== null) stoneLedger += w.faceBuffer;
+    }
+  }
+  let timberLedger = state.timber;
+
+  const hasWork = (a: Assignment): boolean => {
+    switch (a) {
+      case 'lay':
+        return (stoneWallWork && stoneLedger > 0) || (woodWallWork && timberLedger > 0);
+      case 'fill':
+        return fillWork;
+      case 'roof':
+        return roofWork;
+      case 'dig':
+        return digTarget !== null;
+      case 'fell':
+        return fellWork;
+      case 'farm':
+        return farmSlots > 0;
+    }
+  };
+  const take = (p: Person, a: Assignment): void => {
+    out.set(p.id, a);
+    if (a === 'farm') farmSlots -= 1;
+    else if (a === 'dig') stoneLedger += digYield * jobMult(p, 'digger'); // today's trickle, layable today
+    else if (a === 'lay') {
+      // a day's estimated draw; the scappled STONE_VOLUME is the heuristic unit (dress
+      // varies per wall — this governs the ASSIGNMENT count, the lay loop spends the truth)
+      if (stoneWallWork && stoneLedger > 0) stoneLedger -= layRateOf(p) * STONE_VOLUME;
+      else timberLedger -= layRateOf(p) * TIMBER_PER_POST;
+    }
+  };
+
+  for (const p of state.people) {
+    if (p.trade !== 'villager' || !isAdult(p, state.tick)) continue; // smiths keep their forge; children play
+    let picked: Assignment | null = null;
+    // 1. the groove of the skilled hand: greened jobs, in ladder order
+    for (const a of ASSIGNMENT_LADDER) {
+      if (p.worked[JOB_OF[a]] >= GREEN_DAYS && hasWork(a)) {
+        picked = a;
+        break;
+      }
+    }
+    // 2. yesterday's work, if it still wants hands (ties settle into grooves)
+    if (picked === null && p.lastJob !== null) {
+      for (const a of ASSIGNMENT_LADDER) {
+        if (JOB_OF[a] === p.lastJob && hasWork(a)) {
+          picked = a;
+          break;
+        }
+      }
+    }
+    // 3. the global ladder
+    if (picked === null) {
+      for (const a of ASSIGNMENT_LADDER) {
+        if (hasWork(a)) {
+          picked = a;
+          break;
+        }
+      }
+    }
+    if (picked !== null) take(p, picked);
+  }
+  return out;
 }
 
 /**
- * Laborers move earth to the oldest unfinished fill (m³/day = their pace),
- * then deck the oldest unfinished roof (≈ m²/day at the same pace), and a
- * laborer with NO construction that day tends the ARABLE farm with the fewest
- * workdays instead (tie: the older farm) — one person-day of field work.
- * Earth outranks carpentry outranks the fields outranks idleness. The Lodge
- * never puppets individuals: the work exists, so hands find it.
+ * The day's earth-and-field work (SIM 36: by ASSIGNMENT — one job per hand per day;
+ * the old within-day fallthrough retired with the trades). A hand assigned FILL or
+ * ROOF spends an earth-rate quota across that job's targets oldest-first; DIG and
+ * FELL advance their working one skill-weighted person-day (the ILO pace is baked in
+ * workTotal); FARM tends the fewest-workdays arable field. A day that produced real
+ * work writes the person's biography: worked[job] += 1, lastJob = job.
  */
-function moveEarth(state: WorldState): void {
+function moveEarth(state: WorldState, assignments: Map<number, Assignment>): void {
   for (const person of state.people) {
-    if (person.trade !== 'laborer' || !isAdult(person, state.tick)) continue; // SIM 20: children don't dig
-    let quota = person.pace;
+    if (person.trade !== 'villager' || !isAdult(person, state.tick)) continue; // SIM 20: children don't dig
+    const assigned = assignments.get(person.id);
+    if (assigned === undefined || assigned === 'lay' || assigned === 'farm') continue; // lay runs in layStones; farm below
+    let quota = earthRateOf(person, JOB_OF[assigned]);
     let moved = 0;
-    while (quota > 0) {
-      const fill = state.fills.find((f) => f.volumeMoved < f.volumeTotal);
-      if (!fill) break;
-      const m = Math.min(quota, fill.volumeTotal - fill.volumeMoved);
-      fill.volumeMoved += m;
-      moved += m;
-      quota -= m;
-      if (fill.volumeMoved >= fill.volumeTotal) {
-        state.events.push({ kind: 'fill_complete', tick: state.tick, fillId: fill.id });
+    if (assigned === 'fill') {
+      while (quota > 0) {
+        const fill = state.fills.find((f) => f.volumeMoved < f.volumeTotal);
+        if (!fill) break;
+        const m = Math.min(quota, fill.volumeTotal - fill.volumeMoved);
+        fill.volumeMoved += m;
+        moved += m;
+        quota -= m;
+        if (fill.volumeMoved >= fill.volumeTotal) {
+          state.events.push({ kind: 'fill_complete', tick: state.tick, fillId: fill.id });
+        }
       }
     }
-    while (quota > 0) {
-      // an UNCOVERED span (material null) is not work — nobody decks bare
-      // air; the designate_roof word opens it to the crew
-      const roof = state.roofs.find((r) => r.material !== null && r.workDone < r.workTotal);
-      if (!roof) break;
-      const m = Math.min(quota, roof.workTotal - roof.workDone);
-      roof.workDone += m;
-      moved += m;
-      quota -= m;
-      if (roof.workDone >= roof.workTotal) {
-        state.events.push({ kind: 'roof_complete', tick: state.tick, roofId: roof.id });
+    if (assigned === 'roof') {
+      while (quota > 0) {
+        // an UNCOVERED span (material null) is not work — nobody decks bare
+        // air; the designate_roof word opens it to the crew
+        const roof = state.roofs.find((r) => r.material !== null && r.workDone < r.workTotal);
+        if (!roof) break;
+        const m = Math.min(quota, roof.workTotal - roof.workDone);
+        roof.workDone += m;
+        moved += m;
+        quota -= m;
+        if (roof.workDone >= roof.workTotal) {
+          state.events.push({ kind: 'roof_complete', tick: state.tick, roofId: roof.id });
+        }
       }
     }
-    if (moved === 0) {
-      // a QUARRY outranks field-work (SIM 14): an idle laborer digs the oldest
-      // unfinished cut — one person-day, the strata's pace already baked into
-      // workTotal. The stone flows to the stockpile AS IT IS DUG (SIM 35, the
-      // checkpoint credit — exact-total at completion); the completion events
-      // still fire once, when the pit is worked out. No cut, no digging: the
-      // field path below is untouched, so a world with no quarries behaves
-      // exactly as before SIM 14.
+    if (assigned === 'dig') {
+      // THE DIGGING (SIM 14/15, assignment-driven since SIM 36): the hand works the
+      // oldest unfinished working in the method ladder's order — cut, adit, bell pit,
+      // shaft — one skill-weighted person-day (a green digger's day counts 9/8; the
+      // strata's pace is already baked into workTotal). The stone flows AS IT IS DUG
+      // (SIM 35, checkpoint credit, exact-total); completion events still fire once.
+      const dig = (working: {
+        id: number;
+        workDone: number;
+        workTotal: number;
+        stoneTotal: number;
+        stoneWon: boolean;
+      }): boolean => {
+        const before = working.workDone;
+        working.workDone += jobMult(person, 'digger');
+        state.stockpile += checkpointCredit(working.stoneTotal, working.workDone, before, working.workTotal);
+        return working.workDone >= working.workTotal && !working.stoneWon;
+      };
       const cut = state.cuts.find((c) => c.workDone < c.workTotal);
+      const adit = cut ? undefined : state.adits.find((a) => a.workDone < a.workTotal);
+      const bellPit = cut || adit ? undefined : state.bellPits.find((b) => b.workDone < b.workTotal);
+      const shaft = cut || adit || bellPit ? undefined : state.shafts.find((s) => s.workDone < s.workTotal);
       if (cut) {
-        cut.workDone += 1;
         moved = 1;
-        state.stockpile += checkpointCredit(cut.stoneTotal, cut.workDone, cut.workTotal);
-        if (cut.workDone >= cut.workTotal && !cut.stoneWon) {
+        if (dig(cut)) {
           cut.stoneWon = true;
           state.events.push({ kind: 'cut_complete', tick: state.tick, cutId: cut.id });
           state.events.push({ kind: 'stone_won', tick: state.tick, cutId: cut.id, stone: cut.stoneTotal });
         }
-      }
-    }
-    if (moved === 0) {
-      // an ADIT is driven like a quarry is dug (SIM 15), ranked just under the
-      // quarry: an idle laborer drives the oldest unfinished adit one person-day
-      // (the strata's pace already baked into workTotal). On the day it is holed
-      // through, the dewatered building stone is credited. No adit, no driving —
-      // the field path below is untouched, so a world with no adits is byte-
-      // identical to before SIM 15.
-      const adit = state.adits.find((a) => a.workDone < a.workTotal);
-      if (adit) {
-        adit.workDone += 1;
+      } else if (adit) {
         moved = 1;
-        state.stockpile += checkpointCredit(adit.stoneTotal, adit.workDone, adit.workTotal);
-        if (adit.workDone >= adit.workTotal && !adit.stoneWon) {
+        if (dig(adit)) {
           adit.stoneWon = true;
           state.events.push({ kind: 'adit_complete', tick: state.tick, aditId: adit.id });
           state.events.push({ kind: 'adit_stone_won', tick: state.tick, aditId: adit.id, stone: adit.stoneTotal });
         }
-      }
-    }
-    if (moved === 0) {
-      // A BELL PIT is sunk like a quarry is dug (SIM 15), ranked just under the adit: an idle
-      // laborer sinks + works the oldest unfinished pit one person-day (the strata's pace baked
-      // into workTotal). On the day it is worked out, the dry building stone is credited. No bell
-      // pit, no sinking — the field path below is untouched, so a world with none is byte-identical.
-      const bellPit = state.bellPits.find((b) => b.workDone < b.workTotal);
-      if (bellPit) {
-        bellPit.workDone += 1;
+      } else if (bellPit) {
         moved = 1;
-        state.stockpile += checkpointCredit(bellPit.stoneTotal, bellPit.workDone, bellPit.workTotal);
-        if (bellPit.workDone >= bellPit.workTotal && !bellPit.stoneWon) {
+        if (dig(bellPit)) {
           bellPit.stoneWon = true;
           state.events.push({ kind: 'bell_pit_complete', tick: state.tick, bellPitId: bellPit.id });
           state.events.push({ kind: 'bell_pit_stone_won', tick: state.tick, bellPitId: bellPit.id, stone: bellPit.stoneTotal });
         }
-      }
-    }
-    if (moved === 0) {
-      // A SHAFT is sunk + PUMPED like a bell pit (SIM 15), ranked just under it: an idle laborer
-      // sinks the oldest unfinished shaft one person-day (the pump tax already baked into workTotal).
-      // On the day it is worked out, the dewatered building stone is credited. No shaft, no sinking —
-      // the field path below is untouched, so a world with none is byte-identical.
-      const shaft = state.shafts.find((s) => s.workDone < s.workTotal);
-      if (shaft) {
-        shaft.workDone += 1;
+      } else if (shaft) {
         moved = 1;
-        state.stockpile += checkpointCredit(shaft.stoneTotal, shaft.workDone, shaft.workTotal);
-        if (shaft.workDone >= shaft.workTotal && !shaft.stoneWon) {
+        if (dig(shaft)) {
           shaft.stoneWon = true;
           state.events.push({ kind: 'shaft_complete', tick: state.tick, shaftId: shaft.id });
           state.events.push({ kind: 'shaft_stone_won', tick: state.tick, shaftId: shaft.id, stone: shaft.stoneTotal });
         }
       }
     }
-    if (moved === 0) {
-      // THE WOODS are felled like a quarry is dug (SIM 19), ranked just under the
-      // adit: an idle laborer fells the oldest stand still under the axe, one
-      // person-day. On the day the cant is felled through, its timber is credited to
-      // the global stock and the stool begins to regrow (regrowWoods matures it
-      // later). No stand being felled, no felling — the field path below is
-      // untouched, so a world with no woods work is byte-identical to before SIM 19.
+    if (assigned === 'fell') {
+      // THE FELLING (SIM 19, assignment-driven since SIM 36): one skill-weighted
+      // person-day on the oldest stand under the axe; the wood drops AS it's felled
+      // (SIM 35); the stool's regrowth clock still starts at completion.
       const stand = state.stands.find((s) => s.felling && s.workDone < s.workTotal);
       if (stand) {
-        stand.workDone += 1;
+        const before = stand.workDone;
+        stand.workDone += jobMult(person, 'woodsman');
         moved = 1;
-        // SIM 35: the wood drops where (and WHEN) it's felled — timber flows per felled
-        // person-day (checkpoint credit, exact-total); the stool's regrowth clock still
-        // starts at completion (feltTick), and the chronicle line still fires once.
-        state.timber += checkpointCredit(stand.timberTotal, stand.workDone, stand.workTotal);
+        state.timber += checkpointCredit(stand.timberTotal, stand.workDone, before, stand.workTotal);
         if (stand.workDone >= stand.workTotal) {
           stand.felling = false;
           stand.feltTick = state.tick;
@@ -1150,15 +1268,28 @@ function moveEarth(state: WorldState): void {
         }
       }
     }
-    if (moved === 0) {
-      // ARABLE only: pasture is grazed by its herd (later), fallow rests —
-      // hands go to the tilled fields alone
-      let target: { workdays: number } | null = null;
-      for (const f of state.farms) {
-        if (f.use !== 'farm') continue;
-        if (target === null || f.workdays < target.workdays) target = f;
-      }
-      if (target !== null) target.workdays += 1;
+    if (moved > 0) {
+      // the biography (SIM 36): a day of real work at a job is a day toward its band
+      person.worked[JOB_OF[assigned]] += 1;
+      person.lastJob = JOB_OF[assigned];
+    }
+  }
+  // THE TENDING (assignment-driven since SIM 36; ARABLE only — pasture is grazed by
+  // its herd (later), fallow rests): each hand assigned to the fields tends the farm
+  // with the fewest workdays, a skill-weighted person-day (a green farmhand's day
+  // counts 9/8 — worked in exact eighths).
+  for (const person of state.people) {
+    if (person.trade !== 'villager' || !isAdult(person, state.tick)) continue;
+    if (assignments.get(person.id) !== 'farm') continue;
+    let target: { workdays: number } | null = null;
+    for (const f of state.farms) {
+      if (f.use !== 'farm') continue;
+      if (target === null || f.workdays < target.workdays) target = f;
+    }
+    if (target !== null) {
+      target.workdays += jobMult(person, 'farmhand');
+      person.worked.farmhand += 1;
+      person.lastJob = 'farmhand';
     }
   }
 }
@@ -1202,8 +1333,10 @@ function newAdult(state: WorldState, rng: Rng, tick: number): Person {
   return {
     id: state.nextId++,
     name: rng.pick(FOLK_NAMES),
-    trade: 'laborer', // migrants arrive as hands; the trades split in step 3
-    pace: 3 + rng.int(3),
+    trade: 'villager', // migrants arrive untrained hands (SIM 36) — skill is earned by doing
+    vigor: rng.float(),
+    worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0 },
+    lastJob: null,
     bornTick: tick - Math.round((ADULT_AGE + rng.int(15)) * TICKS_PER_YEAR),
   };
 }
@@ -1213,8 +1346,10 @@ function newChild(state: WorldState, rng: Rng, tick: number): Person {
   return {
     id: state.nextId++,
     name: rng.pick(FOLK_NAMES),
-    trade: 'laborer',
-    pace: 3 + rng.int(3),
+    trade: 'villager',
+    vigor: rng.float(),
+    worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0 },
+    lastJob: null,
     bornTick: tick,
   };
 }
@@ -1382,9 +1517,9 @@ function livingYear(state: WorldState): void {
     let apprentice: Person | null = null;
     if (smiths >= 1) {
       for (const p of state.people) {
-        // the youngest adult laborer — a child of the settlement newly come of age is the
+        // the youngest adult villager — a child of the settlement newly come of age is the
         // apprentice (largest bornTick = youngest); specialists and children are never drawn.
-        if (p.trade !== 'laborer' || !isAdult(p, state.tick)) continue;
+        if (p.trade !== 'villager' || !isAdult(p, state.tick)) continue;
         if (apprentice === null || p.bornTick > apprentice.bornTick) apprentice = p;
       }
     }
@@ -1641,7 +1776,12 @@ function haulStone(state: WorldState): void {
   }
 }
 
-function layStones(state: WorldState, site: SiteData, rng: Rng): void {
+function layStones(
+  state: WorldState,
+  site: SiteData,
+  rng: Rng,
+  assignments: Map<number, Assignment>,
+): void {
   // a wall the masons can WORK this moment (SIM 16 + 17 + 19): drawings settled (a
   // plotted building waits on its roof and trade), and its supply in hand — a WOOD
   // wall now DRAWS the global TIMBER stock (SIM 19: the WOODS are a cost; a post
@@ -1665,13 +1805,16 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
   const smiths = state.people.reduce((n, p) => (p.trade === 'smith' ? n + 1 : n), 0);
   const smithMult = 1 - Math.min(SMITH_RELIEF_MAX, smiths * SMITH_DRESS_RELIEF);
   for (const person of state.people) {
-    if (person.trade !== 'mason' || !isAdult(person, state.tick)) continue; // SIM 20: children don't lay
-    let quota = person.pace;
+    // SIM 36: the dawn pass assigns the day's layers (children and smiths never lay)
+    if (person.trade !== 'villager' || !isAdult(person, state.tick)) continue;
+    if (assignments.get(person.id) !== 'lay') continue;
+    let quota = layRateOf(person);
+    let laidAny = false;
     while (quota > 0) {
       const wall = state.walls.find(
         (w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w) && supplied(w),
       );
-      if (!wall) return;
+      if (!wall) break;
       // where the next stone lands (its COURSE decides the lift cost, SIM 26)
       const decomp = decomposeWall(wall.points, wall.height, wall.gates);
       const pick = pickSlot(wall, decomp.slots);
@@ -1713,9 +1856,15 @@ function layStones(state: WorldState, site: SiteData, rng: Rng): void {
         wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];
       }
       layOneStone(state, site, rng, wall, person.id, pick, decomp.spacing);
+      laidAny = true;
       // the LIFT taxes the mason's day (SIM 26); the SMITH relieves it (SIM 27). smithMult is
       // 1 with no forge, so this is byte-identical to SIM 26 until a smith stands at the base.
       quota -= DRESS_SPEC[wall.dressLevel].layDebt * liftMult * smithMult;
+    }
+    if (laidAny) {
+      // the biography (SIM 36): a day that laid real stone is a day toward the mason band
+      person.worked.mason += 1;
+      person.lastJob = 'mason';
     }
   }
 }

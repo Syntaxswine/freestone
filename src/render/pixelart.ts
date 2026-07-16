@@ -43,11 +43,19 @@ function hashId(n: number): number {
   return (x ^ (x >>> 16)) >>> 0;
 }
 
+/**
+ * The figure's COSTUME (SIM 36): trades no longer exist below the smith, so the look
+ * is a presentation choice — 'hand' is the hooded villager, 'mason' the capped-and-
+ * aproned layer (worn by ASSIGNMENT once Course 2's retexture lands), 'smith' the
+ * sooty specialist. Kept apart from Person['trade'] on purpose.
+ */
+export type Costume = 'hand' | 'mason' | 'smith';
+
 interface Look {
   skin: string;
   tunic: string;
   hood: string;
-  trade: Person['trade'];
+  costume: Costume;
 }
 
 function drawFigure(
@@ -61,9 +69,9 @@ function drawFigure(
   };
 
   // head + headgear (face rows stay visible under both)
-  if (look.trade === 'mason') {
+  if (look.costume === 'mason') {
     P(9, 4, 6, 3, CAP);
-  } else if (look.trade === 'smith') {
+  } else if (look.costume === 'smith') {
     P(9, 4, 6, 3, SMITH_CAP); // a close sooty cap, bare of the hood
   } else {
     P(9, 4, 6, 3, look.hood);
@@ -75,14 +83,14 @@ function drawFigure(
 
   // torso + skirt of the tunic
   P(7, 12, 10, 6, look.tunic);
-  if (look.trade === 'mason') P(9, 13, 6, 5, APRON);
-  else if (look.trade === 'smith') P(8, 12, 8, 6, SMITH_APRON); // a full, heavy apron chest to belt
+  if (look.costume === 'mason') P(9, 13, 6, 5, APRON);
+  else if (look.costume === 'smith') P(8, 12, 8, 6, SMITH_APRON); // a full, heavy apron chest to belt
   P(7, 17, 10, 1, BELT);
   P(8, 18, 8, 4, look.tunic);
 
   // arms + legs by pose
   if (pose === 'work') {
-    if (look.trade === 'mason') {
+    if (look.costume === 'mason') {
       // left arm steadies, right arm raised with the hammer
       P(5, 12, 2, 6, look.tunic);
       P(5, 18, 2, 1, look.skin);
@@ -90,7 +98,7 @@ function drawFigure(
       P(17, 6, 1, 3, look.skin);
       P(18, 5, 1, 4, HAFT);
       P(17, 3, 3, 2, IRON);
-    } else if (look.trade === 'smith') {
+    } else if (look.costume === 'smith') {
       // the smith strikes: right arm raised with the hammer, left holds tongs and a hot bloom
       P(16, 8, 2, 4, look.tunic);
       P(17, 6, 1, 3, look.skin);
@@ -133,14 +141,18 @@ function drawFigure(
   }
 }
 
-/** One 4-frame sheet per person; NearestFilter keeps the pixels honest. */
-export function personTexture(person: Person): THREE.CanvasTexture {
+/**
+ * One 4-frame sheet per person; NearestFilter keeps the pixels honest. The costume
+ * defaults from the trade (smith wears the apron, everyone else the hood); Course 2's
+ * retexture-on-assignment passes 'mason' for the day's layers.
+ */
+export function personTexture(person: Person, costume?: Costume): THREE.CanvasTexture {
   const h = hashId(person.id);
   const look: Look = {
     skin: SKINS[h % SKINS.length]!,
     tunic: TUNICS[(h >>> 3) % TUNICS.length]!,
     hood: HOODS[(h >>> 7) % HOODS.length]!,
-    trade: person.trade,
+    costume: costume ?? (person.trade === 'smith' ? 'smith' : 'hand'),
   };
 
   const canvas = document.createElement('canvas');

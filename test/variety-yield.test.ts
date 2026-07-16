@@ -13,6 +13,7 @@ import { describe, expect, it } from 'vitest';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
+import { villager } from './helpers';
 import {
   AREA_PER_PERSON,
   FOUNDING_STORAGE,
@@ -38,13 +39,7 @@ const field = (id: number, use: Farm['use'], area: number): Farm => ({
   workdays: 0,
 });
 const granary = (id: number): Building => ({ id, wallId: 8000 + id, kind: 'granary', roof: 'none', area: 30 });
-const adult = (id: number): Person => ({
-  id,
-  name: `A${id}`,
-  trade: 'laborer',
-  pace: 4,
-  bornTick: -25 * TICKS_PER_YEAR,
-});
+const adult = (id: number): Person => villager(id, { bornTick: -25 * TICKS_PER_YEAR });
 /** the last harvest reckoning on the record (control-flow narrows to the harvest member) */
 function lastHarvest(w: ReturnType<typeof fresh>) {
   for (let i = w.events.length - 1; i >= 0; i--) {

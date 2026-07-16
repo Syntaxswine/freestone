@@ -29,8 +29,8 @@ const wall = (points: Vec2[], height: number, tick = 0): Command => ({
   height,
 });
 
-/** first wall in a fresh world is id 5 (4 founders) */
-const W1 = 5;
+/** first wall in a fresh world is id 14 (13 founders, SIM 36) */
+const W1 = 14;
 
 const designate = (
   wallId: number,

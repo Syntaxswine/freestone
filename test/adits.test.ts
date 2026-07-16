@@ -117,9 +117,10 @@ describe('the adit in the sim', () => {
     expect(later.events.filter((e) => e.kind === 'adit_stone_won')).toHaveLength(1);
   });
 
-  it('an adit is driven before a field is tended', () => {
-    // a farm plus an adit: idle laborers spend the day driving, so the farm gathers
-    // no workdays while the heading is unfinished. Founders take ids 1–4 ⇒ first wall id 5.
+  it('an adit draws the untrained hands — and costs the farm nothing (SIM 36)', () => {
+    // a farm plus a later adit: the farm's demand is BOUNDED (slots held by the green
+    // farmhands), so the untrained crew drives the heading while the tending holds.
+    // Founders take ids 1–13 ⇒ first wall id 14.
     const farmRing: Command = {
       kind: 'plan_wall',
       tick: 0,
@@ -134,9 +135,10 @@ describe('the adit in the sim', () => {
     };
     // the ring needs stone to build; a founding quarry wins it at tick 0 (SIM 16)
     const seedQuarry: Command = { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 };
-    const w = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }, adit(45)], 70);
-    const noAdit = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 5, use: 'farm' }], 70);
-    expect(w.farms[0]!.workdays).toBeLessThan(noAdit.farms[0]!.workdays);
+    const w = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 14, use: 'farm' }, adit(45)], 70);
+    const noAdit = run([farmRing, seedQuarry, { kind: 'designate', tick: 40, wallId: 14, use: 'farm' }], 70);
+    expect(w.adits[0]!.workDone).toBeGreaterThan(0); // the heading was driven…
+    expect(w.farms[0]!.workdays).toBeCloseTo(noAdit.farms[0]!.workdays, 9); // …at no cost to the field
   });
 
   it('replays an adit byte-for-byte', () => {

@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
+import { villager } from './helpers';
 import {
   AREA_PER_PERSON,
   FOUNDING_SHELTER,
@@ -33,13 +34,7 @@ function stepN(world: ReturnType<typeof fresh>, n: number) {
   for (let i = 0; i < n; i++) worldStep(world, site, []);
 }
 const hall = (id: number): Building => ({ id, wallId: 8000 + id, kind: 'house', roof: 'brick', area: 100 });
-const adult = (id: number): Person => ({
-  id,
-  name: `A${id}`,
-  trade: 'laborer',
-  pace: 4,
-  bornTick: -25 * TICKS_PER_YEAR,
-});
+const adult = (id: number): Person => villager(id, { bornTick: -25 * TICKS_PER_YEAR });
 
 describe('housing tiers (SIM 25)', () => {
   it('reads a house tier from its floor and its roof', () => {
@@ -53,14 +48,15 @@ describe('housing tiers (SIM 25)', () => {
   });
 
   it('a well-housed settlement holds its people through a hard year', () => {
-    // two hungry settlements, same ten souls and seed — one roofed in halls, one bare
+    // two hungry settlements, same thirty souls and seed (the SIM-36 founding floor of
+    // 13 feeds 13 — thirty starves) — one roofed in halls, one bare
     const bare = fresh('hold');
-    bare.people = Array.from({ length: 10 }, (_, i) => adult(300 + i));
+    bare.people = Array.from({ length: 30 }, (_, i) => adult(300 + i));
     bare.farms = []; // no food → the leave pass runs each year
     const housed = fresh('hold');
-    housed.people = Array.from({ length: 10 }, (_, i) => adult(300 + i));
+    housed.people = Array.from({ length: 30 }, (_, i) => adult(300 + i));
     housed.farms = [];
-    housed.buildings = [hall(1), hall(2)]; // shelter well past the ten mouths
+    housed.buildings = [hall(1), hall(2), hall(3), hall(4)]; // shelter well past the thirty mouths
     stepN(bare, TICKS_PER_YEAR * 3);
     stepN(housed, TICKS_PER_YEAR * 3);
     expect(bare.events.some((e) => e.kind === 'person_left')).toBe(true); // the bare village bled souls

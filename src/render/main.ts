@@ -58,12 +58,16 @@ import {
   seasonOf,
   ticksUntilNextSeason,
   yearOf,
+  ADULT_AGE,
+  earthRateOf,
+  layRateOf,
   type BuildingKind,
   type BuildingRoof,
   type Command,
   type DressLevel,
   type FieldUse,
   type HaulMethod,
+  type Person,
   type RoofMaterial,
   type Vec2,
   type WorldState,
@@ -1152,12 +1156,17 @@ async function boot(): Promise<void> {
   const workshops = new WorkshopLayer(world, scene, groundShow);
   // the great wheel made visible: a treadwheel crane beside every wall that raised one (SIM 26)
   const wheel = new WheelLayer(world, scene, groundShow);
-  const paceSum = world.people
-    .filter((p) => p.trade === 'mason')
-    .reduce((n, p) => n + p.pace, 0);
-  const earthPace = world.people
-    .filter((p) => p.trade === 'laborer')
-    .reduce((n, p) => n + p.pace, 0);
+  // SIM 36: the trades are fluid, so the crew-pace ETAs derive LIVE from the roster —
+  // the whole adult villagery at its per-job rates (an optimistic "all hands" read; the
+  // dawn pass splits them daily, but a boot-frozen sum lied the moment anyone churned).
+  const adultVillagers = (): Person[] =>
+    world.people.filter(
+      (p) => p.trade === 'villager' && (world.tick - p.bornTick) / TICKS_PER_YEAR >= ADULT_AGE,
+    );
+  const paceSum = (): number =>
+    Math.max(1, Math.round(adultVillagers().reduce((n, p) => n + layRateOf(p), 0)));
+  const earthPace = (): number =>
+    Math.max(1, Math.round(adultVillagers().reduce((n, p) => n + earthRateOf(p, 'digger'), 0)));
 
   // --- title screen + tutorial wiring (SIM 15 arc; UI only, the sim is untouched) ---
   let started = false; // a game has begun this session — gates stepping + the Back button
@@ -1629,7 +1638,7 @@ async function boot(): Promise<void> {
       ? ''
       : stoneWalls.length === 0
         ? ` — won ${Math.round(world.stockpile)} m³`
-        : ` — won ${Math.round(world.stockpile)} m³ · masons ${paceSum}/day → ${bind}${wheeling ? ' · ⚙ the great wheel turns' : ''}${forging ? ' · 🔨 the forge sharpens the irons' : ''}`;
+        : ` — won ${Math.round(world.stockpile)} m³ · layers ${paceSum()}/day → ${bind}${wheeling ? ' · ⚙ the great wheel turns' : ''}${forging ? ' · 🔨 the forge sharpens the irons' : ''}`;
     // THE WOODS read (SIM 19): the timber stock, and the coppice's return clock
     const felling = world.stands.filter((s) => s.felling).length;
     const regrowing = world.stands.filter((s) => !s.felling && s.feltTick >= 0);
@@ -1749,7 +1758,7 @@ async function boot(): Promise<void> {
           setText(
             plan,
             `plan: ${planner.fillShape === 'ramp' ? 'ramp' : 'fill'} ${area.toFixed(0)} m² · ≈${vol.toFixed(0)} m³ of earth · ` +
-              `~${Math.ceil(vol / Math.max(1, earthPace))} days of barrowing`,
+              `~${Math.ceil(vol / earthPace())} days of barrowing`,
           );
         } else {
           setText(plan, 'plan: click the ground to ring the fill');
@@ -1844,7 +1853,7 @@ async function boot(): Promise<void> {
           }
           setText(
             plan,
-            `plan: roof — ${area.toFixed(0)} m² · ~${Math.ceil(area / Math.max(1, earthPace))} days of decking · ` +
+            `plan: roof — ${area.toFixed(0)} m² · ~${Math.ceil(area / earthPace())} days of decking · ` +
               `the covering is asked when the span is drawn` +
               (held ? '' : ' · corners must rest on finished walls'),
           );
@@ -1925,7 +1934,7 @@ async function boot(): Promise<void> {
           plan,
           s
             ? `plan: ${name}${s.length.toFixed(0)} m · ${s.courses} courses · ` +
-                `${s.stonesTotal.toLocaleString()} ${stuff} · ~${Math.ceil(s.stonesTotal / Math.max(1, paceSum))} days${warn}${dress}${haul}`
+                `${s.stonesTotal.toLocaleString()} ${stuff} · ~${Math.ceil(s.stonesTotal / paceSum())} days${warn}${dress}${haul}`
             : 'plan: click the ground to start the line',
         );
         setText(

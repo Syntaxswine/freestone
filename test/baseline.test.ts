@@ -62,6 +62,17 @@ const MILESTONE_TICKS = [1, 7, 30, 65, 80, 100, 130, 200];
  *  - ids re-probed under the trickle (stones share nextId, so earlier laying
  *    shifted every later mint): FR 225 → 278, BS 334 → 399; the span's roofId
  *    2531 HELD (all five walls still finish before the tick-135 span is drawn).
+ *
+ * SIM 36 re-authored it again — THIRTEEN FOUNDERS (3 green farmhands + 10
+ * untrained) and the SKILL-ERA dawn pass: founders take ids 1–13, so every
+ * mint shifts again (FR 278 → 18, BS 399 → 937, the span 2531 → 2540); the
+ * crew's GROOVES show in the fingerprint (hands stick to the earthwork through
+ * ~tick 9 — the tick-7 milestone reads pile 23.5 with no stone yet laid — then
+ * the walls fly: wood B done ~12, FR ~13, cart-bound A ~27, the HAUL stall
+ * alive); the ashlar tavern's PILE stall is now LONG and legible (411/830 from
+ * ~t30 on a drained pile, through the 65/80 milestones, until Q2 at 92 revives
+ * it — done ~99); and the farm tends its BOUNDED two slots at the green ×9/8
+ * from the word (workdays 45 by t100, 270 by t200 — exact eighths).
  */
 const CANON_COMMANDS: Command[] = [
   // Q1 — THE FOUNDING QUARRY (SIM 16; trickling since SIM 35): the crew opens the
@@ -77,8 +88,7 @@ const CANON_COMMANDS: Command[] = [
   // comes up the bank by CART at a frozen 0.6 m³/day (SIM 17) — far slower than the
   // masons could lay it — so A is CART-bound its whole life even while Q1's trickle
   // keeps the pile alive (SIM 35 killed A's old WIN wait, not its road). Light
-  // RUBBLE (SIM 18: lays 0.5 days/stone); mid-crawl 112/384 at the 30 milestone,
-  // done ~49.
+  // RUBBLE (SIM 18: lays 0.5 days/stone); done ~27 under SIM 36 (the thirteen-hand crew lays faster than the road feeds).
   { kind: 'plan_wall', tick: 5, points: [{ x: 1960, y: 2000 }, { x: 1995, y: 2000 }], height: 1, haulRate: 0.6, method: 'ox-cart uphill', dressLevel: 'rubble' },
   // B — a WOOD wall: since SIM 19 timber is a COST — its ~590 posts DRAW the global
   // timber stock (TIMBER_PER_POST each), spending the founder's woodpile down from
@@ -89,14 +99,14 @@ const CANON_COMMANDS: Command[] = [
   { kind: 'plan_wall', tick: 6, points: [{ x: 1940, y: 1980 }, { x: 1940, y: 1955 }], height: 2.5, material: 'wood' },
   // FR — a closed low ring on the gorge bank: stepped footings bill 629 stones
   // (SIM 13). A field wall is light RUBBLE (SIM 18); fed by Q1's trickle it
-  // completes ~50, and the word (tick 80) makes it a farm.
+  // completes ~13 under SIM 36, and the word (tick 80) makes it a farm.
   { kind: 'plan_wall', tick: 10, points: [{ x: 1990, y: 1900 }, { x: 2014, y: 1900 }, { x: 2014, y: 1924 }, { x: 1990, y: 1924 }, { x: 1990, y: 1900 }], height: 0.5, dressLevel: 'rubble' },
   // BS — a plotted building (SIM 12): the doorway loop's jambs are collinear on
   // the front edge. It pends for its DRAWINGS, and is the PILE stall's specimen —
   // a tall building wants dressed ASHLAR (SIM 18), so its 830 blocks draw half
   // again as much stone AND lay twice as slow; demand outruns Q1's trickle and BS
   // halts at 410/830 (the 65/80 milestones, pile 0) until Q2's trickle (from 92)
-  // creeps it back to life — done ~111. "Tall structures need heavier blocks."
+  // creeps it back to life — done ~99 under SIM 36. "Tall structures need heavier blocks."
   { kind: 'plan_wall', tick: 12, points: [{ x: 2044.55, y: 1960 }, { x: 2048, y: 1960 }, { x: 2048, y: 1966 }, { x: 2040, y: 1966 }, { x: 2040, y: 1960 }, { x: 2043.45, y: 1960 }], height: 3, dressLevel: 'ashlar' },
   // RF — a ramp fill (SIM 8): the wedge in the record
   { kind: 'plan_fill', tick: 15, points: [{ x: 1955, y: 1955 }, { x: 1961, y: 1955 }, { x: 1961, y: 1961 }, { x: 1955, y: 1961 }], height: 1, shape: 'ramp' },
@@ -110,13 +120,13 @@ const CANON_COMMANDS: Command[] = [
   // BS's drawings — the roof first (a thatched gable), then the trade. The masons
   // lay not one stone of BS until both are answered (SIM 12). wallId re-probed
   // under SIM 35 (334 → 399: earlier stone-laying shifted every later mint).
-  { kind: 'choose_roof', tick: 20, wallId: 399, roof: 'straw' },
-  { kind: 'designate', tick: 25, wallId: 399, use: 'tavern' },
+  { kind: 'choose_roof', tick: 20, wallId: 937, roof: 'straw' },
+  { kind: 'designate', tick: 25, wallId: 937, use: 'tavern' },
   // W-plat — a wall on F1's COMPLETED platform (tick 40, after it sets ~30): the
   // survey reads effectiveGroundAt raised, so the fill is in the fingerprint.
   { kind: 'plan_wall', tick: 40, points: [{ x: 1972, y: 1974 }, { x: 1980, y: 1974 }], height: 1, dressLevel: 'rubble' },
   // FR gets the word — arable; tending begins this tick (wallId re-probed 225 → 278)
-  { kind: 'designate', tick: 80, wallId: 278, use: 'farm' },
+  { kind: 'designate', tick: 80, wallId: 18, use: 'farm' },
   // Q2 — THE RELIEF QUARRY: the ashlar tavern outran Q1's whole yield, so a second
   // cut relieves it — and since SIM 35 the relief TRICKLES from its first day (no
   // more waiting for holing-through): BS creeps at the 100 milestone, done ~111.
@@ -139,11 +149,11 @@ const CANON_COMMANDS: Command[] = [
   // wall, a back DOOR in the tavern; then the farm gate is taken down and the
   // masons wall it back up through the daily loop — the infill DRAWS stone (SIM 16).
   // wallIds re-probed under SIM 35 (225 → 278, 334 → 399).
-  { kind: 'add_gate', tick: 140, wallId: 278, at: { x: 2014, y: 1912 } },
-  { kind: 'add_gate', tick: 140, wallId: 399, at: { x: 2044, y: 1966 } },
-  { kind: 'remove_gate', tick: 150, wallId: 278, at: { x: 2014, y: 1912 } },
+  { kind: 'add_gate', tick: 140, wallId: 18, at: { x: 2014, y: 1912 } },
+  { kind: 'add_gate', tick: 140, wallId: 937, at: { x: 2044, y: 1966 } },
+  { kind: 'remove_gate', tick: 150, wallId: 18, at: { x: 2014, y: 1912 } },
   // the covering chosen: flat brick — the deck the laborers build (done ~167)
-  { kind: 'designate_roof', tick: 160, roofId: 2531, material: 'brick' },
+  { kind: 'designate_roof', tick: 160, roofId: 2540, material: 'brick' },
 ];
 
 interface Milestone {

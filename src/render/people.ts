@@ -15,7 +15,15 @@
  */
 import * as THREE from 'three';
 import type { SiteData } from '../sim/site';
-import { awaitsDrawings, decomposeWall, pointAt, pointInPolygon, polylineLength } from '../sim/step';
+import {
+  awaitsDrawings,
+  computeAssignments,
+  decomposeWall,
+  pointAt,
+  pointInPolygon,
+  polylineLength,
+  type Assignment,
+} from '../sim/step';
 import {
   COURSE_HEIGHT,
   TICKS_PER_YEAR,
@@ -112,11 +120,26 @@ export class PeopleLayer {
       if (i >= 0) this.puppets.splice(i, 1);
       this.byId.delete(id);
     }
-    // masons set the station count; re-index each trade by array order so posts stay assigned
-    this.masonCount = Math.max(1, this.puppets.reduce((n, p) => n + (p.person.trade === 'mason' ? 1 : 0), 0));
+    // station/rota indexing now follows the DAY'S ASSIGNMENTS (SIM 36) — see update()
+  }
+
+  /**
+   * SIM 36: the theater reads the same dawn pass the sim runs (computeAssignments —
+   * the parity law: one exported truth, never re-derived). The day's layers set the
+   * station count; every group re-indexes by array order so posts stay stable.
+   */
+  private assignments = new Map<number, Assignment>();
+  private reindex(): void {
+    this.assignments = computeAssignments(this.world);
+    this.masonCount = Math.max(
+      1,
+      this.puppets.reduce((n, p) => n + (this.assignments.get(p.person.id) === 'lay' ? 1 : 0), 0),
+    );
     let m = 0;
     let l = 0;
-    for (const pup of this.puppets) pup.tradeIndex = pup.person.trade === 'mason' ? m++ : l++;
+    for (const pup of this.puppets) {
+      pup.tradeIndex = this.assignments.get(pup.person.id) === 'lay' ? m++ : l++;
+    }
   }
 
   private addPuppet(person: Person): void {
@@ -222,6 +245,38 @@ export class PeopleLayer {
     return { a, b };
   }
 
+  /** the first unfinished working's centroid — where a digger/feller stands (SIM 36 shim) */
+  private workingSpot(assigned: 'dig' | 'fell'): Vec2 | null {
+    if (assigned === 'fell') {
+      const s = this.world.stands.find((st) => st.felling && st.workDone < st.workTotal);
+      if (!s) return null;
+      let cx = 0;
+      let cy = 0;
+      for (const q of s.points) {
+        cx += q.x;
+        cy += q.y;
+      }
+      return { x: cx / s.points.length, y: cy / s.points.length };
+    }
+    const ringy = this.world.cuts.find((c) => c.workDone < c.workTotal);
+    if (ringy) {
+      let cx = 0;
+      let cy = 0;
+      for (const q of ringy.points) {
+        cx += q.x;
+        cy += q.y;
+      }
+      return { x: cx / ringy.points.length, y: cy / ringy.points.length };
+    }
+    const adit = this.world.adits.find((a) => a.workDone < a.workTotal);
+    if (adit) return adit.portal;
+    const pit = this.world.bellPits.find((b) => b.workDone < b.workTotal);
+    if (pit) return pit.at;
+    const shaft = this.world.shafts.find((s) => s.workDone < s.workTotal);
+    if (shaft) return shaft.at;
+    return null;
+  }
+
   /** A mason's post: the midpoint of their share of the wall, offset to one side. */
   private station(ws: WorkSite, masonIndex: number): { x: number; y: number; z: number } {
     const frac = (2 * masonIndex + 1) / (2 * this.masonCount);
@@ -238,6 +293,7 @@ export class PeopleLayer {
   /** dt in real seconds; simActive=false (paused) freezes the whole diorama. */
   update(dt: number, simActive: boolean): void {
     this.absorb(); // keep the crowd in step with the sim's roster — new souls, and the departed
+    this.reindex(); // and with the day's assignments (SIM 36)
     if (simActive) this.clock += dt;
     const step = simActive ? dt : 0;
 
@@ -259,17 +315,18 @@ export class PeopleLayer {
     const arable = this.world.farms.filter((f) => f.use === 'farm');
 
     for (const p of this.puppets) {
-      // --- pick this puppet's target ---
+      // --- pick this puppet's target (by the day's ASSIGNMENT since SIM 36) ---
+      const assigned = this.assignments.get(p.person.id);
       let tx: number;
       let ty: number;
       let tz: number | null = null; // null → stand on the ground
       let inField = false;
-      if (ws && p.person.trade === 'mason') {
+      if (ws && assigned === 'lay') {
         const st = this.station(ws, p.tradeIndex);
         tx = st.x;
         ty = st.y;
         tz = st.z;
-      } else if (haul && p.person.trade === 'laborer') {
+      } else if (haul && (assigned === 'fill' || assigned === 'roof')) {
         // barrow dirt (or deck timber) from a point outside the ring to the middle
         let cx = 0;
         let cy = 0;
@@ -292,30 +349,27 @@ export class PeopleLayer {
           tx = v0.x + ox * 6 + (p.tradeIndex % 2) * 2;
           ty = v0.y + oy * 6;
         }
-      } else if (p.person.trade === 'laborer' && arable.length > 0) {
-        // the fields: sim truth says an earthless laborer tends a farm
-        // (moveEarth's fallback) — walk the furrows of "their" farm,
-        // pacing row ends like the shuttle paces its two stations
+      } else if (assigned === 'farm' && arable.length > 0) {
+        // the fields: the dawn pass sent this hand to tend — walk the furrows of
+        // "their" farm, pacing row ends like the shuttle paces its two stations
         const farm = arable[p.tradeIndex % arable.length]!;
         const row = this.fieldRow(farm, p.tradeIndex);
         const end = p.carrying ? row.b : row.a; // carrying doubles as "which end"
         inField = true;
         tx = end.x;
         ty = end.y;
-      } else if (ws && p.person.trade === 'laborer') {
-        // shuttle blocks between a stockpile near the wall's start and the
-        // station of "their" mason (round-robin by index)
-        const start = pointAt(ws.wall.points, 0);
-        const sin = Math.sin(start.yaw);
-        const cos = Math.cos(start.yaw);
-        if (p.carrying) {
-          const st = this.station(ws, p.tradeIndex % this.masonCount);
-          const away = 1.4 + (p.tradeIndex % 2) * 0.8; // hand off short of the mason
-          tx = st.x - sin * away;
-          ty = st.y + cos * away;
+      } else if (assigned === 'dig' || assigned === 'fell') {
+        // SIM 36 shim: a digger/feller at least STANDS AT their working (the sim has
+        // them there; the old theater showed them elsewhere — the lie the boss caught).
+        // Course 2 gives them the pit-floor descent, the swing, and the block piles.
+        const w = this.workingSpot(assigned);
+        if (w) {
+          const slice = Math.floor(this.clock / 5) + p.person.id;
+          tx = w.x + (hash2(p.person.id, slice) - 0.5) * 3;
+          ty = w.y + (hash2(p.person.id, slice + 1) - 0.5) * 3;
         } else {
-          tx = start.x - sin * 3.5 - cos * 1.5;
-          ty = start.y + cos * 3.5 + sin * 1.5;
+          tx = this.campX;
+          ty = this.campY;
         }
       } else if (p.person.trade === 'smith') {
         // the smith keeps to his forge — he stands by the blacksmith he serves (where the lit
@@ -361,8 +415,8 @@ export class PeopleLayer {
         if (Math.abs(dx) > 0.02) p.facing = dx >= 0 ? 1 : -1;
       } else if (
         d <= WORK_RADIUS &&
-        (ws !== null || haul !== null || inField) &&
-        p.person.trade === 'laborer' &&
+        (haul !== null || inField) &&
+        (assigned === 'fill' || assigned === 'roof' || assigned === 'farm') &&
         simActive &&
         this.clock - p.lastToggle > TOGGLE_DWELL
       ) {
@@ -379,10 +433,10 @@ export class PeopleLayer {
       let frame = 0;
       if (walking) {
         frame =
-          p.person.trade === 'laborer' && p.carrying && !inField
+          (assigned === 'fill' || assigned === 'roof') && p.carrying
             ? 3 // carry pose while hauling — in the field there is no block
             : 1 + (Math.floor(this.clock * 4 * p.speed) % 2);
-      } else if (p.person.trade === 'mason' && ws && d < WORK_RADIUS && laying && simActive) {
+      } else if (assigned === 'lay' && ws && d < WORK_RADIUS && laying && simActive) {
         frame = Math.floor(this.clock * 3) % 2 === 0 ? 3 : 0; // hammer swing
       } else if (p.person.trade === 'smith' && d < WORK_RADIUS && simActive) {
         frame = Math.floor(this.clock * 2.5) % 3 === 0 ? 3 : 0; // strikes the anvil now and then
@@ -399,7 +453,7 @@ export class PeopleLayer {
 
       // carried blocks bob a little; sim → three: (x, up, north)
       const bob =
-        p.person.trade === 'laborer' && p.carrying && walking && !inField
+        (assigned === 'fill' || assigned === 'roof') && p.carrying && walking
           ? Math.abs(Math.sin(this.clock * 6 + p.person.id)) * 0.05
           : 0;
       p.sprite.position.set(p.x, p.z + bob, p.y);

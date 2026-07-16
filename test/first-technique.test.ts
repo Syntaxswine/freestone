@@ -19,22 +19,18 @@ import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
 import { TICKS_PER_YEAR, type Command, type Person } from '../src/sim/types';
+import { villager, zeroWorked } from './helpers';
 
 const site = flatSite('flat', 4000);
-const mason = (id: number): Person => ({
-  id,
-  name: `M${id}`,
-  trade: 'mason',
-  pace: 20,
-  bornTick: -25 * TICKS_PER_YEAR,
-});
-const smith = (id: number): Person => ({
-  id,
-  name: `S${id}`,
-  trade: 'smith',
-  pace: 4, // a smith lays no stone — pace is immaterial; his PRESENCE is the relief
-  bornTick: -30 * TICKS_PER_YEAR,
-});
+// SIM 36: the crew are generalist villagers — the dawn pass assigns them all to LAY
+// (a supplied wall, nothing else to do), so the specimens' relative timings survive.
+const mason = (id: number): Person => villager(id, { bornTick: -25 * TICKS_PER_YEAR });
+const smith = (id: number): Person =>
+  villager(id, {
+    trade: 'smith', // a smith lays no stone — his PRESENCE is the relief
+    worked: { ...zeroWorked },
+    bornTick: -30 * TICKS_PER_YEAR,
+  });
 
 /** Build one wall with a given crew and time it (ample stone, so only the crew binds). */
 function buildWall(crew: Person[], height: number) {

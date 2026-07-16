@@ -11,15 +11,11 @@ import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
 import { TICKS_PER_YEAR, type Command, type Person } from '../src/sim/types';
+import { villager } from './helpers';
 
 const site = flatSite('flat', 4000);
-const mason = (id: number): Person => ({
-  id,
-  name: `M${id}`,
-  trade: 'mason',
-  pace: 20,
-  bornTick: -25 * TICKS_PER_YEAR,
-});
+// SIM 36: generalist villagers; the dawn pass assigns them to LAY (a supplied wall)
+const mason = (id: number): Person => villager(id, { bornTick: -25 * TICKS_PER_YEAR });
 
 /** build one long ASHLAR wall fed by a SLOW cart (the haul is the bottleneck), and time it */
 function buildHauled(rollers: boolean) {

@@ -548,7 +548,10 @@ export const MORTALITY_BANDS: readonly { untilAge: number; annual: number }[] = 
  * are small), so a modest farm feeds several — "easy, hindered mostly by space".
  */
 export const AREA_PER_PERSON = 200; // m² of enclosed arable that feeds one mouth
-export const FOUNDING_CAPACITY = 4; // the base yearly harvest, in mouth-years, before any field
+// SIM 36: the founding party is 13 (boss: "the town should start off with 13 people" — the
+// extra labor mines and hauls), so the founding floor feeds them: wagon stores + the commons
+// around a new-founded settlement. Re-verified by the century-sweep (don't tune by eye).
+export const FOUNDING_CAPACITY = 13; // the base yearly harvest, in mouth-years, before any field
 // THE ORCHARD BEARS (SIM 29): fruit, nuts and cider are a SUPPLEMENT to the grain staple, so an orchard
 // feeds fewer mouths per m² than arable — more land for the same food. A settlement that plants orchards
 // broadens its food base beyond the one crop the weather can fail.
@@ -564,9 +567,9 @@ export const ORCHARD_AREA_PER_PERSON = 300; // m² of orchard that bears one mou
  * a buffered village survives the bad harvests that would thin an unbuffered one. The
  * numbers the century-sweep tunes.
  */
-export const FOUNDING_STORAGE = 3; // mouth-years a bare settlement keeps (a hut's larder)
+export const FOUNDING_STORAGE = 8; // mouth-years a bare settlement keeps (scaled to the 13-soul founding, SIM 36)
 export const GRANARY_STORAGE = 10; // mouth-years each built granary adds to the store
-export const SEED_GRAIN = 3; // the founder's starting larder (a full base store)
+export const SEED_GRAIN = 8; // the founder's starting larder (a full base store)
 
 /**
  * The harvest varies year to year with the WEATHER — a multiplier on production drawn on
@@ -660,7 +663,7 @@ export const SMITH_RELIEF_MAX = 0.3; // but the crew's smiths together can speed
  */
 export const COTTAGE_AREA = 30; // m² of floor: at/above this a house is a cottage, not a hovel
 export const HALL_AREA = 80; // m²: at/above this, with a fine roof, it is a hall
-export const FOUNDING_SHELTER = 4; // souls the founders' first roofs shelter, before any house
+export const FOUNDING_SHELTER = 13; // souls the founders' first roofs shelter (the 13-soul founding, SIM 36)
 export const HOVEL_SHELTER = 3;
 export const COTTAGE_SHELTER = 6;
 export const HALL_SHELTER = 12; // souls each tier houses
@@ -828,20 +831,59 @@ export interface PlacedStone {
   masonId: number;
 }
 
+/**
+ * THE SKILL SYSTEM's job taxonomy (SIM 36 — boss decree 2026-07-16: "after a year of
+ * doing a job they gain a basic level of skill in it"): the four labor skills, one per
+ * verb group the sim actually runs. Skill is a DISCRETE band read off integer days
+ * worked (the roadmap's anti-XP law — never a curve): a year of the work makes a hand
+ * GREEN at it. Journeyman/master stay Beat 4's (the apprentice bond, boss-reserved),
+ * and TECHNIQUES remain a separate, bond-borne layer — practice never grants one.
+ */
+export type JobSkill = 'mason' | 'digger' | 'woodsman' | 'farmhand';
+export const JOB_SKILLS: readonly JobSkill[] = ['mason', 'digger', 'woodsman', 'farmhand'];
+export const GREEN_DAYS = TICKS_PER_YEAR; // "a year of doing a job" — days worked at it, not calendar days
+export const GREEN_MULT = 1.125; // ×9/8 — green is a BONUS over today's rates (dyadic; untrained = 1.0)
+
+/**
+ * Per-job base day rates (SIM 36): the old Person.pace was ONE scalar whose unit was
+ * the trade (stones/day for masons, m³/day for laborers) — a generalist can't reuse
+ * it. Every villager now works every job at a per-JOB base rate scaled by their
+ * inherent VIGOR (one creation draw), times the job's skill band multiplier.
+ */
+export const LAY_RATE_BASE = 24; // stones laid/day at vigor 0 (the old mason floor)
+export const LAY_RATE_SPREAD = 12; // + vigor × this (the old 24–36 range)
+export const EARTH_RATE_BASE = 3; // m³ of loose earth moved/day at vigor 0 (the old laborer floor)
+export const EARTH_RATE_SPREAD = 2; // + vigor × this (the old 3–5 range)
+/** m² of arable one hand tends per day — farm work is BOUNDED daily demand, so tending
+ *  saturates and surplus hands fall through the ladder (it can never swallow the crew) */
+export const FARM_AREA_PER_HAND = 500;
+
 export interface Person {
   id: number;
   name: string;
   /**
-   * mason (lays stone), laborer (moves earth, tends fields), or a SPECIALIST — smith
-   * (SIM 24, 3c) is the first: drawn to a settlement varied enough to keep one, works
-   * the blacksmith, digs and lays nothing. Its production effect is a later bump.
+   * Since SIM 36 every working soul is a VILLAGER — a generalist who lays, digs,
+   * fells and tends by the day's assignment, skilled by doing (worked/GREEN_DAYS).
+   * The SPECIALIST trades stand apart: the smith (SIM 24) is drawn by the base,
+   * never made by practice, and neither digs nor lays.
    */
-  trade: 'mason' | 'laborer' | 'smith';
+  trade: 'villager' | 'smith';
+  /** inherent vigor 0..1 (one creation draw): scales every job's base rate */
+  vigor: number;
   /**
-   * Daily work rate by trade: masons in stones laid, laborers in m³ of earth
-   * moved (stubs; real pacing arrives with M2's quarry loop).
+   * Integer DAYS WORKED at each job — the skill biography (SIM 36). A day counts
+   * only if the assignment produced at least one unit of real work (an honest
+   * stall teaches nothing). At GREEN_DAYS the hand holds the job's GREEN band.
+   * Also the surname-coalescence rider's substrate (a family whose digging
+   * dominates for generations becomes the Delvers).
    */
-  pace: number;
+  worked: Record<JobSkill, number>;
+  /**
+   * Yesterday's job (SIM 36) — deterministic stickiness in the dawn assignment
+   * pass (ties go to the work you did yesterday, so hands settle into grooves
+   * and actually accrue their year). Constant strings only; null = no groove yet.
+   */
+  lastJob: JobSkill | null;
   /**
    * The tick this person was born (SIM 20). Age in years = (tick − bornTick) /
    * TICKS_PER_YEAR. Founders begin ~FOUNDER_AGE (a seeded spread, so they do not
@@ -849,6 +891,19 @@ export interface Person {
    * lifts no stone until it is ADULT_AGE. Negative for founders (born before tick 0).
    */
   bornTick: number;
+}
+
+/** the job's skill multiplier for this hand: 1.0 untrained, ×9/8 green (SIM 36) */
+export function jobMult(p: Person, job: JobSkill): number {
+  return p.worked[job] >= GREEN_DAYS ? GREEN_MULT : 1;
+}
+/** stones this hand can lay in a day (the mason job) */
+export function layRateOf(p: Person): number {
+  return (LAY_RATE_BASE + p.vigor * LAY_RATE_SPREAD) * jobMult(p, 'mason');
+}
+/** m³ of earth this hand can move in a day, under the given job's skill */
+export function earthRateOf(p: Person, job: JobSkill): number {
+  return (EARTH_RATE_BASE + p.vigor * EARTH_RATE_SPREAD) * jobMult(p, job);
 }
 
 export type Command =

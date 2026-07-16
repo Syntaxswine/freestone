@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
+import { villager } from './helpers';
 import {
   TICKS_PER_YEAR,
   type Building,
@@ -39,13 +40,7 @@ const farm = (id: number, use: FieldUse, area = 4000): Farm => ({
   workdays: 0,
 });
 const blacksmith = (id: number): Building => ({ id, wallId: 8000 + id, kind: 'blacksmith', roof: 'none', area: 100 });
-const adult = (id: number): Person => ({
-  id,
-  name: `A${id}`,
-  trade: 'laborer',
-  pace: 4,
-  bornTick: -25 * TICKS_PER_YEAR,
-});
+const adult = (id: number): Person => villager(id, { bornTick: -25 * TICKS_PER_YEAR });
 const smiths = (w: ReturnType<typeof fresh>): number =>
   w.people.reduce((n, p) => (p.trade === 'smith' ? n + 1 : n), 0);
 /** the origin ('apprentice' | 'migrant') of the most recently drawn smith, or null (SIM 28) */
@@ -95,9 +90,10 @@ describe('the specialist (SIM 24)', () => {
 
   it('a smith never leaves, and no new one is drawn once the base has failed', () => {
     const w = fresh('smith');
-    w.people = Array.from({ length: 8 }, (_, i) => adult(100 + i)); // eight laborers
-    w.people.push({ ...adult(200), trade: 'smith' }); // and an established smith — nine souls
-    w.farms = []; // no food at all → hunger will drive laborers out
+    // thirty hands — well past the SIM-36 founding floor of 13, so hunger BITES
+    w.people = Array.from({ length: 30 }, (_, i) => adult(100 + i));
+    w.people.push({ ...adult(200), trade: 'smith' }); // and an established smith
+    w.farms = []; // no food at all → hunger will drive villagers out
     w.buildings = []; // and no smithy → the base has failed
     stepN(w, TICKS_PER_YEAR * 2); // two hungry reckonings
     expect(w.events.some((e) => e.kind === 'person_left')).toBe(true); // hunger emptied the fields' hands

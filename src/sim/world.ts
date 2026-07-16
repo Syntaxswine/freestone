@@ -1,6 +1,6 @@
 import { hashSeed, Rng } from './rng';
 import {
-  FOUNDER_AGE,
+  GREEN_DAYS,
   SEED_GRAIN,
   SEED_TIMBER,
   SIM_VERSION,
@@ -9,31 +9,44 @@ import {
   type WorldState,
 } from './types';
 
-/** Stub founding party for M1 groundwork; the real people sim arrives in M3. */
+/**
+ * The founding party's name pool (SIM 36: sixteen names for thirteen souls — the pool
+ * must exceed the party or the splice runs dry and mints 'Unnamed' into the hash).
+ */
 const FOUNDER_NAMES = [
   'Aldith', 'Bea', 'Cuthbert', 'Dunstan', 'Edith', 'Godric', 'Hild', 'Osbert',
+  'Aelfric', 'Maud', 'Swein', 'Gytha', 'Ulf', 'Edeva', 'Brictric', 'Leofwyn',
 ] as const;
+
+/**
+ * SIM 36: the founders' ages, a FIXED cycling spread in the 20–35 band — never rng
+ * (advancing the cursor here would shift every stone's jitter), never past the
+ * mortality curve's teeth (the old i×3 stagger put a 13th founder at 58), and never
+ * a cohort wave (the Banished failure — no two neighbours in the list are close).
+ */
+const FOUNDER_AGES = [22, 27, 32, 20, 25, 30, 35, 23, 28, 33, 21, 26, 31] as const;
 
 export function createWorld(seed: string, siteId: string): WorldState {
   const rng = new Rng(hashSeed(seed));
   let nextId = 1;
   const people: Person[] = [];
   const names = [...FOUNDER_NAMES];
-  for (let i = 0; i < 4; i++) {
+  // THE THIRTEEN (SIM 36, boss: "the town should start off with 13 people… 3 farmers
+  // and the rest unskilled"): every founder is a generalist VILLAGER — nobody founds
+  // as a mason; skill is earned by doing (a year at a job → the GREEN band). The
+  // first three carry a year of field work in their hands already: green FARMHANDS.
+  // Two rng draws per founder (name, vigor), exactly as the old party drew two.
+  for (let i = 0; i < 13; i++) {
     const ni = rng.int(names.length);
     const name = names.splice(ni, 1)[0] ?? 'Unnamed';
     people.push({
       id: nextId++,
       name,
-      trade: i < 2 ? 'mason' : 'laborer',
-      // masons: 24–36 stones/day; laborers: 3–5 m³ of earth/day (both stubs
-      // until M2's economy — a laborer's pace feeds fills, a mason's feeds walls)
-      pace: i < 2 ? 24 + rng.int(13) : 3 + rng.int(3),
-      // SIM 20: the founders begin as young adults, STAGGERED in age (22, 25, 28,
-      // 31) so they never die in one cohort wave (the Banished failure). A fixed
-      // spread, NOT from rng — advancing the cursor here would shift every stone's
-      // jitter and move the masonry baseline for a field the masons never read.
-      bornTick: -(FOUNDER_AGE + i * 3) * TICKS_PER_YEAR,
+      trade: 'villager',
+      vigor: rng.float(), // inherent pace, scaled per job by the base-rate constants
+      worked: { mason: 0, digger: 0, woodsman: 0, farmhand: i < 3 ? GREEN_DAYS : 0 },
+      lastJob: i < 3 ? 'farmhand' : null,
+      bornTick: -FOUNDER_AGES[i]! * TICKS_PER_YEAR,
     });
   }
   return {

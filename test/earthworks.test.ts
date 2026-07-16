@@ -9,7 +9,7 @@ import { makeSave, replay, hashState } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { effectiveGroundAt, pointInPolygon, polygonArea, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import type { Command } from '../src/sim/types';
+import { earthRateOf, type Command } from '../src/sim/types';
 
 const SQUARE: Command = {
   kind: 'plan_fill',
@@ -50,10 +50,12 @@ describe('fills', () => {
     // flat site: level = 0 + 2, volume = 100 m² × 2 m = 200 m³
     expect(fill.level).toBe(2);
     expect(fill.volumeTotal).toBe(200);
+    // SIM 36: with only the fill to work, the dawn pass assigns every adult villager
+    // to it — one day of earth is the whole crew's digger-rate sum
     const laborerPace = world.people
-      .filter((p) => p.trade === 'laborer')
-      .reduce((n, p) => n + p.pace, 0);
-    expect(fill.volumeMoved).toBe(laborerPace); // one day of earth
+      .filter((p) => p.trade === 'villager')
+      .reduce((n, p) => n + earthRateOf(p, 'digger'), 0);
+    expect(fill.volumeMoved).toBeCloseTo(laborerPace, 9); // one day of earth
     const { world: later } = run([SQUARE], 400);
     expect(later.fills[0]!.volumeMoved).toBe(200);
     expect(later.events.filter((e) => e.kind === 'fill_complete')).toHaveLength(1);

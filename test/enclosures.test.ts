@@ -34,9 +34,9 @@ const DOORWAY_LOOP: Vec2[] = [
   { x: 103.45, y: 100 }, // jamb, A side
 ];
 
-/** deterministic id of the FIRST wall planned in a fresh world: 4 founders, then it */
-const W1 = 5;
-const W2 = 6; // a second wall planned the same tick
+/** deterministic id of the FIRST wall planned in a fresh world: 13 founders (SIM 36), then it */
+const W1 = 14;
+const W2 = 15; // a second wall planned the same tick
 
 function run(commands: Command[], days: number, seed = 'enclosures') {
   const site = flatSite('flat', 1000);
@@ -436,7 +436,7 @@ describe('replay', () => {
       { kind: 'choose_roof', tick: 50, wallId: W2, roof: 'wood' },
       designate(W2, 'house', 55),
       // SIM 16: won stone in the log so the walls build and replay reproduces it
-      // (appended, so FIELD_RING/DOORWAY_LOOP keep ids W1=5, W2=6)
+      // (appended, so FIELD_RING/DOORWAY_LOOP keep ids W1=14, W2=15)
       { kind: 'plan_cut', tick: 0, points: [{ x: 300, y: 300 }, { x: 306, y: 300 }, { x: 306, y: 306 }, { x: 300, y: 306 }], depth: 1, workTotal: 2, stoneTotal: 1e6 },
     ];
     const byTick = new Map<number, Command[]>();

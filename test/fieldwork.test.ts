@@ -1,19 +1,19 @@
 /**
- * SIM 4/10: field work + the degenerate-ring overlap guard.
- * The load-bearing claims: a laborer with no earth to move tends the ARABLE
- * farm with the fewest workdays (+1 person-day, exact and deterministic —
- * pasture is grazed and fallow rests, neither draws hands); construction
- * outranks the fields; multiple farms balance; and the review fleet's
- * double-wound lap exploit (collinear overlapping runs that cross nothing
- * PROPERLY while shoelace adds every lap) is recognized as nothing and
- * rejected as a fill.
+ * SIM 4/10 field work, re-authored for SIM 36's skill era. The load-bearing claims:
+ * farm work is BOUNDED daily demand (ceil(area/FARM_AREA_PER_HAND) hands a day — the
+ * FIELD_RING's 400 m² wants exactly ONE), taken greenest-first, so the founding green
+ * farmhand holds the slot at ×9/8 a day; pasture is grazed and fallow rests (neither
+ * draws hands); THE GROOVE SUPERSESSION (boss Q1 — farmers farm): a green farmhand
+ * tends straight through construction while UNTRAINED hands take the fill (the old
+ * SIM 4 "construction outranks fields" now binds the unskilled only); multiple farms
+ * balance; and the double-wound lap exploit stays recognized as nothing.
  */
 import { describe, expect, it } from 'vitest';
 import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { ringSelfOverlaps, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import type { Command, FieldUse, Vec2 } from '../src/sim/types';
+import { GREEN_MULT, type Command, type FieldUse, type Vec2 } from '../src/sim/types';
 
 const FIELD_RING: Vec2[] = [
   { x: 100, y: 100 },
@@ -48,9 +48,9 @@ const wall = (points: Vec2[], height: number, tick = 0): Command => ({
   height,
 });
 
-/** first wall in a fresh world is id 5 (4 founders), a same-tick second is 6 */
-const W1 = 5;
-const W2 = 6;
+/** first wall in a fresh world is id 14 (13 founders, SIM 36), a same-tick second is 15 */
+const W1 = 14;
+const W2 = 15;
 
 const designate = (wallId: number, use: FieldUse, tick = 20): Command => ({
   kind: 'designate',
@@ -74,16 +74,15 @@ function run(commands: Command[], days: number, seed = 'fieldwork') {
 }
 
 describe('field work', () => {
-  it('idle laborers tend the farm: exactly one person-day each, from the day of the word', () => {
+  it('the farm draws its BOUNDED demand from the day of the word — one slot, greenest-first', () => {
     const { world } = run([wall(FIELD_RING, 0.5), designate(W1, 'farm')], 60);
     const word = world.events.find((e) => e.kind === 'plot_designated')!;
     expect(word.tick).toBe(20);
-    const laborers = world.people.filter((p) => p.trade === 'laborer').length;
-    expect(laborers).toBe(2);
-    // the word applies at the START of its tick (commands before moveEarth),
-    // so idle hands are in the field the very day it is given
-    expect(world.farms[0]!.workdays).toBe(laborers * (world.tick - word.tick));
-    expect(world.farms[0]!.workdays).toBe(80); // 2 hands × ticks 20…59
+    // the 400 m² ring wants ceil(400/500) = ONE hand a day; the founding green
+    // farmhand holds the slot in her groove, tending ×9/8 a day (worked in eighths).
+    // The word applies at the START of its tick, so the field is tended that very day.
+    expect(world.farms[0]!.workdays).toBeCloseTo((world.tick - word.tick) * GREEN_MULT, 9);
+    expect(world.farms[0]!.workdays).toBeCloseTo(45, 9); // 40 days × 9/8
   });
 
   it('pasture is grazed and fallow rests: neither draws hands; arable takes ALL idle labor', () => {
@@ -98,7 +97,7 @@ describe('field work', () => {
       60,
     );
     expect(world.farms.find((f) => f.use === 'livestock')!.workdays).toBe(0);
-    expect(world.farms.find((f) => f.use === 'farm')!.workdays).toBe(80); // undiluted
+    expect(world.farms.find((f) => f.use === 'farm')!.workdays).toBeCloseTo(45, 9); // undiluted
     // and a holding of ONLY paddock + fallow leaves every hand idle
     const { world: rest } = run(
       [
@@ -112,11 +111,12 @@ describe('field work', () => {
     expect(rest.farms.map((f) => f.workdays)).toEqual([0, 0]);
   });
 
-  it('construction outranks the fields: earth moves first, tending pauses', () => {
+  it('THE GROOVE holds through construction: the green farmhand tends while untrained hands fill', () => {
+    // The SIM 36 supersession of SIM 4's "construction outranks fields" (boss Q1 —
+    // farmers farm): a fresh fill draws the UNTRAINED hands, but the green farmhand
+    // keeps her slot — tending never pauses, and the fill still completes.
     const { world } = run([wall(FIELD_RING, 0.5), designate(W1, 'farm')], 60);
-    const before = world.farms[0]!.workdays;
     const site = flatSite('flat', 1000);
-    // a fresh fill: laborers barrow again; the farm waits
     worldStep(world, site, [
       {
         kind: 'plan_fill',
@@ -130,13 +130,13 @@ describe('field work', () => {
         height: 1,
       },
     ]);
+    let previous = world.farms[0]!.workdays;
     while (world.fills[0]!.volumeMoved < world.fills[0]!.volumeTotal) {
-      expect(world.farms[0]!.workdays).toBe(before);
       worldStep(world, site, []);
+      expect(world.farms[0]!.workdays).toBeCloseTo(previous + GREEN_MULT, 9); // tended THAT day too
+      previous = world.farms[0]!.workdays;
     }
-    const atCompletion = world.farms[0]!.workdays;
-    worldStep(world, site, []);
-    expect(world.farms[0]!.workdays).toBe(atCompletion + 2); // both laborers back in the field
+    expect(world.events.filter((e) => e.kind === 'fill_complete')).toHaveLength(1); // and the earth still moved
   });
 
   it('two farms balance to the day (fewest-workdays rule)', () => {

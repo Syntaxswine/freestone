@@ -17,6 +17,7 @@ import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
+import { villager } from './helpers';
 import {
   ADULT_AGE,
   AREA_PER_PERSON,
@@ -43,13 +44,8 @@ function stepN(world: ReturnType<typeof fresh>, n: number, cmds: Command[] = [])
 function seedFarm(area: number): Farm {
   return { id: 9001, wallId: 9000, use: 'farm', points: [], area, gates: [], workdays: 0 };
 }
-const adult = (id: number, tick: number, age = 25): Person => ({
-  id,
-  name: `A${id}`,
-  trade: 'laborer',
-  pace: 4,
-  bornTick: tick - age * TICKS_PER_YEAR,
-});
+const adult = (id: number, tick: number, age = 25): Person =>
+  villager(id, { bornTick: tick - age * TICKS_PER_YEAR });
 
 describe('the living year (SIM 20)', () => {
   it('the demographic pass fires only at year-end, never mid-year', () => {
@@ -66,8 +62,8 @@ describe('the living year (SIM 20)', () => {
 
   it('a child born in-game lifts no stone until it comes of age', () => {
     const w = fresh();
-    const child: Person = { id: 500, name: 'Wren', trade: 'mason', pace: 30, bornTick: 0 };
-    w.people = [child]; // a lone newborn "mason"
+    const child: Person = villager(500, { name: 'Wren', bornTick: 0 });
+    w.people = [child]; // a lone newborn
     w.stockpile = 100; // plenty of stone
     // a wall it could build if it were grown
     const wall: Command = { kind: 'plan_wall', tick: 0, points: [{ x: 0, y: 0 }, { x: 5, y: 0 }], height: 0.25 };
@@ -91,37 +87,38 @@ describe('the living year (SIM 20)', () => {
 
   it('HUNGER thins the settlement, but never empties it', () => {
     const w = fresh();
-    // ten mouths, no field: capacity 4, S = 0.4 → hunger
-    w.people = Array.from({ length: 10 }, (_, i) => adult(100 + i, 0));
+    // thirty-three mouths, no field: capacity 13 (the SIM-36 founding floor), S ≈ 0.4 → hunger
+    w.people = Array.from({ length: 33 }, (_, i) => adult(100 + i, 0));
     stepN(w, TICKS_PER_YEAR * 2);
-    expect(w.people.length).toBeLessThan(10); // souls left
+    expect(w.people.length).toBeLessThan(33); // souls left
     expect(w.people.length).toBeGreaterThanOrEqual(1); // the last holds on
     expect(w.events.some((e) => e.kind === 'person_left')).toBe(true);
   });
 
   it('a GRANARY buffers the lean years — a granary-less village goes hungry, a stored one holds (SIM 22)', () => {
-    // ten mouths on a field that yields ~6 at mean weather — well short (S ≈ 0.6, and even
-    // the fattest year stays under the fertility floor, so NO births or migrants confound
-    // it: the only forces are mortality (negligible) and hunger. WITHOUT a granary the thin
-    // larder empties in year one and souls leave; WITH a deep store the buffer covers every
-    // lean year across the run. A clean A/B in which only the granary differs.
-    const field = (): Farm => seedFarm(AREA_PER_PERSON * 2); // produced_mean = FOUNDING(4) + 2 = 6
+    // twenty-five mouths on a field that yields ~15 at mean weather — well short (S ≈ 0.6,
+    // and even the fattest year stays under the fertility floor 0.9, so NO births or
+    // migrants confound it: the only forces are mortality (negligible) and hunger. WITHOUT
+    // a granary the larder empties in year one and souls leave; WITH a deep store the
+    // buffer covers every lean year across the run. A clean A/B; only the granary differs.
+    // (Re-scaled for the SIM-36 founding floor of 13 — the same S ratios as the SIM-22 original.)
+    const field = (): Farm => seedFarm(AREA_PER_PERSON * 2); // produced_mean = FOUNDING(13) + 2 = 15
     const noG = fresh('buf');
-    noG.people = Array.from({ length: 10 }, (_, i) => adult(300 + i, 0));
+    noG.people = Array.from({ length: 25 }, (_, i) => adult(300 + i, 0));
     noG.farms = [field()];
     const wG = fresh('buf'); // same seed → same weather in year one, a clean A/B
-    wG.people = Array.from({ length: 10 }, (_, i) => adult(300 + i, 0));
+    wG.people = Array.from({ length: 25 }, (_, i) => adult(300 + i, 0));
     wG.farms = [field()];
-    wG.buildings = Array.from({ length: 4 }, (_, i) => ({
+    wG.buildings = Array.from({ length: 8 }, (_, i) => ({
       id: 8001 + i,
       wallId: 8000,
       kind: 'granary' as const,
       roof: 'none' as const,
       area: 30,
     }));
-    wG.grain = FOUNDING_STORAGE + 4 * GRANARY_STORAGE; // a deep, established store (43 mouth-years)
-    stepN(noG, TICKS_PER_YEAR * 5); // five reckonings
-    stepN(wG, TICKS_PER_YEAR * 5);
+    wG.grain = FOUNDING_STORAGE + 8 * GRANARY_STORAGE; // a deep, established store (88 mouth-years)
+    stepN(noG, TICKS_PER_YEAR * 4); // four reckonings (the deep store outlasts the run with headroom)
+    stepN(wG, TICKS_PER_YEAR * 4);
     const left = (w: ReturnType<typeof fresh>): number =>
       w.events.filter((e) => e.kind === 'person_left').length;
     expect(left(noG)).toBeGreaterThan(0); // the granary-less village starved and shed souls

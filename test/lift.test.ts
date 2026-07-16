@@ -15,15 +15,11 @@ import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
 import { TICKS_PER_YEAR, WHEEL_TIMBER, type Command, type Person } from '../src/sim/types';
+import { villager } from './helpers';
 
 const site = flatSite('flat', 4000);
-const mason = (id: number): Person => ({
-  id,
-  name: `M${id}`,
-  trade: 'mason',
-  pace: 20,
-  bornTick: -25 * TICKS_PER_YEAR,
-});
+// SIM 36: generalist villagers; the dawn pass assigns both to LAY (a supplied wall)
+const mason = (id: number): Person => villager(id, { bornTick: -25 * TICKS_PER_YEAR });
 
 /** Build one long wall of a given height, with a given woodpile, and time it. */
 function buildWall(seed: string, timber: number, height: number) {

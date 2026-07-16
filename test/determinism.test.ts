@@ -155,11 +155,19 @@ describe('the sim law', () => {
     ).toThrow(/stamped tick 7/);
   });
 
-  it('every stone remembers its mason and its day (provenance substrate)', () => {
+  it('every stone remembers its layer and its day (provenance substrate)', () => {
+    // SIM 36: any adult villager may lay, and the 400-tick run crosses a living-year
+    // reckoning — so the id set is EVERYONE EVER MINTED (founders + the demographic
+    // events' souls), never the end-of-run survivors (a layer who died at the
+    // reckoning would flake the specimen by seed).
     const world = run('alpha', 400);
-    const masonIds = new Set(
-      world.people.filter((p) => p.trade === 'mason').map((p) => p.id),
-    );
+    const masonIds = new Set<number>(world.people.map((p) => p.id));
+    for (const e of world.events) {
+      if (e.kind === 'person_born' || e.kind === 'person_arrived' || e.kind === 'person_died' || e.kind === 'person_left') {
+        masonIds.add(e.personId);
+      }
+    }
+    for (let id = 1; id <= 13; id++) masonIds.add(id); // the founders, whoever survived
     for (const stone of world.stones) {
       expect(masonIds.has(stone.masonId)).toBe(true);
       expect(stone.tickLaid).toBeGreaterThanOrEqual(3);
