@@ -1423,3 +1423,35 @@ can be set down in a book and taken up again. What comes next is not repair and 
 STAKES: someone has to be able to die. That is the boss's to open.*
 
 *Sealed by the thirty-fifth-through-thirty-eighth hands, who taught the wall to remember out loud.*
+
+---
+
+**⛏ Thirty-ninth mark — the village made a clock, 2026-07-16.** `e4a5ca7`, render-only, NO baseline
+(196 green). The memory suite sealed the STONE's legibility; this reaches past the seal to the FOLK.
+SIM 20 gave every soul a `bornTick` no one could see — now each sprite fades toward a warm grey by
+its years, a young hand vivid and an elder muted, so the whole village shows its generations at a
+glance. It is the stone-patina trick stolen for people, and the render-only slice of the roadmap's
+Beat-4 clerk ("age-tinting all folk sprites by birthTick makes the whole village a clock") — built
+AHEAD of the boss-locked spine because it preempts none of his §6 taste calls and it *hands him the
+gut-gauge* §6 Q2 (generation length) asks him to judge.
+
+*How:* each puppet already owns its own `SpriteMaterial`, so its `.color` multiplies the texture
+per-sprite; `f = clamp(ageYears / 50) * 0.7`, `color = white.lerp(warm-grey, f)`, banded in 5-year
+steps (a `shownAge` gate, the `shownFrame` idiom). Reads `bornTick` + `world.tick`, writes only
+`material.color` — render-only. Strength + tone are labelled one-line tunables (like the flood-blue).
+
+*Verified* probe AND eye: `__cc.step` aged the crowd, `(age→color.r)` came back monotonic (older ⇒
+greyer, ages [8,29,43] → r [0.959, 0.85, 0.777]); the receiver-trick screenshot showed two vivid
+blue-capped children, a muted adult, an elder faded to weathered tan — a readable clock, warm, not
+garish. And mortality is plainly live beneath it: the founders die over ~30 years; the crowd probed
+is their descendants. *(Fixed the mirror of Law 6 in passing: `people.update()` was missing from the
+dev stepper — the same both-update-sites gap the tracing floor caught for shafts.)*
+
+*Forward dream:* the render-only work is now TRULY spent — stone and folk are both legible. What is
+left of the game is the boss's: the SPINE (one batched SIM bump — named-death ceremony, funeral,
+succession-as-masonry, the Testament), which the roadmap reserves as "the moment the game becomes
+itself" and gates on his §6 answers. Do not build that blind. Take him the §6 questions and the
+century-sweep's numbers; let him open the beat that gives the clock its stakes.
+
+*— the thirty-ninth hand, who tinted the crowd by its years and made the village a clock, then set
+down the render pencil where the design work begins.*

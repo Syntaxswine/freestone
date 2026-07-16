@@ -21,8 +21,13 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
   SIM_VERSION field), so the hash moved; DIFF-CONFIRMED pure serialisation BOTH times (only the milestone
   hashes + `simVersion`, no count/stockpile/position; the canon runs neither method, so its BEHAVIOUR is
   byte-identical). One commit + regen apiece.
-- **38 maker's marks, 6 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `368557e`. All pushed and deploying.
+- **39 maker's marks, 6 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
+- HEAD `e4a5ca7`. All pushed and deploying.
+- **⛏ 39th — THE VILLAGE CLOCK** (`e4a5ca7`, render-only, ZERO baseline): each folk sprite fades toward a
+  warm grey by its years (the patina trick for people) — the render-only slice of Beat 4's clerk, built
+  AHEAD because it preempts no §6 taste call and hands the boss the generation-length gut-gauge. Probe +
+  eye verified. With it, **the render-only extractable work is TRULY spent — stone and folk both legible.**
+  (Also fixed the mirror of Law 6: `people.update()` was missing from the dev stepper.)
 - **THE MEMORY SUITE (roadmap Beat 2) IS COMPLETE — SIX READERS, sealed by the 6th ⛬** (the castle
   remembers): the campaign patina (`1fadac4`, ⛏ 35th, stones weather by age) + THE INSPECTION CARD
   (`7404162`, ⛏ 36th, its HEART: click a stone → "laid by Edith the mason · Year 1") + THE FOUNDER'S STONE
@@ -229,22 +234,29 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
    commit also fixed a sibling bug it surfaced (`shafts.update()` missing from the live render frame). **The
    render-only memory tranche is WHOLE.** What remains of the castle's memory is STAKES — the mortality spine —
    which is the boss's design call (item 4), not a blind build.
-4. **The design-heavy beats — the boss's calls.** Beat 5 the demand wave (the Wall Ladder + SPOIL + Lots),
-   Beat 6 the kiln + the Keep, the mortality SPINE (Beat 4) — these are the roadmap's SIM arcs with real
-   design forks (batch as ONE bump each; §6 of the roadmap has the open questions). And the shaft's GATE
-   (a 1-line progression toggle). These want the boss's steer, not a blind build.
+4. **The SPINE and the design-heavy beats — the boss's calls.** A grep-the-tree census of Beat 4 found much
+   already built: the **demographic engine is live (SIM 20)** — people are born, arrive, DIE (`person_died`),
+   and leave, converging to a Malthusian equilibrium; the **century-sweep instrument exists** (`tools/century-
+   sweep.mjs` + `test/century-sweep.test.ts`, run via `npm run sweep`); and **sprite-to-person binding already
+   holds** (a dead soul's sprite leaves the diorama — Wildermyth's law). The one render-only slice, the clerk's
+   age-tint, is now SHIPPED (⛏ 39th, the village clock). So what's LEFT of Beat 4 is the **emotional layer** —
+   named-death ceremony, the funeral protocol, succession-as-masonry (the dual-id stone), the Testament, the
+   "true ashlar hand" first-technique-that-dies-untaught, `name_apprentice` — **one batched SIM bump** the
+   roadmap calls "the moment the game becomes itself," gated on the §6 answers. Plus Beat 5 (the demand wave),
+   Beat 6 (kiln + Keep), and the shaft's GATE. **These are taste- and vision-locked; do not build them blind.**
 
-The frame is sealed and whole; the mining vision — read the land, warn, cut, flood, tunnel under
-cover — stands complete on it; and the memory suite is sealed, the castle remembering out loud.
+The frame is sealed and whole; the mining vision stands complete on it; the memory suite is sealed;
+and now stone AND folk are legible — the wall names its makers and the crowd shows its years.
 
-**Every autonomous-buildable item on this forward map is now shipped (✅ 1, 2, 2b, 3).** What
-remains — item 4 — is the boss's to open: the mortality SPINE (Beat 4, the STAKES the memory suite
-was built to give meaning to), the demand wave (Beat 5), the kiln + the Keep (Beat 6), the shaft's
-GATE. Each has real design forks; the roadmap's §6 holds the open questions. **These want the
-boss's steer, not a blind build** — so the honest loop pauses here, at the edge of the design work,
-with the render-and-read foundation whole beneath it. Take the §6 questions to him and build on.
+**Every autonomous-buildable item is shipped, and the render-only well is now dry** (the last slices —
+the tracing floor, the village clock — are in; the rest of Beat 4 was already built or is emotional
+design). What remains is the boss's to open: the SPINE (one batched bump — the STAKES the whole memory
+suite and the clock were built to give meaning to), then Beats 5/6 and the shaft GATE. **The roadmap's
+§6 holds the open questions, and the century-sweep holds the numbers to answer them.** Take him both;
+build on where he points. The honest loop pauses at the edge of the design work — not for want of
+effort, but because the next stone is his to place.
 
-*— the thirtieth-through-thirty-eighth hands, who kept the castle in a book, taught the land to
-warn, gave the miner his tunnel, and taught the wall to remember out loud — looping on the boss's
-word "keep working the handoff" until the autonomous work ran out, and did not ship a stone unseen
-that a probe or an eye could see.*
+*— the thirtieth-through-thirty-ninth hands, who kept the castle in a book, taught the land to
+warn, gave the miner his tunnel, taught the wall to remember out loud, and made the crowd a clock —
+looping on the boss's word "keep working the handoff" until the render-only well ran dry, and did not
+ship a stone unseen that a probe or an eye could see. What is left is the boss's to place.*
