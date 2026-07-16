@@ -977,6 +977,25 @@ export type Command =
       /** absent in old logs/saves — defaults to 'flat' at the boundary */
       shape?: 'flat' | 'ramp';
     }
+  /**
+   * THE CHEAT MENU (boss ask 2026-07-16, testing tool): cheats are COMMANDS, so the
+   * log stays the whole truth and replay-equals-live holds even for a cheated world.
+   * Settings-gated in the UI; the sim takes them from any log. Pure vocabulary — no
+   * new state — so a canon with no cheats is byte-identical.
+   */
+  | {
+      kind: 'cheat_give';
+      tick: number;
+      stone?: number; // m³ added to the stockpile
+      timber?: number; // m³ added to the woodpile
+      grain?: number; // mouth-years added to the store (capped by the granaries, like a harvest)
+    }
+  | {
+      kind: 'cheat_spawn_person';
+      tick: number;
+      /** advisory spawn point for the diorama; the sim keeps no positions */
+      at: Vec2;
+    }
   | {
       kind: 'plan_roof';
       tick: number;
@@ -1152,6 +1171,8 @@ export type SimEvent =
    * eaten by the mouths, and what stands in the store after (a lean year draws it down).
    */
   | { kind: 'harvest'; tick: number; year: number; weather: number; produced: number; eaten: number; stored: number }
+  /** THE CHEAT MENU: stocks appeared by decree (logged, so replay carries the cheat too) */
+  | { kind: 'cheat_given'; tick: number }
   | { kind: 'roof_planned'; tick: number; roofId: number; workTotal: number }
   /** the covering chosen: decking may begin */
   | { kind: 'roof_covered'; tick: number; roofId: number; material: RoofMaterial }

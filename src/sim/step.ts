@@ -103,7 +103,7 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
       // mis-timed command would silently break replay-equals-live. Fail loudly.
       throw new Error(`command stamped tick ${cmd.tick} handed to worldStep at tick ${state.tick}`);
     }
-    applyCommand(state, site, cmd);
+    applyCommand(state, site, cmd, rng);
   }
 
   // fixed daily order: the DAWN PASS assigns every hand its day (SIM 36 — after the
@@ -439,6 +439,27 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       return null;
     }
+    case 'cheat_give': {
+      const fields = [cmd.stone, cmd.timber, cmd.grain];
+      if (fields.every((v) => v === undefined)) return 'a cheat gives stone, timber, or grain';
+      for (const v of fields) {
+        if (v !== undefined && (typeof v !== 'number' || !Number.isFinite(v) || v < 0)) {
+          return 'cheat amounts must be finite and not negative';
+        }
+      }
+      return null;
+    }
+    case 'cheat_spawn_person': {
+      if (
+        typeof cmd.at?.x !== 'number' ||
+        typeof cmd.at?.y !== 'number' ||
+        !Number.isFinite(cmd.at.x) ||
+        !Number.isFinite(cmd.at.y)
+      ) {
+        return 'spawn point must have finite x and y';
+      }
+      return null;
+    }
   }
 }
 
@@ -557,7 +578,7 @@ function badPoints(points: readonly Vec2[]): boolean {
   return false;
 }
 
-function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
+function applyCommand(state: WorldState, site: SiteData, cmd: Command, rng: Rng): void {
   const reason = rejectReason(state, cmd);
   if (reason !== null) {
     state.events.push({
@@ -1051,6 +1072,38 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       if (rc.kind === 'farm') {
         mintFarm(state, wall, cmd.use as FieldUse, rc); // validated against the field palette
       }
+      break;
+    }
+    case 'cheat_give': {
+      // THE CHEAT MENU: stocks appear by decree — logged, validated, replay-true.
+      // Grain honors the granaries' cap exactly as a harvest would (a cheat tests
+      // the game, it does not invent a bigger barn).
+      if (cmd.stone !== undefined) state.stockpile += cmd.stone;
+      if (cmd.timber !== undefined) state.timber += cmd.timber;
+      if (cmd.grain !== undefined) {
+        const cap =
+          FOUNDING_STORAGE +
+          state.buildings.reduce((n, b) => (b.kind === 'granary' ? n + GRANARY_STORAGE : n), 0);
+        state.grain = Math.min(cap, state.grain + cmd.grain);
+      }
+      state.events.push({ kind: 'cheat_given', tick: state.tick });
+      break;
+    }
+    case 'cheat_spawn_person': {
+      // a working adult by decree — drawn on the WORLD rng (a cheat is a logged
+      // command, so the draw replays identically; the jitter shift it causes is the
+      // cheat's own honest cost). The spawn point is advisory (the diorama's).
+      const p: Person = {
+        id: state.nextId++,
+        name: rng.pick(FOLK_NAMES),
+        trade: 'villager',
+        vigor: rng.float(),
+        worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0 },
+        lastJob: null,
+        bornTick: state.tick - 25 * TICKS_PER_YEAR,
+      };
+      state.people.push(p);
+      state.events.push({ kind: 'person_arrived', tick: state.tick, personId: p.id, name: p.name });
       break;
     }
   }

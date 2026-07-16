@@ -1249,6 +1249,41 @@ async function boot(): Promise<void> {
       return null;
     }
   }
+  // THE CHEAT MENU (boss ask 2026-07-16, testing tool): Settings-gated; every cheat
+  // is a COMMAND through enqueue, so the log stays the whole truth and a cheated
+  // world replays byte-for-byte, cheats and all.
+  const CHEAT_KEY = 'freestone_cheats';
+  const getCheatsEnabled = (): boolean => localStorage.getItem(CHEAT_KEY) === 'on'; // default OFF
+  const cheatRow = document.createElement('div');
+  cheatRow.style.display = 'none';
+  const cheatStone = document.createElement('button');
+  cheatStone.textContent = '💠 +100 stone';
+  const cheatTimber = document.createElement('button');
+  cheatTimber.textContent = '💠 +50 timber';
+  const cheatGrain = document.createElement('button');
+  cheatGrain.textContent = '💠 +10 grain';
+  const cheatSoul = document.createElement('button');
+  cheatSoul.textContent = '💠 a villager';
+  cheatRow.append(cheatStone, cheatTimber, cheatGrain, cheatSoul);
+  build2.after(cheatRow);
+  const refreshCheatRow = (): void => {
+    cheatRow.style.display = getCheatsEnabled() ? '' : 'none';
+  };
+  refreshCheatRow();
+  const setCheatsEnabled = (on: boolean): void => {
+    localStorage.setItem(CHEAT_KEY, on ? 'on' : 'off');
+    refreshCheatRow();
+  };
+  cheatStone.onclick = () => enqueue({ kind: 'cheat_give', tick: world.tick, stone: 100 });
+  cheatTimber.onclick = () => enqueue({ kind: 'cheat_give', tick: world.tick, timber: 50 });
+  cheatGrain.onclick = () => enqueue({ kind: 'cheat_give', tick: world.tick, grain: 10 });
+  cheatSoul.onclick = () =>
+    enqueue({
+      kind: 'cheat_spawn_person',
+      tick: world.tick,
+      at: { x: site.extentX / 2, y: site.extentY / 2 }, // advisory — the diorama camps new souls
+    });
+
   const home = createHomeScreen({
     onNewGame: newGame,
     onBack: resumeGame,
@@ -1256,6 +1291,8 @@ async function boot(): Promise<void> {
     onLoad: loadGame,
     getTutorialEnabled,
     setTutorialEnabled,
+    getCheatsEnabled,
+    setCheatsEnabled,
     getSaveInfo: savedInfo,
   });
   (document.getElementById('gear') as HTMLElement).onclick = openHome;

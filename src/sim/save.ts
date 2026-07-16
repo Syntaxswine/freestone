@@ -35,12 +35,15 @@ export function makeSave(state: WorldState, commandLog: readonly Command[]): Sav
         c.kind === 'designate' ||
         c.kind === 'designate_roof' ||
         c.kind === 'choose_roof' ||
-        c.kind === 'fell' // re-cut carries only a standId (no points), like designate
+        c.kind === 'fell' || // re-cut carries only a standId (no points), like designate
+        c.kind === 'cheat_give' // scalars only (the cheat menu, 2026-07-16)
       ) {
         return { ...c };
       }
       if (c.kind === 'plan_adit') return { ...c, portal: { ...c.portal }, head: { ...c.head } };
-      if (c.kind === 'plan_bell_pit' || c.kind === 'plan_shaft') return { ...c, at: { ...c.at } };
+      if (c.kind === 'plan_bell_pit' || c.kind === 'plan_shaft' || c.kind === 'cheat_spawn_person') {
+        return { ...c, at: { ...c.at } };
+      }
       return { ...c, points: c.points.map((p) => ({ ...p })) };
     }),
   };

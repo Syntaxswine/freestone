@@ -20,6 +20,9 @@ export interface HomeScreenOptions {
   onLoad: () => void;
   getTutorialEnabled: () => boolean;
   setTutorialEnabled: (on: boolean) => void;
+  /** THE CHEAT MENU (testing tool, 2026-07-16): show/hide the 💠 cheats row in the HUD. */
+  getCheatsEnabled: () => boolean;
+  setCheatsEnabled: (on: boolean) => void;
   /** The kept Lodge Book, or null if none yet — labels Save ("over Yr N") / Load ("Yr N"). */
   getSaveInfo: () => { year: number } | null;
 }
@@ -52,6 +55,8 @@ export function createHomeScreen(opts: HomeScreenOptions): HomeScreen {
       <div id="home-settings" class="home-col">
         <div class="set-row"><span class="label">Mining tutorial</span>
           <button class="pill" data-act="tut-toggle">on</button></div>
+        <div class="set-row"><span class="label">Cheats (testing)</span>
+          <button class="pill" data-act="cheat-toggle">off</button></div>
         <button class="home-btn" data-act="settings-back">‹ Back</button>
       </div>
     </div>`;
@@ -65,12 +70,16 @@ export function createHomeScreen(opts: HomeScreenOptions): HomeScreen {
   const loadLbl = loadBtn.querySelector('.lbl') as HTMLElement;
   const loadSoon = loadBtn.querySelector('.soon') as HTMLElement;
   const tutPill = home.querySelector('[data-act="tut-toggle"]') as HTMLButtonElement;
+  const cheatPill = home.querySelector('[data-act="cheat-toggle"]') as HTMLButtonElement;
   let lastCanBack = false;
 
   function refreshPill(): void {
     const on = opts.getTutorialEnabled();
     tutPill.textContent = on ? 'on' : 'off';
     tutPill.classList.toggle('on', on);
+    const cheats = opts.getCheatsEnabled();
+    cheatPill.textContent = cheats ? 'on' : 'off';
+    cheatPill.classList.toggle('on', cheats);
   }
 
   /** Save is offered only with a game in progress; Load only with a kept Lodge Book. */
@@ -110,6 +119,10 @@ export function createHomeScreen(opts: HomeScreenOptions): HomeScreen {
         break;
       case 'tut-toggle':
         opts.setTutorialEnabled(!opts.getTutorialEnabled());
+        refreshPill();
+        break;
+      case 'cheat-toggle':
+        opts.setCheatsEnabled(!opts.getCheatsEnabled());
         refreshPill();
         break;
     }
