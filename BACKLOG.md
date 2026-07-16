@@ -8,6 +8,13 @@ folk tinted by age, the render-only slice of Beat 4). Two sibling bugs fixed (La
 [DEMOGRAPHIC-SWEEP-READOUT](proposals/DEMOGRAPHIC-SWEEP-READOUT-2026-07-16.md) that arms the boss's §6. **The render-only
 well is DRY — stone AND folk legible;** what remains is the boss's SPINE (Beat 4 emotional layer) + Beats 5/6 + shaft GATE,
 NOT a blind build. It carries the laws + traps + forward map; read the FOUNDATION keystone (39 marks + SIX ⛬ seals) FIRST.
+**⟶ ACTIVE (2026-07-16): the boss's QoL list is SCOPED, not built —
+[PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md](proposals/PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md): the measured
+diagnosis (890-person-day quarry ÷ 2 laborers + one-shot stone credit + no mining theater = "time isn't
+advancing"), the census (floorAtShow dead code; carry pose anchored to a virtual point; orchard trees already
+shipped), and the spec — A incremental stone credit + B 13 founders (ONE batched SIM bump), C visible
+mining/piles/carrying + D progress bubbles + E entity cards (render-only), F buildings-as-living-spaces and
+H conveyor roller-roads as boss-steered forks. Five §6 questions await him; build courses in §5 order.**
 Its predecessor, the AMBITION opener (📖 the Lodge Book, ⛏ the prospecting scar, and **THE MINING LADDER WHOLE** — adit
 32nd / bell pit 33rd / shaft-and-pump 34th, sealed 5th ⛬), is
 [HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md). The prior arc-closing keystone (the §9 ladder + the post-arc
