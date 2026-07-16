@@ -21,12 +21,15 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
   SIM_VERSION field), so the hash moved; DIFF-CONFIRMED pure serialisation BOTH times (only the milestone
   hashes + `simVersion`, no count/stockpile/position; the canon runs neither method, so its BEHAVIOUR is
   byte-identical). One commit + regen apiece.
-- **36 maker's marks, 5 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `7404162`. All pushed and deploying.
-- **THE MEMORY SUITE (roadmap Beat 2) IS OPEN, TWO READERS DEEP** — the campaign patina (`1fadac4`, ⛏ 35th,
+- **37 maker's marks, 5 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
+- HEAD `d2609f2`. All pushed and deploying.
+- **THE MEMORY SUITE (roadmap Beat 2) IS OPEN, FIVE READERS DEEP** — the campaign patina (`1fadac4`, ⛏ 35th,
   stones weather by age) + THE INSPECTION CARD (`7404162`, ⛏ 36th, its HEART: click a stone → "laid by Edith
-  the mason · Year 1"). Both render-only, ZERO baseline. The census reframed Beat 2 as GREP-THE-TREE
-  (tickLaid/masonId recorded since M1, unread); the card + raycast are now the suite's spine — more readers hang off them.
+  the mason · Year 1") + THE FOUNDER'S STONE (`80c8b96`, rider, names the founding party) + THE STRUCTURE
+  BIOGRAPHY (`385c6f8`, rider, "in a work of 747 stones") + MASON'S MARKS (`d2609f2`, ⛏ 37th, each hand's
+  procedural glyph on ashlar). All render-only, ZERO baseline. The census reframed Beat 2 as GREP-THE-TREE
+  (tickLaid/masonId recorded since M1, unread); the card + raycast are the suite's spine — the readers hang off
+  them. **ONE reader remains: TRACING-FLOOR GHOSTS** (prior plans as dimmed scratches, the one needing no click).
 - **THE MINING LADDER IS COMPLETE** — open cut ✅ → adit ✅ (`e7d0019`, 32nd) → bell pit ✅ (`6f35aab`,
   33rd, SIM 33) → shaft-and-pump ✅ (`b098c4b`, 34th, SIM 34). Prospecting 3/3 (`fc73bea` snap). The
   5th ⛬ seal punctuates the whole mining vision, now WHOLE.
@@ -205,15 +208,17 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
     trivial add). The pump-tax number is a labelled game-choice, not yet sourced (PROPOSAL §5 Q3, if he
     wants it firmed). Readout teaches the ladder ("all dry — a bell pit is cheaper" / "N m pumped —
     drowned post won ✓"). Render: a headframe with winding gear, eye-verified.
-3. **The MEMORY SUITE (Beat 2) — FOUR READERS in, the SPINE paying dividends.** Shipped: the campaign patina
+3. **The MEMORY SUITE (Beat 2) — FIVE READERS in, ONE render-only reader left.** Shipped: the campaign patina
    (`1fadac4`, 35th) + **the INSPECTION CARD** (`7404162`, 36th — the HEART: raycast + card, the shared spine) +
    **the FOUNDER'S STONE** (`80c8b96`, first stone proud, names the founding party) + **the STRUCTURE BIOGRAPHY**
    (`385c6f8`, the card widened stone→wall: "in a work of 747 stones, begun Year 1" — aggregate `world.stones`
-   by `wallId`). All render-only + ZERO baseline, GREP-THE-TREE (data recorded since M1, `ROADMAP §Beat-2`).
-   Two readers remain: **MASON'S MARKS** (a deterministic glyph from the id, ashlar only, drawn on the card —
-   needs a small compass-and-straightedge glyph generator, the one piece with real new work); **TRACING-FLOOR
-   GHOSTS** (prior plans as dimmed scratches — the one needing NO click; check whether past plans are retained
-   first). Then the boss's design-heavy beats (item 4). Build the next reader.
+   by `wallId`) + **MASON'S MARKS** (`d2609f2`, ⛏ 37th — a deterministic procedural glyph keyed on the id, drawn
+   on the card for ASHLAR only; the one reader with real new work, a generator not just a print; retroactively
+   deepens the dress dial). All render-only + ZERO baseline, GREP-THE-TREE (data recorded since M1, `ROADMAP §Beat-2`).
+   **ONE reader remains: TRACING-FLOOR GHOSTS** — prior plans as dimmed scratches on the ground, the one needing
+   NO click. Check FIRST whether past plans are retained: the command log holds every frozen plan footprint
+   (`plan_cut`/`plan_wall`/etc.), so a render layer reading the log = render-only, ZERO baseline (grep-the-tree
+   again). Build it, and the suite's render-only tranche is whole → then the boss's design beats (item 4).
 4. **The design-heavy beats — the boss's calls.** Beat 5 the demand wave (the Wall Ladder + SPOIL + Lots),
    Beat 6 the kiln + the Keep, the mortality SPINE (Beat 4) — these are the roadmap's SIM arcs with real
    design forks (batch as ONE bump each; §6 of the roadmap has the open questions). And the shaft's GATE

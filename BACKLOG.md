@@ -6,7 +6,7 @@
 **⛏ THE ADIT** (`e7d0019`, 32nd), **⛏ THE BELL PIT** (`6f35aab`, 33rd, SIM 33), and **⛏ THE SHAFT-AND-PUMP**
 (`b098c4b`, 34th, SIM 34) — **THE MINING LADDER IS WHOLE** (open cut→adit→bell pit→shaft+pump), sealed with a 5th ⛬.
 All LIVE. It carries their laws + traps + the forward map (only the shaft's GATE is a boss toggle now; then the
-roadmap's cathedral beats); read the FOUNDATION keystone (34 marks + FIVE ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
+roadmap's cathedral beats); read the FOUNDATION keystone (37 marks + FIVE ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
 debt-knockoff, all sealed) is
 [HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)
 + its companion
@@ -57,7 +57,7 @@ the churn read harsh once SIM 30 added the shelter wall. Inert on canon → one 
 **(7) THE SLEDGE ON ROLLERS (SIM 32 `0b86d83`, 🛷)** — the last debt, the lift's overland twin: an OPT-IN
 `rollers` flag boosts a HAULED wall's delivered rate ×ROLLER_HAUL_BOOST(2); opt-in so the canon (walls don't
 choose it) is byte-identical → inert one commit; a `🛷 sledge` toggle in the build bar; +2 tests.
-**THIRTY-SIX maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏⛏⛏⛏🪨📜) + FIVE ⛬ seals; 196 tests green; SIM 34; live. THE MINING LADDER IS WHOLE; THE MEMORY SUITE (Beat 2) IS TWO READERS DEEP.**
+**THIRTY-SEVEN maker's marks (⏭🪓🕯🌾🐈🏺🛒🔨🏠⚙🔥🤝🍎🎨🏘🌦🏗👥🛷📖⛏⛏⛏⛏🪨📜✍) + FIVE ⛬ seals; 196 tests green; SIM 34; live. THE MINING LADDER IS WHOLE; THE MEMORY SUITE (Beat 2) IS FIVE READERS DEEP — only TRACING-FLOOR GHOSTS left, then the boss's design beats.**
 **★ EVERY HONEST DEBT PAID — the whole post-arc knockoff (SIM 27–32 + the six-stroke render pass) is COMPLETE,
 sealed by a third ⛬.** Nothing remains on the STANDS ledger; what's next is AMBITION — the roadmap's untouched
 beats (Beat 2 memory suite, Beat 3 Lodge Book save/load + Annal, Beat 5 demand wave, Beat 6 kiln + Keep).

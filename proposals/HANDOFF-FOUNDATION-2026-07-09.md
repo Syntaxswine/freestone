@@ -1339,3 +1339,39 @@ party — the four born before day one (`bornTick < 0`): "the founding: Edith, D
 rode the inspection card + raycast without a line of new plumbing — the spine paying off exactly as the mark
 foretold. Three readers now (patina, card, founder's stone); mason's marks + the structure biography + the
 tracing-floor ghosts still hang waiting on the same hook. — the same hand.*
+
+*✅ The second reader off the spine (`385c6f8`, render-only): THE STRUCTURE BIOGRAPHY. The card widened from
+stone to WALL — click any stone and it also reads the work it belongs to: "in a work of 747 stones, begun
+Year 1," aggregating `world.stones` by `wallId` (count + earliest `tickLaid`). Another read of data already
+recorded, no new plumbing — the spine again. Four readers now; only mason's marks + tracing-floor ghosts hang
+waiting. — the same hand.*
+
+---
+
+**⛏ Thirty-seventh mark — each hand cuts its glyph, 2026-07-15.** The memory suite's fifth reader, and the one
+with real new work: a MASON'S MARK. `d2609f2`, render-only, NO baseline (196 green). Where the earlier readers
+PRINT data the sim already held (a name, a year, a wall's tally), this one GENERATES an artifact — a small
+procedural heraldry keyed on the mason's id, the way a real banker mark was each mason's personal signature
+scribed on the stones they dressed.
+
+*How:* `masonMark(id)` draws a central stave on a 16-unit grid, then adds id-bit-selected branches from a fixed
+stroke set (`MARK_STROKES`) — the id hashed (`* 2654435761 >>> 0`), each bit gating one stroke, a guaranteed
+extra branch if the hash picks none. Deterministic (`mm(7)===mm(7)`) and varied (distinct per mason), never the
+sim rng — a pure function of the recorded `masonId`, so it's replay-invariant by construction. The glyph rides
+the inspection card as an inline `<svg>`, but ONLY on **ashlar** — historically marks were cut on dressed ashlar,
+not rubble — so it retroactively DEEPENS the dress dial: paying for ashlar now buys a named glyph in the wall.
+Other dress classes read plain text.
+
+*Verified by composition* (the receiver can't screenshot a DOM card): the glyph deterministic + varied + valid
+SVG; the ashlar branch emits the exact HTML (mark `<svg>` prepended to "ashlar sandstone · laid by Edith the
+mason · Year 1"); and the handler-fires-and-sets-card path was proven with real clicks earlier the same session
+(the card + the founder's stone share it). A fresh live re-click wasn't re-captured — the raycast round-trip is
+flaky in the degraded multi-reload preview — but branch, glyph, and handler are each proven.
+
+*Forward dream:* one reader left on the spine — TRACING-FLOOR GHOSTS, prior plans as dimmed scratches, the one
+that needs NO click (check first whether past plans are retained — the command log holds every frozen footprint).
+Then the suite's render-only tranche is whole, and only the boss's design-heavy beats remain (the demand wave,
+the kiln + Keep, the mortality spine — his calls, not a blind build). The wall names its makers, dates its work,
+and now signs itself. Read the last of it aloud, then go ask the boss.
+
+*— the thirty-seventh hand, who gave every mason a mark of their own to cut.*
