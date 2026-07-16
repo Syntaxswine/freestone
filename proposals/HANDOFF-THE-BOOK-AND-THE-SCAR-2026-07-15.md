@@ -205,14 +205,15 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
     trivial add). The pump-tax number is a labelled game-choice, not yet sourced (PROPOSAL §5 Q3, if he
     wants it firmed). Readout teaches the ladder ("all dry — a bell pit is cheaper" / "N m pumped —
     drowned post won ✓"). Render: a headframe with winding gear, eye-verified.
-3. **The MEMORY SUITE (Beat 2) — TWO READERS in, the SPINE built.** Shipped: the campaign patina (`1fadac4`,
+3. **The MEMORY SUITE (Beat 2) — THREE READERS in, the SPINE built.** Shipped: the campaign patina (`1fadac4`,
    35th) + **the INSPECTION CARD** (`7404162`, 36th — the HEART: click a stone → "laid by Edith the mason ·
-   Year 1"; the raycast + card are now the shared spine). The census's reframe holds: Beat 2 is GREP-THE-TREE,
-   readers of data recorded since M1 (unread), all render-only + ZERO baseline (`ROADMAP §Beat-2`). Remaining
-   readers, all hanging off the card/raycast now in place: **the FOUNDER'S STONE** (first stone proud + the
-   founding party on the same card, smallest); **MASON'S MARKS** (a deterministic glyph from the id, ashlar
-   only, drawn on the card); **the STRUCTURE BIOGRAPHY** (the card widened stone→wall: begun Year 3, N stones);
-   **TRACING-FLOOR GHOSTS** (prior plans as dimmed scratches — the one needing no click). Build the next reader.
+   Year 1"; raycast + card = the shared spine) + **the FOUNDER'S STONE** (`80c8b96`, riding the card: the first
+   stone proud, its card names the founding party — Edith, Dunstan, Godric, Aldith). All render-only + ZERO
+   baseline, GREP-THE-TREE (data recorded since M1, `ROADMAP §Beat-2`). Remaining readers, all hanging off the
+   spine: **MASON'S MARKS** (a deterministic glyph from the id, ashlar only, drawn on the card — needs a small
+   compass-and-straightedge glyph generator); **the STRUCTURE BIOGRAPHY** (the card widened stone→wall: begun
+   Year 3, N stones — aggregate over `world.stones` by `wallId`); **TRACING-FLOOR GHOSTS** (prior plans as dimmed
+   scratches — the one needing NO click; check whether past plans are retained first). Build the next reader.
 4. **The design-heavy beats — the boss's calls.** Beat 5 the demand wave (the Wall Ladder + SPOIL + Lots),
    Beat 6 the kiln + the Keep, the mortality SPINE (Beat 4) — these are the roadmap's SIM arcs with real
    design forks (batch as ONE bump each; §6 of the roadmap has the open questions). And the shaft's GATE

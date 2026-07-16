@@ -1332,3 +1332,10 @@ MARKS draw a deterministic glyph from the id onto it (ashlar only); the biograph
 as dimmed scratches — is the one that needs no click at all. The ledger is open; read more of it aloud.
 
 *— the thirty-sixth hand, who taught the wall to name its makers.*
+
+*✅ The first reader off the spine, same day (`80c8b96`, render-only): THE FOUNDER'S STONE. The very first
+stone laid (world.stones[0] = instanceId 0) now sits slightly PROUD, and its card widens to name the founding
+party — the four born before day one (`bornTick < 0`): "the founding: Edith, Dunstan, Godric, Aldith." It
+rode the inspection card + raycast without a line of new plumbing — the spine paying off exactly as the mark
+foretold. Three readers now (patina, card, founder's stone); mason's marks + the structure biography + the
+tracing-floor ghosts still hang waiting on the same hook. — the same hand.*
