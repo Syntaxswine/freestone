@@ -2,8 +2,8 @@
 
 **🗿 Current handoff: [proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md](proposals/HANDOFF-THE-BOOK-AND-THE-SCAR-2026-07-15.md)**
 — the AMBITION opener (the first courses built ON the sealed frame): 📖 THE LODGE BOOK (Save/Load, `55ce8ed`) and
-⛏ THE PROSPECTING SCAR (red warning + readout + dig-anyway + flood, 2/3, `f27e858`) — both render-only, both LIVE.
-It carries their laws + traps + the forward map (the snap, the adit, the roadmap beats); read the FOUNDATION
+⛏ THE PROSPECTING SCAR (red warning + readout + dig-anyway + flood + **the edge snap `fc73bea` — now 3/3 ✅**) —
+all render-only, all LIVE. It carries their laws + traps + the forward map (the adit, the roadmap beats); read the FOUNDATION
 keystone (31 marks + FOUR ⛬ seals) FIRST. The prior arc-closing keystone (the §9 ladder + the post-arc
 debt-knockoff, all sealed) is
 [HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md](proposals/HANDOFF-THE-LIVING-SETTLEMENT-STANDS-2026-07-15.md)
@@ -68,15 +68,18 @@ New-Game's ghost-free reload rails — a one-shot `freestone_load` token, boot()
 SIM-version + site) instead of seeding fresh, then autostarts. A format-lock test (`save.test.ts`, +4) proves a
 byte-identical round-trip; verified end-to-end in preview (save@600 → reload → restored@600 → continue →
 re-save@720, console clean). Known limit: no cross-version save migration yet (surfaced with a message, not a
-crash — a later course). **PROSPECTING CLARITY + THE SCAR (⛏ 31st mark) — 2/3 SHIPPED `f27e858` (render-only,
+crash — a later course). **PROSPECTING CLARITY + THE SCAR (⛏ 31st mark) — 3/3 ✅ COMPLETE (render-only,
 SIM-neutral, 188 green, inert on the canon): the RED WARNING (invalid ground → rust-red ring `#c0472e`,
 boss-INVERTED — warn the HAZARD not the affordance; the red never blocks) + the field-guide READOUT (`⛏ sandstone
 · 12 m dry · open cut ✓` / `⚠ <why>`, both reading quarryPlanAt) + DIG-ANYWAY (cutCommand no longer refuses a
 drowned cut — dig it and find out) + THE FLOOD (a cut whose floor dips below the water table pools the
-underworld's drowned blue) + SPOIL heaps ringing the rim. Preview-verified: ring grey↔red on the cursor; 12/49
-grid cuts flooded at their local water table (≈28–34 m AOD); 200 spoil cones. REMAINING (boss's soft "probably"):
-SNAP the ring to the valid-area edge while drawing — the hardest third (an implicit water-table contour), its own
-focused course.** Then the deeper ladder (#49 the adit — `adits.test.ts` + a `plan_adit` command already exist,
+underworld's drowned blue) + SPOIL heaps ringing the rim [`f27e858`] + **THE EDGE SNAP** [`fc73bea`]: the Quarry
+cursor magnetizes to the workable SHORE (where `cutValid` flips — a black-box sign-change march + bisection,
+screen-verified like `geoSnap`, capped 20 m so a zoom-out can't grab across the valley; always-on but bites only
+within 14 px, so dig-anyway holds). Preview-verified: ring grey↔red on the cursor; 12/49 grid cuts flooded at their
+local water table (≈28–34 m AOD); 200 spoil cones; the snap CLINGS-then-RELEASES across a boundary sweep, cream+swell
++"workable edge" readout at an edge, red+"no building stone" deep-invalid, a placed vertex lands ON the boundary.**
+Then the deeper ladder (#49 the adit — `adits.test.ts` + a `plan_adit` command already exist,
 further along than "coming soon"; #50 method gates). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)

@@ -13,12 +13,14 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
 
 ## The state, in numbers
 
-- **SIM_VERSION 32** (unchanged this session — both courses were RENDER-ONLY).
+- **SIM_VERSION 32** (unchanged — every course here has been RENDER-ONLY).
 - **188 tests green / 31 files** (was 184/30; +4 the Lodge Book format lock, `save.test.ts`).
-- **The durham baseline (`baselines/durham-42.json`) is UNTOUCHED.** Neither course moved a
-  value; both are inert on the canon (the 200-tick Durham run neither saves nor cuts).
+  The snap added no unit test — it is input geometry, verified live by the `__cc` probe.
+- **The durham baseline (`baselines/durham-42.json`) is UNTOUCHED.** No course moved a
+  value; all are inert on the canon (the 200-tick Durham run neither saves nor cuts).
 - **31 maker's marks, 4 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `7274b47`. All pushed and deploying.
+- HEAD `fc73bea`. All pushed and deploying.
+- **PROSPECTING IS NOW 3/3** — the edge snap (`fc73bea`) closed it; see §2 + §3.
 
 ## What this session shipped
 
@@ -58,7 +60,7 @@ law: *seed + command log fully determine a world*), so this was pure UI + localS
   save from an OLDER engine can't be reopened. Surfaced with a clear message, a later course.
 - **One slot** — the Lodge Book: a single continuing chronicle, fit for a game about generations.
 
-### 2. ⛏ PROSPECTING CLARITY + THE SCAR — 2 of 3 · `f27e858` + keystone `7274b47`
+### 2. ⛏ PROSPECTING CLARITY + THE SCAR — 3 of 3 ✅ · `f27e858` (warn+scar) + `fc73bea` (snap) + keystone `7274b47`
 
 The boss picked Save/Load with a *"but"* — prospecting wasn't CLEAR — and gave a sharp,
 INVERTED three-part steer. Two-thirds shipped as one **render-only, SIM-neutral** course
@@ -80,10 +82,25 @@ already freezes, so **the hover-read and the cut can never disagree.**
   the water table **fills to the table — a pond of the underworld's own drowned blue** (`0x3d5f78`).
   *The warning and its consequence are the SAME picture.* Waste heaps ring the rim, rising with
   the digging.
-- **Verified** (the `__cc` probe, WebGL screenshots time out): the ring flips grey↔red on the
-  cursor across the map (both grounds present); of **49** grid cuts scattered on the 4 km map, the
-  **12** over drowned ground flooded — each pond exactly at its local water table (≈28–34 m AOD) —
-  and **200** spoil heaps rose; the dry ground correctly stayed dry.
+- **The edge snap** (`fc73bea`, `planner.ts` `cutSnap` — the boss's remaining third, 2026-07-15):
+  while quarrying, the cursor magnetizes to the WORKABLE SHORE — the contour where `cutValid` flips
+  (drowned / too deep / the building stone runs out) — so you cut clean up to the good ground.
+  Black-box: `cutValid` as a boolean field, the nearest sign-change by a 16-ray march + bisection,
+  verified in SCREEN space (pixels, not metres) exactly like `geoSnap`. Always-on in cut mode but
+  bites only within `CUT_SNAP_PX` (14 px), reach capped at `CUT_SNAP_REACH_MAX` (20 m) so a zoomed-
+  OUT view can't grab across the valley — the DIG-ANYWAY law holds (move past the shore, it's free).
+  Snapped ⇒ the ring swells + reads CREAM, and the readout names it: *"the workable edge · snapped —
+  cut up to here"*. A placed vertex clings too (the `onPointerUp` path).
+- **Verified — the flood** (the `__cc` probe, WebGL screenshots time out): the ring flips grey↔red
+  on the cursor across the map (both grounds present); of **49** grid cuts scattered on the 4 km
+  map, the **12** over drowned ground flooded — each pond exactly at its local water table (≈28–34 m
+  AOD) — and **200** spoil heaps rose; the dry ground correctly stayed dry.
+- **Verified — the snap**: a boundary sweep CLINGS within reach then RELEASES to free in open ground
+  (the cap binds at zoom-out, reachM 20); the real event path gives cream + 1.5× ring + "workable
+  edge" AT an edge, red `#c0472e` + "no building stone" DEEP invalid, cream + "sandstone · 12 m dry ·
+  open cut ✓" DEEP valid; a placed vertex lands ON the boundary; console clean. Field census (100×100):
+  only **18%** of the 4 km map affords an open cut (invalid: ~46% drowned, ~36% no-stone, ~21% too-
+  deep), `boundaryCellFrac 0.047` — edges tens of metres apart, so the snap reads clean, not choppy.
 
 ---
 
@@ -121,20 +138,19 @@ already freezes, so **the hover-read and the cut can never disagree.**
 
 ## Where I'd start (the forward map)
 
-1. **The snap — prospecting's remaining third** (the boss's soft *"probably"*). While drawing a
-   quarry ring, magnetize the cursor to the **edge of the valid (dry) area** so you cut clean up
-   to the good ground's boundary. It is the HARDEST of the three — the valid/invalid boundary is
-   an implicit contour where `water.dryDepthAt == cut depth` — so it wants its own focused course
-   (march the `dryDepth` gradient from the cursor, bisect to the boundary, snap in screen space
-   like the existing `geoSnap`). SIM-neutral, `planner.ts`.
-2. **A free win: tune the flood's LOOK.** It renders and floods correctly, but the blue's opacity
+- ✅ **The snap — prospecting's remaining third** — DONE (`fc73bea`, §2/§3). The valid/invalid
+  boundary turned out to be a COMPOSITE contour (water shore + Voronoi stone-presence + reach),
+  not the single `dryDepth` contour the first sketch guessed — so a BLACK-BOX boolean sign-change
+  march beat a gradient march. Prospecting is complete; the remaining items below.
+
+1. **A free win: tune the flood's LOOK.** It renders and floods correctly, but the blue's opacity
    (0.62) and the spoil mounds were verified by probe, not by a screenshot (WebGL screenshots
    time out). First real eye on the live deploy may want a one-line tweak.
-3. **The adit — the tutorial's promise, nearer than it reads.** `adits.test.ts` AND a `plan_adit`
+2. **The adit — the tutorial's promise, nearer than it reads.** `adits.test.ts` AND a `plan_adit`
    command ALREADY stand (`save.ts` even deep-copies it). Driving a self-draining drift into a
-   drowned/too-deep seam is the METHOD the red warning points at ("drive an adit"). Census what's
-   already built before scoping (the grep-the-tree law).
-4. **The roadmap's untouched beats** (`ROADMAP-THE-GENERATIONAL-FACTORY`): Beat 2 the memory /
+   drowned/too-deep seam is the METHOD the red warning + the snap's readout both point at ("drive
+   an adit"). Census what's already built before scoping (the grep-the-tree law).
+3. **The roadmap's untouched beats** (`ROADMAP-THE-GENERATIONAL-FACTORY`): Beat 2 the memory /
    homage suite (the boss's cathedral heart), Beat 5 the demand wave, Beat 6 the kiln + the Keep.
 
 The frame is sealed and whole; the first cathedral stones are laid on it. Build on.

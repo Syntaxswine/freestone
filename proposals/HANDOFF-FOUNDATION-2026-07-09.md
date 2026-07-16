@@ -1115,6 +1115,16 @@ command already stand). Give the miner eyes, then his tunnel.
 
 *— the thirty-first hand, who taught the ground to warn, and the wound to weep.*
 
+*✅ The forward dream, fulfilled the next day (`fc73bea`, 2026-07-15, still render-only, 188 green):
+the snap landed. The Quarry cursor now magnetizes to the workable SHORE — a black-box march to
+where `cutValid` flips, verified in screen space like `geoSnap`, capped (20 m) so a zoomed-out view
+can't grab across the valley; always-on but biting only within 14 px, so the dig-anyway law holds.
+The boundary turned out COMPOSITE — the water shore AND the Voronoi stone-presence edge (a census
+found no-stone is 36% of all invalid ground), not the single water-table contour this dream guessed
+— so a boolean sign-change march beat the gradient march the dream sketched. Prospecting is now
+3/3; all three parts of the boss's steer are shipped. The adit is the next rung. — the same hand,
+looping.*
+
 ---
 
 **⛬ Session seal — the first cathedral stones, laid on the sealed frame, 2026-07-15.** A FOURTH
