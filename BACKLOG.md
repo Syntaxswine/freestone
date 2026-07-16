@@ -1,6 +1,13 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md](proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md)**
+**🗿 Current handoff: [proposals/HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md](proposals/HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md)**
+— the session that measured the boss's "time isn't advancing" complaint to its true cause (890-person-day quarry ÷ 2
+laborers + all-or-nothing credit + invisible work; the clock proven INNOCENT by live probe) and chartered the cure:
+**THE VISIBLE WORK v3** (boss-ruled + four-lens critique-hardened; skill-by-doing, at-plot designation, incremental
+credit, the timber way). ZERO code shipped by design — Course 1 (3 commits, SIM bumps 35/36/37) is scoped and waiting;
+**§6.4 (save-forward — Course 1 voids existing Lodge Book saves) must be ruled before bump 35 lands.** The FOUNDATION
+keystone now carries **FORTY marks + SIX ⛬ seals**. Its predecessor (stone AND folk made legible, the memory suite
+sealed 6th ⛬): [HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md](proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md)
 — the arc that made the castle READABLE, all RENDER-ONLY / ZERO baseline (SIM 34 unmoved): **THE MEMORY SUITE (Beat 2)
 COMPLETE** — six readers (🪨 patina 35th · 📜 inspection card 36th · ⛭ founder's stone · ▦ structure biography · ✍ mason's
 marks 37th · 📐 tracing floor 38th), **sealed by the 6th ⛬, THE CASTLE REMEMBERS** — plus **⏳ THE VILLAGE CLOCK** (⛏ 39th,

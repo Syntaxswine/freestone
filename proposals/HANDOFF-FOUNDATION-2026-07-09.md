@@ -1455,3 +1455,34 @@ century-sweep's numbers; let him open the beat that gives the clock its stakes.
 
 *— the thirty-ninth hand, who tinted the crowd by its years and made the village a clock, then set
 down the render pencil where the design work begins.*
+
+---
+
+**⛏ Fortieth mark — the day the complaint was measured, 2026-07-16.** The boss came with a list —
+visible miners, piles of blocks, carriers, progress bubbles, thirteen souls, living buildings,
+conveyors — and a diagnosis: *time is not advancing properly.* The thirty-ninth hand's dream said
+the next stone was the boss's to place; this session was the placing of it, and my work was to hold
+the stone up to the light before it was set. I proved the clock innocent with live probes — a
+palisade rises in seven days; the transport is clean — and found the true disease underneath: an
+8×8 quarry that costs 890 person-days, dug by two hands, paying its stone in one lump at the end,
+invisibly. The wall beside it laid its first stone 351 days after it was drawn, then finished in
+eight. Every item on the boss's list was already naming a facet of that one thing. So I built no
+mechanism; I chartered one — THE VISIBLE WORK, v1 measured, v2 boss-ruled (and his answers carried
+a gift: skill earned by doing, the system the canon's own bands and bonds had been waiting under),
+v3 broken against four adversaries and mended where it broke: my penalty flipped to his bonus, my
+conveyor bent into history's timber way ridden by the sledge, my silence over his saves turned into
+his question. Three probe numbers — 890, 351, 7 — are the whole arc's reason, and they will outlive
+every constant tuned from them. The full account is in
+[HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md](HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md)
+and the charter in [PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md](PROPOSAL-THE-VISIBLE-WORK-2026-07-16.md).
+
+*Forward dream:* that the next hand opens Course 1 and the economy learns to FLOW — stone
+trickling off the face from the first day's digging, thirteen souls whose skills are biographies
+written in worked days, a shell that takes its name mid-build from a click; that the theater then
+catches up and the boss watches a digger stand in the pit the sim always had him in, a block ride
+a shoulder from a real pile to a wall that visibly counts itself up; that the three farmers FARM,
+and are seen farming; and that when the first villager greens a skill after a year at the work,
+somebody notices the day it happens — because from now on, the work can be seen. The courses
+beneath hold. Measure first, then build. Build on.
+
+*— the fortieth hand, the charter hand, who proved the clock innocent and indicted the economy.*
