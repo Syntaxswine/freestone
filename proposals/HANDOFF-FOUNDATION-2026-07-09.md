@@ -1375,3 +1375,51 @@ the kiln + Keep, the mortality spine — his calls, not a blind build). The wall
 and now signs itself. Read the last of it aloud, then go ask the boss.
 
 *— the thirty-seventh hand, who gave every mason a mark of their own to cut.*
+
+---
+
+**⛏ Thirty-eighth mark — the tracing floor, and the suite made whole, 2026-07-15.** The memory
+suite's sixth and last render-only reader — the one that needs no click — and with it roadmap Beat 2
+stands complete. `368557e`, render-only, NO baseline (196 green). A master mason scored his full-size
+geometry into a plaster tracing floor before a stone was cut from it; the lines stayed, layer on
+layer. The whole building site is that floor now: `TracingFloorLayer` reads the COMMAND LOG and draws
+every `plan_wall` and `plan_fill` footprint as a pale chalk line a hair above the turf — the
+palimpsest of every setting-out the castle was raised from. In a game that never demolishes, the
+standing walls ARE the "fresh lines" and these scratches the "dimmed" layer beneath them, exactly as
+the roadmap asked ("the palimpsest law made visible; plans have been permanent since SIM 12 and the
+player can't see it").
+
+*How:* grep-the-tree, one last time — `commandLog` was already a render-accessible local in `boot()`
+(append-only within a run; a load rebuilds a fresh layer over a fresh log on the reload rails), and
+every plan freezes its footprint as `points: Vec2[]`. A pure reader, no sim, no command, no new state;
+the scribe follows the DISPLAYED surface (`terrain.groundAt`, the law), each edge subdivided so a line
+drapes the hill. Verified by probe AND eye (the receiver trick): `built → 2`, two chalk Lines drooping
+across real ground (Y 59→64, no NaN), and a screenshot that SHOWED the L-wall + fill-ring as faint pale
+scratches on the turf. *(Caught a sibling bug in passing: `shafts.update()` was missing from the live
+render frame — present only in the dev stepper — so a shaft placed in ordinary play never entered the
+scene; its build had been eye-checked through the stepper, which masked it. Fixed in the same commit.)*
+
+*Forward dream:* the render-only tranche of the memory suite is WHOLE — the wall names its makers, dates
+its work, signs itself, weathers by age, remembers its founders, and now shows the ghost of its own
+drawing. What remains of the castle's memory is the boss's to shape: the death that gives it stakes
+(the mortality SPINE, Beat 4), and the design-heavy beats (the demand wave, the kiln + the Keep). Read
+the roadmap's §6 open questions to him; do not build those blind.
+
+*— the thirty-eighth hand, who scored the last plan into the floor and closed the suite.*
+
+---
+
+## ⛬ THE SIXTH SEAL — THE CASTLE REMEMBERS (2026-07-15)
+
+*Marks 35–38, and the two riders between them, complete roadmap Beat 2 — the memory suite. Everything
+the sim had recorded since M1 and no one could read is now legible on the land: click a stone and it
+names the hand that laid it, the year, the dress, its mason's mark cut in ashlar; the first stone sits
+proud and names the founders; a whole work reads its own tally and birth-year; every stone weathers by
+its age so a construction campaign reads as banded lifts; and every plan ever drawn lies scored faintly
+into the turf, a palimpsest under the standing stone. Six readers, all render-only, ZERO baseline —
+GREP-THE-TREE paid over and over, because the data was always there. The castle was built to remember;
+now it does. The frame remembers, the land warns and yields and floods and tunnels, and the chronicle
+can be set down in a book and taken up again. What comes next is not repair and not reading — it is
+STAKES: someone has to be able to die. That is the boss's to open.*
+
+*Sealed by the thirty-fifth-through-thirty-eighth hands, who taught the wall to remember out loud.*

@@ -21,15 +21,18 @@ that reads its own worth and shows the cost of ignoring it (the prospecting scar
   SIM_VERSION field), so the hash moved; DIFF-CONFIRMED pure serialisation BOTH times (only the milestone
   hashes + `simVersion`, no count/stockpile/position; the canon runs neither method, so its BEHAVIOUR is
   byte-identical). One commit + regen apiece.
-- **37 maker's marks, 5 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
-- HEAD `d2609f2`. All pushed and deploying.
-- **THE MEMORY SUITE (roadmap Beat 2) IS OPEN, FIVE READERS DEEP** — the campaign patina (`1fadac4`, ⛏ 35th,
-  stones weather by age) + THE INSPECTION CARD (`7404162`, ⛏ 36th, its HEART: click a stone → "laid by Edith
-  the mason · Year 1") + THE FOUNDER'S STONE (`80c8b96`, rider, names the founding party) + THE STRUCTURE
-  BIOGRAPHY (`385c6f8`, rider, "in a work of 747 stones") + MASON'S MARKS (`d2609f2`, ⛏ 37th, each hand's
-  procedural glyph on ashlar). All render-only, ZERO baseline. The census reframed Beat 2 as GREP-THE-TREE
-  (tickLaid/masonId recorded since M1, unread); the card + raycast are the suite's spine — the readers hang off
-  them. **ONE reader remains: TRACING-FLOOR GHOSTS** (prior plans as dimmed scratches, the one needing no click).
+- **38 maker's marks, 6 ⛬ seals. LIVE at syntaxswine.github.io/freestone.**
+- HEAD `368557e`. All pushed and deploying.
+- **THE MEMORY SUITE (roadmap Beat 2) IS COMPLETE — SIX READERS, sealed by the 6th ⛬** (the castle
+  remembers): the campaign patina (`1fadac4`, ⛏ 35th, stones weather by age) + THE INSPECTION CARD
+  (`7404162`, ⛏ 36th, its HEART: click a stone → "laid by Edith the mason · Year 1") + THE FOUNDER'S STONE
+  (`80c8b96`, rider, names the founding party) + THE STRUCTURE BIOGRAPHY (`385c6f8`, rider, "in a work of
+  747 stones") + MASON'S MARKS (`d2609f2`, ⛏ 37th, each hand's procedural glyph on ashlar) + THE TRACING
+  FLOOR (`368557e`, ⛏ 38th, every plan scored faintly into the turf — the palimpsest, the one needing no
+  click). All render-only, ZERO baseline — GREP-THE-TREE paid six times (tickLaid/masonId/commandLog all
+  recorded since M1, unread). **The render-only memory tranche is WHOLE; what remains of the castle's
+  memory is STAKES — the mortality spine (Beat 4), the boss's to open.** (The tracing-floor commit also
+  fixed a sibling bug it surfaced: `shafts.update()` was missing from the live render frame.)
 - **THE MINING LADDER IS COMPLETE** — open cut ✅ → adit ✅ (`e7d0019`, 32nd) → bell pit ✅ (`6f35aab`,
   33rd, SIM 33) → shaft-and-pump ✅ (`b098c4b`, 34th, SIM 34). Prospecting 3/3 (`fc73bea` snap). The
   5th ⛬ seal punctuates the whole mining vision, now WHOLE.
@@ -208,25 +211,33 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
     trivial add). The pump-tax number is a labelled game-choice, not yet sourced (PROPOSAL §5 Q3, if he
     wants it firmed). Readout teaches the ladder ("all dry — a bell pit is cheaper" / "N m pumped —
     drowned post won ✓"). Render: a headframe with winding gear, eye-verified.
-3. **The MEMORY SUITE (Beat 2) — FIVE READERS in, ONE render-only reader left.** Shipped: the campaign patina
+3. ✅ **The MEMORY SUITE (Beat 2) — COMPLETE, six readers, sealed by the 6th ⛬.** Shipped: the campaign patina
    (`1fadac4`, 35th) + **the INSPECTION CARD** (`7404162`, 36th — the HEART: raycast + card, the shared spine) +
    **the FOUNDER'S STONE** (`80c8b96`, first stone proud, names the founding party) + **the STRUCTURE BIOGRAPHY**
-   (`385c6f8`, the card widened stone→wall: "in a work of 747 stones, begun Year 1" — aggregate `world.stones`
-   by `wallId`) + **MASON'S MARKS** (`d2609f2`, ⛏ 37th — a deterministic procedural glyph keyed on the id, drawn
-   on the card for ASHLAR only; the one reader with real new work, a generator not just a print; retroactively
-   deepens the dress dial). All render-only + ZERO baseline, GREP-THE-TREE (data recorded since M1, `ROADMAP §Beat-2`).
-   **ONE reader remains: TRACING-FLOOR GHOSTS** — prior plans as dimmed scratches on the ground, the one needing
-   NO click. Check FIRST whether past plans are retained: the command log holds every frozen plan footprint
-   (`plan_cut`/`plan_wall`/etc.), so a render layer reading the log = render-only, ZERO baseline (grep-the-tree
-   again). Build it, and the suite's render-only tranche is whole → then the boss's design beats (item 4).
+   (`385c6f8`, the card widened stone→wall: "in a work of 747 stones, begun Year 1") + **MASON'S MARKS**
+   (`d2609f2`, ⛏ 37th — a deterministic procedural glyph keyed on the id, ASHLAR only; a generator not a print,
+   deepens the dress dial) + **THE TRACING FLOOR** (`368557e`, ⛏ 38th — every `plan_wall`/`plan_fill` footprint
+   scored faintly into the turf from the command log, a palimpsest under the standing stone; the one needing NO
+   click). All render-only + ZERO baseline, GREP-THE-TREE six times over (`ROADMAP §Beat-2`). The tracing-floor
+   commit also fixed a sibling bug it surfaced (`shafts.update()` missing from the live render frame). **The
+   render-only memory tranche is WHOLE.** What remains of the castle's memory is STAKES — the mortality spine —
+   which is the boss's design call (item 4), not a blind build.
 4. **The design-heavy beats — the boss's calls.** Beat 5 the demand wave (the Wall Ladder + SPOIL + Lots),
    Beat 6 the kiln + the Keep, the mortality SPINE (Beat 4) — these are the roadmap's SIM arcs with real
    design forks (batch as ONE bump each; §6 of the roadmap has the open questions). And the shaft's GATE
    (a 1-line progression toggle). These want the boss's steer, not a blind build.
 
-The frame is sealed and whole; the mining vision — read the land, warn, cut, flood, and now
-tunnel under cover — stands complete on it. Build on.
+The frame is sealed and whole; the mining vision — read the land, warn, cut, flood, tunnel under
+cover — stands complete on it; and the memory suite is sealed, the castle remembering out loud.
 
-*— the thirtieth-through-thirty-second hand, who kept the castle in a book, taught the land to
-warn, and gave the miner his tunnel — looping on the boss's word "keep working the handoff," and
-did not ship a stone unseen that a probe could see.*
+**Every autonomous-buildable item on this forward map is now shipped (✅ 1, 2, 2b, 3).** What
+remains — item 4 — is the boss's to open: the mortality SPINE (Beat 4, the STAKES the memory suite
+was built to give meaning to), the demand wave (Beat 5), the kiln + the Keep (Beat 6), the shaft's
+GATE. Each has real design forks; the roadmap's §6 holds the open questions. **These want the
+boss's steer, not a blind build** — so the honest loop pauses here, at the edge of the design work,
+with the render-and-read foundation whole beneath it. Take the §6 questions to him and build on.
+
+*— the thirtieth-through-thirty-eighth hands, who kept the castle in a book, taught the land to
+warn, gave the miner his tunnel, and taught the wall to remember out loud — looping on the boss's
+word "keep working the handoff" until the autonomous work ran out, and did not ship a stone unseen
+that a probe or an eye could see.*
