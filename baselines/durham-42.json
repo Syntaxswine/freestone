@@ -2,7 +2,7 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 35,
+      "simVersion": 37,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 200
@@ -408,7 +408,7 @@
   "milestones": [
     {
       "tick": 1,
-      "hash": "5e351124",
+      "hash": "9099f2ee",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
@@ -429,7 +429,7 @@
     },
     {
       "tick": 7,
-      "hash": "994123dd",
+      "hash": "aa40b9c3",
       "stones": 0,
       "events": 5,
       "wallsComplete": 0,
@@ -450,10 +450,10 @@
     },
     {
       "tick": 30,
-      "hash": "088b96b4",
-      "stones": 2028,
-      "events": 2051,
-      "wallsComplete": 3,
+      "hash": "ad8303a3",
+      "stones": 1971,
+      "events": 1993,
+      "wallsComplete": 2,
       "fillsComplete": 2,
       "pending": 1,
       "farms": 0,
@@ -471,10 +471,10 @@
     },
     {
       "tick": 65,
-      "hash": "fed5bcbc",
-      "stones": 2028,
-      "events": 2052,
-      "wallsComplete": 3,
+      "hash": "a606a302",
+      "stones": 1971,
+      "events": 1994,
+      "wallsComplete": 2,
       "fillsComplete": 2,
       "pending": 1,
       "farms": 0,
@@ -492,10 +492,10 @@
     },
     {
       "tick": 80,
-      "hash": "89815b2f",
-      "stones": 2028,
-      "events": 2052,
-      "wallsComplete": 3,
+      "hash": "3a9a36e7",
+      "stones": 1971,
+      "events": 1994,
+      "wallsComplete": 2,
       "fillsComplete": 2,
       "pending": 1,
       "farms": 0,
@@ -513,10 +513,10 @@
     },
     {
       "tick": 100,
-      "hash": "72164b70",
-      "stones": 2515,
-      "events": 2546,
-      "wallsComplete": 5,
+      "hash": "a331b8f7",
+      "stones": 2487,
+      "events": 2517,
+      "wallsComplete": 4,
       "fillsComplete": 2,
       "pending": 0,
       "farms": 1,
@@ -527,14 +527,14 @@
       "roofsComplete": 0,
       "cutsComplete": 2,
       "aditsComplete": 0,
-      "stockpile": 8,
+      "stockpile": 9,
       "timber": 2,
       "grain": 8,
       "standsFelled": 0
     },
     {
       "tick": 130,
-      "hash": "ad58c3b1",
+      "hash": "04b1a57f",
       "stones": 2515,
       "events": 2546,
       "wallsComplete": 5,
@@ -555,7 +555,7 @@
     },
     {
       "tick": 200,
-      "hash": "2d6a06f1",
+      "hash": "de8707a8",
       "stones": 2470,
       "events": 2567,
       "wallsComplete": 5,

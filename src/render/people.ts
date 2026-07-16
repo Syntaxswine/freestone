@@ -16,7 +16,6 @@
 import * as THREE from 'three';
 import type { SiteData } from '../sim/site';
 import {
-  awaitsDrawings,
   computeAssignments,
   decomposeWall,
   pointAt,
@@ -175,8 +174,8 @@ export class PeopleLayer {
 
   /** The active wall and its current course, straight from sim truth. */
   private workSite(): WorkSite | null {
-    // drawings-awaiting walls draw no masons (layStones' own filter)
-    const wall = this.world.walls.find((w) => w.stonesLaid < w.stonesTotal && !awaitsDrawings(w));
+    // SIM 37: unanswered drawings no longer hold the crew — bare shells build
+    const wall = this.world.walls.find((w) => w.stonesLaid < w.stonesTotal);
     if (!wall) return null;
     const { stonesPerCourse } = decomposeWall(wall.points, wall.height, wall.gates);
     const course = Math.floor(wall.stonesLaid / stonesPerCourse);

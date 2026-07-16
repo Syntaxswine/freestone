@@ -129,7 +129,20 @@
 // and the worked-out render cues are unchanged. This retires the measured pathology behind "time is
 // not advancing": a founding quarry paid nothing for ~445 days, then everything in a week. A
 // BEHAVIORAL change everywhere a working exists — the canon re-authored + regenerated with it.
-export const SIM_VERSION = 35;
+// SIM 36 — THE THIRTEEN + THE SKILL SYSTEM (commit B′, `dfa8728`): villager|smith, worked{}/
+// lastJob/vigor, the dawn pass, green ×9/8. ⚠ HONEST RECORD: B′ shipped WITHOUT this bump (the
+// constant still read 35) — the miss the critique warned would let cross-commit saves replay
+// silently divergent. Repaired here by bumping straight past 36: every pre-F′ save (stamped 35,
+// whether A-era or B′-era physics) is refused alike. Flag days are the boss-ruled contract.
+//
+// SIM 37 — THE WORD AT THE PLOT (commit F′; boss decree 2026-07-16): ONE enclosure grammar. A
+// building-class ring may carry roof + trade on the plan itself; a field-class ring its use; a
+// span its covering — and 'none' NEVER BLOCKS: awaitsDrawings is retired, the shell builds bare,
+// pends, and takes its words later (designate/choose_roof on a completed shell mint the Building /
+// update its roof / deck a late brick AT ANSWER-TICK). The 2026-07-10 "the masons lay not one
+// stone until the drawings are answered" canon is SUPERSEDED (recorded in the charter + BACKLOG);
+// the roof-before-trade ordering guard retires with it. New state: WallPlan.fieldUse.
+export const SIM_VERSION = 37;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -309,12 +322,20 @@ export interface WallPlan {
    */
   infill: { course: number; slot: number }[];
   /**
-   * THE DRAWINGS (SIM 12): non-null exactly when the plotted ring classifies
-   * as a building. Both answers are given BEFORE the masons take the wall up
-   * (boss canon 2026-07-10): first the roof (choose_roof), then the trade
-   * (designate). A wall whose drawings hold a null waits unbuilt.
+   * THE DRAWINGS (SIM 12; unblocked SIM 37): non-null exactly when the plotted ring
+   * classifies as a building. The answers may ride the plan itself (the at-plot word),
+   * or come LATER — a null never blocks the masons any more (boss decree 2026-07-16
+   * supersedes the 2026-07-10 "asked at plot, crew waits" canon): the shell builds
+   * bare and pends until its words are given. A null is 're-answerable'; an answered
+   * word is one-shot (re-designation stays the reserved M4 rotation course).
    */
   plans: { roof: BuildingRoof | null; kind: BuildingKind | null } | null;
+  /**
+   * THE FIELD'S AT-PLOT WORD (SIM 37): a farm-class ring may carry its use on the
+   * plan; the day the ring completes, the land is designated without pending. Null ⇒
+   * the completed plot pends and asks, exactly as SIM 10 built it.
+   */
+  fieldUse: FieldUse | null;
   /**
    * THE SURVEY (SIM 13), frozen at plan time from the sim's own ground:
    * courses are LEVEL slabs on one shared grid hung from levelTop (highest
@@ -936,6 +957,17 @@ export type Command =
        * wall (no cart) and on timber. Coerced to a strict boolean at the boundary, like every hashed field.
        */
       rollers?: boolean;
+      /**
+       * THE WORD AT THE PLOT (SIM 37, boss decree 2026-07-16): a building-class ring may
+       * carry its ROOF and its TRADE on the plan itself — answered as it is drawn, no card
+       * stop. Absent ⇒ unanswered ('none'), which never blocks: the shell builds bare and
+       * the word can be given later (the game's first choose-later surface). On a
+       * FIELD-class ring, `use` names the land the day the ring completes. Mismatched
+       * words (a roof on a field ring, a use on a shell) reject with constant reasons.
+       */
+      roof?: BuildingRoof;
+      buildingKind?: BuildingKind;
+      use?: FieldUse;
     }
   | {
       kind: 'plan_fill';
@@ -949,7 +981,12 @@ export type Command =
       kind: 'plan_roof';
       tick: number;
       points: Vec2[]; // ≥3 vertices, each resting on a FINISHED wall
-      // no material: a drawn span is UNCOVERED until designate_roof (SIM 11)
+      /**
+       * SIM 37: the covering may be chosen as the span is drawn (the at-plot word).
+       * Absent ⇒ UNCOVERED until designate_roof (the SIM 11 default, byte-identical
+       * for old logs) — an uncovered deck is a legal state and nobody decks bare air.
+       */
+      material?: RoofMaterial;
     }
   | {
       kind: 'plan_cut';

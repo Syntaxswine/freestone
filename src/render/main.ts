@@ -20,7 +20,6 @@ import {
 import { waterModelFromSite } from '../sim/water';
 import { flatSite, siteFromHeightmap, type HeightmapJson, type SiteData } from '../sim/site';
 import {
-  awaitsDrawings,
   classifyRing,
   effectiveGroundAt,
   nearestOnPolyline,
@@ -59,6 +58,8 @@ import {
   ticksUntilNextSeason,
   yearOf,
   ADULT_AGE,
+  BUILDING_KINDS,
+  FIELD_USES,
   earthRateOf,
   layRateOf,
   type BuildingKind,
@@ -400,7 +401,18 @@ async function boot(): Promise<void> {
   const rollersBtn = document.createElement('button');
   rollersBtn.textContent = '🛷 sledge: off';
   rollersBtn.title = 'haul the next wall’s heavy stone on rollers — faster overland delivery (SIM 32)';
-  build2.append(fillBtn, gateBtn, matBtn, dressBtn, rollersBtn);
+  // THE WORD AT THE PLOT (SIM 37): choose the roof, the trade, and the field's use as
+  // you draw — 'none' is legal, never blocks, and can be answered later on the plot
+  const plotRoofBtn = document.createElement('button');
+  plotRoofBtn.textContent = '⛉ roof: none';
+  plotRoofBtn.title = 'the plotted building’s roof — chosen as you draw, or later at the plot (SIM 37)';
+  const plotKindBtn = document.createElement('button');
+  plotKindBtn.textContent = '⌂ trade: none';
+  plotKindBtn.title = 'the plotted building’s trade — chosen as you draw, or later at the plot (SIM 37)';
+  const plotUseBtn = document.createElement('button');
+  plotUseBtn.textContent = '🌾 use: none';
+  plotUseBtn.title = 'the closed field ring’s use — named as you draw, or later at the plot (SIM 37)';
+  build2.append(fillBtn, gateBtn, matBtn, dressBtn, rollersBtn, plotRoofBtn, plotKindBtn, plotUseBtn);
   build.after(build2);
   const build3 = document.createElement('div');
   const roofBtn = document.createElement('button');
@@ -907,6 +919,12 @@ async function boot(): Promise<void> {
           : planner.dress === 'auto'
             ? autoDress(height)
             : planner.dress;
+      // THE WORD AT THE PLOT (SIM 37): attach the pickers' answers when the drawn
+      // ring's class will take them — the pencil never sends a word the sim rejects
+      const rc = classifyRing(points, height);
+      const roofPick = PLOT_ROOFS[plotRoofI];
+      const kindPick = PLOT_KINDS[plotKindI];
+      const usePick = PLOT_USES[plotUseI];
       return enqueue({
         kind: 'plan_wall',
         tick: world.tick,
@@ -916,6 +934,9 @@ async function boot(): Promise<void> {
         dressLevel,
         // rollers help only a HAULED wall (a sledge on the road); a local wall draws the pile directly
         ...(hv ? { haulRate: hv.haulRate, method: hv.method, ...(planner.rollers ? { rollers: true } : {}) } : {}),
+        ...(rc?.kind === 'building' && roofPick ? { roof: roofPick } : {}),
+        ...(rc?.kind === 'building' && kindPick ? { buildingKind: kindPick } : {}),
+        ...(rc?.kind === 'farm' && usePick ? { use: usePick } : {}),
       });
     },
     onModeChange: (active, mode) => {
@@ -1342,6 +1363,30 @@ async function boot(): Promise<void> {
   rollersBtn.onclick = () => {
     rollersBtn.textContent = `🛷 sledge: ${planner.toggleRollers() ? 'on' : 'off'}`;
   };
+  // THE WORD AT THE PLOT (SIM 37): three cycling pickers, applied at commit when the
+  // drawn ring's class matches (a roof on a field ring would reject — the pencil only
+  // attaches words the sim will take). 'none' = unanswered = answer later at the plot.
+  // 'none' here = UNANSWERED (the boss's re-answerable none): a deliberate no-roof is
+  // simply a word never given — the building stands bare either way, and the plot
+  // still takes the word later
+  const PLOT_ROOFS = [null, 'wood', 'straw', 'brick'] as const;
+  const PLOT_KINDS = [null, ...BUILDING_KINDS] as const;
+  const PLOT_USES = [null, ...FIELD_USES] as const;
+  let plotRoofI = 0;
+  let plotKindI = 0;
+  let plotUseI = 0;
+  plotRoofBtn.onclick = () => {
+    plotRoofI = (plotRoofI + 1) % PLOT_ROOFS.length;
+    plotRoofBtn.textContent = `⛉ roof: ${PLOT_ROOFS[plotRoofI] ?? 'none'}`;
+  };
+  plotKindBtn.onclick = () => {
+    plotKindI = (plotKindI + 1) % PLOT_KINDS.length;
+    plotKindBtn.textContent = `⌂ trade: ${PLOT_KINDS[plotKindI] ?? 'none'}`;
+  };
+  plotUseBtn.onclick = () => {
+    plotUseI = (plotUseI + 1) % PLOT_USES.length;
+    plotUseBtn.textContent = `🌾 use: ${PLOT_USES[plotUseI] ?? 'none'}`;
+  };
   hMinus.onclick = () => planner.setHeight(planner.height - 0.5);
   hPlus.onclick = () => planner.setHeight(planner.height + 0.5);
 
@@ -1611,7 +1656,7 @@ async function boot(): Promise<void> {
     // and the masons are the throat. The per-wall haul verdict is read on the plan
     // row as a wall is drawn; here the one line names which link starves.
     const stoneWalls = world.walls.filter(
-      (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal && !awaitsDrawings(w),
+      (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal,
     );
     const pileDry = world.stockpile < STONE_VOLUME;
     // a cart behind: the pile has stone, yet a hauled wall's face can't afford a

@@ -90,22 +90,30 @@ describe('pending — the completed enclosure asks', () => {
     expect((asked as { area: number }).area).toBe(400);
   });
 
-  it('a plotted building asks its drawings BEFORE the masons build (SIM 12)', () => {
+  it('a BARE shell builds while it asks — the word never blocks (SIM 37)', () => {
+    // the SIM-12 "the masons lay not one stone until the drawings are answered" law
+    // is SUPERSEDED (boss decree 2026-07-16): the bones rise; the plot keeps asking
     const { world } = run([wall(DOORWAY_LOOP, 3)], 100);
-    expect(world.pending).toEqual([W1]); // asking from the day it was plotted
-    expect(world.buildings).toHaveLength(0);
-    expect(world.stones).toHaveLength(0); // a hundred days and NOT ONE STONE — the crew waits
+    expect(world.pending).toEqual([W1]); // asking from the day it was plotted…
+    expect(world.stones.length).toBe(world.walls[0]!.stonesTotal); // …and BUILT anyway
+    expect(world.buildings).toHaveLength(0); // but no trade named ⇒ no Building minted
     const asked = world.events.find((e) => e.kind === 'shell_plotted')!;
     expect(asked.tick).toBe(0); // the ask stands the day of the plot
     expect((asked as { area: number }).area).toBeCloseTo(48, 6);
     expect(world.walls[0]!.plans).toEqual({ roof: null, kind: null });
   });
 
-  it('the roof answered alone still holds the crew — both answers free them', () => {
-    const { world } = run([wall(DOORWAY_LOOP, 3), chooseRoof(W1, 'straw', 10)], 60);
-    expect(world.stones).toHaveLength(0); // roof chosen, trade unnamed: still waiting
-    expect(world.walls[0]!.plans).toEqual({ roof: 'straw', kind: null });
-    expect(world.pending).toEqual([W1]); // the second question stands
+  it('a LATE trade word makes a standing shell real at answer-tick (SIM 37)', () => {
+    const { world } = run(
+      [wall(DOORWAY_LOOP, 3), chooseRoof(W1, 'straw', 10), designate(W1, 'tavern', 60)],
+      70,
+    );
+    expect(world.stones.length).toBe(world.walls[0]!.stonesTotal); // stood long before the word
+    expect(world.buildings).toHaveLength(1); // the word made it real…
+    const made = world.events.find((e) => e.kind === 'building_complete')!;
+    expect(made.tick).toBe(60); // …at ANSWER-tick, not completion-tick
+    expect(world.buildings[0]!.roof).toBe('straw');
+    expect(world.pending).toHaveLength(0); // both words answered — the ask closed
   });
 
   it('between-heights, tall-closed, open, tiny and bowtie rings pend nothing', () => {
@@ -231,8 +239,8 @@ describe('designation — the word', () => {
     expect(b.wallId).toBe(W1);
     const evt = world.events.find((e) => e.kind === 'building_complete')!;
     expect((evt as { buildingKind: string }).buildingKind).toBe('tavern');
-    // no stone predates the second answer
-    for (const s of world.stones) expect(s.tickLaid).toBeGreaterThanOrEqual(20);
+    // SIM 37: the crew never waited on the words — stone rises from the plot
+    expect(world.stones.some((s) => s.tickLaid < 20)).toBe(true);
   });
 
   it('a BRICK roof in the drawings mints a real deck at completion — a floor above', () => {
@@ -312,23 +320,26 @@ describe('designation — the palettes hold', () => {
     expect(orchard.world.farms[0]!.use).toBe('orchard');
   });
 
-  it('the roof is chosen before the trade, and a shell refuses a field use', () => {
+  it('the words come in ANY order now — and a shell still refuses a field use (SIM 37)', () => {
+    // the SIM-12 roof-before-trade ordering guard retired with the blocking: the
+    // trade may be named first (it lands), a named trade is one-shot, and the field
+    // palette still bounces off a shell
     const { world } = run(
       [
         wall(DOORWAY_LOOP, 3),
-        designate(W1, 'house', 5), // too eager: the roof question comes first
+        designate(W1, 'house', 5), // trade first — legal since SIM 37
         chooseRoof(W1, 'wood', 10),
-        designate(W1, 'fallow', 15), // a building is no field
+        designate(W1, 'fallow', 15), // a building is no field — and the trade is already named
       ],
       100,
     );
-    expect(rejections(world)).toEqual([
-      'the roof is chosen before the trade',
-      'a shell takes house, blacksmith, tower, or tavern',
-    ]);
-    expect(world.buildings).toHaveLength(0);
-    expect(world.pending).toEqual([W1]); // still asking
-    expect(world.stones).toHaveLength(0); // and the crew still waits
+    // both words were answered by t10, so the ask CLOSED — the t15 word finds nothing
+    expect(rejections(world)).toEqual(['no enclosure awaits the word there']);
+    expect(world.buildings).toHaveLength(1); // named at 5, minted at completion
+    expect(world.buildings[0]!.kind).toBe('house');
+    expect(world.buildings[0]!.roof).toBe('wood');
+    expect(world.pending).toHaveLength(0); // both words answered
+    expect(world.stones.length).toBe(world.walls[0]!.stonesTotal); // and the crew never waited
   });
 
   it('the roof word has its own refusals', () => {
@@ -432,7 +443,7 @@ describe('replay', () => {
       wall(FIELD_RING, 0.5),
       wall(DOORWAY_LOOP, 3),
       designate(W1, 'livestock', 40),
-      designate(W2, 'fallow', 45), // refused: the roof is chosen before the trade
+      designate(W2, 'fallow', 45), // refused: a building is no field (SIM 37 retired the ordering guard)
       { kind: 'choose_roof', tick: 50, wallId: W2, roof: 'wood' },
       designate(W2, 'house', 55),
       // SIM 16: won stone in the log so the walls build and replay reproduces it
@@ -451,6 +462,62 @@ describe('replay', () => {
     expect(rejections(world)).toHaveLength(1);
     const replayed = replay(makeSave(world, log), site);
     expect(hashState(replayed)).toBe(hashState(world));
+  });
+});
+
+describe('the word at the plot (SIM 37)', () => {
+  it('a fully-worded plan never asks: Building at completion, no pending, no card', () => {
+    const { world } = run(
+      [{ ...wall(DOORWAY_LOOP, 3), roof: 'straw', buildingKind: 'tavern' } as Command],
+      100,
+    );
+    expect(world.pending).toHaveLength(0); // answered as it was drawn
+    expect(world.buildings).toHaveLength(1);
+    expect(world.buildings[0]!.kind).toBe('tavern');
+    expect(world.buildings[0]!.roof).toBe('straw');
+    const made = world.events.find((e) => e.kind === 'building_complete')!;
+    const done = world.events.find((e) => e.kind === 'wall_complete')!;
+    expect(made.tick).toBe(done.tick); // minted the day the shell stood
+  });
+
+  it("a field ring carrying its use is enclosed and named in one breath", () => {
+    const { world } = run([{ ...wall(FIELD_RING, 0.5), use: 'farm' } as Command], 100);
+    expect(world.pending).toHaveLength(0);
+    expect(world.farms).toHaveLength(1);
+    expect(world.farms[0]!.use).toBe('farm');
+    const enclosed = world.events.find((e) => e.kind === 'plot_enclosed')!;
+    const named = world.events.find((e) => e.kind === 'plot_designated')!;
+    expect(named.tick).toBe(enclosed.tick); // the word rode the plan
+  });
+
+  it('a mis-aimed word rejects whole, with a constant reason', () => {
+    const { world } = run(
+      [
+        { ...wall(FIELD_RING, 0.5), roof: 'straw' } as Command, // a roof on a field ring
+        { ...wall(DOORWAY_LOOP, 3), use: 'farm' } as Command, // a use on a shell
+      ],
+      10,
+    );
+    expect(world.walls).toHaveLength(0); // both rejected whole — no silent word-dropping
+    expect(rejections(world)).toEqual([
+      'the roof and trade words want a building ring',
+      'the use word wants a field ring',
+    ]);
+  });
+
+  it('a LATE brick word decks a standing building at answer-tick', () => {
+    const { world } = run(
+      [
+        { ...wall(DOORWAY_LOOP, 3), buildingKind: 'house' } as Command, // trade at plot, roof open
+        chooseRoof(W1, 'brick', 80), // the shell stands long before this
+      ],
+      120,
+    );
+    expect(world.buildings).toHaveLength(1);
+    expect(world.buildings[0]!.roof).toBe('brick');
+    expect(world.roofs).toHaveLength(1); // the deck minted at ANSWER-tick
+    const decked = world.events.find((e) => e.kind === 'roof_planned')!;
+    expect(decked.tick).toBe(80);
   });
 });
 
