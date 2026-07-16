@@ -1349,6 +1349,12 @@ async function boot(): Promise<void> {
   const dummy = new THREE.Object3D();
   const tint = new THREE.Color();
   let lastStoneCount = 0;
+  // CAMPAIGN PATINA (Beat 2, render-only): a stone weathers a little with its AGE (now − tickLaid),
+  // so lifts laid years — or generations — apart read as banded colour: the castle's own archaeology,
+  // built from data already recorded (tickLaid was write-only until now). Re-tinted only when the YEAR
+  // turns (age evolves on a multi-year scale), never per-frame. PlacedStone.tickLaid, render reads state.
+  const PATINA_YEARS = 18; // weathering saturates over ~a generation
+  let patinaYear = -1;
   let acc = 0;
   let lastTime = performance.now();
 
@@ -1372,9 +1378,27 @@ async function boot(): Promise<void> {
     }
     const matById = new Map(world.walls.map((w) => [w.id, w.material]));
     const dressById = new Map(world.walls.map((w) => [w.id, w.dressLevel]));
-    for (let i = lastStoneCount; i < world.stones.length; i++) {
+    // colour stone i: its dress + material + id-variation, weathered by its AGE (the campaign patina).
+    // Render-side only, keyed on the stone's id + tickLaid — the sim rng is never touched here.
+    const applyPatina = (i: number): void => {
       const s = world.stones[i]!;
       const t = ((s.id * 2654435761) >>> 0) / 4294967296;
+      const v = ((s.id * 40503) % 97) / 97 - 0.5;
+      const dress = dressById.get(s.wallId);
+      // Rubble is mottled mixed stone, ashlar a matched course: widen/narrow the spread.
+      const spread = dress === 'ashlar' ? 0.55 : dress === 'rubble' ? 1.5 : 1;
+      // the patina: 0 at laying → 1 at PATINA_YEARS old; darkens + greys the stone with its years
+      const weather = Math.min(1, Math.max(0, (world.tick - s.tickLaid) / TICKS_PER_YEAR) / PATINA_YEARS);
+      if (matById.get(s.wallId) === 'wood') {
+        tint.setHSL(0.075 + t * 0.015, 0.42 - 0.1 * weather, 0.38 + v * 0.14 - 0.09 * weather); // weathered timber
+      } else {
+        // honey-toned Durham sandstone, greying + darkening a touch with the years (SCOPE §8d)
+        tint.setHSL(0.085 + t * 0.02, 0.34 - 0.12 * weather, 0.68 + v * 0.1 * spread - 0.13 * weather);
+      }
+      stones.setColorAt(i, tint);
+    };
+    for (let i = lastStoneCount; i < world.stones.length; i++) {
+      const s = world.stones[i]!;
       const v = ((s.id * 40503) % 97) / 97 - 0.5;
       // the DRESS LEVEL reads in the stone itself (SIM 18, render-only): dressed
       // ASHLAR sits as bigger, uniform, tight-fitted blocks; light RUBBLE as
@@ -1389,23 +1413,21 @@ async function boot(): Promise<void> {
       dummy.scale.set(planScale, 1, planScale);
       dummy.updateMatrix();
       stones.setMatrixAt(i, dummy.matrix);
-      // Per-stone tonal variation so the wall reads as coursework, not extrusion.
-      // Render-side only, keyed on the stone's id — the sim rng is never touched here.
-      // Rubble is mottled mixed stone, ashlar a matched course: widen/narrow the spread.
-      const spread = dress === 'ashlar' ? 0.55 : dress === 'rubble' ? 1.5 : 1;
-      if (matById.get(s.wallId) === 'wood') {
-        tint.setHSL(0.075 + t * 0.015, 0.42, 0.38 + v * 0.14); // weathered timber
-      } else {
-        // honey-toned Durham sandstone in warm daylight (SCOPE §8d)
-        tint.setHSL(0.085 + t * 0.02, 0.34, 0.68 + v * 0.1 * spread);
-      }
-      stones.setColorAt(i, tint);
+      applyPatina(i); // colour + campaign patina (a fresh stone is age 0 — full weathering comes with the years)
     }
     if (world.stones.length !== lastStoneCount) {
       stones.count = world.stones.length;
       stones.instanceMatrix.needsUpdate = true;
       if (stones.instanceColor) stones.instanceColor.needsUpdate = true;
       lastStoneCount = world.stones.length;
+    }
+    // CAMPAIGN PATINA re-weather: when the year turns, re-tint EVERY laid stone by its new age, so
+    // the bands deepen as generations pass. Once a year, not per-frame (age moves on a slow clock).
+    const yr = yearOf(world.tick);
+    if (yr !== patinaYear && world.stones.length > 0) {
+      patinaYear = yr;
+      for (let i = 0; i < world.stones.length; i++) applyPatina(i);
+      if (stones.instanceColor) stones.instanceColor.needsUpdate = true;
     }
   }
 
