@@ -88,7 +88,11 @@ like cutCommand freezes plan_cut), the READOUT (showAdit reuses #prospect: "235 
 draining ✓" / "aim into the rising hill for post"), and the RENDER (new src/render/adits.ts: an X-ray ghost drift
 at grade boring in from a dark mouth, spoil rising, AMBER on holing-through). Verified via the real tool (__cc):
 45 m drive → workDone 276 ≥ 275.9, stockpile +234.8 once, adit_planned/complete/stone_won fired, drift drew amber.**
-Then the method ladder (#50: bell pit, shaft+pump — a real SIM course, tech-gated by the age). The PRIOR
+Then the method ladder (#50 — NOTHING built yet, a from-scratch SIM course; SCOPED in
+[PROPOSAL-THE-METHOD-LADDER-2026-07-15.md](proposals/PROPOSAL-THE-METHOD-LADDER-2026-07-15.md): the 4-rung ladder
+open cut ✅→adit ✅→bell pit→shaft+pump on the EXISTING engine; smallest next rung = the BELL PIT [deeper dry cut,
+flat ground, no new sim concept]; the shaft+pump [ongoing pump cost] is the endgame; §5 has 4 questions for the boss's
+steer — AWAITING his eye). The PRIOR
 course's handoff (carriage/dress):
 [HANDOFF-THE-DRESSED-STONE-2026-07-14.md](proposals/HANDOFF-THE-DRESSED-STONE-2026-07-14.md)
 (reads the FOUNDATION keystone first — the soul, the nine laws, now FOURTEEN maker's marks — then the

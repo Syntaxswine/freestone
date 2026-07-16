@@ -175,10 +175,17 @@ canon** (it drives no adit), the baseline UNTOUCHED, one commit, 188 green.
    the adit's X-ray drift line (`depthTest`-off ghost at grade) + amber-on-holed, all render
    correctly but were verified by PROBE, not a screenshot (WebGL times out). First real eye on the
    live deploy may want a one-line tweak to either. Low-stakes, boss-subjective — hold for his eye.
-2. **The method LADDER (#50): deeper ways to the post.** The tutorial gestures at it; the adit is
-   the first rung. Next: the bell pit, the shaft-and-pump — gated by the age (a tech ladder). This
-   is a real SIM course (new commands → SIM bump → the two-commit dance), not render-only. Scope it
-   by censusing what already stands (the grep-the-tree law has paid THREE times this session).
+2. **The method LADDER (#50): deeper ways to the post — NOW SCOPED.** Census done: NOTHING of the
+   bell pit / shaft / pump is built (unlike the adit) — it's a from-scratch SIM course with real
+   design choices, and mining design is a thing the boss steers. So I wrote
+   [PROPOSAL-THE-METHOD-LADDER-2026-07-15.md](PROPOSAL-THE-METHOD-LADDER-2026-07-15.md): the four-rung
+   ladder (open cut ✅ → adit ✅ → bell pit → shaft+pump) grounded in real history + the EXISTING
+   engine (every lever — reach, water, beds, the freeze — already stands). **The smallest next rung
+   is the BELL PIT** (a deeper, narrower, still-DRY cut for flat ground where the adit has no hill —
+   needs no new sim concept, self-gated by economics). The **shaft+pump** is the endgame rung (the
+   one new idea: an ONGOING pumping cost to beat the water table — wants a gating structure + a
+   sourced number). §5 of the proposal has 4 questions for the boss's steer (command shape, gating,
+   the pump's cost, build-now-or-hold). **Awaiting his eye before building.**
 3. **The roadmap's untouched beats** (`ROADMAP-THE-GENERATIONAL-FACTORY`): Beat 2 the memory /
    homage suite (the boss's cathedral heart), Beat 5 the demand wave, Beat 6 the kiln + the Keep.
 
