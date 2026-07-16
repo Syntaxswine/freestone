@@ -1256,8 +1256,8 @@ async function boot(): Promise<void> {
     const nx = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
     const ny = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
     inspectRay.setFromCamera(new THREE.Vector2(nx, ny), camera);
-    const hit = inspectRay.intersectObject(stones)[0];
-    const s = hit && hit.instanceId != null ? world.stones[hit.instanceId] : undefined;
+    const instanceId = inspectRay.intersectObject(stones)[0]?.instanceId;
+    const s = instanceId != null ? world.stones[instanceId] : undefined;
     if (!s) {
       prospectEl.style.display = 'none';
       return;
@@ -1267,7 +1267,13 @@ async function boot(): Promise<void> {
     const mat = world.walls.find((w) => w.id === s.wallId)?.material;
     prospectEl.className = 'ok';
     // "laid by Alwin the mason in the Year 7 — dressed ashlar sandstone": the wall read as a ledger at last
-    prospectEl.textContent = `⛏ ${dress ?? ''} ${mat ?? 'stone'} · laid by ${mason?.name ?? 'a lost hand'}${mason ? ` the ${mason.trade}` : ''} · Year ${yearOf(s.tickLaid)}`;
+    let line = `⛏ ${dress ?? ''} ${mat ?? 'stone'} · laid by ${mason?.name ?? 'a lost hand'}${mason ? ` the ${mason.trade}` : ''} · Year ${yearOf(s.tickLaid)}`;
+    // THE FOUNDER'S STONE (Beat 2): the first stone laid names the founding party (born before day one)
+    if (instanceId === 0) {
+      const founders = world.people.filter((p) => p.bornTick < 0).map((p) => p.name);
+      if (founders.length) line += ` · ⛭ the founder's stone — the founding: ${founders.join(', ')}`;
+    }
+    prospectEl.textContent = line;
     prospectEl.style.left = `${ev.clientX + 14}px`;
     prospectEl.style.top = `${ev.clientY + 14}px`;
     prospectEl.style.display = 'block';
@@ -1391,6 +1397,7 @@ async function boot(): Promise<void> {
   // turns (age evolves on a multi-year scale), never per-frame. PlacedStone.tickLaid, render reads state.
   const PATINA_YEARS = 18; // weathering saturates over ~a generation
   let patinaYear = -1;
+  const FOUNDER_PROUD = 0.18; // m: the first stone laid sits slightly proud — the founder's stone (Beat 2)
   let acc = 0;
   let lastTime = performance.now();
 
@@ -1444,7 +1451,8 @@ async function boot(): Promise<void> {
       const dress = dressById.get(s.wallId);
       const planScale =
         dress === 'ashlar' ? 1.05 : dress === 'rubble' ? 0.94 + v * 0.08 : 1;
-      dummy.position.set(s.pos[0], s.pos[2], s.pos[1]);
+      // the FOUNDER'S STONE (Beat 2): the very first stone laid sits slightly proud
+      dummy.position.set(s.pos[0], s.pos[2] + (i === 0 ? FOUNDER_PROUD : 0), s.pos[1]);
       dummy.rotation.set(0, -s.yaw, 0);
       dummy.scale.set(planScale, 1, planScale);
       dummy.updateMatrix();
