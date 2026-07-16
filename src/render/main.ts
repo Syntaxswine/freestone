@@ -1236,6 +1236,42 @@ async function boot(): Promise<void> {
   aditBtn.onclick = () => planner.toggle('adit');
   bellBtn.onclick = () => planner.toggle('bellpit');
   shaftBtn.onclick = () => planner.toggle('shaft');
+
+  // --- THE INSPECTION CARD (Beat 2, the memory suite's heart, render-only): a click on a laid stone,
+  //     when no tool is out, opens what the record has always known but never shown — the HAND that laid
+  //     it and the DAY (masonId + tickLaid, write-only since M1). The stone InstancedMesh's instanceId is
+  //     the world.stones index (syncStones lays matrix[i] = stones[i]), so the raycast reads straight
+  //     through to the record. Reuses #prospect (a tool is never out while inspecting). ---
+  const inspectRay = new THREE.Raycaster();
+  let inspectDownX = 0;
+  let inspectDownY = 0;
+  renderer.domElement.addEventListener('pointerdown', (ev) => {
+    inspectDownX = ev.clientX;
+    inspectDownY = ev.clientY;
+  });
+  renderer.domElement.addEventListener('pointerup', (ev) => {
+    if (ev.button !== 0 || planner.active) return; // a tool owns the click; inspect only when the pencil is down
+    if (Math.hypot(ev.clientX - inspectDownX, ev.clientY - inspectDownY) > 6) return; // a drag (orbit/pan), not a click
+    const rect = renderer.domElement.getBoundingClientRect();
+    const nx = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    const ny = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+    inspectRay.setFromCamera(new THREE.Vector2(nx, ny), camera);
+    const hit = inspectRay.intersectObject(stones)[0];
+    const s = hit && hit.instanceId != null ? world.stones[hit.instanceId] : undefined;
+    if (!s) {
+      prospectEl.style.display = 'none';
+      return;
+    }
+    const mason = world.people.find((p) => p.id === s.masonId);
+    const dress = world.walls.find((w) => w.id === s.wallId)?.dressLevel;
+    const mat = world.walls.find((w) => w.id === s.wallId)?.material;
+    prospectEl.className = 'ok';
+    // "laid by Alwin the mason in the Year 7 — dressed ashlar sandstone": the wall read as a ledger at last
+    prospectEl.textContent = `⛏ ${dress ?? ''} ${mat ?? 'stone'} · laid by ${mason?.name ?? 'a lost hand'}${mason ? ` the ${mason.trade}` : ''} · Year ${yearOf(s.tickLaid)}`;
+    prospectEl.style.left = `${ev.clientX + 14}px`;
+    prospectEl.style.top = `${ev.clientY + 14}px`;
+    prospectEl.style.display = 'block';
+  });
   shapeBtn.onclick = () => {
     shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
   };
