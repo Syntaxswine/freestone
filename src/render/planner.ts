@@ -33,6 +33,8 @@ const MIN_POINT_GAP = 0.6; // meters: clicks closer than this to the last point 
 const SNAP_PX = 16; // screen px: a wall click this near the FIRST point closes the ring
 const GEO_SNAP_PX = 16; // screen px: ⇧-snap radius for corners (wall vertices, own points)
 const EDGE_SNAP_PX = 12; // screen px: ⇧-snap radius for a point ON a wall segment
+const CUT_SNAP_PX = 14; // screen px: the Quarry ring magnetizes to the valid/invalid boundary within this
+const CUT_SNAP_REACH_MAX = 20; // m: world cap on the edge-snap reach, so a zoomed-OUT view can't grab across the valley
 const SAMPLE_STEP = 2; // meters between preview samples along each segment
 const MAX_SAMPLES = 2048;
 const MAX_POINTS = 128;
@@ -82,8 +84,12 @@ export interface PlannerDeps {
    * valid (the sim never blocks a drowned cut; red only WARNS — you may dig anyway).
    */
   cutValid?: (x: number, y: number) => boolean;
-  /** Cut mode: the cursor moved to ground point p (null on exit) — drives the prospect readout. */
-  onCutCursor?: (p: Vec2 | null) => void;
+  /**
+   * Cut mode: the cursor moved to ground point p (null on exit) — drives the prospect
+   * readout. `atEdge` is true when the cursor is MAGNETIZED to the valid/invalid boundary
+   * (the workable shore), so the readout can name it instead of the raw reach at the flip.
+   */
+  onCutCursor?: (p: Vec2 | null, atEdge?: boolean) => void;
 }
 
 /** a wall plan as the snap sees it */
@@ -620,6 +626,101 @@ export class WallPlanner {
   }
 
   /**
+   * Cut mode's EDGE SNAP (SIM 15, boss 2026-07-15: "snap should happen when the tool is
+   * at the edge of a valid area"). While quarrying, the cursor magnetizes to the WORKABLE
+   * SHORE — the contour where `cutValid` flips (dry↔drowned, or where the building stone
+   * runs out). Black-box: it treats `cutValid` as a boolean field and finds the nearest
+   * sign-change by a short RADIAL MARCH + bisection, then verifies the candidate in SCREEN
+   * space (the input-guard law — pixels, not metres) exactly like geoSnap.
+   *
+   * Always-on in cut mode (no ⇧), but it only bites within CUT_SNAP_PX of the boundary, so
+   * the DIG-ANYWAY law holds: move the cursor well past the shore and it's free again — the
+   * snap clings only right AT the edge, so you cut clean up to the good ground. Returns the
+   * pick untouched when not cutting, already snapped to a wall (⇧), no oracle, or no
+   * boundary in reach. Sets `this.snapped` when it bites (the ring swells, like geoSnap).
+   */
+  private cutSnap(ev: { clientX: number; clientY: number }, picked: Vec2 | null): Vec2 | null {
+    if (this.mode !== 'cut' || this.snapped || !picked || !this.deps.cutValid) return picked;
+    const valid = this.deps.cutValid;
+    const { site } = this.deps;
+    const clampX = (x: number): number => Math.min(Math.max(x, 1), site.extentX - 1);
+    const clampY = (y: number): number => Math.min(Math.max(y, 1), site.extentY - 1);
+    const c = picked;
+    const here = valid(c.x, c.y);
+    const s0 = this.screenOf(c);
+    if (!s0) return picked;
+    // adaptive world reach: how many metres is CUT_SNAP_PX at THIS zoom? Probe both ground
+    // axes and take the finer (larger metres/px), so the march covers the snap zone whether
+    // zoomed in (a metre = many px) or out (a metre = few px); capped so an edge-on view
+    // can't explode the search into a map-wide scan.
+    const sx = this.screenOf({ x: clampX(c.x + 1), y: c.y });
+    const sy = this.screenOf({ x: c.x, y: clampY(c.y + 1) });
+    const pxx = sx ? Math.hypot(sx.x - s0.x, sx.y - s0.y) : Infinity;
+    const pyy = sy ? Math.hypot(sy.x - s0.x, sy.y - s0.y) : Infinity;
+    const pxPerM = Math.max(0.05, Math.min(pxx, pyy));
+    if (!Number.isFinite(pxPerM)) return picked;
+    // CUT_SNAP_PX worth of ground, but capped: zoomed IN this stays px-consistent (a tight few
+    // metres); zoomed OUT the cap keeps the snap from grabbing across the valley (boundaries are
+    // dense at 4 km scale — a 14 px reach would be tens of metres and snag everything).
+    const reachM = Math.min(CUT_SNAP_REACH_MAX, (CUT_SNAP_PX / pxPerM) * 1.4);
+    // radial march: the nearest boundary CROSSING to the cursor, judged in screen px
+    const RAYS = 16;
+    const STEPS = 5;
+    let best: Vec2 | null = null;
+    let bestPx = CUT_SNAP_PX;
+    for (let k = 0; k < RAYS; k++) {
+      const a = (2 * Math.PI * k) / RAYS;
+      const dx = Math.cos(a);
+      const dy = Math.sin(a);
+      let prevX = c.x;
+      let prevY = c.y;
+      let prevV = here;
+      for (let i = 1; i <= STEPS; i++) {
+        const t = (reachM * i) / STEPS;
+        const qx = clampX(c.x + dx * t);
+        const qy = clampY(c.y + dy * t);
+        const v = valid(qx, qy);
+        if (v !== prevV) {
+          // boundary lies between (prevX,prevY) and (qx,qy) — bisect to pin it
+          let loX = prevX;
+          let loY = prevY;
+          let hiX = qx;
+          let hiY = qy;
+          for (let b = 0; b < 12; b++) {
+            const mx = (loX + hiX) / 2;
+            const my = (loY + hiY) / 2;
+            if (valid(mx, my) === prevV) {
+              loX = mx;
+              loY = my;
+            } else {
+              hiX = mx;
+              hiY = my;
+            }
+          }
+          const edge = { x: (loX + hiX) / 2, y: (loY + hiY) / 2 };
+          const s = this.screenOf(edge);
+          if (s) {
+            const d = Math.hypot(ev.clientX - s.x, ev.clientY - s.y);
+            if (d < bestPx) {
+              bestPx = d;
+              best = edge;
+            }
+          }
+          break; // nearest crossing on this ray found; on to the next ray
+        }
+        prevX = qx;
+        prevY = qy;
+        prevV = v;
+      }
+    }
+    if (best) {
+      this.snapped = true;
+      return best;
+    }
+    return picked;
+  }
+
+  /**
    * Analytic ray-vs-heightfield: fixed march + bisection over groundAt. A stock
    * Mesh.raycast against the 125k-triangle terrain measures ~4 ms per cast and
    * pointermove fires this constantly; the march is microseconds.
@@ -805,7 +906,8 @@ export class WallPlanner {
           ? { clientX: ev.clientX, clientY: ev.clientY, shiftKey: true }
           : ev;
       if (!picked && this.mode !== 'roof') return;
-      const p = this.geoSnap(snapEv, picked);
+      // a placed quarry vertex clings to the workable shore too (cutSnap is a no-op elsewhere)
+      const p = this.cutSnap(ev, this.geoSnap(snapEv, picked));
       if (!p) return;
       const before = this.points.length;
       this.addPoint(p);
@@ -837,7 +939,9 @@ export class WallPlanner {
         this.mode === 'roof'
           ? { clientX: ev.clientX, clientY: ev.clientY, shiftKey: true }
           : ev;
-      this.cursor = picked || this.mode === 'roof' ? this.geoSnap(snapEv, picked) : null;
+      const g = picked || this.mode === 'roof' ? this.geoSnap(snapEv, picked) : null;
+      // cut mode magnetizes to the workable SHORE on top of geoSnap (no-op otherwise)
+      this.cursor = this.cutSnap(ev, g);
     }
     if (this.cursor) {
       // the ring rides the deck plane while roofing — the same top the snap
@@ -858,7 +962,12 @@ export class WallPlanner {
     // open cut, and the cursor's ground point drives the prospect readout (main owns the DOM).
     // The red only WARNS — the sim never blocks a drowned cut; you may dig it and find out why.
     if (this.mode === 'cut') {
-      const invalid = !!this.cursor && !(this.deps.cutValid?.(this.cursor.x, this.cursor.y) ?? true);
+      // snapped to the shore ⇒ read as valid (you're cutting UP TO the edge, not over it);
+      // otherwise the raw validity under the cursor drives the RED warning
+      const invalid =
+        !this.snapped &&
+        !!this.cursor &&
+        !(this.deps.cutValid?.(this.cursor.x, this.cursor.y) ?? true);
       if (invalid !== this.cutInvalid) {
         this.cutInvalid = invalid;
         this.applyCutTone();
@@ -866,7 +975,7 @@ export class WallPlanner {
       (this.cursorRing.material as THREE.MeshBasicMaterial).color.setHex(
         invalid ? CUT_TONE_INVALID : 0xf0ead6,
       );
-      this.deps.onCutCursor?.(this.cursor);
+      this.deps.onCutCursor?.(this.cursor, this.snapped);
     }
     this.rebuild();
   };

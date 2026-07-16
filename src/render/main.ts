@@ -622,21 +622,27 @@ async function boot(): Promise<void> {
     const rect = renderer.domElement.getBoundingClientRect();
     return { sx: rect.left + ((v.x + 1) / 2) * rect.width, sy: rect.top + ((1 - v.y) / 2) * rect.height };
   }
-  function showProspect(p: Vec2 | null): void {
+  function showProspect(p: Vec2 | null, atEdge?: boolean): void {
     if (!p) {
       prospectEl.style.display = 'none';
       return;
     }
-    const plan = quarryPlanAt(p.x, p.y, PROSPECT_PROBE);
-    if (plan.ok) {
-      const post = beds
-        .nearestHole(p.x, p.y)
-        ?.column.find((s) => s.m === 'sandstone' || s.m === 'limestone');
+    if (atEdge) {
+      // magnetized to the workable SHORE — name the edge, not the reach flickering at the flip
       prospectEl.className = 'ok';
-      prospectEl.textContent = `⛏ ${post?.m ?? 'building stone'} · ${plan.reach.toFixed(0)} m dry · open cut ✓`;
+      prospectEl.textContent = '⛏ the workable edge · snapped — cut up to here';
     } else {
-      prospectEl.className = 'bad';
-      prospectEl.textContent = `⚠ ${plan.reason}`;
+      const plan = quarryPlanAt(p.x, p.y, PROSPECT_PROBE);
+      if (plan.ok) {
+        const post = beds
+          .nearestHole(p.x, p.y)
+          ?.column.find((s) => s.m === 'sandstone' || s.m === 'limestone');
+        prospectEl.className = 'ok';
+        prospectEl.textContent = `⛏ ${post?.m ?? 'building stone'} · ${plan.reach.toFixed(0)} m dry · open cut ✓`;
+      } else {
+        prospectEl.className = 'bad';
+        prospectEl.textContent = `⚠ ${plan.reason}`;
+      }
     }
     const { sx, sy } = prospectToScreen(p.x, p.y);
     prospectEl.style.left = `${sx + 14}px`;
