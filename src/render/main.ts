@@ -1273,6 +1273,14 @@ async function boot(): Promise<void> {
       const founders = world.people.filter((p) => p.bornTick < 0).map((p) => p.name);
       if (founders.length) line += ` · ⛭ the founder's stone — the founding: ${founders.join(', ')}`;
     }
+    // THE STRUCTURE BIOGRAPHY (Beat 2): the card reads the whole WALL the stone belongs to, not just
+    // the one block — how many stones it holds and the year it was begun (its earliest laid stone).
+    const kin = world.stones.filter((st) => st.wallId === s.wallId);
+    if (kin.length > 1) {
+      let begun = Infinity;
+      for (const st of kin) if (st.tickLaid < begun) begun = st.tickLaid;
+      line += ` · ▦ in a work of ${kin.length} stones, begun Year ${yearOf(begun)}`;
+    }
     prospectEl.textContent = line;
     prospectEl.style.left = `${ev.clientX + 14}px`;
     prospectEl.style.top = `${ev.clientY + 14}px`;
