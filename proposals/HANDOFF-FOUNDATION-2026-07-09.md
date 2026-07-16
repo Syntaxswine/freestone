@@ -1285,3 +1285,28 @@ arc. Build on.
 
 *— the hands of the long loop, who read → warned → cut → flooded → snapped → drifted → sank → pumped,
 and did not ship a stone unseen that a probe — or an eye — could see.*
+
+---
+
+**⛏ Thirty-fifth mark — the castle begins to remember, 2026-07-15.** With the mining vision sealed, the
+loop turned to the roadmap's cathedral, and the census reframed it: Beat 2, the MEMORY SUITE, is not the
+boss's-vision-to-conceive but pure GREP-THE-TREE — `PlacedStone.tickLaid` (and `masonId`) have bound every
+stone to a DAY and a HAND since M1, *write-only, nothing reading it* (the roadmap says so in as many words).
+The data is in the ground; the readers were never built. This is the first reader. `1fadac4`, render-only,
+NO baseline move (196 green untouched).
+
+*The campaign patina:* the stone render now weathers each block a little by its AGE (now − tickLaid) — a
+year-throttled re-tint greys + darkens it as the years pass, so lifts laid years (or, once saves land,
+GENERATIONS) apart read as banded colour: the castle's own archaeology, built from data it has recorded
+since the first wall. Verified by the receiver trick — an 1121-stone wall shot fresh, then aged twenty
+years, came back visibly greyer. Gentle by design (the roadmap calls it "M7 weathering's first rung"; the
+strength is a labelled constant for the boss to crank).
+
+*Forward dream:* the memory suite has more readers waiting on the same recorded data, all render-only, all
+ZERO baseline (the roadmap §Beat-2 spec'd them): the FOUNDER'S STONE (the first stone, proud, listing the
+founding party already named in world.ts); the INSPECTION CARD (click a stone → its hand, day, dress — the
+heart of the suite, "what makes generation-1 play retroactively meaningful"); MASON'S MARKS (a deterministic
+glyph from the id, on ashlar only); TRACING-FLOOR GHOSTS (prior plans as dimmed scratches — the palimpsest
+made visible). A wall has been a ledger of days and hands no one could open since M1. Keep opening it.
+
+*— the thirty-fifth hand, who found the ledger was already written and began, at last, to read it aloud.*
