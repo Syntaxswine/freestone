@@ -68,6 +68,7 @@ import {
   type BellPitPlan,
   type Command,
   type CutPlan,
+  type ShaftPlan,
   type FieldUse,
   type FillPlan,
   type PlacedStone,
@@ -232,6 +233,19 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
         return 'bell pit stoneTotal must be a finite non-negative number';
+      }
+      return null;
+    }
+    case 'plan_shaft': {
+      if (!cmd.at || badPoints([cmd.at])) return 'shaft mouth must have finite x and y';
+      if (typeof cmd.depth !== 'number' || !Number.isFinite(cmd.depth) || cmd.depth <= 0) {
+        return 'a shaft needs a positive depth';
+      }
+      if (typeof cmd.workTotal !== 'number' || !Number.isFinite(cmd.workTotal) || cmd.workTotal < 0) {
+        return 'shaft workTotal must be a finite non-negative number';
+      }
+      if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
+        return 'shaft stoneTotal must be a finite non-negative number';
       }
       return null;
     }
@@ -831,6 +845,29 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command): void {
       });
       break;
     }
+    case 'plan_shaft': {
+      // A shaft-and-pump: a deep shaft that beats the water table (the drowned pump tax is baked
+      // into workTotal at the command boundary). depth/work/stone were read from the bed model +
+      // the water table there and are frozen here — the sim core never touches beds or water.
+      const shaft: ShaftPlan = {
+        id: state.nextId++,
+        at: { x: cmd.at.x, y: cmd.at.y },
+        depth: cmd.depth,
+        workTotal: Math.max(1, cmd.workTotal),
+        workDone: 0,
+        stoneTotal: cmd.stoneTotal,
+        stoneWon: false,
+      };
+      state.shafts.push(shaft);
+      state.events.push({
+        kind: 'shaft_planned',
+        tick: state.tick,
+        shaftId: shaft.id,
+        depth: shaft.depth,
+        workTotal: shaft.workTotal,
+      });
+      break;
+    }
     case 'plan_fell': {
       // A managed cant: the felling gesture over woodland. timberTotal and workTotal
       // were read from the tree model at the command boundary and are frozen here —
@@ -1050,6 +1087,23 @@ function moveEarth(state: WorldState): void {
           state.stockpile += bellPit.stoneTotal;
           state.events.push({ kind: 'bell_pit_complete', tick: state.tick, bellPitId: bellPit.id });
           state.events.push({ kind: 'bell_pit_stone_won', tick: state.tick, bellPitId: bellPit.id, stone: bellPit.stoneTotal });
+        }
+      }
+    }
+    if (moved === 0) {
+      // A SHAFT is sunk + PUMPED like a bell pit (SIM 15), ranked just under it: an idle laborer
+      // sinks the oldest unfinished shaft one person-day (the pump tax already baked into workTotal).
+      // On the day it is worked out, the dewatered building stone is credited. No shaft, no sinking —
+      // the field path below is untouched, so a world with none is byte-identical.
+      const shaft = state.shafts.find((s) => s.workDone < s.workTotal);
+      if (shaft) {
+        shaft.workDone += 1;
+        moved = 1;
+        if (shaft.workDone >= shaft.workTotal && !shaft.stoneWon) {
+          shaft.stoneWon = true;
+          state.stockpile += shaft.stoneTotal;
+          state.events.push({ kind: 'shaft_complete', tick: state.tick, shaftId: shaft.id });
+          state.events.push({ kind: 'shaft_stone_won', tick: state.tick, shaftId: shaft.id, stone: shaft.stoneTotal });
         }
       }
     }

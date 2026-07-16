@@ -117,7 +117,12 @@
 // oldest pit like a quarry, crediting the dry stone once on working-out. INERT on the canon behaviour — the
 // only reason the durham hash moves is the new empty `bellPits:[]` field in the serialisation (diff-confirmed:
 // nothing but the milestone hashes changed). One clean commit + a baseline regen.
-export const SIM_VERSION = 33;
+// 34: THE SHAFT-AND-PUMP — the method ladder's fourth + last rung. A deep shaft that beats the WATER TABLE
+// (continuous dewatering) to win DROWNED post the open cut / adit / bell pit can't; the drowned depth carries a
+// PUMP TAX in workTotal. New state: a shafts array (empty on the canon, which sinks none) + a plan_shaft command;
+// idle laborers sink the oldest shaft like a bell pit, crediting the dewatered stone once. INERT on the canon
+// behaviour — the durham hash moves only for the new empty `shafts:[]` field + the SIM_VERSION bump. Regen.
+export const SIM_VERSION = 34;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -435,6 +440,25 @@ export interface BellPitPlan {
   workTotal: number; // person-days to sink + work, MATERIAL-AWARE, frozen from the bed model
   workDone: number;
   stoneTotal: number; // m³ of building stone won (generous yield, less the resink penalty), frozen
+  stoneWon: boolean; // one-shot: the stockpile is credited on completion
+}
+
+/**
+ * THE SHAFT-AND-PUMP (SIM 15, the method ladder's FOURTH and last rung). A deep shaft with
+ * continuous DEWATERING — the only method that beats the water table, winning DROWNED post the
+ * open cut, adit and bell pit can't. The pump is not free: the drowned depth carries a PUMP TAX
+ * baked into workTotal (the crew pumps while they sink). Reaches deeper than the bell pit. Like
+ * every working, its economics are frozen at the command boundary; the sim core stays water-free.
+ * (Availability is ungated for now — a later tech gate, per PROPOSAL-THE-METHOD-LADDER §3, is a
+ * trivial condition on the tool, not a change to this mechanic.)
+ */
+export interface ShaftPlan {
+  id: number;
+  at: Vec2; // the shaft mouth, site-local metres (a point, like the bell pit)
+  depth: number; // metres the shaft sinks — deep, past the water table (it pumps)
+  workTotal: number; // person-days to sink + PUMP, MATERIAL-AWARE + the drowned pump tax, frozen
+  workDone: number;
+  stoneTotal: number; // m³ of dewatered building stone won (generous yield), frozen
   stoneWon: boolean; // one-shot: the stockpile is credited on completion
 }
 
@@ -909,6 +933,19 @@ export type Command =
       stoneTotal: number;
     }
   | {
+      kind: 'plan_shaft';
+      tick: number;
+      at: Vec2; // the shaft mouth (a point)
+      /**
+       * Frozen at the command boundary: depth is how deep the shaft sinks (past the water
+       * table — it pumps); workTotal is material-aware person-days to sink PLUS the drowned
+       * pump tax; stoneTotal is the dewatered stone won (generous). All finite; ≥ 0.
+       */
+      depth: number;
+      workTotal: number;
+      stoneTotal: number;
+    }
+  | {
       kind: 'plan_fell';
       tick: number;
       points: Vec2[]; // the cant ring, ≥3
@@ -985,6 +1022,11 @@ export type SimEvent =
   | { kind: 'bell_pit_complete'; tick: number; bellPitId: number }
   /** dry building stone won from a worked-out bell pit, credited to the stockpile */
   | { kind: 'bell_pit_stone_won'; tick: number; bellPitId: number; stone: number }
+  /** a shaft is marked out — the crew will sink + PUMP it (SIM 15, method ladder rung 4) */
+  | { kind: 'shaft_planned'; tick: number; shaftId: number; depth: number; workTotal: number }
+  | { kind: 'shaft_complete'; tick: number; shaftId: number }
+  /** dewatered building stone won from a worked-out shaft, credited to the stockpile */
+  | { kind: 'shaft_stone_won'; tick: number; shaftId: number; stone: number }
   /** a cant is marked for felling — the crew will fell it and win its timber (SIM 19) */
   | { kind: 'fell_planned'; tick: number; standId: number; timberTotal: number; workTotal: number }
   /** a mature stand is re-cut — the coppice's next harvest on the rotation */
@@ -1061,6 +1103,8 @@ export interface WorldState {
   adits: AditPlan[];
   /** bell pits being sunk into flat ground for deeper dry post (SIM 15, method ladder rung 3) */
   bellPits: BellPitPlan[];
+  /** deep pumped shafts winning drowned post below the water table (SIM 15, method ladder rung 4) */
+  shafts: ShaftPlan[];
   /** managed woodland cants, felled for timber and regrowing on a rotation (SIM 19) */
   stands: Stand[];
   /**

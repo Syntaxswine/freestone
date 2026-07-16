@@ -101,6 +101,11 @@ export interface PlannerDeps {
   onBellPit?: (at: Vec2) => void;
   /** Bell-pit mode: the cursor moved to ground point p (null on exit) — drives the bell-pit readout. */
   onBellPitCursor?: (at: Vec2 | null) => void;
+  /** Shaft mode (SIM 15, rung 4): a click sinks a deep pumped shaft here — main freezes plan_shaft
+   *  (a POINT tool, like the bell pit). */
+  onShaft?: (at: Vec2) => void;
+  /** Shaft mode: the cursor moved to ground point p (null on exit) — drives the shaft readout. */
+  onShaftCursor?: (at: Vec2 | null) => void;
 }
 
 /** a wall plan as the snap sees it */
@@ -110,7 +115,7 @@ export interface SnapWall {
   complete: boolean;
 }
 
-export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell' | 'adit' | 'bellpit';
+export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell' | 'adit' | 'bellpit' | 'shaft';
 
 export class WallPlanner {
   active = false;
@@ -282,7 +287,9 @@ export class WallPlanner {
                 ? 0x8a6f4a // drift timber — the drive marked into the hill
                 : this.mode === 'bellpit'
                   ? 0x7a6a52 // shaft earth — the pit marked to sink
-                  : 0xd8d3c4;
+                  : this.mode === 'shaft'
+                    ? 0x5f5648 // deep-shaft earth — the pumped shaft marked to sink
+                    : 0xd8d3c4;
     (this.line.material as THREE.LineBasicMaterial).color.setHex(tone);
     (this.ribbon.material as THREE.MeshBasicMaterial).color.setHex(tone);
     this.cutInvalid = false;
@@ -302,6 +309,7 @@ export class WallPlanner {
     this.deps.onCutCursor?.(null); // clear the prospect readout
     this.deps.onAditCursor?.(null, null); // clear the adit readout
     this.deps.onBellPitCursor?.(null); // clear the bell-pit readout
+    this.deps.onShaftCursor?.(null); // clear the shaft readout
     document.body.classList.remove('planning');
     this.rebuild();
     this.deps.onModeChange?.(false, this.mode);
@@ -886,6 +894,12 @@ export class WallPlanner {
         if (p) this.deps.onBellPit?.(p);
         return;
       }
+      if (this.mode === 'shaft') {
+        // the shaft tool: a click sinks a deep pumped shaft (main freezes it)
+        const p = this.pick(ev);
+        if (p) this.deps.onShaft?.(p);
+        return;
+      }
       if (this.mode === 'adit') {
         // two clicks: the hillside MOUTH, then the HEAD — the second commits the drive
         if (this.points.length >= 2) return; // a drive is exactly portal→head
@@ -1022,6 +1036,10 @@ export class WallPlanner {
     if (this.mode === 'bellpit') {
       this.deps.onBellPitCursor?.(this.cursor);
     }
+    // shaft mode (SIM 15, rung 4): price the deep pumped shaft under the cursor
+    if (this.mode === 'shaft') {
+      this.deps.onShaftCursor?.(this.cursor);
+    }
     this.rebuild();
   };
 
@@ -1073,6 +1091,10 @@ export class WallPlanner {
     }
     if ((ev.key === 'p' || ev.key === 'P') && clean) {
       this.toggle('bellpit');
+      return;
+    }
+    if ((ev.key === 's' || ev.key === 'S') && clean) {
+      this.toggle('shaft');
       return;
     }
     if (!this.active) return;

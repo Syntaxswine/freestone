@@ -49,6 +49,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
     cuts: [],
     adits: [],
     bellPits: [],
+    shafts: [],
     stands: [],
     stockpile: 0,
     timber: SEED_TIMBER, // the founder's woodpile (SIM 19) — a first palisade before the first fell

@@ -72,6 +72,7 @@ import { BuildingLayer } from './buildings';
 import { CutLayer } from './cuts';
 import { AditLayer } from './adits';
 import { BellPitLayer } from './bellpits';
+import { ShaftLayer } from './shafts';
 import { UnderworldLayer } from './underworld';
 import { FarmLayer } from './farms';
 import { FillLayer } from './fills';
@@ -407,13 +408,15 @@ async function boot(): Promise<void> {
   aditBtn.textContent = '⛏ adit (A)';
   const bellBtn = document.createElement('button');
   bellBtn.textContent = '⛏ bell pit (P)';
+  const shaftBtn = document.createElement('button');
+  shaftBtn.textContent = '⛏ shaft+pump (S)';
   const shapeBtn = document.createElement('button');
   shapeBtn.textContent = '⬓ flat fill';
   // no roof-material picker: the covering is chosen on the card AFTER the
   // span is drawn, like every designation (boss canon 2026-07-10 — default none)
   const undergroundBtn = document.createElement('button');
   undergroundBtn.textContent = '☷ underground (U)';
-  build3.append(roofBtn, quarryBtn, fellBtn, aditBtn, bellBtn, shapeBtn, undergroundBtn);
+  build3.append(roofBtn, quarryBtn, fellBtn, aditBtn, bellBtn, shaftBtn, shapeBtn, undergroundBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
@@ -422,6 +425,7 @@ async function boot(): Promise<void> {
   const cuts = new CutLayer(world, scene, terrain.groundAt, water.tableAt); // water.tableAt: a drowned cut floods
   const adits = new AditLayer(world, scene, terrain.groundAt); // the self-draining drift, an X-ray at grade
   const bellPits = new BellPitLayer(world, scene, terrain.groundAt); // shaft-mouths + spoil rings on flat ground
+  const shafts = new ShaftLayer(world, scene, terrain.groundAt); // deep pumped shafts — headframes over drowned post
   // the underworld made VISIBLE (2026-07-11): a toggle-on strata map + working
   // plane the tunnel tool will draw on. View/input only — the sim never sees it.
   const underworld = new UnderworldLayer(scene, site, beds, water);
@@ -770,6 +774,65 @@ async function boot(): Promise<void> {
     prospectEl.style.display = 'block';
   }
 
+  // --- THE SHAFT-AND-PUMP (SIM 15, the method ladder's FOURTH + last rung): a deep shaft that
+  //     beats the WATER TABLE by continuous dewatering — the only method that wins DROWNED post
+  //     the open cut / adit / bell pit can't. The pump is not free: the drowned depth carries a
+  //     PUMP TAX in the frozen workTotal. Reaches deeper than a bell pit. Economics READ here and
+  //     FROZEN into plan_shaft, like every working. Ungated for now (a later tech gate per
+  //     PROPOSAL-THE-METHOD-LADDER §3 is a trivial condition on the tool, not on this mechanic). ---
+  const SHAFT_REACH = 40; // m — a pumped shaft sinks deep, past the water table
+  const SHAFT_AREA = 4; // m² — the shaft footprint the yield is reckoned over (narrow)
+  const SHAFT_YIELD_FRAC = 0.7; // a controlled deep shaft wastes less of the seam than a re-sunk bell pit
+  const PUMP_TAX_MULT = 2; // the pump's toll: the drowned fraction of the dig costs up to (1+MULT)× — a
+  //                          LABELLED GAME CHOICE (the boss's generous-thumb style), not a sourced figure;
+  //                          a later course can firm it (Newcomen coal, horse-gin capacity) — PROPOSAL §5 Q3.
+  function shaftEcon(x: number, y: number): { workDays: number; won: number; drowned: number } {
+    const { workDays, stone } = cutEconomics(beds, x, y, SHAFT_REACH, SHAFT_AREA);
+    const dryDepth = water.dryDepthAt(x, y);
+    const drowned = Math.max(0, SHAFT_REACH - dryDepth); // metres of shaft below the water table
+    const pumped = workDays * (1 + PUMP_TAX_MULT * (drowned / SHAFT_REACH)); // the drowned dig, pump-taxed
+    return { workDays: pumped, won: stone * SHAFT_YIELD_FRAC, drowned };
+  }
+  function shaftCommand(at: Vec2): Command | null {
+    const { workDays, won } = shaftEcon(at.x, at.y);
+    if (won <= 0.5) return null; // no post in a shaft's reach here — refuse (the readout says so)
+    return {
+      kind: 'plan_shaft',
+      tick: world.tick,
+      at,
+      depth: SHAFT_REACH,
+      workTotal: Math.max(1, round6(workDays)),
+      stoneTotal: round6(won),
+    };
+  }
+  // THE SHAFT READOUT: what a deep pumped shaft under the cursor would win — reuses #prospect, the
+  // SAME water + bed oracle shaftCommand freezes. It never refuses for water (that is its purpose).
+  function showShaft(at: Vec2 | null): void {
+    if (!at) {
+      prospectEl.style.display = 'none';
+      return;
+    }
+    const { won, drowned } = shaftEcon(at.x, at.y);
+    if (won <= 0.5) {
+      prospectEl.className = 'bad';
+      prospectEl.textContent = '⚠ no post in a shaft’s reach here — even a pump wins nothing';
+    } else {
+      const post = beds
+        .nearestHole(at.x, at.y)
+        ?.column.find((s) => s.m === 'sandstone' || s.m === 'limestone');
+      prospectEl.className = 'ok';
+      const pumpNote =
+        drowned > 1
+          ? ` · ${drowned.toFixed(0)} m pumped — drowned post won ✓`
+          : ' · all dry here — a bell pit is cheaper';
+      prospectEl.textContent = `⛏ shaft + pump · ${won.toFixed(0)} m³ ${post?.m ?? 'post'} · ${SHAFT_REACH} m deep${pumpNote}`;
+    }
+    const { sx, sy } = prospectToScreen(at.x, at.y);
+    prospectEl.style.left = `${sx + 14}px`;
+    prospectEl.style.top = `${sy + 14}px`;
+    prospectEl.style.display = 'block';
+  }
+
   // explicit annotation: onConfirm's closure reads planner.fillShape /
   // roofMaterial, so inference would otherwise chase its own tail
   const planner: WallPlanner = new WallPlanner({
@@ -792,6 +855,11 @@ async function boot(): Promise<void> {
       if (cmd) enqueue(cmd); // a click sinks the shaft; a drowned/barren spot is refused (readout says why)
     },
     onBellPitCursor: showBellPit,
+    onShaft: (at) => {
+      const cmd = shaftCommand(at);
+      if (cmd) enqueue(cmd); // a click sinks a deep pumped shaft; a postless spot is refused
+    },
+    onShaftCursor: showShaft,
 
     onConfirm: (mode, points, height, material) => {
       if (mode === 'cut') {
@@ -852,6 +920,7 @@ async function boot(): Promise<void> {
       fellBtn.classList.toggle('active', active && mode === 'fell');
       aditBtn.classList.toggle('active', active && mode === 'adit');
       bellBtn.classList.toggle('active', active && mode === 'bellpit');
+      shaftBtn.classList.toggle('active', active && mode === 'shaft');
     },
     // ⇧-snap magnetizes to every planned wall, building shell and field ring
     // (they are all WallPlans) — a live getter, the world grows mid-drawing;
@@ -1166,6 +1235,7 @@ async function boot(): Promise<void> {
   fellBtn.onclick = () => planner.toggle('fell');
   aditBtn.onclick = () => planner.toggle('adit');
   bellBtn.onclick = () => planner.toggle('bellpit');
+  shaftBtn.onclick = () => planner.toggle('shaft');
   shapeBtn.onclick = () => {
     shapeBtn.textContent = planner.cycleFillShape() === 'flat' ? '⬓ flat fill' : '◿ ramp fill';
   };
@@ -1854,6 +1924,7 @@ async function boot(): Promise<void> {
       cuts.update();
       adits.update();
       bellPits.update();
+      shafts.update();
       roofs.update();
       farms.update();
       buildings.update();

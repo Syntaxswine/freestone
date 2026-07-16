@@ -40,7 +40,7 @@ export function makeSave(state: WorldState, commandLog: readonly Command[]): Sav
         return { ...c };
       }
       if (c.kind === 'plan_adit') return { ...c, portal: { ...c.portal }, head: { ...c.head } };
-      if (c.kind === 'plan_bell_pit') return { ...c, at: { ...c.at } };
+      if (c.kind === 'plan_bell_pit' || c.kind === 'plan_shaft') return { ...c, at: { ...c.at } };
       return { ...c, points: c.points.map((p) => ({ ...p })) };
     }),
   };
