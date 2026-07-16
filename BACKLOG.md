@@ -4,10 +4,14 @@
 — the session that measured the boss's "time isn't advancing" complaint to its true cause (890-person-day quarry ÷ 2
 laborers + all-or-nothing credit + invisible work; the clock proven INNOCENT by live probe) and chartered the cure:
 **THE VISIBLE WORK v3** (boss-ruled + four-lens critique-hardened; skill-by-doing, at-plot designation, incremental
-credit, the timber way). **ALL FOUR §6 QUESTIONS RULED 2026-07-16 (proposal §0b) — THE BUILD IS GO:** flag days for saves ("so far in
-alpha"); occupants = E-card data; at-plot 'none' extends to fields+spans (ONE enclosure grammar — "any enclosed
-space is a building"); the way = worker-speed/haul-as-labor (Course 4 redesigned). NEW boss item: **the CHEAT MENU**
-(spawn materials/objects/people as `cheat_*` COMMANDS, Settings-gated; Course 1.5). The FOUNDATION
+credit, the timber way). **THE VISIBLE WORK IS BUILT (2026-07-16, one session): SIM 35 → 36 → 37 + Courses 1.5/2/3, all LIVE.**
+The flow (yield per person-day, exact-total), THE THIRTEEN + skill-by-doing (villager|smith, worked{}, the dawn
+pass, green ×9/8), the word at the plot ('none' builds; choose-later at answer-tick; ONE enclosure grammar), the
+cheat menu (commands, Settings-gated), the theater (diggers IN the pit, piles + dropped logs, the closed carry
+chain, always-on chips, entity cards w/ farm yields + occupants-data), tent roofs on irregular shells + pasture
+horses/paddock pairs. 212 tests; canon re-probed ×3 (FR 18 · BS 937 · span 2540). ⚠ pre-SIM-37 saves refuse
+(flag day, boss-ruled). **Course 4 — THE TIMBER WAY — is DESIGNED (proposal §3H: worker-speed, haul-as-labor,
+carter) and awaits its own arc.** The charter handoff carries the closed ledger. The FOUNDATION
 keystone now carries **FORTY marks + SIX ⛬ seals**. Its predecessor (stone AND folk made legible, the memory suite
 sealed 6th ⛬): [HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md](proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md)
 — the arc that made the castle READABLE, all RENDER-ONLY / ZERO baseline (SIM 34 unmoved): **THE MEMORY SUITE (Beat 2)

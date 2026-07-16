@@ -124,15 +124,52 @@ Course 1.5) and **the enclosure reframe** ("any enclosed space is a building; th
 determines what it can become" — F′/E implement it for drawn enclosures + spans; quarries fold in
 later).
 
-- [ ] **Course 1 — THE VISIBLE ECONOMY**: commit A incremental credit (SIM 35, conservation
-      specimens first) → commit B′ 13 founders + the skill system (SIM 36; sweep re-run + retunes +
-      the threshold specimen) → commit F′ the word at the plot, ONE grammar for buildings + fields +
-      spans (SIM 37). The canon STORY designed once, the script touched three times; ids ALL shift.
-- [ ] **Course 1.5 — the cheat menu** (commands, Settings-gated; after B′).
-- [ ] **Course 2 — the theater** (render-only, zero baseline): diggers dig (call `floorAtShow` at
-      last), piles + scattered logs, the closed carry chain, chips, entity cards (occupants as data).
-- [ ] **Course 3** — irregular-ring roofs + animals (pasture horse sim-true; paddock decor named).
-- [ ] **Course 4** — THE TIMBER WAY as worker-speed/haul-as-labor (its own design pass first; §3H).
+- [~] **Course 1 — THE VISIBLE ECONOMY**, two of three commits SHIPPED:
+      ✅ **A — SIM 35 THE VISIBLE FLOW** (`2008362`): checkpoint credit per person-day, exact-total
+      (strict === in flow.test.ts); canon re-probed (FR 278, BS 399, span 2531 held) + regenerated —
+      tick 7 fingerprinted 80 stones on a 2.6 m³ trickle.
+      ✅ **B′ — SIM 36 THE THIRTEEN + THE SKILL SYSTEM** (`dfa8728`): villager|smith + worked{}/
+      lastJob/vigor; the dawn pass (computeAssignments, exported — virtual ledger governs lay, farm
+      demand bounded, grooves + stickiness); green = ×9/8 BONUS at a year of days; retunes
+      (capacity/shelter 13, grain 8) sweep-verified; 204 tests (+skill.test.ts: the band flips on
+      the exact day); ~14 files re-authored; canon re-probed AGAIN (FR 18, BS 937, span 2540) —
+      LIVE probe: the 351-day wall now completes in TEN DAYS. Supersessions recorded (grooves over
+      SIM 4/14 for skilled hands). Render SHIMS only (real theater = Course 2).
+      ✅ **F′ — SIM 37 THE WORD AT THE PLOT** (`60afccf`): at-plot roof/trade/use pickers riding
+      plan_wall/plan_roof (class-validated, mis-aimed words reject whole); awaitsDrawings RETIRED
+      ('none' builds — the SIM-12 blocking canon superseded, recorded); the choose-later surface
+      (designate mints a standing shell's Building at ANSWER-TICK; a late choose_roof updates
+      Building.roof + decks late brick); fields named in one breath; 208 tests; canon regenerated
+      (span 2540 held). ⚠ VERSION REPAIR recorded: B′ shipped without its bump (still 35) — F′
+      bumped straight to 37, all pre-F′ saves refuse alike (types.ts header carries the record).
+      **COURSE 1 IS COMPLETE.**
+- [x] **Course 1.5 — the cheat menu** (`6ba9f6f`): cheat_give (stone/timber/grain, granary-capped)
+      + cheat_spawn_person as COMMANDS (replay-pinned); Settings "Cheats (testing)" toggle + HUD
+      row; pure vocabulary — canon passed untouched, no bump owed; 212 tests.
+- [x] **Course 2 — the theater** (`f6342d4`, render-only, ZERO baseline): PileLayer (blocks stack
+      by the spoil, logs DROP where felled, face stacks; global-share depletion); diggers stand IN
+      the pit (floorAtShow called at last) + the lay crew self-splits into stations + CARRIERS from
+      real piles (the chain closed); always-on progress chips (multi-line, stall named at the
+      structure, fade on done); entity cards on the raycast spine (farm yields space-gated-labelled,
+      building biography + occupants-as-data, workings, stands, pending words). Probe + receiver-eye
+      verified (crew at the ring, block stack beside the spoil).
+- [x] **Course 3** (`33a57b6`, render-only): irregular shells wear a TENT (pavilion fan, as-built
+      eave datum + fascia; hip/skeleton a later refinement) — no more roofless bespoke footprints;
+      AnimalLayer — each pasture's draft horse (sim-true, SIM 29) + paddock cow/pig pairs
+      (decor-pending-the-herds, named); eye-verified (the L-house under its tent, the horse, the pair).
+- [~] **Course 4 — THE TIMBER WAY**: the DESIGN PASS is done (proposal §3H, boss-ruled worker-speed
+      model: haul-as-labor + carrier pathing, way segments multiply carrier speed ≥3× visibly, the
+      carter job + Carter surname substrate, haulRate/rollers/🛷 retire together, causeway+sledge
+      fiction per the research boundary). **The BUILD is an arc of its own — open it on fresh
+      context with its own proposal, red specimens, and canon re-author.** Nothing else in this
+      charter remains unbuilt.
+
+**THE CHARTER'S LEDGER CLOSES (2026-07-16): Courses 1, 1.5, 2, 3 BUILT and live; Course 4 designed.
+SIM 37 · 212 tests · 36 files green · the canon regenerated three times, honestly, with its ids
+re-probed each time. The measured complaint — 890 person-days, 351 days to the first stone — now
+reads: thirteen souls, stone flowing from the first swing, a wall in ten days, and every step of it
+visible: the digger in the pit, the block on the pile, the carrier on the road, the chip counting,
+the land answering a click.**
 
 ---
 
