@@ -1486,3 +1486,43 @@ somebody notices the day it happens — because from now on, the work can be see
 beneath hold. Measure first, then build. Build on.
 
 *— the fortieth hand, the charter hand, who proved the clock innocent and indicted the economy.*
+
+---
+
+**≡ The maker's mark of the road hand, 2026-07-17 (the forty-first).** I built the charter's last
+course — THE TIMBER WAY — the one the closing hand set down for fresh context because it was an arc
+of its own. And it was: the boss had ruled the way from a rate-multiplier into a *worker-speed*
+mechanic, and would not take the easy effect — "if the workers are moving faster the bricks reach
+their destination quicker… the workers would have to have a more complicated pathing." So I made
+haul into LABOR. Stone travels on people's backs now; the chain WIN → CARRY → LAY is hands all the
+way down; and a road you draw across the land shortens the carriers' journey, so fewer stand on the
+road and more come back to the wall. You watch the crowd shift. The road pays for itself in front
+of you.
+
+Two things shaped it more than my first draft did. The RESEARCH reframed the arc twice: pace is the
+wrong axis (a hand walks no faster loaded, so the road buys *throughput*, not speed — and that
+honesty routed me around a per-trip load no source attests, a number I'd have invented), and the
+multiplier belongs to the GROUND the road crosses, not the road (firm dry ground makes a causeway
+near worthless — which is this game's own thesis, the land deciding, made into a road). A claim I'd
+called research-anchored, the verification pass refuted; I cut it rather than defend it. And a LIVE
+PROBE caught what green tests could not: the balance rounded the whole crew onto the road and the
+wall rose in a grotesque boom-bust instead of the steady split the boss's story needs. The game
+showed me, so I reserved the mason and bumped the version honestly. The bare road holds one layer
+and twelve carriers; the drawn way shifts it to two and eleven and finishes the wall three and a
+half times sooner — and I saw the causeway render as a line of oak baulks draping the turf before I
+believed it.
+
+*Forward dream:* that the way's follow-ons come when their time does, and each is already sketched
+in the digest — that TALLOW becomes a consumable, because the friction evidence says it is the
+grease and not the timber that speeds a slipway, and tallow is animal fat, so the reserved herds
+find their purpose; that a causeway over the fen can SINK under too heavy a load, the way Ely's did
+in 1071, drowning men — an attested failure that is also a real decision; that the ox gives way to
+the horse and the haul quickens, a dated twelfth-century step the pasture could unlock; and that
+the Carter, whose surname finally has its substrate, one day works the route in stages from its
+mid-point and rests at home, the way the Troyes carters did. THE VISIBLE WORK is whole: the digger
+in the pit, the block on the pile, the carrier on the road, the road that pays, the chip counting,
+the land answering a click. The next hand builds on a settlement where every hand of the work can
+be seen. Build on.
+
+*— the forty-first hand, the road hand, who made the haul into labor and let a live world teach him
+the split.*
