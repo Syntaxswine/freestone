@@ -74,14 +74,22 @@ const wall = (tick: number, dressLevel: DressLevel, points = BIG, height = 3): C
   height,
   dressLevel,
 });
-// a HAULED wall at a given dress level and cart rate
+// a HAULED wall at a given dress level, its stone carried from a pile `dist` metres off
+// (SIM 39: the boundary freezes the ROAD, not a rate — the sim's carriers do the rest)
 const haulWall = (
   tick: number,
   dressLevel: DressLevel,
-  haulRate: number,
+  dist: number,
   points = BIG,
   height = 3,
-): Command => ({ kind: 'plan_wall', tick, points, height, dressLevel, haulRate, method: 'ox-cart' });
+): Command => ({
+  kind: 'plan_wall',
+  tick,
+  points,
+  height,
+  dressLevel,
+  haul: { from: { x: dist, y: 0 }, to: { x: 0, y: 0 }, climb: 0, detour: 1, method: 'ox-cart' },
+});
 
 describe('the dress dial (SIM 18)', () => {
   it('the dress level sets the lay speed — rubble flies up, ashlar crawls, on a full pile', () => {
@@ -116,11 +124,11 @@ describe('the dress dial (SIM 18)', () => {
     expect(spentA).toBeCloseTo(spentS * 1.5, 6); // half again the stone per block
   });
 
-  it('a hauled ashlar wall stalls on the cart sooner — heavier blocks reach the face slower', () => {
-    const rate = 0.1; // one modest cart, same for both
-    const s = run([haulWall(0, 'scappled', rate), quarry(0, 10000)], 20).walls[0]!.stonesLaid;
-    const a = run([haulWall(0, 'ashlar', rate), quarry(0, 10000)], 20).walls[0]!.stonesLaid;
-    expect(a).toBeLessThan(s); // the cart moves m³/day, and an ashlar block IS more m³
+  it('a hauled ashlar wall stalls on the carry sooner — heavier blocks reach the face slower', () => {
+    const road = 1500; // the same long road for both
+    const s = run([haulWall(0, 'scappled', road), quarry(0, 10000)], 20).walls[0]!.stonesLaid;
+    const a = run([haulWall(0, 'ashlar', road), quarry(0, 10000)], 20).walls[0]!.stonesLaid;
+    expect(a).toBeLessThan(s); // the carriers move m³/day, and an ashlar block IS more m³
     expect(a).toBeGreaterThan(0); // but it does progress
   });
 
@@ -134,7 +142,7 @@ describe('the dress dial (SIM 18)', () => {
   });
 
   it('won stone is conserved with the per-level draw — pile + face + laid×draw = won', () => {
-    const w = run([haulWall(0, 'ashlar', 0.1), quarry(0, 200)], 40);
+    const w = run([haulWall(0, 'ashlar', 1500), quarry(0, 200)], 40);
     const wl = w.walls[0]!;
     expect(w.stockpile + wl.faceBuffer + wl.stonesLaid * DRESS_DRAW.ashlar).toBeCloseTo(
       200 * STONE_VOLUME,
@@ -143,7 +151,7 @@ describe('the dress dial (SIM 18)', () => {
   });
 
   it('replays a mixed-dress build byte-for-byte (the frozen level is deterministic)', () => {
-    const cmds = [wall(0, 'rubble', SMALL, 0.5), haulWall(1, 'ashlar', 0.1), quarry(0, 10000)];
+    const cmds = [wall(0, 'rubble', SMALL, 0.5), haulWall(1, 'ashlar', 1500), quarry(0, 10000)];
     const live = run(cmds, 25);
     const site = flatSite('flat', 4000);
     const replayed = replay(makeSave(live, cmds), site, 25);

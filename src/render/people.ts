@@ -17,6 +17,7 @@ import * as THREE from 'three';
 import type { SiteData } from '../sim/site';
 import {
   computeAssignments,
+  computeCarryTargets,
   decomposeWall,
   pointAt,
   pointInPolygon,
@@ -133,17 +134,24 @@ export class PeopleLayer {
    * station count; every group re-indexes by array order so posts stay stable.
    */
   private assignments = new Map<number, Assignment>();
+  private carryTargets = new Map<number, number>();
   private layCount = 0;
   private reindex(): void {
     this.assignments = computeAssignments(this.world);
+    // THE CLOSED CHAIN, NOW TRUE (SIM 39). Course 2 SPLIT the lay crew in half by eye —
+    // half stations, half carriers — because the sim's haul was a frozen rate and the
+    // walk was pantomime. The sim now believes the walk: CARRY is a real assignment, and
+    // computeCarryTargets says which face each hand serves. So the theater stops guessing
+    // and simply reads it (the parity law: one exported truth, never re-derived). The old
+    // `masonCount = ceil(layCount/2)` is gone — the crowd on the road IS the crew the sim
+    // put there, and when a WAY shortens the route you watch the road thin and the wall
+    // thicken because that is what the sim did, not what the render pretended.
+    this.carryTargets = computeCarryTargets(this.world, this.assignments);
     this.layCount = this.puppets.reduce(
       (n, p) => n + (this.assignments.get(p.person.id) === 'lay' ? 1 : 0),
       0,
     );
-    // THE CLOSED CHAIN (Course 2): the day's lay crew splits itself — the first half
-    // work STATIONS along the wall, the rest CARRY blocks from the visible piles to
-    // their masons (mine → pile → carry → place, watchable end to end)
-    this.masonCount = Math.max(1, Math.ceil(this.layCount / 2));
+    this.masonCount = Math.max(1, this.layCount);
     let m = 0;
     let l = 0;
     for (const pup of this.puppets) {
@@ -330,27 +338,35 @@ export class PeopleLayer {
       let ty: number;
       let tz: number | null = null; // null → stand on the ground
       let inField = false;
-      if (ws && assigned === 'lay' && p.tradeIndex < this.masonCount) {
-        // a station mason: at the working course, hammer up
+      const carryWall =
+        assigned === 'carry'
+          ? this.world.walls.find((w) => w.id === this.carryTargets.get(p.person.id))
+          : undefined;
+      if (ws && assigned === 'lay') {
+        // a station mason: at the working course, hammer up. Since SIM 39 EVERY 'lay' hand
+        // is a mason — the carriers are their own assignment now, not a half of this one.
         const st = this.station(ws, p.tradeIndex);
         tx = st.x;
         ty = st.y;
         tz = st.z;
-      } else if (ws && assigned === 'lay') {
-        // a CARRIER (Course 2): pick a block up at the nearest visible pile, walk it
-        // to "their" mason's station, hand off, walk back — the boss's chain closed
-        const st = this.station(ws, p.tradeIndex % this.masonCount);
+      } else if (carryWall?.haul) {
+        // a CARRIER (Course 2's theater, made SIM-TRUE in 39): load at the pile the sim
+        // says this wall draws from, walk the block to its face, put it down, walk back.
+        // The errand is the sim's own road (wall.haul.from → .to) — the sprite is no
+        // longer miming a journey the engine wasn't taking.
         if (p.carrying) {
-          const sin = Math.sin(0);
-          const away = 1.4 + (p.tradeIndex % 2) * 0.8; // hand off short of the mason
-          tx = st.x - sin * away;
-          ty = st.y + Math.cos(0) * away;
+          tx = carryWall.haul.to.x;
+          ty = carryWall.haul.to.y;
         } else {
-          const pile = this.piles?.nearestStonePile(st.x, st.y);
-          const start = pointAt(ws.wall.points, 0);
-          tx = pile ? pile.x : start.x - 3.5;
-          ty = pile ? pile.y : start.y + 3.5;
+          // prefer a REAL visible stack near the road's source; fall back to the road's
+          // own source point when no pile is drawn there (the piles are representational)
+          const pile = this.piles?.nearestStonePile(carryWall.haul.from.x, carryWall.haul.from.y);
+          tx = pile ? pile.x : carryWall.haul.from.x;
+          ty = pile ? pile.y : carryWall.haul.from.y;
         }
+        // spread the road crew so they read as a line of hands, not one hand
+        tx += (hash2(p.person.id, 31) - 0.5) * 3;
+        ty += (hash2(p.person.id, 37) - 0.5) * 3;
       } else if (haul && (assigned === 'fill' || assigned === 'roof')) {
         // barrow dirt (or deck timber) from a point outside the ring to the middle
         let cx = 0;
@@ -446,7 +462,7 @@ export class PeopleLayer {
         d <= WORK_RADIUS &&
         ((haul !== null && (assigned === 'fill' || assigned === 'roof')) ||
           (inField && assigned === 'farm') ||
-          (ws !== null && assigned === 'lay' && p.tradeIndex >= this.masonCount)) &&
+          assigned === 'carry') && // SIM 39: the road hand picks up / puts down at each end
         simActive &&
         this.clock - p.lastToggle > TOGGLE_DWELL
       ) {

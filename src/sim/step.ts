@@ -15,7 +15,6 @@ import {
   COURSE_HEIGHT,
   LIFT_FREE_COURSES,
   LIFT_PER_COURSE,
-  ROLLER_HAUL_BOOST,
   WHEEL_RELIEF,
   WHEEL_TIMBER,
   DOOR_GAP_MAX,
@@ -76,9 +75,16 @@ import {
   type Vec2,
   type WallPlan,
   type WayPlan,
+  type HaulRoute,
   type WorldState,
   type JobSkill,
   WAY_MIN_LENGTH,
+  WAY_MULT_FIRM,
+  WAY_MULT_SOFT,
+  CARRIER_THROUGHPUT,
+  HAUL_UPHILL_PER_M,
+  LAY_RATE_BASE,
+  LAY_RATE_SPREAD,
   FARM_AREA_PER_HAND,
   GREEN_DAYS,
   STONE_VOLUME,
@@ -110,11 +116,13 @@ export function worldStep(state: WorldState, site: SiteData, due: readonly Comma
 
   // fixed daily order: the DAWN PASS assigns every hand its day (SIM 36 — after the
   // commands apply, frozen for the day), then earth moves (winning stone to the pile)
-  // before the carts haul it to the faces, before the layers lay — so stone won this
-  // morning can be carted and laid the same day. SIM 17 threads HAUL between WIN and LAY.
+  // before the CARRIERS walk it to the faces, before the layers lay — so stone won this
+  // morning can be carried and laid the same day. SIM 17 threaded HAUL between WIN and
+  // LAY; SIM 39 made that middle link people (carryStone), and the chain is hands all
+  // the way down: WIN → CARRY → LAY.
   const assignments = computeAssignments(state);
   moveEarth(state, assignments);
-  haulStone(state);
+  carryStone(state, assignments);
   layStones(state, site, rng, assignments);
   regrowWoods(state); // SIM 19: stools that have finished their rotation stand mature again
   livingYear(state); // SIM 20: once a year — deaths, births, migrants, departures (own rng stream)
@@ -145,16 +153,22 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       if (cmd.material !== undefined && !MATERIALS.includes(cmd.material)) {
         return 'unknown material';
       }
-      // the frozen haul (SIM 17): a finite positive rate if present, else local.
-      // NaN/Infinity arrive as null from a save (JSON) — treated as absent = local.
-      if (
-        cmd.haulRate !== undefined &&
-        (typeof cmd.haulRate !== 'number' || !Number.isFinite(cmd.haulRate) || cmd.haulRate <= 0)
-      ) {
-        return 'haul rate must be a finite positive number';
-      }
-      if (cmd.method !== undefined && !HAUL_METHODS.includes(cmd.method)) {
-        return 'unknown haul method';
+      // THE ROAD (SIM 17; its FACTS rather than its rate since SIM 39): present ⇒ the two
+      // ends of the journey plus the terrain against it, all frozen at the boundary. Absent
+      // ⇒ a local wall that draws the pile directly. Guard every float that enters hashed
+      // state — NaN/Infinity arrive as null from a save (JSON).
+      if (cmd.haul !== undefined) {
+        const h = cmd.haul;
+        if (!h.from || !h.to || badPoints([h.from, h.to])) {
+          return 'a haul road needs two ends with finite x and y';
+        }
+        if (typeof h.climb !== 'number' || !Number.isFinite(h.climb) || h.climb < 0) {
+          return 'haul climb must be a finite non-negative number';
+        }
+        if (typeof h.detour !== 'number' || !Number.isFinite(h.detour) || h.detour < 1) {
+          return 'haul detour must be a finite number of at least one';
+        }
+        if (!HAUL_METHODS.includes(h.method)) return 'unknown haul method';
       }
       // the frozen dress level (SIM 18): a known level if present, else scappled
       if (cmd.dressLevel !== undefined && !DRESS_LEVELS.includes(cmd.dressLevel)) {
@@ -298,6 +312,13 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       if (typeof cmd.workTotal !== 'number' || !Number.isFinite(cmd.workTotal) || cmd.workTotal < 0) {
         return 'way workTotal must be a finite non-negative number';
+      }
+      // what the ground makes this road worth (SIM 39) — clamped at apply, guarded here
+      if (
+        cmd.speedMult !== undefined &&
+        (typeof cmd.speedMult !== 'number' || !Number.isFinite(cmd.speedMult) || cmd.speedMult < 1)
+      ) {
+        return 'way speedMult must be a finite number of at least one';
       }
       return null;
     }
@@ -650,18 +671,23 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command, rng: Rng)
         slotEnds: survey.slotEnds,
         stonesTotal: survey.stonesTotal,
         stonesLaid: 0,
-        // THE HAUL (SIM 17): absent ⇒ a 'local' wall (haulRate null) that draws
-        // the pile directly, the SIM-16 path — so a log with no frozen route
-        // replays byte-for-byte. A frozen finite rate carts stone to the face.
-        haulRate: cmd.haulRate ?? null,
+        // THE ROAD (SIM 17; its facts since SIM 39): absent ⇒ a 'local' wall that draws
+        // the pile directly, the SIM-16 path. Present ⇒ the journey the carriers walk;
+        // copied per-field so the log's own objects can never be aliased into state.
+        haul: cmd.haul
+          ? {
+              from: { x: cmd.haul.from.x, y: cmd.haul.from.y },
+              to: { x: cmd.haul.to.x, y: cmd.haul.to.y },
+              climb: cmd.haul.climb,
+              detour: cmd.haul.detour,
+              method: cmd.haul.method,
+            }
+          : null,
         faceBuffer: 0,
-        method: cmd.method ?? 'local',
         // THE DRESS LEVEL (SIM 18): absent ⇒ 'scappled' (the SIM-16/17 cost), so
         // a log with no frozen level replays byte-for-byte. A finite level scales
         // the lay debt (DRESS_SPEC) and the per-stone draw (DRESS_DRAW).
         dressLevel: cmd.dressLevel ?? 'scappled',
-        // THE SLEDGE (SIM 32): opt-in; a strict boolean into hashed state (absent/false ⇒ byte-identical)
-        rollers: cmd.rollers === true,
       };
       state.walls.push(wall);
       state.events.push({
@@ -983,6 +1009,10 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command, rng: Rng)
         timberLaid: 0,
         workTotal: Math.max(1, cmd.workTotal), // at least a day's work, like cuts and adits
         workDone: 0,
+        // what the road is WORTH — frozen from the ground it crosses (SIM 39, the research's
+        // correction: the multiplier is a property of what the road replaces). Clamped to the
+        // evidence's own span so no boundary bug can mint a magic road.
+        speedMult: Math.min(WAY_MULT_SOFT, Math.max(WAY_MULT_FIRM, cmd.speedMult ?? WAY_MULT_FIRM)),
       };
       state.ways.push(way);
       state.events.push({
@@ -1169,13 +1199,23 @@ function checkpointCredit(total: number, after: number, before: number, workTota
 }
 
 /** THE SKILL SYSTEM's day jobs (SIM 36) and the biography each one writes. */
-export type Assignment = 'lay' | 'fill' | 'roof' | 'pave' | 'dig' | 'fell' | 'farm';
-const ASSIGNMENT_LADDER: readonly Assignment[] = ['lay', 'fill', 'roof', 'pave', 'dig', 'fell', 'farm'];
+export type Assignment = 'lay' | 'pave' | 'carry' | 'fill' | 'roof' | 'dig' | 'fell' | 'farm';
+// ⚠ PAVE ranks ABOVE CARRY, and a red specimen is why. Drafted the other way round (carry first,
+// as the tightest link of WIN → CARRY → LAY), the ladder STARVED THE ROAD OF ITS OWN BUILDERS: a
+// long haul wants nearly every hand carrying, so one hand was left to pave and a 2 km way needed
+// eighty days instead of seven — the player draws a road and the crew never builds it. A way is
+// FINITE, high-leverage work the player explicitly ordered; the crew builds it and then uses it.
+// The honest price is legible and is the decision itself: the road costs you days of carrying up
+// front and pays them back for the rest of the wall's life.
+const ASSIGNMENT_LADDER: readonly Assignment[] = ['lay', 'pave', 'carry', 'fill', 'roof', 'dig', 'fell', 'farm'];
 export const JOB_OF: Record<Assignment, JobSkill> = {
   lay: 'mason',
+  // THE ROAD's own trade (SIM 38/39): a carter PAVES the way and DRIVES it — one groove, so a
+  // year on the road greens both halves. Attested: "v caretis et iiij carectariis", Pipe Roll
+  // 17 Henry II; "many carts for hire in King John's time" (DIGEST-2026-07-17 §3).
+  carry: 'carter',
   fill: 'digger',
   roof: 'digger',
-  // PAVING (SIM 38) is the CARTER's work — the road hands lay the way they will drive
   pave: 'carter',
   dig: 'digger',
   fell: 'woodsman',
@@ -1227,27 +1267,49 @@ export function computeAssignments(state: WorldState): Map<number, Assignment> {
     if (f.use === 'farm') farmSlots += Math.ceil(f.area / FARM_AREA_PER_HAND);
   }
   // the lay ledgers: STONE a mason could draw today — the pile (which feeds local walls
-  // AND the carts) plus stone already standing at the hauled faces. A cart's haulRate is
-  // CAPACITY, never supply: counting it as supply assigned the whole crew to lay against
-  // a phantom delivery while the pit stood undug (the specimen that caught it) — and
+  // directly) plus stone already standing at the hauled faces. A carrier's RATE is
+  // CAPACITY, never supply: counting a delivery as supply assigned the whole crew to lay
+  // against a phantom cart while the pit stood undug (the specimen that caught it) — and
   // TIMBER for the palisades.
   const layWalls = state.walls.filter((w) => w.stonesLaid < w.stonesTotal);
-  let stoneLedger = state.stockpile;
-  let stoneWallWork = false;
+  let stoneLedger = 0;
+  let localStoneWork = false;
+  let hauledStoneWork = false;
   let woodWallWork = false;
   for (const w of layWalls) {
     if (w.material === 'wood') woodWallWork = true;
+    else if (w.haul === null) localStoneWork = true; // draws the PILE directly
     else {
-      stoneWallWork = true;
-      if (w.haulRate !== null) stoneLedger += w.faceBuffer;
+      hauledStoneWork = true;
+      stoneLedger += w.faceBuffer; // a hauled mason can draw only what stands at HIS face
     }
   }
+  // ⚠ FIXED IN SIM 39 (a latent bug the carry EXPOSED): the pile counts toward the lay ledger
+  // only when a LOCAL wall is being worked. Since SIM 17 this line read `stoneLedger =
+  // state.stockpile` unconditionally — so a world of only HAULED walls with a full pile
+  // assigned the whole crew to LAY against stone they could not reach (their faces were dry),
+  // and they stalled all day. It was invisible while haul was a frozen rate that needed no
+  // hands; now those hands are exactly the ones who should be CARRYING, and the miscount
+  // would starve the road of the crew it needs. Same phantom-supply family as the dawn-pass
+  // specimen that caught the cart-as-supply read (SIM 36).
+  if (localStoneWork) stoneLedger += state.stockpile;
+  const stoneWallWork = localStoneWork || hauledStoneWork;
   let timberLedger = state.timber;
+  // THE ROAD's demand (SIM 39): how many hands each hauled face wants carrying to it today.
+  // A pure ratio of dawn rates (carrierDemand) — the crew splits itself between road and wall.
+  const carrySlots = carrierDemand(state);
+  let carryWanted = 0;
+  for (const n of carrySlots.values()) carryWanted += n;
+  // nobody carries from an empty pile: with no won stone the road is not the binding link,
+  // and the hands are better in the pit (dawn-decidable — today's dig is not yet in the pile)
+  if (state.stockpile <= 0) carryWanted = 0;
 
   const hasWork = (a: Assignment): boolean => {
     switch (a) {
       case 'lay':
         return (stoneWallWork && stoneLedger > 0) || (woodWallWork && timberLedger > 0);
+      case 'carry':
+        return carryWanted > 0;
       case 'fill':
         return fillWork;
       case 'roof':
@@ -1264,8 +1326,18 @@ export function computeAssignments(state: WorldState): Map<number, Assignment> {
   };
   const take = (p: Person, a: Assignment): void => {
     out.set(p.id, a);
-    if (a === 'farm') farmSlots -= 1;
-    else if (a === 'dig') stoneLedger += digYield * jobMult(p, 'digger'); // today's trickle, layable today
+    if (a === 'carry') carryWanted -= 1; // the road's slots are finite — it cannot swallow the crew
+    else if (a === 'farm') farmSlots -= 1;
+    else if (a === 'dig') {
+      // today's trickle is layable today (worldStep wins before it lays) — but ONLY at a
+      // LOCAL wall. ⚠ A hauled face gets today's stone no sooner than the carriers walk it
+      // there, and crediting the pit to that ledger was the SAME phantom-supply bug in a
+      // third disguise: the probe caught the first digger's yield flipping hasWork('lay')
+      // true, so twelve hands took LAY and stood at a dry face all day while nobody carried.
+      // Cart-as-supply (SIM 36), pile-as-supply (above), now pit-as-supply. One law: only
+      // stone a mason can actually REACH today counts as today's supply.
+      if (localStoneWork) stoneLedger += digYield * jobMult(p, 'digger');
+    }
     else if (a === 'lay') {
       // a day's estimated draw; the scappled STONE_VOLUME is the heuristic unit (dress
       // varies per wall — this governs the ASSIGNMENT count, the lay loop spends the truth)
@@ -1319,7 +1391,8 @@ function moveEarth(state: WorldState, assignments: Map<number, Assignment>): voi
   for (const person of state.people) {
     if (person.trade !== 'villager' || !isAdult(person, state.tick)) continue; // SIM 20: children don't dig
     const assigned = assignments.get(person.id);
-    if (assigned === undefined || assigned === 'lay' || assigned === 'farm') continue; // lay runs in layStones; farm below
+    // lay runs in layStones, CARRY in carryStone (SIM 39), farm below
+    if (assigned === undefined || assigned === 'lay' || assigned === 'carry' || assigned === 'farm') continue;
     let quota = earthRateOf(person, JOB_OF[assigned]);
     let moved = 0;
     if (assigned === 'fill') {
@@ -1932,36 +2005,197 @@ export function nearestOnPolyline(points: readonly Vec2[], p: Vec2): Vec2 {
 // bare and takes its words later. The boss's 2026-07-16 decree supersedes the
 // 2026-07-10 canon; recorded in the charter and BACKLOG.)
 
+/** plain 2-D distance. Math.sqrt is IEEE-exact (correctly rounded); Math.hypot is NOT specified
+ *  to be, so it must never touch hashed state — the house law, paid here. */
+function dist2(ax: number, ay: number, bx: number, by: number): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 /**
- * THE HAUL (SIM 17): the carts move won stone from the global pile to each stone
- * wall's FACE at its frozen haulRate — the missing middle of WIN → HAUL → LAY.
- * Each hauled wall meters min(haulRate, pile, still-needed) into its faceBuffer
- * per day, so a wall far from winnable stone (a low rate) fills its face slowly
- * and stalls on the CART even while the pile is full. 'local' walls (haulRate
- * null) and timber take no cart — they draw the pile directly in layStones,
- * exactly as in SIM 16, so a world of only local/timber walls is byte-identical
- * to before. Walls are served in id order (oldest first), like diggers and
- * masons; when the pile runs dry the day's hauling stops.
+ * The closest point to (px,py) on a segment, and how far along the segment it lies.
+ * Pure geometry — no terrain, no rng, exact-rounded arithmetic only.
  */
-function haulStone(state: WorldState): void {
+function closestOnSeg(px: number, py: number, ax: number, ay: number, bx: number, by: number) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  const t = len2 > 0 ? Math.min(1, Math.max(0, ((px - ax) * dx + (py - ay) * dy) / len2)) : 0;
+  return { x: ax + dx * t, y: ay + dy * t, t };
+}
+
+/**
+ * THE DOGLEG (SIM 39) — the effective metres a carrier spends walking `route`, given every
+ * BUILT way on the ground. NOT A* (§3H's own note: "polyline-with-way-segments cost fields,
+ * not full A*"): for each way we ask the only question that matters — could this carrier get
+ * on the road, ride it, and get off nearer the face than walking straight?
+ *
+ *     direct = |from → to|
+ *     viaWay = |from → entry| + (entry → exit along the built prefix)/speedMult + |exit → to|
+ *     cost   = min(direct, viaWay, …) × detour + HAUL_UPHILL_PER_M × climb
+ *
+ * `min` is load-bearing: a carrier is NEVER made worse off by a road existing, because nobody
+ * detours onto a road that costs them. So a way drawn across an irrelevant meadow changes
+ * nothing at all — which is a specimen, not an accident.
+ *
+ * A way is road only as far as it is PAVED (built from its head), so a half-built way discounts
+ * only its built prefix — you watch the haul quicken as the road creeps toward the quarry.
+ */
+export function routeCost(state: WorldState, haul: HaulRoute): number {
+  let best = dist2(haul.from.x, haul.from.y, haul.to.x, haul.to.y);
+  for (const way of state.ways) {
+    const built = way.length * Math.min(1, way.workDone / way.workTotal);
+    if (built <= 0) continue;
+    // walk the run, finding where the carrier would join and leave the BUILT prefix
+    let along = 0; // metres of built road walked so far
+    let entry: { at: number; d: number } | null = null;
+    let exit: { at: number; d: number } | null = null;
+    for (let i = 1; i < way.points.length && along < built; i++) {
+      const a = way.points[i - 1]!;
+      const b = way.points[i]!;
+      const segLen = dist2(a.x, a.y, b.x, b.y);
+      if (segLen <= 0) continue;
+      const usable = Math.min(segLen, built - along); // the paved part of this leg
+      const clampT = usable / segLen;
+      const e = closestOnSeg(haul.from.x, haul.from.y, a.x, a.y, b.x, b.y);
+      const x = closestOnSeg(haul.to.x, haul.to.y, a.x, a.y, b.x, b.y);
+      const eT = Math.min(e.t, clampT); // never join past the end of the pavement
+      const xT = Math.min(x.t, clampT);
+      const ePt = { x: a.x + (b.x - a.x) * eT, y: a.y + (b.y - a.y) * eT };
+      const xPt = { x: a.x + (b.x - a.x) * xT, y: a.y + (b.y - a.y) * xT };
+      const eD = dist2(haul.from.x, haul.from.y, ePt.x, ePt.y);
+      const xD = dist2(haul.to.x, haul.to.y, xPt.x, xPt.y);
+      if (entry === null || eD < entry.d) entry = { at: along + segLen * eT, d: eD };
+      if (exit === null || xD < exit.d) exit = { at: along + segLen * xT, d: xD };
+      along += usable;
+    }
+    if (entry === null || exit === null) continue;
+    const ride = Math.abs(exit.at - entry.at);
+    const viaWay = entry.d + ride / way.speedMult + exit.d;
+    if (viaWay < best) best = viaWay;
+  }
+  // the terrain the boundary froze: the gorge sends the road round by a bridge, and every
+  // metre of climb costs the hands dear
+  return best * haul.detour + HAUL_UPHILL_PER_M * haul.climb;
+}
+
+/**
+ * m³ of stone one hand delivers to this face in a day (SIM 39). A day is a budget of
+ * THROUGHPUT — m³·m — not of pace: loaded and unloaded people walk at the same speed, so a
+ * road cannot make a hand walk faster; it makes the hand's day MOVE MORE STONE (the research's
+ * own correction — see CARRIER_THROUGHPUT). The ×2 is the empty walk back, half of portering
+ * and the reason a SHORT haul beats a fast one.
+ */
+export function carryRate(state: WorldState, haul: HaulRoute, p: Person): number {
+  const cost = routeCost(state, haul);
+  if (!(cost > 0)) return CARRIER_THROUGHPUT; // the pile is underfoot — a degenerate road
+  return (CARRIER_THROUGHPUT / (2 * cost)) * jobMult(p, 'carter');
+}
+
+/**
+ * ★ THE CREW SPLITS ITSELF (SIM 39) — how many hands this wall wants on the ROAD.
+ *
+ * This is the boss's sentence turned into arithmetic. Balance the chain: hands divide so that
+ * what the road DELIVERS matches what the wall EATS.
+ *
+ *     carriers / crew = appetite / (appetite + deliverPerCarter)
+ *
+ * Lay a way → the route's effective metres fall → deliverPerCarter RISES → the fraction FALLS →
+ * fewer hands on the road and MORE at the wall → the wall goes up faster. "If the workers are
+ * moving faster the bricks reach their destination quicker" — arrived at by mechanism, and
+ * VISIBLE: you watch the crowd on the road thin and the crowd on the wall thicken. The road pays
+ * for itself in front of you.
+ *
+ * DAWN-DECIDABLE BY CONSTRUCTION (the charter's determinism critique, honoured): the split is a
+ * ratio of RATES — the frozen route, the way's built prefix, the crew's size — never a reaction
+ * to yesterday's buffer. No feedback, so no duty cycle. The only faceBuffer read is the boolean
+ * "is this face already stocked for the whole remaining wall", which can only be true at the very
+ * end of a wall's life and so cannot oscillate in steady state.
+ */
+export function carrierDemand(state: WorldState): Map<number, number> {
+  const out = new Map<number, number>();
+  let pool = 0;
+  for (const p of state.people) {
+    if (p.trade === 'villager' && isAdult(p, state.tick)) pool++;
+  }
+  if (pool === 0) return out;
   for (const wall of state.walls) {
-    if (state.stockpile <= 0) break; // the pile is dry — no cart rolls today
-    if (wall.haulRate === null || wall.material === 'wood') continue; // no cart
+    if (wall.haul === null || wall.material === 'wood') continue; // won underfoot — no road
     if (wall.stonesLaid >= wall.stonesTotal) continue; // not being worked
-    // never haul past what the wall can still lay — stone at a finished face is
-    // stranded (the wall's demand, less what already stands at the face). The
-    // demand is per-stone DRAW × remaining: an ashlar wall's face wants half again
-    // more rough stone per block (SIM 18), so its cart falls behind sooner.
     const draw = DRESS_DRAW[wall.dressLevel];
-    const need = (wall.stonesTotal - wall.stonesLaid) * draw - wall.faceBuffer;
+    if ((wall.stonesTotal - wall.stonesLaid) * draw - wall.faceBuffer <= 0) continue; // face fully stocked
+    // a representative mason's appetite at THIS wall's dress: an ashlar wall lays half as fast
+    // but carts half again as much per block, so its road needs are its own (SIM 18)
+    const appetite = ((LAY_RATE_BASE + LAY_RATE_SPREAD / 2) / DRESS_SPEC[wall.dressLevel].layDebt) * draw;
+    const cost = routeCost(state, wall.haul);
+    const deliver = cost > 0 ? CARRIER_THROUGHPUT / (2 * cost) : CARRIER_THROUGHPUT;
+    const frac = appetite / (appetite + deliver);
+    // at least ONE hand, or a wall far from stone would never receive a single block
+    out.set(wall.id, Math.max(1, Math.round(pool * frac)));
+  }
+  return out;
+}
+
+/**
+ * WHICH FACE each carrier serves (SIM 39) — a pure derivation from state + the day's
+ * assignments, so the sim's carry, the dawn pass and the THEATER all read one truth (the
+ * parity law: people.ts imports this, and the sprites walk the errand the sim believes).
+ * Carriers fill the walls' demand in id order — oldest work first, like diggers and masons.
+ */
+export function computeCarryTargets(state: WorldState, assignments: Map<number, Assignment>): Map<number, number> {
+  const demand = carrierDemand(state);
+  const carriers = state.people.filter((p) => assignments.get(p.id) === 'carry');
+  const out = new Map<number, number>();
+  let i = 0;
+  for (const wall of state.walls) {
+    const want = demand.get(wall.id) ?? 0;
+    for (let k = 0; k < want && i < carriers.length; k++, i++) out.set(carriers[i]!.id, wall.id);
+  }
+  return out;
+}
+
+/**
+ * THE CARRY (SIM 17's haul, made LABOR in SIM 39): hands move won stone from the global pile
+ * to each stone wall's FACE — the middle of WIN → HAUL → LAY, and the last link to become
+ * people. Each carrier assigned to a wall delivers its own carryRate; the pile is drawn in
+ * id order (oldest wall first, like diggers and masons); when the pile runs dry the day's
+ * carrying stops. Never deliver past what the wall can still lay — stone at a finished face
+ * is stranded — and the demand is per-stone DRAW × remaining, so an ashlar wall's face wants
+ * half again more rough stone per block (SIM 18) and its road falls behind sooner.
+ *
+ * 'local' walls (haul null) and timber take no carrier: they draw the pile directly in
+ * layStones, exactly as in SIM 16.
+ */
+function carryStone(state: WorldState, assignments: Map<number, Assignment>): void {
+  // who serves which face — ONE derivation, shared with the dawn pass and the theater
+  const targets = computeCarryTargets(state, assignments);
+  const crew = new Map<number, Person[]>();
+  for (const person of state.people) {
+    const wallId = targets.get(person.id);
+    if (wallId === undefined) continue;
+    (crew.get(wallId) ?? crew.set(wallId, []).get(wallId)!).push(person);
+  }
+  for (const wall of state.walls) {
+    if (state.stockpile <= 0) break; // the pile is dry — nobody loads today
+    if (wall.haul === null || wall.material === 'wood') continue; // no road
+    if (wall.stonesLaid >= wall.stonesTotal) continue; // not being worked
+    const hands = crew.get(wall.id);
+    if (!hands || hands.length === 0) continue;
+    const draw = DRESS_DRAW[wall.dressLevel];
+    let need = (wall.stonesTotal - wall.stonesLaid) * draw - wall.faceBuffer;
     if (need <= 0) continue;
-    // THE SLEDGE ON ROLLERS (SIM 32): a wall built on rollers moves its won stone across the ground the
-    // faster — its delivered rate is boosted. A wall without rollers hauls exactly as before (byte-identical).
-    const rate = wall.rollers ? wall.haulRate * ROLLER_HAUL_BOOST : wall.haulRate;
-    const move = Math.min(rate, state.stockpile, need);
-    if (move <= 0) continue;
-    state.stockpile -= move;
-    wall.faceBuffer += move;
+    for (const person of hands) {
+      if (state.stockpile <= 0 || need <= 0) break;
+      const move = Math.min(carryRate(state, wall.haul, person), state.stockpile, need);
+      if (move <= 0) continue;
+      state.stockpile -= move;
+      wall.faceBuffer += move;
+      need -= move;
+      // the day wrote the road hand's biography (SIM 36: only real work counts)
+      person.worked.carter += 1;
+      person.lastJob = 'carter';
+    }
   }
 }
 
@@ -1983,7 +2217,7 @@ function layStones(
   const supplied = (w: WallPlan): boolean =>
     w.material === 'wood'
       ? state.timber >= TIMBER_PER_POST
-      : w.haulRate === null
+      : w.haul === null
         ? state.stockpile >= DRESS_DRAW[w.dressLevel]
         : w.faceBuffer >= DRESS_DRAW[w.dressLevel];
   // THE FIRST TECHNIQUE (SIM 27): a smith at the forge keeps the crew's irons sharp, so
@@ -2039,7 +2273,7 @@ function layStones(
       // (the mason finishes the block begun); quota resets each day, no carry.
       if (wall.material === 'wood') {
         state.timber -= TIMBER_PER_POST;
-      } else if (wall.haulRate === null) {
+      } else if (wall.haul === null) {
         state.stockpile -= DRESS_DRAW[wall.dressLevel];
       } else {
         wall.faceBuffer -= DRESS_DRAW[wall.dressLevel];

@@ -28,6 +28,7 @@ import {
   polygonArea,
   ringSelfIntersects,
   ringSelfOverlaps,
+  routeCost,
   worldStep,
 } from '../sim/step';
 import { createWorld } from '../sim/world';
@@ -56,6 +57,10 @@ import {
   WAY_MIN_LENGTH,
   WAY_TIMBER_PER_M,
   WAY_WORK_PER_M,
+  WAY_MULT_FIRM,
+  WAY_MULT_SOFT,
+  WAY_SOFT_DEPTH,
+  CARRIER_THROUGHPUT,
   dayOfYear,
   seasonOf,
   ticksUntilNextSeason,
@@ -407,9 +412,8 @@ async function boot(): Promise<void> {
   matBtn.textContent = '🪨 sandstone';
   const dressBtn = document.createElement('button');
   dressBtn.textContent = '⚒ dress: auto';
-  const rollersBtn = document.createElement('button');
-  rollersBtn.textContent = '🛷 sledge: off';
-  rollersBtn.title = 'haul the next wall’s heavy stone on rollers — faster overland delivery (SIM 32)';
+  // (SIM 32's 🛷 sledge TOGGLE retired in SIM 39 — the boss replaced the flag with the drawn
+  //  way: "≡ way (Y)" in the row below. The sledge did not go away; it now rides a real road.)
   // THE WORD AT THE PLOT (SIM 37): choose the roof, the trade, and the field's use as
   // you draw — 'none' is legal, never blocks, and can be answered later on the plot
   const plotRoofBtn = document.createElement('button');
@@ -421,7 +425,7 @@ async function boot(): Promise<void> {
   const plotUseBtn = document.createElement('button');
   plotUseBtn.textContent = '🌾 use: none';
   plotUseBtn.title = 'the closed field ring’s use — named as you draw, or later at the plot (SIM 37)';
-  build2.append(fillBtn, gateBtn, matBtn, dressBtn, rollersBtn, plotRoofBtn, plotKindBtn, plotUseBtn);
+  build2.append(fillBtn, gateBtn, matBtn, dressBtn, plotRoofBtn, plotKindBtn, plotUseBtn);
   build.after(build2);
   const build3 = document.createElement('div');
   const roofBtn = document.createElement('button');
@@ -579,6 +583,8 @@ async function boot(): Promise<void> {
       length,
       timberTotal: Math.round(length * WAY_TIMBER_PER_M * 1e6) / 1e6,
       workTotal: Math.max(1, Math.round(length * WAY_WORK_PER_M * 1e6) / 1e6),
+      // what this road is worth is what the GROUND UNDER IT is: read here, frozen forever
+      speedMult: waySpeedMult(points),
     };
   }
   // THE FELL (SIM 19): a cant marked over woodland. Like the quarry, the economics
@@ -599,18 +605,19 @@ async function boot(): Promise<void> {
     return { kind: 'plan_fell', tick: world.tick, points, timberTotal, workTotal };
   }
 
-  // --- THE HAUL (SIM 17): the route a wall's stone must travel. main.ts alone
-  //     holds surface + water + beds, so it reads the route HERE and freezes a
-  //     haulRate + method into plan_wall, exactly as quarryPlanAt freezes plan_cut
-  //     — the sim replays the scalar and never sees the road. "Cost the ROUTE, not
-  //     straight-line" (PROPOSAL-LOGISTICS §4.1): a bed across the Wear is NOT near
-  //     — the cart must detour to a bridge, so the gorge reads as a MOAT and the
-  //     historical optimum (quarry the peninsula's own post) falls out of the
-  //     geometry with zero scripting. ---
+  // --- THE ROAD a wall's stone must travel. main.ts alone holds surface + water + beds, so
+  //     it reads the route HERE and freezes it into plan_wall, exactly as quarryPlanAt freezes
+  //     plan_cut — the sim replays the facts and never sees the terrain. "Cost the ROUTE, not
+  //     straight-line" (PROPOSAL-LOGISTICS §4.1): a bed across the Wear is NOT near — the road
+  //     detours to a bridge, so the gorge reads as a MOAT and the historical optimum (quarry
+  //     the peninsula's own post) falls out of the geometry with zero scripting.
+  //
+  //     SIM 39 CHANGED WHAT IS FROZEN. It used to be a RATE (m³/day). A rate cannot answer the
+  //     question the boss's ruling asks — if the player lays a WAY across this road next year,
+  //     the carriers must get faster, and a frozen rate cannot know. So the boundary now freezes
+  //     the road's FACTS (its two ends, the climb, the gorge detour) and the SIM does the labour
+  //     arithmetic (routeCost/carryRate). HAUL_BASE_RATE and HAUL_SCALE retired with the rate. ---
   const HAUL_PROBE_AREA = 10; // m² — the affordance probe ("is dry post winnable here?")
-  const HAUL_BASE_RATE = 12; // m³/day a cart lays at the doorstep (≫ masons need → never binds)
-  const HAUL_SCALE = 120; // m of haul-route at which the delivered rate halves (mileage → map scale)
-  const HAUL_UPHILL_PER_M = 14; // haul-route metres ADDED per metre the stone must climb to the wall
   const HAUL_BRIDGE_DETOUR = 4; // the Wear is a MOAT: a route that crosses the gorge detours to a bridge
   const HAUL_GORGE_DROP = 10; // m the land must dip below both ends for a route to "cross the gorge"
   const HAUL_MAX_REACH = 250; // m — past this from any dry post, haul is maximally dear (bounds the scan)
@@ -648,42 +655,82 @@ async function boot(): Promise<void> {
     }
     return false;
   }
-  const haulMemo = new Map<string, { haulRate: number; method: HaulMethod } | null>();
-  // the haul VERDICT for a wall, frozen at plan time. null = 'local' (dry post
-  // under the wall's own feet — no cart, draws the pile directly). Otherwise a
-  // finite m³/day the cart delivers to the face + the field-guide word for it.
-  function haulVerdict(points: Vec2[]): { haulRate: number; method: HaulMethod } | null {
+  type FrozenHaul = { from: Vec2; to: Vec2; climb: number; detour: number; method: HaulMethod };
+  const haulMemo = new Map<string, FrozenHaul | null>();
+  // the ROAD for a wall, frozen at plan time. null = 'local' (dry post under the wall's own
+  // feet — no carriers, the masons draw the pile directly). Otherwise the journey itself:
+  // where the stone is won, where it must stand, and what the land charges between.
+  function haulVerdict(points: Vec2[]): FrozenHaul | null {
     const { cx, cy } = centroid(points);
     const key = `${Math.round(cx / 4)},${Math.round(cy / 4)}`;
     const cached = haulMemo.get(key);
     if (cached !== undefined) return cached;
-    let verdict: { haulRate: number; method: HaulMethod } | null;
+    let verdict: FrozenHaul | null;
     if (quarryPlanAt(cx, cy, HAUL_PROBE_AREA).ok) {
-      verdict = null; // winnable underfoot — 'local', no cart
+      verdict = null; // winnable underfoot — 'local', nothing to carry
     } else {
+      const to = { x: round6(cx), y: round6(cy) };
       const src = nearestDryPost(cx, cy);
       if (!src) {
-        // no dry post within reach — the dearest overland haul the map allows
-        verdict = { haulRate: round6(HAUL_BASE_RATE / (1 + HAUL_MAX_REACH / HAUL_SCALE)), method: 'ox-cart' };
+        // no dry post within reach — the dearest road the map allows: a source at the far
+        // edge of the scan, so the sim's own arithmetic prices it without a special case
+        verdict = {
+          from: { x: round6(cx + HAUL_MAX_REACH), y: round6(cy) },
+          to,
+          climb: 0,
+          detour: 1,
+          method: 'ox-cart',
+        };
       } else {
         const wallG = site.heightAt(cx, cy);
         const srcG = site.heightAt(src.x, src.y);
-        const climb = Math.max(0, wallG - srcG); // hauling UP to the wall costs the beasts
+        const climb = Math.max(0, wallG - srcG); // hauling UP to the wall costs the hands dear
         const crosses = routeCrossesGorge(src.x, src.y, cx, cy, Math.min(wallG, srcG));
-        let route = src.dist + HAUL_UPHILL_PER_M * climb;
-        if (crosses) route *= HAUL_BRIDGE_DETOUR;
         const method: HaulMethod = crosses
           ? 'ox-cart over the bridge'
           : climb > src.dist * 0.15
             ? 'ox-cart uphill'
-            : route < HAUL_SCALE
+            : src.dist < 120
               ? 'sledge'
               : 'ox-cart';
-        verdict = { haulRate: round6(HAUL_BASE_RATE / (1 + route / HAUL_SCALE)), method };
+        verdict = {
+          from: { x: round6(src.x), y: round6(src.y) },
+          to,
+          climb: round6(climb),
+          detour: crosses ? HAUL_BRIDGE_DETOUR : 1,
+          method,
+        };
       }
     }
     haulMemo.set(key, verdict);
     return verdict;
+  }
+  // --- WHAT A WAY IS WORTH (SIM 39): the boundary reads the GROUND the run crosses, because
+  //     the evidence is unanimous that the multiplier is a property of what the road REPLACES
+  //     (DIGEST-2026-07-17 §2: firm dry 1.0–1.2× / ordinary ~3× / mud 4–7× / marsh impassable).
+  //     A causeway over hard dry ground is planks on rock; over the boggy flat by the Wear it
+  //     is the difference between a road and no road. The proxy is DEPTH TO WATER — the water
+  //     model is already the shared source the tint and the workings agree on (grep-the-tree,
+  //     once more), and ground with the table at its ankles is exactly the ground that bogs. ---
+  function waySpeedMult(points: Vec2[]): number {
+    let sum = 0;
+    let n = 0;
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1]!;
+      const b = points[i]!;
+      const legs = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 12));
+      for (let s = 0; s <= legs; s++) {
+        const t = s / legs;
+        const x = a.x + (b.x - a.x) * t;
+        const y = a.y + (b.y - a.y) * t;
+        // metres from the surface down to the water table: 0 = standing bog, deep = dry ground
+        const dry = Math.max(0, Math.min(WAY_SOFT_DEPTH, site.heightAt(x, y) - water.tableAt(x, y)));
+        const soft = 1 - dry / WAY_SOFT_DEPTH; // 1 = fen, 0 = hard and dry
+        sum += WAY_MULT_FIRM + soft * (WAY_MULT_SOFT - WAY_MULT_FIRM);
+        n++;
+      }
+    }
+    return n > 0 ? round6(sum / n) : WAY_MULT_FIRM;
   }
 
   // --- THE DRESS DIAL (SIM 18): the block class a wall's STRUCTURE calls for,
@@ -990,8 +1037,8 @@ async function boot(): Promise<void> {
         height,
         material,
         dressLevel,
-        // rollers help only a HAULED wall (a sledge on the road); a local wall draws the pile directly
-        ...(hv ? { haulRate: hv.haulRate, method: hv.method, ...(planner.rollers ? { rollers: true } : {}) } : {}),
+        // the road, frozen (SIM 39); absent ⇒ a local wall that draws the pile directly
+        ...(hv ? { haul: hv } : {}),
         ...(rc?.kind === 'building' && roofPick ? { roof: roofPick } : {}),
         ...(rc?.kind === 'building' && kindPick ? { buildingKind: kindPick } : {}),
         ...(rc?.kind === 'farm' && usePick ? { use: usePick } : {}),
@@ -1289,8 +1336,8 @@ async function boot(): Promise<void> {
       if (w.material === 'wood' && world.timber < TIMBER_PER_POST) lines.push('waiting on timber');
       else if (w.material !== 'wood') {
         const draw = DRESS_DRAW[w.dressLevel];
-        if (w.haulRate !== null && w.faceBuffer < draw) lines.push('waiting on the cart');
-        else if (w.haulRate === null && world.stockpile < draw) lines.push('waiting on stone');
+        if (w.haul !== null && w.faceBuffer < draw) lines.push('waiting on the carry');
+        else if (w.haul === null && world.stockpile < draw) lines.push('waiting on stone');
       }
       chip(key, m.x, m.y, groundSim(m.x, m.y) + w.height + 1.2, lines);
     }
@@ -1690,9 +1737,6 @@ async function boot(): Promise<void> {
   dressBtn.onclick = () => {
     dressBtn.textContent = dressLabel(planner.cycleDress());
   };
-  rollersBtn.onclick = () => {
-    rollersBtn.textContent = `🛷 sledge: ${planner.toggleRollers() ? 'on' : 'off'}`;
-  };
   // THE WORD AT THE PLOT (SIM 37): three cycling pickers, applied at commit when the
   // drawn ring's class matches (a roof on a field ring would reject — the pencil only
   // attaches words the sim will take). 'none' = unanswered = answer later at the plot.
@@ -1995,17 +2039,17 @@ async function boot(): Promise<void> {
       (w) => w.material !== 'wood' && w.stonesLaid < w.stonesTotal,
     );
     const pileDry = world.stockpile < STONE_VOLUME;
-    // a cart behind: the pile has stone, yet a hauled wall's face can't afford a
-    // block — that wall waits on the road, not the pit
-    const cartBehind = pileDry
+    // the carry behind: the pile has stone, yet a hauled wall's face can't afford a
+    // block — that wall waits on the ROAD, not the pit
+    const carryBehind = pileDry
       ? undefined
-      : stoneWalls.find((w) => w.haulRate !== null && w.faceBuffer < STONE_VOLUME);
+      : stoneWalls.find((w) => w.haul !== null && w.faceBuffer < STONE_VOLUME);
     const hasStoneEconomy =
       nQuarries > 0 || world.adits.length > 0 || world.stockpile >= 1 || stoneWalls.length > 0;
     const bind = pileDry
       ? '⚒ waits on the quarry'
-      : cartBehind
-        ? `⚒ waits on the cart (${cartBehind.method})`
+      : carryBehind
+        ? `⚒ waits on the carry (${carryBehind.haul!.method})`
         : 'the masons lay';
     // THE LIFT (SIM 26): a great wheel is turning at a wall climbing high
     const wheeling = stoneWalls.some((w) => w.wheel && w.stonesLaid < w.stonesTotal);
@@ -2302,14 +2346,21 @@ async function boot(): Promise<void> {
                 : 'roughly squared';
           dress = ` · ${lvl}${planner.dress === 'auto' ? '' : ' (set)'} — ${eff}`;
         }
-        // the HAUL verdict for where this wall sits (SIM 17): stone won on the
-        // spot, or carted — dearer up a hill, dearest across the gorge to a bridge
+        // the ROAD for where this wall sits (SIM 17; its labour since SIM 39): stone won on
+        // the spot, or carried — dearer up a hill, dearest across the gorge to a bridge. The
+        // number quoted is what ONE HAND delivers, read through the sim's own routeCost, so
+        // the row already counts any WAY the player has laid across the route (the parity law:
+        // the pencil's promise is the sim's own arithmetic, imported, never re-derived).
         let haul = '';
         if (ring && planner.material !== 'wood' && rc?.kind !== 'farm') {
           const hv = haulVerdict(ring);
-          haul = hv
-            ? ` · ${hv.method}, ~${hv.haulRate.toFixed(1)} m³/day to the face`
-            : ' · stone won on the spot';
+          if (hv) {
+            const cost = routeCost(world, hv);
+            const perHand = cost > 0 ? CARRIER_THROUGHPUT / (2 * cost) : CARRIER_THROUGHPUT;
+            haul = ` · ${hv.method}, a hand carries ~${perHand.toFixed(2)} m³/day to the face`;
+          } else {
+            haul = ' · stone won on the spot';
+          }
         }
         setText(
           plan,

@@ -171,9 +171,9 @@ export class PileLayer {
         this.syncStack(key, this.standCentroid(s), logs, 'logs', s.id);
       }
     }
-    // a hauled wall's FACE stack: the cart's deliveries made visible
+    // a hauled wall's FACE stack: the carriers' deliveries made visible
     for (const wall of this.world.walls) {
-      if (wall.haulRate === null || wall.material === 'wood') continue;
+      if (wall.haul === null || wall.material === 'wood') continue;
       const key = `f${wall.id}`;
       const start = wall.points[0]!;
       const blocks = Math.min(6, Math.floor(wall.faceBuffer / 0.15));

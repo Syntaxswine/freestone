@@ -2,7 +2,7 @@
   "note": "Canonical determinism baseline. Regenerate ONLY deliberately via `npm run gen-baseline`, in the same commit that explains why physics moved.",
   "save": {
     "meta": {
-      "simVersion": 38,
+      "simVersion": 39,
       "seed": "durham-baseline-42",
       "siteId": "durham",
       "savedAtTick": 200
@@ -70,9 +70,20 @@
           }
         ],
         "height": 1,
-        "haulRate": 0.6,
-        "method": "ox-cart uphill",
-        "dressLevel": "rubble"
+        "dressLevel": "rubble",
+        "haul": {
+          "from": {
+            "x": 1758,
+            "y": 1570
+          },
+          "to": {
+            "x": 1977.5,
+            "y": 2000
+          },
+          "climb": 8,
+          "detour": 1,
+          "method": "ox-cart uphill"
+        }
       },
       {
         "kind": "plan_wall",
@@ -268,13 +279,13 @@
       {
         "kind": "choose_roof",
         "tick": 20,
-        "wallId": 937,
+        "wallId": 934,
         "roof": "straw"
       },
       {
         "kind": "designate",
         "tick": 25,
-        "wallId": 937,
+        "wallId": 934,
         "use": "tavern"
       },
       {
@@ -382,7 +393,7 @@
       {
         "kind": "add_gate",
         "tick": 140,
-        "wallId": 937,
+        "wallId": 934,
         "at": {
           "x": 2044,
           "y": 1966
@@ -408,7 +419,7 @@
   "milestones": [
     {
       "tick": 1,
-      "hash": "096aa1b2",
+      "hash": "fe167cb7",
       "stones": 0,
       "events": 0,
       "wallsComplete": 0,
@@ -429,7 +440,7 @@
     },
     {
       "tick": 7,
-      "hash": "ca51df3f",
+      "hash": "bb0d7c00",
       "stones": 0,
       "events": 5,
       "wallsComplete": 0,
@@ -443,16 +454,16 @@
       "roofsComplete": 0,
       "cutsComplete": 0,
       "aditsComplete": 0,
-      "stockpile": 23,
+      "stockpile": 25,
       "timber": 30,
       "grain": 8,
       "standsFelled": 0
     },
     {
       "tick": 30,
-      "hash": "58312b2f",
-      "stones": 1971,
-      "events": 1993,
+      "hash": "5a6508ed",
+      "stones": 1926,
+      "events": 1948,
       "wallsComplete": 2,
       "fillsComplete": 2,
       "pending": 1,
@@ -471,9 +482,9 @@
     },
     {
       "tick": 65,
-      "hash": "b1ed336c",
-      "stones": 1971,
-      "events": 1994,
+      "hash": "7ec31630",
+      "stones": 1926,
+      "events": 1949,
       "wallsComplete": 2,
       "fillsComplete": 2,
       "pending": 1,
@@ -492,9 +503,9 @@
     },
     {
       "tick": 80,
-      "hash": "c6859951",
-      "stones": 1971,
-      "events": 1994,
+      "hash": "61ad07cd",
+      "stones": 1926,
+      "events": 1949,
       "wallsComplete": 2,
       "fillsComplete": 2,
       "pending": 1,
@@ -513,9 +524,9 @@
     },
     {
       "tick": 100,
-      "hash": "b6bb72d5",
-      "stones": 2487,
-      "events": 2517,
+      "hash": "46f6f08a",
+      "stones": 2352,
+      "events": 2382,
       "wallsComplete": 4,
       "fillsComplete": 2,
       "pending": 0,
@@ -527,14 +538,14 @@
       "roofsComplete": 0,
       "cutsComplete": 2,
       "aditsComplete": 0,
-      "stockpile": 9,
+      "stockpile": 14,
       "timber": 2,
       "grain": 8,
       "standsFelled": 0
     },
     {
       "tick": 130,
-      "hash": "8977c369",
+      "hash": "6ef5b155",
       "stones": 2515,
       "events": 2546,
       "wallsComplete": 5,
@@ -555,7 +566,7 @@
     },
     {
       "tick": 200,
-      "hash": "179ac70e",
+      "hash": "25a40269",
       "stones": 2470,
       "events": 2567,
       "wallsComplete": 5,

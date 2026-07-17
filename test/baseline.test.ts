@@ -84,12 +84,14 @@ const CANON_COMMANDS: Command[] = [
   { kind: 'plan_cut', tick: 1, points: [{ x: 1755, y: 1567 }, { x: 1761, y: 1567 }, { x: 1761, y: 1573 }, { x: 1755, y: 1573 }], depth: 3, workTotal: 58, stoneTotal: 55 },
   // F1 — a platform fill; W-plat stands on it once it sets (~tick 30)
   { kind: 'plan_fill', tick: 3, points: [{ x: 1970, y: 1968 }, { x: 1982, y: 1968 }, { x: 1982, y: 1980 }, { x: 1970, y: 1980 }], height: 1 },
-  // A — a low sandstone wall planned tick 5, the HAUL stall's specimen: its stone
-  // comes up the bank by CART at a frozen 0.6 m³/day (SIM 17) — far slower than the
-  // masons could lay it — so A is CART-bound its whole life even while Q1's trickle
-  // keeps the pile alive (SIM 35 killed A's old WIN wait, not its road). Light
-  // RUBBLE (SIM 18: lays 0.5 days/stone); done ~27 under SIM 36 (the thirteen-hand crew lays faster than the road feeds).
-  { kind: 'plan_wall', tick: 5, points: [{ x: 1960, y: 2000 }, { x: 1995, y: 2000 }], height: 1, haulRate: 0.6, method: 'ox-cart uphill', dressLevel: 'rubble' },
+  // A — a low sandstone wall planned tick 5, the CARRY stall's specimen. Under SIM 17 its
+  // stone came up the bank at a frozen 0.6 m³/day; since SIM 39 the road is REAL and the
+  // hands walk it: A's blocks are carried the ~480 m from Q1's own mouth, up an 8 m bank
+  // (the boundary would freeze exactly this — the nearest dry winnable post IS the founding
+  // quarry). So A is ROAD-bound its whole life even while Q1's trickle keeps the pile alive,
+  // and the fingerprint now carries what a crew SPLIT between road and wall does to a
+  // settlement's whole week. Light RUBBLE (SIM 18: lays 0.5 days/stone).
+  { kind: 'plan_wall', tick: 5, points: [{ x: 1960, y: 2000 }, { x: 1995, y: 2000 }], height: 1, dressLevel: 'rubble', haul: { from: { x: 1758, y: 1570 }, to: { x: 1977.5, y: 2000 }, climb: 8, detour: 1, method: 'ox-cart uphill' } },
   // B — a WOOD wall: since SIM 19 timber is a COST — its ~590 posts DRAW the global
   // timber stock (TIMBER_PER_POST each), spending the founder's woodpile down from
   // SEED_TIMBER 30 to ~10 by tick 30, while sandstone A stands stalled on an empty
@@ -117,11 +119,12 @@ const CANON_COMMANDS: Command[] = [
   { kind: 'plan_fill', tick: 16, points: [{ x: 1900, y: 1900 }, { x: 1910, y: 1900 }], height: 1 },
   { kind: 'plan_fill', tick: 16, points: [{ x: 1860, y: 1890 }, { x: 1860, y: 1860 }, { x: 1890, y: 1860 }, { x: 1890, y: 1890 }, { x: 1860, y: 1889 }, { x: 1860, y: 1862 }, { x: 1888, y: 1862 }, { x: 1888, y: 1888 }, { x: 1860, y: 1888 }], height: 1 },
   { kind: 'plan_roof', tick: 16, points: [{ x: 1900, y: 1900 }, { x: 1910, y: 1900 }, { x: 1910, y: 1910 }] },
-  // BS's drawings — the roof first (a thatched gable), then the trade. The masons
-  // lay not one stone of BS until both are answered (SIM 12). wallId re-probed
-  // under SIM 35 (334 → 399: earlier stone-laying shifted every later mint).
-  { kind: 'choose_roof', tick: 20, wallId: 937, roof: 'straw' },
-  { kind: 'designate', tick: 25, wallId: 937, use: 'tavern' },
+  // BS's drawings — the roof first (a thatched gable), then the trade. Since SIM 37
+  // the shell builds bare and takes its words later; the tavern mints at this tick.
+  // wallId RE-PROBED under SIM 39 (937 → 934): the crew now splits onto the road, so
+  // fewer stones — hence fewer minted ids — stand before BS is planned at tick 12.
+  { kind: 'choose_roof', tick: 20, wallId: 934, roof: 'straw' },
+  { kind: 'designate', tick: 25, wallId: 934, use: 'tavern' },
   // W-plat — a wall on F1's COMPLETED platform (tick 40, after it sets ~30): the
   // survey reads effectiveGroundAt raised, so the fill is in the fingerprint.
   { kind: 'plan_wall', tick: 40, points: [{ x: 1972, y: 1974 }, { x: 1980, y: 1974 }], height: 1, dressLevel: 'rubble' },
@@ -150,9 +153,11 @@ const CANON_COMMANDS: Command[] = [
   // masons wall it back up through the daily loop — the infill DRAWS stone (SIM 16).
   // wallIds re-probed under SIM 35 (225 → 278, 334 → 399).
   { kind: 'add_gate', tick: 140, wallId: 18, at: { x: 2014, y: 1912 } },
-  { kind: 'add_gate', tick: 140, wallId: 937, at: { x: 2044, y: 1966 } },
+  { kind: 'add_gate', tick: 140, wallId: 934, at: { x: 2044, y: 1966 } },
   { kind: 'remove_gate', tick: 150, wallId: 18, at: { x: 2014, y: 1912 } },
-  // the covering chosen: flat brick — the deck the laborers build (done ~167)
+  // the covering chosen: flat brick — the deck the laborers build (done ~167).
+  // roofId RE-PROBED under SIM 39 and HELD at 2540: fixing BS's designate mints the
+  // tavern Building again, so the span's id lands exactly where it did before.
   { kind: 'designate_roof', tick: 160, roofId: 2540, material: 'brick' },
 ];
 

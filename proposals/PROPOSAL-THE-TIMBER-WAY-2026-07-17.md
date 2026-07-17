@@ -69,15 +69,36 @@ this lands, `people.ts` gets *simpler*, not richer.
 this it is people. Every link is now hands, and the wall stalls on whichever link is short — the
 carriage layer's founding thesis (PROPOSAL-LOGISTICS §4) finally true all the way down.
 
-### 2.2 What one carrier delivers
+### 2.2 What one carrier delivers — ★ REFRAMED BY THE RESEARCH (§7.1)
+
+The first draft of this section had a `CARRIER_LOAD` (m³/trip) times a `CARRIER_DAY_RANGE` (m/day),
+and called the load "research-anchored". **The verification pass refuted both halves of that.**
+
+1. **The per-trip load is unverifiable.** No primary or scholarly source gives a medieval per-trip
+   load for a hod, handbarrow or wheelbarrow. The researcher refused to invent one, correctly.
+2. **Pace is the wrong axis.** Loaded and unloaded humans walk at nearly the same speed — the
+   metabolic cost curve minimises at **~1.3 m/s for *all* loading conditions**; carrying 30% of body
+   mass costs **+47% metabolic rate**, not pace (Griffin/Roberts/Kram 2003). *A causeway cannot make
+   a hand walk faster.* Modelled as literal m/s the honest ceiling is ~1.2–1.5×; modelled as
+   **throughput** a 3–6× gain is fully defensible.
+
+So the two constants collapse into **one**, in the unit the evidence actually supports:
 
 ```
-tripsPerDay  = CARRIER_DAY_RANGE / (2 × cost)        // there and back
-delivered    = CARRIER_LOAD × tripsPerDay × jobMult(p,'carter')
+CARRIER_THROUGHPUT = 240        // m³·m of stone moved per hand-day
+delivered = CARRIER_THROUGHPUT / (2 × cost) × jobMult(p,'carter')
 ```
 
-`cost` is the route's **effective metres** (§2.3). The `2 ×` is the empty walk back — a real and
-unavoidable half of portering, and the reason a *short* haul is worth so much more than a fast one.
+This is the same arithmetic — but it is now **one labelled game-choice constant in an honest unit**,
+rather than two constants one of which was falsely dressed as sourced. It also routes around the
+unverifiable number instead of inventing one to plug the hole. The `2 ×` is the empty walk back — a
+real and unavoidable half of portering, and the reason a *short* haul beats a fast one.
+
+**What the boss will see.** He asked for workers "moving faster"; the science says they don't, and
+the honest visible payoff is different and better: **fewer hands on the road, more at the wall**
+(§2.4). The bricks *do* reach their destination quicker — which is the outcome his sentence asked
+for. This is the one place the arc chose the science over the literal words, and it is flagged for
+him in the handoff rather than buried.
 
 ### 2.3 The route cost — the dogleg (NOT A*)
 
@@ -85,7 +106,7 @@ unavoidable half of portering, and the reason a *short* haul is worth so much mo
 
 ```
 direct   = dist(src, dst)
-viaWay   = dist(src, entry) + alongWay(entry, exit) / WAY_SPEED_MULT + dist(exit, dst)
+viaWay   = dist(src, entry) + alongWay(entry, exit) / way.speedMult + dist(exit, dst)
 cost     = min(direct, viaWay) × haulDetour + HAUL_UPHILL_PER_M × haulClimb
 ```
 
@@ -116,6 +137,37 @@ road pay for itself.
 This also kills the oscillation the charter's determinism critique caught: the split is a **ratio of
 dawn-decidable rates**, never a reaction to yesterday's buffer. No feedback, no duty cycle.
 
+### 2.4b ★ THE SECOND REFRAME — the multiplier belongs to the GROUND, not the road (§7.2)
+
+The first draft gave the way a flat global `WAY_SPEED_MULT = 3`. **Three independent evidence lines
+say that is wrong** — and they say so in the same voice:
+
+| Ground the way crosses | Multiplier | Source |
+|---|---:|---|
+| Firm, dry, hard ground | **1.0–1.2×** | Baker T8 (50 vs 50 lb/ton); Mairs (69 vs 57) |
+| Ordinary earth | **~3×** | Baker T8 midpoints 3.1×; Mairs wet sod 3.0× |
+| Mud / soft / wet / plowed | **4–7×** | Mairs plowed 4.4×; Baker T8 worst/best 6.7× |
+| Marsh / fen | **∞** | impassable without a way (Ely 1071) |
+
+**A causeway over firm dry ground is very nearly a worthless investment.** That is not a
+disappointment — *it is the better mechanic*, and it is this game's own thesis. Freestone's mining
+arc is built on "THE LAND DECIDES… the land refuses you, and the refusal IS the game." A road whose
+worth is a property of the ground it crosses **makes the player read the land** exactly as the
+quarry, the adit, the bell pit and the shaft already make them read it.
+
+So `speedMult` is **frozen per-way at the boundary**, sampled along the run — the same discipline as
+every working since SIM 14. And the substrate already exists (grep-the-tree, once more): the **water
+model** is a shared source (`water.tableAt`), and *depth-to-water is the honest proxy for soft
+ground*. A way laid across the boggy flat by the Wear is transformative; a way laid along the dry
+ridge is planks on rock.
+
+**What this separates** (the digest's own distinction, which the first draft was conflating):
+- **(A) Causeway over soft ground = BEARING CAPACITY** — it stops you sinking. Ely 1071, Berlin 1238,
+  the Sweet Track. Ground-dependent, huge. **This is what we build.**
+- **(B) Greased slipway = LUBRICATION** — the Stonehenge 40-tonner; the gain is the *tallow*, not the
+  timber (ungreased wood-on-wood μ 0.25–0.7 ≈ bare ground). **Not built** — and it is the arc's
+  strongest follow-on, because tallow is animal fat and the herds are already reserved.
+
 ### 2.5 The way itself
 
 A `WayPlan`: a drawn polyline, a width implied, `timberTotal` + `workTotal` frozen at the boundary
@@ -139,25 +191,27 @@ each draws `DRESS_DRAW` m³ (rubble `0.03375`, ashlar `0.050625`) — so **a mas
 
 | Constant | Value | Basis |
 |---|---:|---|
-| `CARRIER_LOAD` | 0.02 m³ | ≈48 kg of sandstone — a hod/handbarrow load. Research-anchored (§7). |
-| `CARRIER_DAY_RANGE` | 12000 m | effective metres a road hand covers in a working day (loaded out, empty back, loading time absorbed). **By-eye, calibrated** (below). |
-| `WAY_SPEED_MULT` | 3 | boss wants ≥3× visibly; §7 tests whether the evidence bears it. |
-| `WAY_TIMBER_PER_M` | *pending §7* | m³ of timber per metre of causeway |
-| `WAY_WORK_PER_M` | *pending §7* | person-days per metre |
+| `CARRIER_THROUGHPUT` | 240 m³·m/hand-day | **LABELLED GAME CHOICE**, calibrated (below). The unit is the one the evidence supports (§7.1); the per-trip load it replaces is **unverifiable** and was not invented. |
+| `WAY_MULT_FIRM` | 1.15 | a way on firm dry ground is nearly worthless — Baker T8 (50/50), Mairs (69/57). **Evidence-set.** |
+| `WAY_MULT_SOFT` | 5.0 | a way over bog/mud — Mairs plowed 4.4×, Baker worst/best 6.7×. **Evidence-set.** |
+| `WAY_SOFT_DEPTH` | 3 m | depth-to-water at which ground reads fully soft (the boggy proxy). **By-eye.** |
+| `WAY_TIMBER_PER_M` | 0.06 m³ | **By-eye.** No attested medieval figure exists (§7.4); the Sweet Track's 111 kg/m is Neolithic AND its "ten men, one day" is *assembly only* — explicitly NOT modelled from. |
+| `WAY_WORK_PER_M` | 0.04 p-d | **By-eye**, same reason. |
 | `HAUL_UPHILL_PER_M` | 14 | **kept from SIM 17** (by-eye, already live) |
 | `HAUL_BRIDGE_DETOUR` | 4 | **kept from SIM 17** — the Wear stays a moat |
 
-**The calibration anchor:** `CARRIER_LOAD × CARRIER_DAY_RANGE = 240 m·m³`, so at a **120 m** bare
-route one carter delivers `240/(2×120) = 1.0 m³/day` ≈ **exactly one mason's appetite**. The crew
-splits ~50/50 — *which is precisely the half-and-half the Course-2 theater already shows*. The
-theater was right; the sim is being brought up to it. On a way, that same route costs ~40 m
-effective → one carter feeds ~three masons.
+**The calibration anchor:** `CARRIER_THROUGHPUT = 240 m³·m/hand-day`, so at a **120 m** bare route
+one carter delivers `240/(2×120) = 1.0 m³/day` ≈ **exactly one mason's appetite** (a mason lays ~30
+stones × `DRESS_DRAW` ≈ 1 m³/day). The crew splits ~50/50 — *which is precisely the half-and-half
+the Course-2 theater already shows*. The theater was right; the sim is being brought up to it. Across
+soft ground a way cuts that route to ~24 m effective → one carter feeds ~five masons.
 
-**Honesty flags** (the house rule: label the by-eye numbers, never launder them):
-`CARRIER_DAY_RANGE` is a **game choice** calibrated to the split above, not a sourced figure.
-`WAY_SPEED_MULT` is a **design target** the boss set (≥3×); §7 says what the evidence actually
-supports, and if the evidence is weaker the constant stays but wears the flag — a labelled
-game-choice, like `PUMP_TAX_MULT`.
+**Honesty flags** (the house rule: label the by-eye numbers, never launder them). Everything above
+marked **By-eye** is a game choice, not a sourced figure — `PUMP_TAX_MULT`'s precedent. What
+*is* evidence-set is the **shape**: the multiplier is a property of the ground, its span is ~1.15–5,
+and the unit of a hand-day is throughput. **A claim was corrected here rather than defended:** the
+first draft called `CARRIER_LOAD` research-anchored; the verification pass found no source for it,
+so the constant is gone rather than laundered.
 
 ## 4. Build order + discipline
 
@@ -211,10 +265,27 @@ lesson, learned the hard way when B′ shipped without its bump).
 
 None of these block the build; each has a recommendation and exactly one disposition.
 
-## 7. Research grounding — *(pending: verification pass in flight)*
+## 7. Research grounding — **DONE**, and it reframed the arc twice
 
-Digest to be committed alongside. Questions out: per-trip loads for hod/handbarrow/wheelbarrow on a
-1200s site; wheelbarrow attestation in England by ~1200; the **key number** — the measured advantage
-of a timber causeway / greased slipway over bare or soft ground (does the evidence bear ≥3×?);
-timber + labour per metre of causeway; and whether a *carter* is honestly a distinct trade at a
-1200s building site. Anything unverified ships **labelled**, never laundered.
+Full digest: [research/DIGEST-2026-07-17-the-timber-way.md](../research/DIGEST-2026-07-17-the-timber-way.md).
+The headlines:
+
+1. **★ Pace is the wrong axis** (Griffin/Roberts/Kram 2003, VERIFIED): humans walk ~1.3 m/s loaded or
+   not; load costs energy, not pace. → the sim carries ONE throughput constant. §2.2 rewritten.
+2. **★ The multiplier belongs to the ground crossed** (Baker 1914 T8 + Mairs 1902 + Richards & Whitby
+   1997, all VERIFIED, converging): 1.0–1.2× firm / ~3× ordinary / 4–7× mud / ∞ marsh. → `speedMult`
+   is frozen per-way from the ground. §2.4b added. **This is the better mechanic and it is ours.**
+3. **★ It is the GREASE, not the timber** (Fall et al. 2014, VERIFIED): ungreased wood-on-wood
+   μ 0.25–0.7 ≈ bare ground. → tallow-as-a-consumable is the arc's strongest follow-on (and it ties
+   to the reserved herds). NOT built; recorded.
+4. **The carter is attested** (Sharpe, Oxford ORA, VERIFIED): *"v caretis et iiij carectariis"*, Pipe
+   Roll 17 Henry II; "many carts for hire in King John's time" (1199–1216, Winchester Pipe Roll
+   1210–11). → `JobSkill += 'carter'` is honest. But **"common carrier" is ~1449** — wrong word, kept out.
+5. **The sledge fiction holds**: the wheelbarrow is *just* attested (1222, the king's works at Dover)
+   but **rare until the 15th c.**; the Chartres wheelbarrow is a **verified myth**.
+6. **Two numbers refuted, not averaged**: Gimpel's 2,500 kg Troyes wagons are unfootnoted and
+   demolished (a medieval cart carried ~1 tonne); the Sweet Track's "ten men in one day" is
+   **assembly only** and must not be used to cost a causeway. Neither was used.
+7. **Stated unverified, not invented**: per-trip barrow/hod load; per-metre causeway timber/labour;
+   Knoop & Jones read only through secondaries (and their ordinances are 1370, not the 1200s).
+   Salzman ch. XXII "Carriage" is the highest-value unread source — library access only.

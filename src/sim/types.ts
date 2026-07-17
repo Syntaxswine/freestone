@@ -152,7 +152,20 @@
 // SIM 37. The baseline moves for PURE SERIALISATION alone (the new `ways:[]` array, the new
 // `worked.carter:0` on every person, and this constant) — the bell-pit/shaft precedent: one clean
 // commit + a regen, diff-confirmed to touch only the milestone hashes. New state: WayPlan + ways[].
-export const SIM_VERSION = 38;
+//
+// SIM 39 — THE HAUL BECOMES LABOR (Course 4 commit B — the attributable bump). The frozen
+// haulRate scalar (SIM 17) is RETIRED, and with it the `rollers` flag + ROLLER_HAUL_BOOST (SIM 32)
+// and the 🛷 toggle. Stone no longer arrives at a rate: it arrives on people's backs. CARRIERS are
+// real hands with a real errand — load at the pile, walk the route, put down at the face, walk back
+// — and the crew SPLITS ITSELF at dawn so that delivery balances consumption. A drawn WAY shortens
+// the route's EFFECTIVE metres (the built prefix costs 1/WAY_SPEED_MULT), so each carrier delivers
+// more, so FEWER hands are needed on the road and MORE stand at the wall. That is the boss's
+// sentence made mechanism: "if the workers are moving faster the bricks reach their destination
+// quicker." The boundary now freezes the road's FACTS (its two ends, the climb, the gorge detour)
+// instead of its rate — terrain the sim cannot see — and the sim does the labour arithmetic, so a
+// road drawn LATER can still shorten a wall's haul. A BEHAVIORAL change wherever a hauled wall
+// exists: the canon's wall A is re-authored with it. New state: WallPlan.haul (HaulRoute | null).
+export const SIM_VERSION = 39;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -247,18 +260,23 @@ export const MATERIALS = ['wood', 'sandstone'] as const;
 export type Material = (typeof MATERIALS)[number];
 
 /**
- * How a wall's stone reaches its face (SIM 17). A CONSTANT-string field-guide
- * word chosen at the boundary from the frozen route and stored on the wall, so
- * the bottleneck line can name the cart. 'local' is stone won on the spot (no
- * haul, no cart) — its haulRate is null and it draws the pile directly. The
- * rest are hauled: the label rides with a finite haulRate. Constant strings —
- * they enter hashed state via WallPlan.method, exactly like Material.
+ * How a wall's stone reaches its face (SIM 17) — the field-guide WORD for the journey,
+ * chosen at the boundary from the road it froze and carried on HaulRoute.method, so the
+ * bottleneck line can name what the hands are doing. 'local' is stone won on the spot: no
+ * road at all (WallPlan.haul is null) and the masons draw the pile directly. Constant
+ * strings — they enter hashed state exactly like Material.
+ *
+ * The words are era-honest (DIGEST-2026-07-17 §4): a CARTER with a cart is attested from
+ * the 12th century ("v caretis et iiij carectariis", Pipe Roll 17 Henry II) and a medieval
+ * cart carried about a TONNE — not the 2.5 t Gimpel claims, which is unfootnoted and
+ * demolished. The wheelbarrow is only just attested by 1222 (the king's works at Dover) and
+ * stayed rare until the 15th c., so it is NOT the stone-mover here; the sledge is.
  */
 export const HAUL_METHODS = [
-  'local', // quarried underfoot — no cart, draws the pile directly (haulRate null)
-  'sledge', // short, flat or downhill — the cheap overland haul
+  'local', // quarried underfoot — no road, no carry: the masons draw the pile directly
+  'sledge', // short, flat or downhill — the cheap overland haul (and what a WAY is built for)
   'ox-cart', // overland
-  'ox-cart uphill', // climbing to the wall costs the beasts
+  'ox-cart uphill', // climbing to the wall costs the hands dear
   'ox-cart over the bridge', // the route must cross the gorge — the Wear is a MOAT
 ] as const;
 export type HaulMethod = (typeof HAUL_METHODS)[number];
@@ -362,17 +380,22 @@ export interface WallPlan {
   stonesTotal: number;
   stonesLaid: number;
   /**
-   * THE HAUL (SIM 17), frozen at plan time from the route the boundary reads.
-   * `haulRate` is m³ of won stone the cart delivers to this wall's face per day
-   * (metered from the global stockpile), or NULL for an on-the-spot ('local')
-   * wall and any timber wall — those draw the pile directly, no cart, exactly as
-   * in SIM 16. `faceBuffer` is the won stone standing AT the face, not yet laid:
-   * HAUL fills it (≤ what the wall still needs), LAY draws it a block at a time.
-   * `method` is the field-guide word for the cart (HAUL_METHODS), for the line.
+   * THE HAUL (SIM 17; became LABOR in SIM 39). `haul` is the ROAD this wall's stone
+   * travels — its two ends and the terrain against it, frozen at plan time from what
+   * only the boundary can see. NULL means the stone is won underfoot ('local') — no
+   * carry, the masons draw the pile directly, exactly as in SIM 16 — and every timber
+   * wall is local too (the woodpile needs no road).
+   *
+   * SIM 39 replaced the frozen `haulRate` here: a rate cannot be re-read when the
+   * player lays a ROAD across it, and the boss ruled the mechanic to be worker-speed
+   * ("if the workers are moving faster the bricks reach their destination quicker").
+   * So the boundary freezes the FACTS and the sim does the labour — see carryRate().
+   *
+   * `faceBuffer` is the won stone standing AT the face, not yet laid: the CARRIERS
+   * fill it (never past what the wall still needs), LAY draws it a block at a time.
    */
-  haulRate: number | null;
+  haul: HaulRoute | null;
   faceBuffer: number;
-  method: HaulMethod;
   /**
    * THE LIFT (SIM 26): a GREAT WHEEL has been raised for this wall — a timber
    * treadwheel crane that relieves the height penalty on its upper courses. Set true
@@ -388,14 +411,35 @@ export interface WallPlan {
    * logs/saves ⇒ 'scappled' at plan time (the SIM-16/17 cost), byte-identical.
    */
   dressLevel: DressLevel;
+  // (SIM 32's opt-in `rollers` flag RETIRED in SIM 39 — the boss's ruling replaced the
+  //  toggle with a road you draw: the way IS the rollers, laid where you choose.)
+}
+
+/**
+ * THE ROAD a wall's stone travels (SIM 39) — frozen at the command boundary, which alone
+ * holds the surface, the water and the beds. The sim replays these facts and never sees
+ * the terrain that produced them; what it computes from them is LABOUR (carryRate()).
+ *
+ * Why facts and not a rate: a rate cannot answer the question the boss's ruling asks. If
+ * the player lays a WAY across this road a year from now, the carriers must get faster —
+ * so the sim has to be able to re-cost the journey, which means it needs the journey.
+ */
+export interface HaulRoute {
+  /** the pile the carriers load at: the nearest place the land affords dry winnable post */
+  from: Vec2;
+  /** the face they carry to: the centre of the work at plan time */
+  to: Vec2;
+  /** metres the stone must CLIMB from pile to face — hauling uphill costs the hands dear */
+  climb: number;
   /**
-   * THE SLEDGE ON ROLLERS (SIM 32): an OPT-IN heavy-block haul accelerant — the crew lays timber rollers
-   * under a sledge so a HAULED wall's won stone travels its route the faster (its delivered rate times
-   * ROLLER_HAUL_BOOST). Chosen per wall at plan time; absent in old logs/saves ⇒ false, and a false wall
-   * (or any 'local' un-hauled wall, which draws the pile directly) is byte-identical to before. The lift
-   * relieved the VERTICAL haul (up the wall); the sledge relieves the OVERLAND haul (across the ground).
+   * the route's detour multiplier. The Wear is a MOAT (PROPOSAL-LOGISTICS §4.1: "cost the
+   * ROUTE, not straight-line"): a road that must cross the gorge goes round by a bridge, so
+   * Durham's historical optimum — quarry the peninsula's own post — falls out of the
+   * geometry with zero scripting. 1 for an honest overland road.
    */
-  rollers: boolean;
+  detour: number;
+  /** the field-guide word for the journey (HAUL_METHODS) — what the bottleneck line names */
+  method: HaulMethod;
 }
 
 /**
@@ -527,6 +571,17 @@ export interface WayPlan {
   timberLaid: number; // m³ actually drawn from the stock so far — paving STALLS when the woodpile is dry
   workTotal: number; // person-days to pave it, frozen from length
   workDone: number;
+  /**
+   * WHAT THIS ROAD IS WORTH (SIM 39): a metre of this way's BUILT prefix costs a carrier
+   * 1/speedMult metres of effort. FROZEN AT THE BOUNDARY from the ground the run crosses —
+   * WAY_MULT_FIRM over hard dry ground (planks on rock, near worthless) up to WAY_MULT_SOFT
+   * across bog (the difference between a road and no road). The evidence is unanimous that
+   * this is a property of what the road REPLACES, not of the road (DIGEST-2026-07-17 §2), and
+   * that makes the way one more thing the land decides — draw it where the ground is bad.
+   * Absent in a SIM-38 way ⇒ WAY_MULT_FIRM (the conservative floor; such saves are refused
+   * anyway by the version guard, but the floor keeps the default honest).
+   */
+  speedMult: number;
 }
 /**
  * m³ of timber per metre of causeway. A way is a corduroy/plank road roughly 2 m wide on
@@ -761,10 +816,56 @@ export const LIFT_FREE_COURSES = 6; // courses a hand raises unaided (~1.5 m, at
 export const LIFT_PER_COURSE = 0.05; // extra lay-debt fraction per course above the free reach
 export const WHEEL_TIMBER = 8; // m³ a great wheel draws to be raised for a wall
 export const WHEEL_RELIEF = 0.25; // the wheel cuts the height penalty to this fraction
-// THE SLEDGE ON ROLLERS (SIM 32): the lift's OVERLAND twin. A hauled wall built on rollers moves its won
-// stone across the ground this many times faster — timber rollers under a sledge roughly double an
-// overland team's load (the ancients moved their greatest blocks so). Opt-in; a wall without it is unchanged.
-export const ROLLER_HAUL_BOOST = 2; // a rollers wall's delivered haul rate is multiplied by this
+// ─── THE CARRY (SIM 39): what one road hand moves in a day ───────────────────────────────
+// The chain is WIN (diggers) → CARRY (carters) → LAY (masons), and every link is people now.
+// A carrier's day is trips: load at the pile, walk the route, put down at the face, walk back
+// empty. The empty walk back is half the day and cannot be wished away — it is why a SHORT
+// haul is worth so much more than a fast one, and why the road is drawn where the stone is.
+//
+// ★ THE UNIT IS THROUGHPUT, NOT PACE — and that is the RESEARCH's correction, not a convenience
+// (DIGEST-2026-07-17 §1; Griffin/Roberts/Kram, J. Appl. Physiol. 2003, VERIFIED). Loaded and
+// unloaded humans walk at nearly the same speed: the metabolic cost curve minimises at ~1.3 m/s for
+// ALL loading conditions, and carrying 30% of body mass costs +47% METABOLIC RATE, not pace. A
+// causeway cannot make a hand WALK faster. So a hand-day is a budget of m³·m — stone moved times
+// metres moved — and the road buys throughput, which the evidence supports at 3–6×, rather than
+// speed, which it caps near 1.2×. The first draft of this constant was a LOAD (m³/trip) times a
+// RANGE (m/day) and called the load research-anchored; the verification pass found NO source for a
+// medieval per-trip hod/barrow load, so the two collapsed into this one honest number rather than
+// keep an invented one. A LABELLED GAME CHOICE — nothing here is sourced but the unit and the shape.
+//
+// CALIBRATION: 240 makes one carter on a 120 m bare road deliver 240/(2×120) = 1.0 m³/day — almost
+// exactly one mason's daily appetite (~30 stones × DRESS_DRAW ≈ 1 m³). So an ordinary hauled wall
+// splits its crew about half to the road and half to the wall: precisely the half-and-half the
+// Course-2 theater had been MIMING before the sim believed it. The theater was right all along.
+export const CARRIER_THROUGHPUT = 240; // m³·m of stone one hand moves in a working day
+
+// ─── WHAT A WAY IS WORTH (SIM 39) — a property of the GROUND IT CROSSES ──────────────────
+// ★ The second research correction (DIGEST-2026-07-17 §2). The first draft gave the way a flat
+// global ×3. THREE independent evidence lines refuse that, and converge instead on a SPAN whose
+// value is set by what the road replaces:
+//     firm dry ground  1.0–1.2×   (Baker 1914 Table 8: plank 30–50 vs earth 50–200 lb/ton, so a
+//                                  DRY HARD earth road is already as good as planks; Mairs 1902's
+//                                  measured wagon: 69 vs 57 lb/ton = 1.2×)
+//     ordinary earth   ~3×        (Baker midpoints 3.1×; Mairs wet sod 3.0×)
+//     mud/soft/plowed  4–7×       (Mairs plowed 4.4×; Baker worst-earth/best-plank 6.7×)
+//     marsh/fen        impassable (Ely 1071 — the causeway is the ONLY road)
+// So a causeway over firm dry ground is very nearly a WORTHLESS investment — and that is the better
+// mechanic, because it is this game's own thesis: the land decides, and reading it is the game. The
+// per-way multiplier is frozen at the boundary from the ground the run crosses (the boundary alone
+// holds the water model, whose depth-to-surface is the honest proxy for soft ground).
+// NOT MODELLED (and the digest says why): the LUBRICANT. Ungreased wood-on-wood is μ 0.25–0.7 —
+// about bare ground (Fall et al., PRL 112, 175502, 2014) — so it is the TALLOW that buys the
+// slipway's 3–6×, not the timber. Tallow as a consumable (animal fat → the reserved herds) is this
+// arc's strongest follow-on, recorded in the digest, deliberately not built here.
+export const WAY_MULT_FIRM = 1.15; // a way on hard dry ground: planks on rock, near worthless
+export const WAY_MULT_SOFT = 5.0; // a way across bog: the difference between a road and no road
+export const WAY_SOFT_DEPTH = 3; // m of depth-to-water at which ground reads FULLY firm (by-eye)
+/**
+ * Haul-route metres ADDED per metre the stone must climb to the face — hauling UP is dear.
+ * Carried over from SIM 17's boundary (where it was by-eye and already live) into the sim,
+ * because the sim does the route arithmetic now. Still by-eye; still labelled.
+ */
+export const HAUL_UPHILL_PER_M = 14;
 
 export type HouseTier = 'hovel' | 'cottage' | 'hall';
 
@@ -990,14 +1091,14 @@ export type Command =
       /** absent in old logs/saves — defaults to 'sandstone' at the boundary */
       material?: Material;
       /**
-       * THE HAUL, frozen at the boundary from the route (SIM 17). Absent ⇒ an
-       * on-the-spot 'local' wall that draws the pile directly (the SIM-16 path,
-       * so old logs replay byte-for-byte). Present ⇒ a finite m³/day the cart
-       * meters to the wall's face; `method` is its field-guide word. Both are
-       * frozen scalars — the sim core never sees the route that set them.
+       * THE ROAD this wall's stone travels, frozen at the boundary (SIM 17; became the
+       * route's FACTS rather than its rate in SIM 39). Absent ⇒ an on-the-spot 'local'
+       * wall that draws the pile directly (the SIM-16 path). Present ⇒ the two ends of
+       * the journey plus the terrain against it — the sim core never sees the surface
+       * that produced them, but it CAN re-cost the journey when a way is laid across it,
+       * which is the whole reason a rate could not survive the boss's ruling.
        */
-      haulRate?: number;
-      method?: HaulMethod;
+      haul?: { from: Vec2; to: Vec2; climb: number; detour: number; method: HaulMethod };
       /**
        * THE DRESS LEVEL (SIM 18), frozen at the boundary: a smart default from the
        * structure (low→rubble, tall→ashlar) or the player's override. Absent ⇒
@@ -1005,12 +1106,7 @@ export type Command =
        * looks up its cost in the DRESS_SPEC / DRESS_DRAW constant tables.
        */
       dressLevel?: DressLevel;
-      /**
-       * THE SLEDGE (SIM 32): true if this wall is hauled on rollers — the boundary's opt-in accelerant.
-       * Absent ⇒ false (byte-identical). Only a HAULED stone wall benefits; the sim ignores it on a local
-       * wall (no cart) and on timber. Coerced to a strict boolean at the boundary, like every hashed field.
-       */
-      rollers?: boolean;
+      // (SIM 32's `rollers?` RETIRED in SIM 39 — replaced by the drawn way, per the boss's ruling.)
       /**
        * THE WORD AT THE PLOT (SIM 37, boss decree 2026-07-16): a building-class ring may
        * carry its ROOF and its TRADE on the plan itself — answered as it is drawn, no card
@@ -1131,6 +1227,11 @@ export type Command =
       length: number;
       timberTotal: number;
       workTotal: number;
+      /**
+       * What the road is worth, frozen from the GROUND IT CROSSES (SIM 39, the research's
+       * own correction): WAY_MULT_FIRM..WAY_MULT_SOFT. Absent ⇒ the conservative firm floor.
+       */
+      speedMult?: number;
     }
   | {
       kind: 'plan_fell';
@@ -1312,11 +1413,11 @@ export interface WorldState {
    * (SIM 14). Masonry DRAWS it since SIM 16: each stone laid spends its dress
    * level's draw (DRESS_DRAW — STONE_VOLUME for rubble/scappled, half again for
    * ashlar since SIM 18), and the masons stall when it runs dry — the honest
-   * consumption loop the whole
-   * mining arc was for. Credited one-shot on a working's completion; still one
-   * GLOBAL pile. Since SIM 17 the HAUL stage meters this pile into each stone
-   * wall's per-wall faceBuffer at its frozen haulRate; 'local' and timber walls
-   * draw the pile directly (no cart), so the pile remains the shared reservoir.
+   * consumption loop the whole mining arc was for. It FLOWS in per person-day since
+   * SIM 35; still one GLOBAL pile. Since SIM 39 the CARRY stage is people walking this
+   * pile into each stone wall's per-wall faceBuffer (SIM 17 metered it at a frozen rate);
+   * 'local' and timber walls draw the pile directly — no road, no carry — so the pile
+   * remains the shared reservoir every link of WIN → CARRY → LAY meets at.
    */
   stockpile: number;
   /**
