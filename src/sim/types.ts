@@ -142,7 +142,17 @@
 // update its roof / deck a late brick AT ANSWER-TICK). The 2026-07-10 "the masons lay not one
 // stone until the drawings are answered" canon is SUPERSEDED (recorded in the charter + BACKLOG);
 // the roof-before-trade ordering guard retires with it. New state: WallPlan.fieldUse.
-export const SIM_VERSION = 37;
+//
+// SIM 38 — THE TIMBER WAY, drawn (Course 4 commit A; boss decree 2026-07-16: "if the workers are
+// moving faster the bricks reach their destination quicker"): a WAY is a timber causeway the player
+// draws — laid plank-by-plank from its head, drawing TIMBER as it goes, worked by hands on the new
+// CARTER skill (the road's own trade: it paves the road and, from SIM 39, drives it). This commit
+// lands the way as STATE + TOOL + RENDER only: nothing reads it, haul is untouched, and the canon
+// lays no way — so `find` returns undefined, hasWork('pave') is false, and BEHAVIOUR is byte-for-byte
+// SIM 37. The baseline moves for PURE SERIALISATION alone (the new `ways:[]` array, the new
+// `worked.carter:0` on every person, and this constant) — the bell-pit/shaft precedent: one clean
+// commit + a regen, diff-confirmed to touch only the milestone hashes. New state: WayPlan + ways[].
+export const SIM_VERSION = 38;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
@@ -489,6 +499,47 @@ export interface ShaftPlan {
   stoneTotal: number; // m³ of dewatered building stone won (generous yield), frozen
   stoneWon: boolean; // one-shot: completion events + the worked-out render cue (stone FLOWS per person-day since SIM 35)
 }
+
+/**
+ * THE TIMBER WAY (SIM 38) — a causeway of timber the crew lays across the ground so the
+ * stone travels it faster. The player DRAWS it (an open polyline, like a wall), the road
+ * hands PAVE it plank by plank from its head, and it draws TIMBER as it lays — the woods'
+ * customer after the great wheel, and the first renewable spent on logistics.
+ *
+ * The fiction is research-bounded (DIGEST-2026-07-16): a timber causeway the SLEDGE rides
+ * is honestly medieval (Ely 1071, Berlin 1238; greased baulks moved 40-tonne blocks).
+ * Wheels-on-rails and conveyor belts are post-1500 and stay out — the boss's "conveyor
+ * belt" named the FEEL he wanted (rapid, along a pre-planned path), and the causeway
+ * delivers that feel without the anachronism.
+ *
+ * Laid from the HEAD, incrementally (the VISIBLE WORK arc's own law — nothing credits in a
+ * lump): `builtLength = length × workDone/workTotal`, and only the built prefix is road.
+ * You watch the way creep toward the quarry and the haul quicken as it goes.
+ *
+ * In SIM 38 NOTHING READS THIS: the way is drawn, paved, and rendered, and haul is
+ * untouched. SIM 39 gives it its bite.
+ */
+export interface WayPlan {
+  id: number;
+  points: Vec2[]; // the drawn polyline, site-local metres — an open run, like a wall
+  length: number; // m of route, frozen at the boundary (the sim never re-walks the terrain)
+  timberTotal: number; // m³ of timber the whole way draws, frozen from length
+  timberLaid: number; // m³ actually drawn from the stock so far — paving STALLS when the woodpile is dry
+  workTotal: number; // person-days to pave it, frozen from length
+  workDone: number;
+}
+/**
+ * m³ of timber per metre of causeway. A way is a corduroy/plank road roughly 2 m wide on
+ * transverse baulks; 0.06 m³/m ≈ a 2 m × 0.03 m plank bed per metre — modest, because the
+ * point of the way is that it is AFFORDABLE enough to be worth drawing. A by-eye GAME
+ * CHOICE calibrated to the woodpile the settlement actually holds (SEED_TIMBER 30, a cant
+ * yields a few m³), NOT a sourced figure — labelled, per the house rule.
+ */
+export const WAY_TIMBER_PER_M = 0.06;
+/** person-days to pave one metre of way — laying baulks + planks. By-eye game choice. */
+export const WAY_WORK_PER_M = 0.04;
+/** m — shorter than this is a gesture, not a road (the boundary refuses it) */
+export const WAY_MIN_LENGTH = 8;
 
 /**
  * THE WOODS (SIM 19). Timber is won by FELLING, spent by BUILDING, and REGROWN on
@@ -860,8 +911,11 @@ export interface PlacedStone {
  * GREEN at it. Journeyman/master stay Beat 4's (the apprentice bond, boss-reserved),
  * and TECHNIQUES remain a separate, bond-borne layer — practice never grants one.
  */
-export type JobSkill = 'mason' | 'digger' | 'woodsman' | 'farmhand';
-export const JOB_SKILLS: readonly JobSkill[] = ['mason', 'digger', 'woodsman', 'farmhand'];
+// SIM 38 adds the CARTER — the road's own trade. A carter PAVES the timber way and (SIM 39) DRIVES
+// it, carrying won stone from the pile to the wall's face: one groove for the whole road, so a year
+// on it greens both halves of the work. This is the substrate the Carter surname always wanted.
+export type JobSkill = 'mason' | 'digger' | 'woodsman' | 'farmhand' | 'carter';
+export const JOB_SKILLS: readonly JobSkill[] = ['mason', 'digger', 'woodsman', 'farmhand', 'carter'];
 export const GREEN_DAYS = TICKS_PER_YEAR; // "a year of doing a job" — days worked at it, not calendar days
 export const GREEN_MULT = 1.125; // ×9/8 — green is a BONUS over today's rates (dyadic; untrained = 1.0)
 
@@ -1064,6 +1118,21 @@ export type Command =
       stoneTotal: number;
     }
   | {
+      kind: 'plan_way';
+      tick: number;
+      points: Vec2[]; // the drawn run, ≥2 — an open polyline, like a wall
+      /**
+       * THE TIMBER WAY (SIM 38), frozen at the command boundary (which alone holds the
+       * surface): `length` is the route's metres ON THE GROUND — the boundary walks the
+       * terrain so the sim core never has to; timberTotal + workTotal are its timber and
+       * person-day cost, read off that length. All finite, > 0; NaN/Infinity arrive as
+       * null from a save and are refused.
+       */
+      length: number;
+      timberTotal: number;
+      workTotal: number;
+    }
+  | {
       kind: 'plan_fell';
       tick: number;
       points: Vec2[]; // the cant ring, ≥3
@@ -1145,6 +1214,10 @@ export type SimEvent =
   | { kind: 'shaft_complete'; tick: number; shaftId: number }
   /** dewatered building stone won from a worked-out shaft, credited to the stockpile */
   | { kind: 'shaft_stone_won'; tick: number; shaftId: number; stone: number }
+  /** a timber way is drawn — the road hands will pave it, plank by plank (SIM 38) */
+  | { kind: 'way_planned'; tick: number; wayId: number; length: number; workTotal: number }
+  /** the way is paved to its far end — the whole run is road now (SIM 38) */
+  | { kind: 'way_complete'; tick: number; wayId: number }
   /** a cant is marked for felling — the crew will fell it and win its timber (SIM 19) */
   | { kind: 'fell_planned'; tick: number; standId: number; timberTotal: number; workTotal: number }
   /** a mature stand is re-cut — the coppice's next harvest on the rotation */
@@ -1227,6 +1300,13 @@ export interface WorldState {
   shafts: ShaftPlan[];
   /** managed woodland cants, felled for timber and regrowing on a rotation (SIM 19) */
   stands: Stand[];
+  /**
+   * Timber causeways the crew is paving, or has paved (SIM 38). A way's BUILT prefix
+   * (length × workDone/workTotal) is road: from SIM 39 a carrier whose route can ride it
+   * moves WAY_SPEED_MULT times faster along it, so fewer hands are needed on the road and
+   * more stand at the wall. Empty on the 2026-07-10 canon, which draws none.
+   */
+  ways: WayPlan[];
   /**
    * Building stone won from finished quarries and adits and not yet spent, m³
    * (SIM 14). Masonry DRAWS it since SIM 16: each stone laid spends its dress

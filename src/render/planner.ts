@@ -115,7 +115,20 @@ export interface SnapWall {
   complete: boolean;
 }
 
-export type PlannerMode = 'wall' | 'building' | 'fill' | 'gate' | 'roof' | 'cut' | 'fell' | 'adit' | 'bellpit' | 'shaft';
+export type PlannerMode =
+  | 'wall'
+  | 'building'
+  | 'fill'
+  | 'gate'
+  | 'roof'
+  | 'cut'
+  | 'fell'
+  | 'adit'
+  | 'bellpit'
+  | 'shaft'
+  // THE TIMBER WAY (SIM 38): an OPEN run, drawn like a wall (deliberately NOT a ringMode —
+  // a road goes from somewhere to somewhere; it does not enclose)
+  | 'way';
 
 export class WallPlanner {
   active = false;
@@ -283,9 +296,11 @@ export class WallPlanner {
             ? CUT_TONE // quarry grey — cut ground, not tipped dirt
             : this.mode === 'fell'
               ? 0x6f7a48 // woods green — the cant marked to fell
-              : this.mode === 'adit'
-                ? 0x8a6f4a // drift timber — the drive marked into the hill
-                : this.mode === 'bellpit'
+              : this.mode === 'way'
+                ? 0xa98155 // fresh plank — the causeway marked across the ground
+                : this.mode === 'adit'
+                  ? 0x8a6f4a // drift timber — the drive marked into the hill
+                  : this.mode === 'bellpit'
                   ? 0x7a6a52 // shaft earth — the pit marked to sink
                   : this.mode === 'shaft'
                     ? 0x5f5648 // deep-shaft earth — the pumped shaft marked to sink
@@ -832,8 +847,8 @@ export class WallPlanner {
     const bandTop =
       this.mode === 'roof'
         ? ROOF_DECK
-        : this.mode === 'cut' || this.mode === 'fell' || this.mode === 'adit'
-          ? 0.05
+        : this.mode === 'cut' || this.mode === 'fell' || this.mode === 'adit' || this.mode === 'way'
+          ? 0.05 // a causeway lies ON the ground — it rises no more than a cut sinks
           : this.height;
     // a BUILDING ribbon tops out at the SURVEYED level datum (SIM 13): the
     // pencil promises the one flat bearing its roof will need. Plain walls
@@ -1083,6 +1098,10 @@ export class WallPlanner {
     }
     if ((ev.key === 't' || ev.key === 'T') && clean) {
       this.toggle('fell');
+      return;
+    }
+    if ((ev.key === 'y' || ev.key === 'Y') && clean) {
+      this.toggle('way'); // THE TIMBER WAY (SIM 38)
       return;
     }
     if ((ev.key === 'a' || ev.key === 'A') && clean) {

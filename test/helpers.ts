@@ -7,7 +7,7 @@
  */
 import type { Person } from '../src/sim/types';
 
-export const zeroWorked = { mason: 0, digger: 0, woodsman: 0, farmhand: 0 } as const;
+export const zeroWorked = { mason: 0, digger: 0, woodsman: 0, farmhand: 0, carter: 0 } as const;
 
 export function villager(id: number, over: Partial<Person> = {}): Person {
   return {

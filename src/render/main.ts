@@ -53,6 +53,9 @@ import {
   REGROWTH_TICKS,
   TICKS_PER_YEAR,
   TIMBER_PER_TREE,
+  WAY_MIN_LENGTH,
+  WAY_TIMBER_PER_M,
+  WAY_WORK_PER_M,
   dayOfYear,
   seasonOf,
   ticksUntilNextSeason,
@@ -89,6 +92,7 @@ import { GateLayer } from './gates';
 import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
 import { PileLayer } from './piles';
+import { WayLayer } from './ways';
 import { AnimalLayer } from './animals';
 import { GranaryLayer } from './granary';
 import { OrchardLayer } from './orchard';
@@ -426,6 +430,12 @@ async function boot(): Promise<void> {
   quarryBtn.textContent = '⛏ quarry (Q)';
   const fellBtn = document.createElement('button');
   fellBtn.textContent = '🪓 fell (T)';
+  // THE TIMBER WAY (SIM 38): the drawn causeway — replaces the 🛷 sledge TOGGLE (SIM 32) at
+  // the boss's word ("the workers would have to have a more complicated pathing"): the road is
+  // a thing you LAY on the ground where you choose, not a flag you tick on a wall.
+  const wayBtn = document.createElement('button');
+  wayBtn.textContent = '≡ way (Y)';
+  wayBtn.title = 'lay a timber causeway — the road hands plank it, and the stone travels it faster';
   const aditBtn = document.createElement('button');
   aditBtn.textContent = '⛏ adit (A)';
   const bellBtn = document.createElement('button');
@@ -438,7 +448,7 @@ async function boot(): Promise<void> {
   // span is drawn, like every designation (boss canon 2026-07-10 — default none)
   const undergroundBtn = document.createElement('button');
   undergroundBtn.textContent = '☷ underground (U)';
-  build3.append(roofBtn, quarryBtn, fellBtn, aditBtn, bellBtn, shaftBtn, shapeBtn, undergroundBtn);
+  build3.append(roofBtn, quarryBtn, fellBtn, wayBtn, aditBtn, bellBtn, shaftBtn, shapeBtn, undergroundBtn);
   build2.after(build3);
 
   // --- the woods, the earthworks, the pencil and the people ---
@@ -530,6 +540,45 @@ async function boot(): Promise<void> {
       depth: MAX_OPEN_REACH,
       workTotal: Math.max(1, workDays),
       stoneTotal: Math.round(stone * DROWNED_YIELD_FRAC * 1000) / 1000,
+    };
+  }
+  // THE TIMBER WAY (SIM 38): the causeway's economics, read HERE and FROZEN into plan_way —
+  // the same boundary discipline as the quarry, the adit and the fell. main.ts alone holds the
+  // surface, so it WALKS the drawn run on the real ground (climbing the hills the crow flies
+  // over) and freezes the metres; the sim core replays the scalar and never touches a height.
+  function wayCommand(points: Vec2[]): Command | null {
+    let length = 0;
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1]!;
+      const b = points[i]!;
+      // sample the leg so the length follows the LAND, not the map: a way over a rise is
+      // longer (and dearer) than its plan-view line. Math.sqrt is IEEE-exact where hypot
+      // is implementation-approximated — the law for anything entering hashed state.
+      const flat = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
+      const steps = Math.max(1, Math.ceil(flat / 8));
+      let px = a.x;
+      let py = a.y;
+      let pz = groundSim(a.x, a.y);
+      for (let s = 1; s <= steps; s++) {
+        const t = s / steps;
+        const qx = a.x + (b.x - a.x) * t;
+        const qy = a.y + (b.y - a.y) * t;
+        const qz = groundSim(qx, qy);
+        length += Math.sqrt((qx - px) ** 2 + (qy - py) ** 2 + (qz - pz) ** 2);
+        px = qx;
+        py = qy;
+        pz = qz;
+      }
+    }
+    length = Math.round(length * 1e6) / 1e6; // tidy the frozen scalar, like haulVerdict's round6
+    if (!(length >= WAY_MIN_LENGTH)) return null; // a gesture, not a road — the plan row says why
+    return {
+      kind: 'plan_way',
+      tick: world.tick,
+      points,
+      length,
+      timberTotal: Math.round(length * WAY_TIMBER_PER_M * 1e6) / 1e6,
+      workTotal: Math.max(1, Math.round(length * WAY_WORK_PER_M * 1e6) / 1e6),
     };
   }
   // THE FELL (SIM 19): a cant marked over woodland. Like the quarry, the economics
@@ -906,6 +955,10 @@ async function boot(): Promise<void> {
         const cmd = fellCommand(points);
         return cmd ? enqueue(cmd) : false; // no standing timber — the plan row says why
       }
+      if (mode === 'way') {
+        const cmd = wayCommand(points);
+        return cmd ? enqueue(cmd) : false; // too short to be a road — the plan row says why
+      }
       if (mode === 'fill') {
         return enqueue({ kind: 'plan_fill', tick: world.tick, points, height, shape: planner.fillShape });
       }
@@ -952,6 +1005,7 @@ async function boot(): Promise<void> {
       roofBtn.classList.toggle('active', active && mode === 'roof');
       quarryBtn.classList.toggle('active', active && mode === 'cut');
       fellBtn.classList.toggle('active', active && mode === 'fell');
+      wayBtn.classList.toggle('active', active && mode === 'way');
       aditBtn.classList.toggle('active', active && mode === 'adit');
       bellBtn.classList.toggle('active', active && mode === 'bellpit');
       shaftBtn.classList.toggle('active', active && mode === 'shaft');
@@ -1279,6 +1333,21 @@ async function boot(): Promise<void> {
       const m = mid(r.points);
       chip(key, m.x, m.y, r.level + 1.4, [`⛉ ${r.workDone.toFixed(0)} / ${r.workTotal.toFixed(0)} decked`]);
     }
+    // THE TIMBER WAY (SIM 38): a road being planked counts like every other work (Course 2's
+    // always-on chip). It rides at the way's MIDPOINT and names the stall the road can have —
+    // an empty woodpile — because a chip that only counts is half a chip.
+    for (const w of world.ways) {
+      if (w.workDone >= w.workTotal) continue; // a finished road needs no counter
+      const key = `y${w.id}`;
+      live.add(key);
+      const m = w.points[Math.floor(w.points.length / 2)]!;
+      const lines = [
+        `≡ ${Math.round(w.length * Math.min(1, w.workDone / w.workTotal))} / ${Math.round(w.length)} m paved`,
+        `${w.timberLaid.toFixed(1)} of ${w.timberTotal.toFixed(1)} m³ timber laid`,
+      ];
+      if (world.timber <= 0) lines.push('waiting on timber');
+      chip(key, m.x, m.y, groundSim(m.x, m.y) + 1.6, lines);
+    }
     for (const [key, el] of chipEls) {
       if (!live.has(key)) {
         el.remove();
@@ -1305,6 +1374,8 @@ async function boot(): Promise<void> {
   // THE ANIMALS (Course 3): each pasture's draft horse (sim-true, SIM 29) + paddock
   // cows/pigs (decor-pending-the-herds-system, the granary-cat precedent)
   const animals = new AnimalLayer(world, scene, groundShow);
+  // THE TIMBER WAY (SIM 38): the causeway's baulks, creeping forward as the road hands plank it
+  const ways = new WayLayer(world, groundShow, scene);
   // the workshops made visible: a lit forge on each smithy, a log stack + sawhorse on each yard
   const workshops = new WorkshopLayer(world, scene, groundShow);
   // the great wheel made visible: a treadwheel crane beside every wall that raised one (SIM 26)
@@ -1436,6 +1507,7 @@ async function boot(): Promise<void> {
   roofBtn.onclick = () => planner.toggle('roof');
   quarryBtn.onclick = () => planner.toggle('cut');
   fellBtn.onclick = () => planner.toggle('fell');
+  wayBtn.onclick = () => planner.toggle('way');
   aditBtn.onclick = () => planner.toggle('adit');
   bellBtn.onclick = () => planner.toggle('bellpit');
   shaftBtn.onclick = () => planner.toggle('shaft');
@@ -1704,6 +1776,7 @@ async function boot(): Promise<void> {
     workshops.setVisible(!on); // and the forge/yard props
     wheel.setVisible(!on); // and the great-wheel cranes
     animals.setVisible(!on); // and the herds (Course 3)
+    ways.setVisible(!on); // and the causeways (SIM 38)
     undergroundBtn.classList.toggle('active', on);
     if (on) tutorial.saw('underground'); // tutorial step 1
     updateDepthRuler();
@@ -1875,6 +1948,7 @@ async function boot(): Promise<void> {
     bellPits.update();
     shafts.update(); // was missing from the live frame — a shaft placed in play never entered the scene
     piles.update(); // Course 2: the visible piles (Law 6 — BOTH update sites)
+    ways.update(); // SIM 38: the timber way (Law 6 — BOTH update sites)
     tracingFloor.update();
     roofs.update();
     farms.update();
@@ -2330,6 +2404,7 @@ async function boot(): Promise<void> {
     orchard,
     workshops,
     wheel,
+    ways, // SIM 38: the causeway layer — sleeperCount is the probe's handle
     underworld,
     home,
     tutorial,
@@ -2349,6 +2424,7 @@ async function boot(): Promise<void> {
       bellPits.update();
       shafts.update();
       piles.update(); // Course 2: the visible piles (Law 6 — BOTH update sites)
+      ways.update(); // SIM 38: plank a hidden tab's causeway (rAF is paused)
       tracingFloor.update();
       roofs.update();
       farms.update();

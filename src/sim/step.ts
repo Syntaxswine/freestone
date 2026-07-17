@@ -75,8 +75,10 @@ import {
   type Stand,
   type Vec2,
   type WallPlan,
+  type WayPlan,
   type WorldState,
   type JobSkill,
+  WAY_MIN_LENGTH,
   FARM_AREA_PER_HAND,
   GREEN_DAYS,
   STONE_VOLUME,
@@ -277,6 +279,25 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       }
       if (typeof cmd.stoneTotal !== 'number' || !Number.isFinite(cmd.stoneTotal) || cmd.stoneTotal < 0) {
         return 'shaft stoneTotal must be a finite non-negative number';
+      }
+      return null;
+    }
+    case 'plan_way': {
+      if (!Array.isArray(cmd.points) || cmd.points.length < 2) {
+        return 'a way needs at least two points';
+      }
+      if (badPoints(cmd.points)) return 'way points must have finite x and y';
+      // the length is the BOUNDARY's read of the ground (the sim core never walks the
+      // terrain); guard it like every float that enters hashed state, and refuse the
+      // gesture that is too short to be a road
+      if (typeof cmd.length !== 'number' || !Number.isFinite(cmd.length) || cmd.length < WAY_MIN_LENGTH) {
+        return 'a way needs a run of some length';
+      }
+      if (typeof cmd.timberTotal !== 'number' || !Number.isFinite(cmd.timberTotal) || cmd.timberTotal < 0) {
+        return 'way timberTotal must be a finite non-negative number';
+      }
+      if (typeof cmd.workTotal !== 'number' || !Number.isFinite(cmd.workTotal) || cmd.workTotal < 0) {
+        return 'way workTotal must be a finite non-negative number';
       }
       return null;
     }
@@ -949,6 +970,30 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command, rng: Rng)
       });
       break;
     }
+    case 'plan_way': {
+      // THE TIMBER WAY (SIM 38): the drawn causeway. Its length was walked on the real
+      // surface at the command boundary and is frozen here with the timber + person-days
+      // it costs — the sim core never touches heights. The road hands begin paving at
+      // once (like a quarry begins digging), laying it from the head as the timber allows.
+      const way: WayPlan = {
+        id: state.nextId++,
+        points: cmd.points.map((p) => ({ x: p.x, y: p.y })),
+        length: cmd.length,
+        timberTotal: cmd.timberTotal,
+        timberLaid: 0,
+        workTotal: Math.max(1, cmd.workTotal), // at least a day's work, like cuts and adits
+        workDone: 0,
+      };
+      state.ways.push(way);
+      state.events.push({
+        kind: 'way_planned',
+        tick: state.tick,
+        wayId: way.id,
+        length: way.length,
+        workTotal: way.workTotal,
+      });
+      break;
+    }
     case 'plan_fell': {
       // A managed cant: the felling gesture over woodland. timberTotal and workTotal
       // were read from the tree model at the command boundary and are frozen here —
@@ -1098,7 +1143,7 @@ function applyCommand(state: WorldState, site: SiteData, cmd: Command, rng: Rng)
         name: rng.pick(FOLK_NAMES),
         trade: 'villager',
         vigor: rng.float(),
-        worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0 },
+        worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0, carter: 0 },
         lastJob: null,
         bornTick: state.tick - 25 * TICKS_PER_YEAR,
       };
@@ -1124,12 +1169,14 @@ function checkpointCredit(total: number, after: number, before: number, workTota
 }
 
 /** THE SKILL SYSTEM's day jobs (SIM 36) and the biography each one writes. */
-export type Assignment = 'lay' | 'fill' | 'roof' | 'dig' | 'fell' | 'farm';
-const ASSIGNMENT_LADDER: readonly Assignment[] = ['lay', 'fill', 'roof', 'dig', 'fell', 'farm'];
+export type Assignment = 'lay' | 'fill' | 'roof' | 'pave' | 'dig' | 'fell' | 'farm';
+const ASSIGNMENT_LADDER: readonly Assignment[] = ['lay', 'fill', 'roof', 'pave', 'dig', 'fell', 'farm'];
 export const JOB_OF: Record<Assignment, JobSkill> = {
   lay: 'mason',
   fill: 'digger',
   roof: 'digger',
+  // PAVING (SIM 38) is the CARTER's work — the road hands lay the way they will drive
+  pave: 'carter',
   dig: 'digger',
   fell: 'woodsman',
   farm: 'farmhand',
@@ -1170,6 +1217,11 @@ export function computeAssignments(state: WorldState): Map<number, Assignment> {
     null;
   const digYield = digTarget ? digTarget.stoneTotal / digTarget.workTotal : 0;
   const fellWork = state.stands.some((s) => s.felling && s.workDone < s.workTotal);
+  // PAVING (SIM 38): a drawn way wants hands only while the woodpile can plank it — a way
+  // with no timber to lay is an honest stall, and a hand falls through to other work rather
+  // than stand on the road all day. Paving sits with FILL and ROOF in the ladder: finite,
+  // player-ordered construction, ranked above the open-ended digging it exists to serve.
+  const paveWork = state.timber > 0 && state.ways.some((w) => w.workDone < w.workTotal);
   let farmSlots = 0;
   for (const f of state.farms) {
     if (f.use === 'farm') farmSlots += Math.ceil(f.area / FARM_AREA_PER_HAND);
@@ -1200,6 +1252,8 @@ export function computeAssignments(state: WorldState): Map<number, Assignment> {
         return fillWork;
       case 'roof':
         return roofWork;
+      case 'pave':
+        return paveWork;
       case 'dig':
         return digTarget !== null;
       case 'fell':
@@ -1293,6 +1347,39 @@ function moveEarth(state: WorldState, assignments: Map<number, Assignment>): voi
         quota -= m;
         if (roof.workDone >= roof.workTotal) {
           state.events.push({ kind: 'roof_complete', tick: state.tick, roofId: roof.id });
+        }
+      }
+    }
+    if (assigned === 'pave') {
+      // THE PAVING (SIM 38): a road hand advances the oldest unfinished way one
+      // skill-weighted person-day, and the way DRAWS its timber as it lays — the same
+      // stateless checkpoint credit the workings pay their stone by (SIM 35), so the
+      // road's cost flows with the road instead of landing in a lump. The way is laid
+      // from its HEAD: workDone/workTotal IS the built fraction, and only that prefix
+      // is road (SIM 39 reads it). A short woodpile does not stop the paving, it
+      // SHORTENS the day: the hand planks as far as the timber reaches and no further.
+      const way = state.ways.find((w) => w.workDone < w.workTotal);
+      if (way) {
+        const before = way.workDone;
+        let step = jobMult(person, 'carter');
+        // as far as the woodpile reaches: the draw is linear in the step, so invert it
+        if (way.timberTotal > 0) {
+          const maxStep = (state.timber * way.workTotal) / way.timberTotal;
+          if (maxStep < step) step = maxStep;
+        }
+        const after = Math.min(way.workTotal, before + step);
+        if (after > before) {
+          way.workDone = after;
+          const draw = checkpointCredit(way.timberTotal, after, before, way.workTotal);
+          // spend only what is there: the ulp between the linear bound and the
+          // checkpoint form must never mint or lose timber (conservation is exact)
+          const spend = Math.min(draw, state.timber);
+          state.timber -= spend;
+          way.timberLaid += spend;
+          moved = 1;
+          if (way.workDone >= way.workTotal) {
+            state.events.push({ kind: 'way_complete', tick: state.tick, wayId: way.id });
+          }
         }
       }
     }
@@ -1437,7 +1524,7 @@ function newAdult(state: WorldState, rng: Rng, tick: number): Person {
     name: rng.pick(FOLK_NAMES),
     trade: 'villager', // migrants arrive untrained hands (SIM 36) — skill is earned by doing
     vigor: rng.float(),
-    worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0 },
+    worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0, carter: 0 },
     lastJob: null,
     bornTick: tick - Math.round((ADULT_AGE + rng.int(15)) * TICKS_PER_YEAR),
   };
@@ -1450,7 +1537,7 @@ function newChild(state: WorldState, rng: Rng, tick: number): Person {
     name: rng.pick(FOLK_NAMES),
     trade: 'villager',
     vigor: rng.float(),
-    worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0 },
+    worked: { mason: 0, digger: 0, woodsman: 0, farmhand: 0, carter: 0 },
     lastJob: null,
     bornTick: tick,
   };

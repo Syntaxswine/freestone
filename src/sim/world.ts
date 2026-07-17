@@ -44,7 +44,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
       name,
       trade: 'villager',
       vigor: rng.float(), // inherent pace, scaled per job by the base-rate constants
-      worked: { mason: 0, digger: 0, woodsman: 0, farmhand: i < 3 ? GREEN_DAYS : 0 },
+      worked: { mason: 0, digger: 0, woodsman: 0, farmhand: i < 3 ? GREEN_DAYS : 0, carter: 0 },
       lastJob: i < 3 ? 'farmhand' : null,
       bornTick: -FOUNDER_AGES[i]! * TICKS_PER_YEAR,
     });
@@ -64,6 +64,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
     bellPits: [],
     shafts: [],
     stands: [],
+    ways: [], // SIM 38: the timber causeways — none until the player draws one
     stockpile: 0,
     timber: SEED_TIMBER, // the founder's woodpile (SIM 19) — a first palisade before the first fell
     grain: SEED_GRAIN, // the founder's larder (SIM 22) — a store before the first harvest
