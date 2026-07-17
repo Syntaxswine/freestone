@@ -59,7 +59,7 @@ import {
   WAY_WORK_PER_M,
   WAY_MULT_FIRM,
   WAY_MULT_SOFT,
-  WAY_SOFT_DEPTH,
+  WAY_DRY_DEPTH,
   CARRIER_THROUGHPUT,
   dayOfYear,
   seasonOf,
@@ -724,8 +724,8 @@ async function boot(): Promise<void> {
         const x = a.x + (b.x - a.x) * t;
         const y = a.y + (b.y - a.y) * t;
         // metres from the surface down to the water table: 0 = standing bog, deep = dry ground
-        const dry = Math.max(0, Math.min(WAY_SOFT_DEPTH, site.heightAt(x, y) - water.tableAt(x, y)));
-        const soft = 1 - dry / WAY_SOFT_DEPTH; // 1 = fen, 0 = hard and dry
+        const dry = Math.max(0, Math.min(WAY_DRY_DEPTH, site.heightAt(x, y) - water.tableAt(x, y)));
+        const soft = 1 - dry / WAY_DRY_DEPTH; // 1 = fen, 0 = hard and dry (past WAY_DRY_DEPTH)
         sum += WAY_MULT_FIRM + soft * (WAY_MULT_SOFT - WAY_MULT_FIRM);
         n++;
       }
@@ -831,6 +831,32 @@ async function boot(): Promise<void> {
         prospectEl.textContent = '⚠ this drive stays in drift — aim into the rising hill for post';
       }
     }
+    const { sx, sy } = prospectToScreen(anchor.x, anchor.y);
+    prospectEl.style.left = `${sx + 14}px`;
+    prospectEl.style.top = `${sy + 14}px`;
+    prospectEl.style.display = 'block';
+  }
+  // THE WAY-WORTH READOUT (SIM 39/41): a causeway is only worth building where the ground is bad
+  // (DIGEST-2026-07-17 §2 — the multiplier is a property of the ground it REPLACES: firm dry ground
+  // is planks on rock, a bog is the difference between a road and none). The player couldn't SEE
+  // that when drawing; now they can. Reads waySpeedMult — the SAME boundary function wayCommand
+  // freezes, so the readout and the built way agree (the parity law). Reuses #prospect.
+  function showWay(points: Vec2[] | null): void {
+    if (!points || points.length < 2) {
+      prospectEl.style.display = 'none';
+      return;
+    }
+    const mult = waySpeedMult(points);
+    // name the worth in plain language, keyed off the evidence's own bands (firm 1.15 → bog 5.0)
+    const worth =
+      mult >= 3.5
+        ? { cls: 'ok', word: 'a real road — the ground here is soft, a causeway earns its timber' }
+        : mult >= 2
+          ? { cls: 'ok', word: 'worth laying — the ground is middling, the road pays' }
+          : { cls: 'bad', word: 'planks on rock — this ground is firm, a causeway barely helps' };
+    prospectEl.className = worth.cls;
+    prospectEl.textContent = `≡ way · ×${mult.toFixed(1)} faster on its stretch · ${worth.word}`;
+    const anchor = points[points.length - 1]!;
     const { sx, sy } = prospectToScreen(anchor.x, anchor.y);
     prospectEl.style.left = `${sx + 14}px`;
     prospectEl.style.top = `${sy + 14}px`;
@@ -971,6 +997,7 @@ async function boot(): Promise<void> {
     cutValid: (x, y) => quarryPlanAt(x, y, PROSPECT_PROBE).ok,
     onCutCursor: showProspect,
     onAditCursor: showAdit, // the adit tool prices its drive in the same #prospect card
+    onWayCursor: showWay, // the way tool reads whether the ground is worth a road (SIM 39/41)
     onBellPit: (at) => {
       const cmd = bellPitCommand(at);
       if (cmd) enqueue(cmd); // a click sinks the shaft; a drowned/barren spot is refused (readout says why)

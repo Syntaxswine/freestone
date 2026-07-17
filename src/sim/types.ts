@@ -189,7 +189,18 @@
 // stone. No new saved state (draft horses are read from the pasture count, like the grain haul); the
 // canon keeps no pasture so it is byte-identical (INERT) — but the behaviour is replay-visible
 // wherever a pasture and a hauled wall coexist, so it earns its bump (the SIM-40 lesson).
-export const SIM_VERSION = 41;
+//
+// SIM 42 — THE WAY'S WORTH, RE-ANCHORED (a calibration fix the new way-worth readout CAUGHT). The
+// readout (render+input, showing whether ground is worth a road as you draw it) revealed that on the
+// real Durham terrain a causeway read "planks on rock" EVERYWHERE — the SIM-39 softness threshold
+// (WAY_SOFT_DEPTH 3 m) inverted the digest's own bands, making firm the default when the evidence
+// says ORDINARY earth is already ~3×. Durham's median depth-to-water is 13.5 m, so the whole map
+// fell in the "firm" bucket and the Course-4 tool was near-inert on the ground it ships on. Re-
+// anchored WAY_DRY_DEPTH to 26 m — pinned to the MAP's own median ground (→ ~3×, the evidence's
+// ordinary earth) with the wet quarter climbing toward 5 and only the driest ridges at 1.15. No new
+// state; INERT on the canon (no way); replay-visible (waySpeedMult freezes into plan_way), so it
+// earns the bump. The readout was the instrument that found it — the prospecting-clarity lesson.
+export const SIM_VERSION = 42;
 /**
  * A horse-drawn haulage team moves stone this many times faster than a hand or an ox (SIM 41).
  * The VERIFIED ~doubling of hauling speed at the ox→horse transition (Langdon & Claridge 2011,
@@ -890,7 +901,17 @@ export const CARRIER_THROUGHPUT = 240; // m³·m of stone one hand moves in a wo
 // arc's strongest follow-on, recorded in the digest, deliberately not built here.
 export const WAY_MULT_FIRM = 1.15; // a way on hard dry ground: planks on rock, near worthless
 export const WAY_MULT_SOFT = 5.0; // a way across bog: the difference between a road and no road
-export const WAY_SOFT_DEPTH = 3; // m of depth-to-water at which ground reads FULLY firm (by-eye)
+// ⚠ THE WAY-WORTH READOUT (SIM 42) CAUGHT THIS. depth-to-water is the softness proxy: shallow =
+// wet ground (a road earns its keep), deep = firm dry ground (planks on rock). The SIM-39 value
+// (3 m) INVERTED the digest's own bands — it made FIRM the default (any ground with the table >3 m
+// down read ×1.15), so on the real Durham terrain, whose MEDIAN depth-to-water is 13.5 m, a
+// causeway was near-worthless EVERYWHERE and the whole Course-4 tool was inert on the map. The
+// evidence (DIGEST-2026-07-17 §2) says ORDINARY earth is already ~3× and only genuinely hard-dry
+// ground is ~1.15. So this is re-anchored to the MAP's own typical ground: at Durham's median
+// depth (13.5 m) the mult now lands ~3.0 (ordinary earth, per the evidence); the wet quarter climbs
+// toward 5 (a real road); only the driest ridges (past this depth) fall to firm 1.15. Calibrated to
+// the terrain + the evidence, not by eye.
+export const WAY_DRY_DEPTH = 26; // m of depth-to-water at which ground reads FULLY firm/dry
 /**
  * Haul-route metres ADDED per metre the stone must climb to the face — hauling UP is dear.
  * Carried over from SIM 17's boundary (where it was by-eye and already live) into the sim,

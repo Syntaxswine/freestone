@@ -96,6 +96,9 @@ export interface PlannerDeps {
    * which main computes from `aditEconomics`. Both null on exit.
    */
   onAditCursor?: (portal: Vec2 | null, head: Vec2 | null) => void;
+  /** Way mode (SIM 39/41): the causeway being drawn — the placed run + the live cursor leg, or
+   *  null on exit/too-short. Drives the way-worth readout (is this ground worth a road?). */
+  onWayCursor?: (points: Vec2[] | null) => void;
   /** Bell-pit mode (SIM 15): a click sinks a shaft here — main freezes plan_bell_pit (a POINT tool,
    *  like the gate; no ring, the click is the whole gesture). Return decides nothing; main enqueues. */
   onBellPit?: (at: Vec2) => void;
@@ -315,6 +318,7 @@ export class WallPlanner {
     this.deps.onAditCursor?.(null, null); // clear the adit readout
     this.deps.onBellPitCursor?.(null); // clear the bell-pit readout
     this.deps.onShaftCursor?.(null); // clear the shaft readout
+    this.deps.onWayCursor?.(null); // clear the way-worth readout
     document.body.classList.remove('planning');
     this.rebuild();
     this.deps.onModeChange?.(false, this.mode);
@@ -1044,6 +1048,13 @@ export class WallPlanner {
     // shaft mode (SIM 15, rung 4): price the deep pumped shaft under the cursor
     if (this.mode === 'shaft') {
       this.deps.onShaftCursor?.(this.cursor);
+    }
+    // way mode (SIM 39/41): read the worth of the ground the causeway would cross, as it's
+    // drawn — the placed run plus the live cursor leg. main reads waySpeedMult (the boundary's
+    // own read) so the readout and the frozen way agree, the parity law.
+    if (this.mode === 'way') {
+      const run = this.cursor ? [...this.points, this.cursor] : this.points;
+      this.deps.onWayCursor?.(run.length >= 2 ? run : null);
     }
     this.rebuild();
   };
