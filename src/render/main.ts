@@ -58,8 +58,7 @@ import {
   WAY_TIMBER_PER_M,
   WAY_WORK_PER_M,
   WAY_MULT_FIRM,
-  WAY_MULT_SOFT,
-  WAY_DRY_DEPTH,
+  wayMultForDepth,
   CARRIER_THROUGHPUT,
   dayOfYear,
   seasonOf,
@@ -723,10 +722,9 @@ async function boot(): Promise<void> {
         const t = s / legs;
         const x = a.x + (b.x - a.x) * t;
         const y = a.y + (b.y - a.y) * t;
-        // metres from the surface down to the water table: 0 = standing bog, deep = dry ground
-        const dry = Math.max(0, Math.min(WAY_DRY_DEPTH, site.heightAt(x, y) - water.tableAt(x, y)));
-        const soft = 1 - dry / WAY_DRY_DEPTH; // 1 = fen, 0 = hard and dry (past WAY_DRY_DEPTH)
-        sum += WAY_MULT_FIRM + soft * (WAY_MULT_SOFT - WAY_MULT_FIRM);
+        // metres from the surface down to the water table: 0 = standing bog, deep = dry ground.
+        // wayMultForDepth holds the bands (extracted + tested against re-inversion — SIM 42)
+        sum += wayMultForDepth(site.heightAt(x, y) - water.tableAt(x, y));
         n++;
       }
     }

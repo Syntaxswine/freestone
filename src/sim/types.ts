@@ -913,6 +913,20 @@ export const WAY_MULT_SOFT = 5.0; // a way across bog: the difference between a 
 // the terrain + the evidence, not by eye.
 export const WAY_DRY_DEPTH = 26; // m of depth-to-water at which ground reads FULLY firm/dry
 /**
+ * A causeway's worth at ONE point, from the depth to the water table there (SIM 39, re-anchored
+ * SIM 42): shallow = wet ground a road earns its keep on (→ WAY_MULT_SOFT), deep = firm dry ground
+ * a road barely helps (→ WAY_MULT_FIRM at WAY_DRY_DEPTH and beyond). The boundary averages this
+ * along the drawn run. Pure fn of the depth — extracted so a TEST can pin the evidence's bands
+ * (ordinary earth ~3×, firm ~1.15, bog ~5) against the SIM-39 re-inversion that shipped once and
+ * was caught only by the live map, not a test (DIGEST-2026-07-17 §2). depthToWater < 0 (a flooded
+ * cell) clamps to the wettest.
+ */
+export function wayMultForDepth(depthToWater: number): number {
+  const dry = Math.max(0, Math.min(WAY_DRY_DEPTH, depthToWater));
+  const soft = 1 - dry / WAY_DRY_DEPTH; // 1 = fen, 0 = hard and dry (past WAY_DRY_DEPTH)
+  return WAY_MULT_FIRM + soft * (WAY_MULT_SOFT - WAY_MULT_FIRM);
+}
+/**
  * Haul-route metres ADDED per metre the stone must climb to the face — hauling UP is dear.
  * Carried over from SIM 17's boundary (where it was by-eye and already live) into the sim,
  * because the sim does the route arithmetic now. Still by-eye; still labelled.
