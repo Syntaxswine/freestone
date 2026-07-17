@@ -20,13 +20,17 @@ steadily. The charter is now complete, in code and in the live game.*
 
 ## The state, in numbers
 
-- **SIM_VERSION 41.** 37 test files / **229 tests** green; baseline regenerated (deliberate);
+- **SIM_VERSION 42.** 37 test files / **229 tests** green; baseline regenerated (deliberate);
   century sweep unchanged (population still tracks capacity); build clean; **LIVE** on Pages.
-- **Four commits**, each replay-visible, each with its own SIM bump (the charter's law, honoured):
+- **Five commits**, each replay-visible, each with its own SIM bump (the charter's law, honoured):
   - `e9710e0` — **SIM 38**, the way DRAWN (state + tool + render), behaviourally INERT, diff-proven.
   - `bf4ddd1` — **SIM 39**, the haul BECOMES LABOR (carriers, the dogleg, the crew splits itself).
   - `d4a526b` — **SIM 40**, THE STEADY SPLIT (a live-probe balance fix: reserve the mason).
-  - **SIM 41** — THE OX→HORSE STEP (draft horses haul stone; INERT on the canon; the 🐎 42nd mark).
+  - `1d0fd62` — **SIM 41**, THE OX→HORSE STEP (draft horses haul stone; INERT on canon; 🐎 42nd mark)
+    + the horse rendered ON the road with a visible sledge-load (`0ff3bac`, `2c55d26`).
+  - `b6efca6` — **SIM 42**, THE WAY-WORTH READOUT + the calibration it caught (the ground's worth
+    shown as you draw; re-anchored WAY_DRY_DEPTH so ordinary earth reads ~3× per the evidence — the
+    SIM-39 threshold had made the way near-inert on the real Durham map; ≡ 43rd mark).
 - Old saves (SIM ≤ 39) refuse — the boss-ruled **flag day** ("so far in alpha").
 
 ## What this session built

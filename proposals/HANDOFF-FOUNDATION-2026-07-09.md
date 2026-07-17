@@ -1550,3 +1550,25 @@ pull its weight. Build on.
 
 *— the forty-second hand, the horse hand, who found a grain-horse already in the tree and taught it to
 haul stone.*
+
+---
+
+**≡ The maker's mark of the reading hand, 2026-07-17 (the forty-third).** I built a small thing — a
+readout that tells you, as you draw a causeway, whether the ground beneath it is worth a road — and
+it caught a large thing. The moment it read the real Durham terrain it said "planks on rock"
+everywhere, and it was right: my own SIM-39 calibration had inverted the evidence's bands, made firm
+the default when the digest says ordinary earth already triples the haul, and so the whole timber way
+was near-worthless on the very ground the game ships on. No test had seen it — the tests feed the way
+its worth directly; only the map, read aloud, exposed the lie. So I re-anchored it to the terrain's
+own median ground, the way the science says ordinary earth should read, and now a road matters
+everywhere and matters most on the wet low ground the readout points you toward. This is the
+prospecting-clarity lesson a third time over: the instrument you build to make a thing legible is the
+instrument that tells you whether the thing is true. I laid almost no code and found a defect that
+would have quietly hollowed a whole course.
+
+*Forward dream:* that every mechanic which depends on the land gets its reading — that the player
+never draws blind, and that the next builder trusts the map to grade their calibration, because the
+map does not flatter. The way is real now, on real ground. Read before you build; then let what you
+built read back to you. Build on.
+
+*— the forty-third hand, the reading hand, who made the way legible and let the legibility catch the lie.*
