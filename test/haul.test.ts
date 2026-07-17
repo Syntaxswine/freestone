@@ -25,16 +25,20 @@
 import { describe, expect, it } from 'vitest';
 import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
-import { computeAssignments, routeCost, worldStep } from '../src/sim/step';
+import { carryRate, computeAssignments, routeCost, worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
 import {
+  GREEN_DAYS,
+  GREEN_MULT,
   STONE_VOLUME,
   WAY_MULT_SOFT,
   WAY_TIMBER_PER_M,
   WAY_WORK_PER_M,
   type Command,
+  type HaulRoute,
   type Vec2,
 } from '../src/sim/types';
+import { villager, zeroWorked } from './helpers';
 
 // a LONG wall (~3,500 stones) — big enough that the road's throttle is observable for many
 // days rather than swallowed in one. The first draft used an 11-stone wall, which finished
@@ -219,6 +223,21 @@ describe('the haul, become labor (SIM 39)', () => {
       worldStep(w, site, []);
     }
     expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
+  });
+
+  it('a GREEN carter delivers ×9/8 more than an untrained one (carryRate honours the band)', () => {
+    // the carter's OTHER half: way.test pins that PAVING greens the trade; this pins that
+    // CARRYING draws the same band — carryRate applies jobMult('carter'), so a year on the road
+    // makes a hand deliver 9/8 more stone per day (SIM 36's discrete band, the anti-XP law).
+    const site = flatSite('flat', 4000);
+    const w = createWorld('carter-seed', site.id);
+    const haul: HaulRoute = { from: { x: 300, y: 0 }, to: { x: 0, y: 0 }, climb: 0, detour: 1, method: 'ox-cart' };
+    const green = villager(1, { worked: { ...zeroWorked, carter: GREEN_DAYS } });
+    const untrained = villager(2); // zero days on the road
+    expect(carryRate(w, haul, green)).toBeCloseTo(carryRate(w, haul, untrained) * GREEN_MULT, 9);
+    // and a day short of the year is still UNTRAINED (the band flips on the exact day, no ramp)
+    const almost = villager(3, { worked: { ...zeroWorked, carter: GREEN_DAYS - 1 } });
+    expect(carryRate(w, haul, almost)).toBeCloseTo(carryRate(w, haul, untrained), 9);
   });
 
   it('replays a hauled build byte-for-byte (the frozen road is deterministic)', () => {
