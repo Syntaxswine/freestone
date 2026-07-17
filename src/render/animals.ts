@@ -113,12 +113,19 @@ interface Beast {
   seed: number;
   shownFrame: number;
   facing: 1 | -1;
+  /** SIM 41: a draft horse's sledge-load — a block of stone shown only on the LOADED leg
+   *  (pile → face), hidden on the empty walk back and while grazing the paddock. The horse's
+   *  answer to the carriers' bobbing block, so the haul reads unmistakably. */
+  load?: THREE.Mesh;
 }
 
 export class AnimalLayer {
   private beasts: Beast[] = [];
   private clock = 0;
   private visibleFlag = true;
+  // the sledge-load block: a single shared stone-toned box geometry/material (SIM 41)
+  private loadGeo = new THREE.BoxGeometry(0.7, 0.5, 0.5);
+  private loadMat = new THREE.MeshLambertMaterial({ color: 0xb9a88f }); // the pile-block tone
 
   constructor(
     private world: WorldState,
@@ -129,7 +136,10 @@ export class AnimalLayer {
   /** hide the herds with the woods while the eye is underground */
   setVisible(on: boolean): void {
     this.visibleFlag = on;
-    for (const b of this.beasts) b.sprite.visible = on;
+    for (const b of this.beasts) {
+      b.sprite.visible = on;
+      if (b.load && !on) b.load.visible = false; // the load hides with its horse underground
+    }
   }
 
   private spawnFor(farm: Farm, kind: Kind, count: number): void {
@@ -144,7 +154,7 @@ export class AnimalLayer {
       sprite.visible = this.visibleFlag;
       this.scene.add(sprite);
       const at = this.spotIn(farm, seed, 0);
-      this.beasts.push({
+      const beast: Beast = {
         farmId: farm.id,
         sprite,
         tex,
@@ -155,7 +165,15 @@ export class AnimalLayer {
         seed,
         shownFrame: -1,
         facing: 1,
-      });
+      };
+      if (kind === 'horse') {
+        // the sledge-load, hidden until the horse is on a loaded leg (SIM 41)
+        const load = new THREE.Mesh(this.loadGeo, this.loadMat);
+        load.visible = false;
+        this.scene.add(load);
+        beast.load = load;
+      }
+      this.beasts.push(beast);
     }
   }
 
@@ -236,9 +254,19 @@ export class AnimalLayer {
           b.tex.repeat.x = b.facing / FRAMES;
           b.tex.offset.x = (frame + (b.facing < 0 ? 1 : 0)) / FRAMES;
         }
-        b.sprite.position.set(b.x, this.groundAt(b.x, b.y), b.y);
+        const gy = this.groundAt(b.x, b.y);
+        b.sprite.position.set(b.x, gy, b.y);
+        // THE SLEDGE-LOAD (SIM 41): a block of stone rides behind the horse on the LOADED leg
+        // (pile → face, phase < 0.5); on the empty walk back it is hidden — the horse's answer to
+        // the carriers' bobbing block. Set behind the horse (opposite its facing), on the ground.
+        if (b.load) {
+          const loaded = phase < 0.5;
+          b.load.visible = loaded && this.visibleFlag;
+          if (loaded) b.load.position.set(b.x - b.facing * 0.7, gy + 0.25, b.y);
+        }
         continue;
       }
+      if (b.load) b.load.visible = false; // grazing at home — no load
       // amble to a fresh spot every ~9 s of watched time
       const slice = Math.floor(this.clock / 9) + b.seed;
       const want = this.spotIn(farm, b.seed, slice);
