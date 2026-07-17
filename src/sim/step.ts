@@ -1324,6 +1324,32 @@ export function computeAssignments(state: WorldState): Map<number, Assignment> {
         return farmSlots > 0;
     }
   };
+
+  // ⚠ RESERVE THE MASON (SIM 39, a live probe caught this). carrierDemand's balance rounds
+  // carriers UP on a long road (12.5 → 13 for a 13-hand crew), which claims EVERY available
+  // hand — and since they all carried yesterday, the stickiness step keeps them on the road
+  // and NOBODY lays. The wall then rose only in a grotesque boom-bust (carry the whole face
+  // full, THEN drain it) instead of the steady split the boss's story needs. So when a hauled
+  // face has stone to lay, cap carrying to leave at least one hand for the wall. The available
+  // pool is the hands NOT already claimed by a green groove elsewhere (a green farmer with a
+  // field to tend will never be at the road, so they must not pad the cap). Purely dawn-
+  // decidable (green days worked, today's work census) — no buffer feedback, no oscillation.
+  if (hauledStoneWork && stoneLedger > 0) {
+    let roadPool = 0;
+    for (const p of state.people) {
+      if (p.trade !== 'villager' || !isAdult(p, state.tick)) continue;
+      let elsewhere = false;
+      for (const a of ASSIGNMENT_LADDER) {
+        if (p.worked[JOB_OF[a]] >= GREEN_DAYS && hasWork(a)) {
+          elsewhere = a !== 'lay' && a !== 'carry' && a !== 'pave'; // a road/wall groove keeps them free
+          break;
+        }
+      }
+      if (!elsewhere) roadPool++;
+    }
+    carryWanted = Math.min(carryWanted, Math.max(0, roadPool - 1)); // one hand always reaches the wall
+  }
+
   const take = (p: Person, a: Assignment): void => {
     out.set(p.id, a);
     if (a === 'carry') carryWanted -= 1; // the road's slots are finite — it cannot swallow the crew
@@ -2131,8 +2157,10 @@ export function carrierDemand(state: WorldState): Map<number, number> {
     const cost = routeCost(state, wall.haul);
     const deliver = cost > 0 ? CARRIER_THROUGHPUT / (2 * cost) : CARRIER_THROUGHPUT;
     const frac = appetite / (appetite + deliver);
-    // at least ONE hand, or a wall far from stone would never receive a single block
-    out.set(wall.id, Math.max(1, Math.round(pool * frac)));
+    // between one hand (or a wall far from stone gets not a single block) and pool−1 (or a
+    // long road claims the WHOLE crew and no one is left to lay — a live probe's lesson;
+    // computeAssignments enforces the same reserve across all walls together).
+    out.set(wall.id, Math.min(pool - 1, Math.max(1, Math.round(pool * frac))));
   }
   return out;
 }

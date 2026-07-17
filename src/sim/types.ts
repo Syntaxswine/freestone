@@ -165,7 +165,20 @@
 // instead of its rate — terrain the sim cannot see — and the sim does the labour arithmetic, so a
 // road drawn LATER can still shorten a wall's haul. A BEHAVIORAL change wherever a hauled wall
 // exists: the canon's wall A is re-authored with it. New state: WallPlan.haul (HaulRoute | null).
-export const SIM_VERSION = 39;
+//
+// SIM 40 — THE STEADY SPLIT (Course 4, a balance fix a LIVE PROBE caught). SIM 39 shipped
+// correct in the small — deterministic, conserving, the wall finishes — but WRONG in the
+// dynamic: on a long road the carrier balance rounded UP to claim every hand (12.5 → 13 of a
+// 13-hand crew), and since they all carried yesterday the stickiness step kept them on the road,
+// so NOBODY laid and the wall rose only in a grotesque boom-bust (fill the whole face, then
+// drain it) instead of the steady split the boss's story needs. The dawn pass now RESERVES a
+// mason whenever a hauled face has stone to lay, computed against the hands actually free for the
+// road (a green farmer with a field to tend never pads the reserve). No new state, no format
+// change — but the balance is replay-visible (the canon's carry-bound wall A re-times), so by the
+// charter's own law (a replay-visible change forks saves unless the version moves) it earns its
+// bump. The fix's proof is the probe that found it: a bare road holds a steady 1-lay/12-carry, and
+// a drawn way shifts it to 2-lay/11-carry and finishes the wall ~4× sooner — visibly, day by day.
+export const SIM_VERSION = 40;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4
