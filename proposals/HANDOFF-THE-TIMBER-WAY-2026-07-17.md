@@ -120,7 +120,11 @@ follow-ons are DESIGNED in the digest §6; one is now BUILT, the rest await thei
 - **Causeways SINK** over the fen under too heavy a load (Ely 1071, attested — a real decision).
 - **Route STAGES** (the Carter works from the route's mid-point, rests at home — Troyes practice).
 - **Carriage as customary SERVICE** (haulage owed, not hired — the granary-as-government thesis).
-- **The horses ON the road** (render): a team drawing a sledge where the pasture horse ambles today.
+- ✅ **The horses ON the road (render) — BUILT** (`0ff3bac`, render-only, ZERO baseline): a pasture's
+  draft horse leaves its paddock and plods the haul route (loaded out, empty back) whenever the
+  settlement is horse-hauling stone; ambles home otherwise. Eye-verified. Remaining render polish: a
+  SLEDGE/load on the horse's back for the loaded leg (the carriers show a bobbing block; the horse
+  does not yet).
 
 Beyond the way, the boss's design-reserved beats stand where the charter left them: **Beat 4's
 mortality SPINE** (funeral, succession-as-masonry, Testament, the "true ashlar hand") — one batched
