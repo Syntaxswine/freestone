@@ -2,7 +2,11 @@
  * THE ANIMALS (VISIBLE WORK Course 3, boss: "pastures should have animated horses,
  * cows, or pigs" — flagged low priority, delivered on the granary-cat pattern):
  *  - a PASTURE keeps its DRAFT HORSE — sim-true since SIM 29 (each pasture's horse
- *    hauls surplus to the store; the HUD already counted them, now the eye does);
+ *    hauls surplus to the store; the HUD already counted them, now the eye does).
+ *    Since SIM 41 that horse hauls STONE too, so when the settlement is horse-hauling
+ *    a wall its horse LEAVES the paddock and plods the haul route between pile and
+ *    face — the sim's own errand made visible, THE VISIBLE WORK's thesis kept for the
+ *    mechanic that bears its name. When nothing is hauling it ambles the paddock;
  *  - a PADDOCK (livestock) grazes a couple of cows/pigs — DECOR-PENDING-THE-HERDS
  *    system (BACKLOG reserves real herds; the sim holds no animal records yet, and
  *    the record on screen must never claim otherwise — these are the paddock's
@@ -175,6 +179,20 @@ export class AnimalLayer {
     return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
   }
 
+  /** the route the draft horses haul today (SIM 41): the oldest active hauled STONE wall's
+   *  road (pile → face). Null when nothing is being horse-hauled, so the horses stay home.
+   *  Render-only read of sim data — the same oldest-first order the sim serves. */
+  private horseHaulRoute(): { from: Vec2; to: Vec2 } | null {
+    const pastures = this.world.farms.some((f) => f.use === 'pasture');
+    if (!pastures) return null;
+    for (const w of this.world.walls) {
+      if (w.haul === null || w.material === 'wood') continue;
+      if (w.stonesLaid >= w.stonesTotal) continue;
+      return { from: w.haul.from, to: w.haul.to };
+    }
+    return null;
+  }
+
   update(dt: number, simActive: boolean): void {
     // absorb new pastures/paddocks (one-shot per farm — farms never un-designate today)
     const have = new Set(this.beasts.map((b) => b.farmId));
@@ -188,9 +206,39 @@ export class AnimalLayer {
       }
     }
     if (simActive) this.clock += dt;
+    const haulRoute = this.horseHaulRoute(); // SIM 41: are the horses out on the road?
+    let horseSlot = 0;
     for (const b of this.beasts) {
       const farm = this.world.farms.find((f) => f.id === b.farmId);
       if (!farm) continue;
+      // SIM 41 — THE HORSE AT WORK: while the settlement is horse-hauling stone, each pasture's
+      // horse plods the route between pile and face (a triangle wave: loaded out, empty back),
+      // spread along the road by its slot so a team reads as a team. Otherwise it ambles home.
+      if (farm.use === 'pasture' && haulRoute) {
+        const lane = horseSlot++;
+        const phase = (this.clock * 0.06 + lane * 0.31) % 1;
+        const t = phase < 0.5 ? phase * 2 : 2 - phase * 2; // pile(0) → face(1) → pile(0)
+        const off = (hash2(b.seed, lane) - 0.5) * 6; // fan the team off the centre line
+        b.tx = haulRoute.from.x + (haulRoute.to.x - haulRoute.from.x) * t + off;
+        b.ty = haulRoute.from.y + (haulRoute.to.y - haulRoute.from.y) * t + off;
+        const dx = b.tx - b.x;
+        const dy = b.ty - b.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d > 0.4 && simActive) {
+          const step = Math.min((dt * 1.1) / d, 1); // a working horse steps out (faster than a graze)
+          b.x += dx * step;
+          b.y += dy * step;
+          if (Math.abs(dx) > 0.02) b.facing = dx >= 0 ? 1 : -1;
+        }
+        const frame = simActive ? Math.floor(this.clock * 2 + b.seed) % 2 : 0;
+        if (frame !== b.shownFrame) {
+          b.shownFrame = frame;
+          b.tex.repeat.x = b.facing / FRAMES;
+          b.tex.offset.x = (frame + (b.facing < 0 ? 1 : 0)) / FRAMES;
+        }
+        b.sprite.position.set(b.x, this.groundAt(b.x, b.y), b.y);
+        continue;
+      }
       // amble to a fresh spot every ~9 s of watched time
       const slice = Math.floor(this.clock / 9) + b.seed;
       const want = this.spotIn(farm, b.seed, slice);

@@ -2456,6 +2456,7 @@ async function boot(): Promise<void> {
     workshops,
     wheel,
     ways, // SIM 38: the causeway layer — sleeperCount is the probe's handle
+    animals, // SIM 41: pokeable so a hidden tab can pump the draft horses onto the road
     underworld,
     home,
     tutorial,
