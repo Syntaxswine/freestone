@@ -178,7 +178,25 @@
 // charter's own law (a replay-visible change forks saves unless the version moves) it earns its
 // bump. The fix's proof is the probe that found it: a bare road holds a steady 1-lay/12-carry, and
 // a drawn way shifts it to 2-lay/11-carry and finishes the wall ~4× sooner — visibly, day by day.
-export const SIM_VERSION = 40;
+//
+// SIM 41 — THE OX GIVES WAY TO THE HORSE (a timber-way follow-on; DIGEST-2026-07-17 §6). A
+// settlement that keeps PASTURES already has draft horses hauling grain to the granary (SIM 29,
+// pastures × HORSE_HAUL); now those horses haul STONE too. A horse-drawn team moves it faster than
+// a hand or an ox — VERIFIED at ~a doubling of hauling speed (Langdon & Claridge: ox 1½–2 mph →
+// horse 3–4 mph, a 12th–13th-c. English development). So each pasture's horse carries like an extra
+// carrier at HORSE_HAUL_MULT throughput, which — exactly like the way — means FEWER hands are needed
+// on the road and MORE stand at the wall. Pastures become a lever on BOTH harvests: grain AND
+// stone. No new saved state (draft horses are read from the pasture count, like the grain haul); the
+// canon keeps no pasture so it is byte-identical (INERT) — but the behaviour is replay-visible
+// wherever a pasture and a hauled wall coexist, so it earns its bump (the SIM-40 lesson).
+export const SIM_VERSION = 41;
+/**
+ * A horse-drawn haulage team moves stone this many times faster than a hand or an ox (SIM 41).
+ * The VERIFIED ~doubling of hauling speed at the ox→horse transition (Langdon & Claridge 2011,
+ * on Langdon's *Horses, Oxen and Technological Innovation* — DIGEST-2026-07-17 §2). One draft
+ * horse per PASTURE, the same asset that already hauls grain (HORSE_HAUL, SIM 29).
+ */
+export const HORSE_HAUL_MULT = 2;
 
 export const TICKS_PER_YEAR = 365; // 1 tick = 1 game day
 export const SEASON_LENGTH = 91; // rough quarter-year, refined in M4

@@ -82,6 +82,7 @@ import {
   WAY_MULT_FIRM,
   WAY_MULT_SOFT,
   CARRIER_THROUGHPUT,
+  HORSE_HAUL_MULT,
   HAUL_UPHILL_PER_M,
   LAY_RATE_BASE,
   LAY_RATE_SPREAD,
@@ -2139,6 +2140,13 @@ export function carryRate(state: WorldState, haul: HaulRoute, p: Person): number
  * "is this face already stocked for the whole remaining wall", which can only be true at the very
  * end of a wall's life and so cannot oscillate in steady state.
  */
+/** draft horses available to the haul (SIM 41): one per PASTURE — the same asset that hauls
+ *  grain to the granary (HORSE_HAUL, SIM 29). A settlement asset, not a person: no assignment,
+ *  no biography, like the grain horse. */
+function draftHorses(state: WorldState): number {
+  return state.farms.reduce((n, f) => (f.use === 'pasture' ? n + 1 : n), 0);
+}
+
 export function carrierDemand(state: WorldState): Map<number, number> {
   const out = new Map<number, number>();
   let pool = 0;
@@ -2146,6 +2154,10 @@ export function carrierDemand(state: WorldState): Map<number, number> {
     if (p.trade === 'villager' && isAdult(p, state.tick)) pool++;
   }
   if (pool === 0) return out;
+  // THE OX→HORSE STEP (SIM 41): the pasture's draft horses each haul like HORSE_HAUL_MULT
+  // carriers, so they cover part of the appetite and FEWER hands are needed on the road. Spent
+  // oldest-wall-first (like carriers and horses in carryStone), as horse-equivalent carriers.
+  let horseEquiv = draftHorses(state) * HORSE_HAUL_MULT;
   for (const wall of state.walls) {
     if (wall.haul === null || wall.material === 'wood') continue; // won underfoot — no road
     if (wall.stonesLaid >= wall.stonesTotal) continue; // not being worked
@@ -2156,11 +2168,18 @@ export function carrierDemand(state: WorldState): Map<number, number> {
     const appetite = ((LAY_RATE_BASE + LAY_RATE_SPREAD / 2) / DRESS_SPEC[wall.dressLevel].layDebt) * draw;
     const cost = routeCost(state, wall.haul);
     const deliver = cost > 0 ? CARRIER_THROUGHPUT / (2 * cost) : CARRIER_THROUGHPUT;
-    const frac = appetite / (appetite + deliver);
+    // balance C human carriers + H horse-equivalents against M masons (C + M = pool):
+    //   C·deliver + H·deliver = M·appetite  ⇒  C = (pool·appetite − H·deliver)/(appetite + deliver)
+    // With no horses this is the SIM-39 ratio pool·appetite/(appetite+deliver), unchanged.
+    // a wall can't use more horse than its whole crew would eat (pool·appetite of delivery),
+    // so surplus horses flow to the next hauled wall (oldest-first, like carriers)
+    const usedHorse = Math.min(horseEquiv, (pool * appetite) / deliver);
+    horseEquiv -= usedHorse;
+    const want = Math.round((pool * appetite - usedHorse * deliver) / (appetite + deliver));
     // between one hand (or a wall far from stone gets not a single block) and pool−1 (or a
     // long road claims the WHOLE crew and no one is left to lay — a live probe's lesson;
     // computeAssignments enforces the same reserve across all walls together).
-    out.set(wall.id, Math.min(pool - 1, Math.max(1, Math.round(pool * frac))));
+    out.set(wall.id, Math.min(pool - 1, Math.max(1, want)));
   }
   return out;
 }
@@ -2204,16 +2223,19 @@ function carryStone(state: WorldState, assignments: Map<number, Assignment>): vo
     if (wallId === undefined) continue;
     (crew.get(wallId) ?? crew.set(wallId, []).get(wallId)!).push(person);
   }
+  // THE OX→HORSE STEP (SIM 41): the pasture's draft horses haul stone too, oldest-wall-first
+  // like the carriers, each a team worth HORSE_HAUL_MULT hands. A settlement asset, spent as a
+  // budget of horse-days — a horse fully used on one wall isn't free for the next.
+  let horseDays = draftHorses(state);
   for (const wall of state.walls) {
     if (state.stockpile <= 0) break; // the pile is dry — nobody loads today
     if (wall.haul === null || wall.material === 'wood') continue; // no road
     if (wall.stonesLaid >= wall.stonesTotal) continue; // not being worked
-    const hands = crew.get(wall.id);
-    if (!hands || hands.length === 0) continue;
     const draw = DRESS_DRAW[wall.dressLevel];
     let need = (wall.stonesTotal - wall.stonesLaid) * draw - wall.faceBuffer;
     if (need <= 0) continue;
-    for (const person of hands) {
+    const hands = crew.get(wall.id);
+    for (const person of hands ?? []) {
       if (state.stockpile <= 0 || need <= 0) break;
       const move = Math.min(carryRate(state, wall.haul, person), state.stockpile, need);
       if (move <= 0) continue;
@@ -2223,6 +2245,19 @@ function carryStone(state: WorldState, assignments: Map<number, Assignment>): vo
       // the day wrote the road hand's biography (SIM 36: only real work counts)
       person.worked.carter += 1;
       person.lastJob = 'carter';
+    }
+    // then the draft horses top the face up, at HORSE_HAUL_MULT an untrained hand's rate
+    // (SIM 41) — a horse benefits from the WAY exactly as a carrier does (routeCost)
+    const cost = routeCost(state, wall.haul);
+    const perHorse = HORSE_HAUL_MULT * (cost > 0 ? CARRIER_THROUGHPUT / (2 * cost) : CARRIER_THROUGHPUT);
+    while (horseDays > 0 && need > 0 && state.stockpile > 0) {
+      const move = Math.min(perHorse, state.stockpile, need);
+      if (move <= 0) break;
+      state.stockpile -= move;
+      wall.faceBuffer += move;
+      need -= move;
+      horseDays -= 1;
+      if (move < perHorse) break; // the pile or the face ran out mid-team
     }
   }
 }

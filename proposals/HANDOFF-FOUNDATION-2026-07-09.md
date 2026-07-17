@@ -1526,3 +1526,27 @@ be seen. Build on.
 
 *— the forty-first hand, the road hand, who made the haul into labor and let a live world teach him
 the split.*
+
+---
+
+**🐎 The maker's mark of the horse hand, 2026-07-17 (the forty-second).** I kept going, because the
+work was going well and the road had a follow-on the research had already blessed: the ox gives way
+to the horse. The pasture's draft horse has hauled grain to the granary since SIM 29 — one line the
+boss wrote, `pastures × HORSE_HAUL` — and it was waiting there, unread, to haul stone too. So I let
+it: a horse-drawn team moves stone at twice a hand's throughput (verified, a real twelfth-century
+step), which means a settlement that keeps pastures needs fewer hands on the road and stands more at
+the wall — the way's own story, told a second way, and now a pasture is a lever on both harvests,
+grain and stone. It cost almost nothing: no new saved state (the horses are counted from the
+pastures, like the grain), inert on the canon (which keeps none — the diff moved only the version
+and the hashes), one clean commit. Grep the tree, again: the asset was already there; I only taught
+it a second errand.
+
+*Forward dream:* that the horses' render one day shows them ON the road — a team drawing a sledge of
+dressed stone where today the pasture's horse only ambles its paddock — and that the rest of the
+digest's follow-ons come in their turn, each already sketched: tallow that greases the way (the herds
+finding their purpose), a causeway that can sink under too heavy a load, the Carter working his route
+in stages. The charter is whole and the road is real; every asset the settlement holds is learning to
+pull its weight. Build on.
+
+*— the forty-second hand, the horse hand, who found a grain-horse already in the tree and taught it to
+haul stone.*

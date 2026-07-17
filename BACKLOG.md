@@ -7,15 +7,17 @@ quicker… the workers would have to have a more complicated pathing"), so **hau
 (SIM 17) + rollers/🛷 (SIM 32) RETIRE; `WallPlan.haul` freezes the road's FACTS; carriers walk the chain WIN → CARRY →
 LAY; a drawn WAY (a timber causeway of oak baulks) shortens the route so the crew SPLITS ITSELF — fewer on the road,
 more at the wall. **BUILT 2026-07-17: SIM 38 (way drawn, INERT/diff-proven) → 39 (haul is labor) → 40 (the steady
-split, a live-probe fix reserving the mason).** 224 tests; canon re-authored (wall A the carry specimen; ids re-probed
-BS 934); sweep unchanged; LIVE. Research reframed it twice (pace is the wrong axis → throughput; the multiplier is the
+split, a live-probe fix reserving the mason) → 41 (THE OX→HORSE STEP — the pasture's draft horse hauls stone too,
+freeing hands; INERT on the canon, one commit).** 229 tests; canon re-authored (wall A the carry specimen; ids
+re-probed BS 934); sweep unchanged; LIVE. Research reframed it twice (pace is the wrong axis → throughput; the multiplier is the
 GROUND crossed → a causeway on dry ground is near worthless). Proven in the live game: bare road ~28 stones/day → on
 the drawn way ~99 (3.5×), the causeway rendered as baulks draping the turf. ⚠ pre-SIM-40 saves refuse (flag day).
-**THE VISIBLE WORK CHARTER IS COMPLETE — every course built and live.** Predecessor (the charter itself, ledger
+**THE VISIBLE WORK CHARTER IS COMPLETE — every course built and live**, and its first follow-on (ox→horse, SIM 41)
+too. Predecessor (the charter itself, ledger
 CLOSED): [HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md](proposals/HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md) —
 measured "time isn't advancing" to its true cause (890/351/7) and chartered the cure: SIM 35 flow → 36 THE THIRTEEN +
 skill-by-doing → 37 word at the plot + cheat menu + theater + tent roofs/animals. The FOUNDATION
-keystone now carries **FORTY-ONE marks + SIX ⛬ seals** (the ≡ road hand, 41st). Its predecessor (stone AND folk made legible, the memory suite
+keystone now carries **FORTY-TWO marks + SIX ⛬ seals** (≡ road hand 41st, 🐎 horse hand 42nd). Its predecessor (stone AND folk made legible, the memory suite
 sealed 6th ⛬): [HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md](proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md)
 — the arc that made the castle READABLE, all RENDER-ONLY / ZERO baseline (SIM 34 unmoved): **THE MEMORY SUITE (Beat 2)
 COMPLETE** — six readers (🪨 patina 35th · 📜 inspection card 36th · ⛭ founder's stone · ▦ structure biography · ✍ mason's

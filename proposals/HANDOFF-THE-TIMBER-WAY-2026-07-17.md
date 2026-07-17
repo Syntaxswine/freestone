@@ -20,12 +20,13 @@ steadily. The charter is now complete, in code and in the live game.*
 
 ## The state, in numbers
 
-- **SIM_VERSION 40.** 36 test files / **224 tests** green; baseline regenerated (deliberate);
+- **SIM_VERSION 41.** 37 test files / **229 tests** green; baseline regenerated (deliberate);
   century sweep unchanged (population still tracks capacity); build clean; **LIVE** on Pages.
-- **Three commits**, each replay-visible, each with its own SIM bump (the charter's law, honoured):
+- **Four commits**, each replay-visible, each with its own SIM bump (the charter's law, honoured):
   - `e9710e0` — **SIM 38**, the way DRAWN (state + tool + render), behaviourally INERT, diff-proven.
   - `bf4ddd1` — **SIM 39**, the haul BECOMES LABOR (carriers, the dogleg, the crew splits itself).
   - `d4a526b` — **SIM 40**, THE STEADY SPLIT (a live-probe balance fix: reserve the mason).
+  - **SIM 41** — THE OX→HORSE STEP (draft horses haul stone; INERT on the canon; the 🐎 42nd mark).
 - Old saves (SIM ≤ 39) refuse — the boss-ruled **flag day** ("so far in alpha").
 
 ## What this session built
@@ -105,15 +106,21 @@ would have to have a more complicated pathing."* So:
 
 ## Where to start (the forward map)
 
-**THE VISIBLE WORK charter is COMPLETE — every course built and live.** The timber way's own
-follow-ons are DESIGNED in the digest §6, none built, each its own small arc:
+**THE VISIBLE WORK charter is COMPLETE — every course built and live.** The timber way's
+follow-ons are DESIGNED in the digest §6; one is now BUILT, the rest await their turn:
 
-- **TALLOW as a consumable** (the strongest — the friction evidence's own conclusion; ties the
-  reserved herds to the road; a slipway's 3–6× is the grease, not the timber).
+- ✅ **The OX→HORSE step — BUILT (SIM 41, `<this session>`, 🐎 42nd mark).** The pasture's draft
+  horse (grain-hauler since SIM 29) now hauls STONE too, a team worth HORSE_HAUL_MULT (2) hands —
+  so pastures free hands from the road, the way's story a second time. No new state; INERT on the
+  canon (keeps no pasture; version-only diff); one clean commit. `horse-haul.test.ts` (+5). A horse
+  is potent on a SHORT road (many trips), weak on a long one (throttled like a carrier) — honest.
+- **TALLOW as a consumable** (the strongest remaining — the friction evidence's own conclusion; ties
+  the reserved herds to the road; a slipway's 3–6× is the grease, not the timber). Blocked until the
+  herds are a real sim system (paddocks are decor today).
 - **Causeways SINK** over the fen under too heavy a load (Ely 1071, attested — a real decision).
-- **The OX→HORSE step** (a dated 12th-c. doubling of hauling speed the pasture's draft horses unlock).
 - **Route STAGES** (the Carter works from the route's mid-point, rests at home — Troyes practice).
 - **Carriage as customary SERVICE** (haulage owed, not hired — the granary-as-government thesis).
+- **The horses ON the road** (render): a team drawing a sledge where the pasture horse ambles today.
 
 Beyond the way, the boss's design-reserved beats stand where the charter left them: **Beat 4's
 mortality SPINE** (funeral, succession-as-masonry, Testament, the "true ashlar hand") — one batched
