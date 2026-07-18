@@ -24,6 +24,18 @@ questions at the end are the decisions still needed before a build opens.*
 4. **(Rider, banked from the way arc) A causeway is PERMANENT** — it does not rot or sink (hazards
    still never delete work) — **but the player may deliberately demolish it, or build over it**.
 
+## 0b. Second-round rulings (2026-07-17) — the design sharpened
+
+5. **The churchyard is DRAWN, like a farm** — the player encloses a plot and designates it a
+   churchyard (the enclosure grammar we already have); a chapel is optional adornment, not a gate.
+6. **A grave with no stone WAITS as a mound — and wood is also a marker.** The dead can be marked in
+   **stone (a slab)** OR **wood (a marker)**; an **UNMARKED grave (a bare mound) makes the living
+   SAD** — grief is a real cost, so the settlement is pressured to spare stone *or* wood for its dead.
+7. **Mastery is a LADDER of rarity.** Low mastery (green, journeyman) comes to **anyone who works the
+   task enough**; **GREAT MASTERS are rare.** Low-level hands still get the work done fine — mastery
+   just makes the work **much faster AND raises its QUALITY.** So the master tier carries two payoffs
+   (speed + quality) and a stake (the losable technique), and it is the rare, precious one.
+
 ## 1. The census — what already stands (grep-the-tree, so the spine builds on bone)
 
 | Bone | Where | State |
@@ -67,15 +79,22 @@ campaign patina and the homage thesis made into a *place* you can walk. Each hea
   graves — provenance (`masonId`/`tickLaid`) already binds every stone to its layer, so a mason's
   headstone can name her work.
 
-**The chapel** anchors the churchyard: a new `BUILDING_KIND = 'chapel'` (the seventh), a small
-building the player raises, around which the graves gather. *(Whether the chapel is REQUIRED before
-burials, or the churchyard can grow on its own and the chapel merely blesses it — §5 Q1.)*
+**The churchyard is DRAWN** (ruling 5): the player encloses a plot (the enclosure grammar we already
+have — a low ring, `designate use: 'churchyard'`, a sibling of farm/pasture) and the graves fill it in
+orderly rows as generations pass. A **chapel** (a new `BUILDING_KIND = 'chapel'`, the seventh) is an
+optional adornment the player may raise beside it to bless the ground — not a gate on burial.
 
-**When stone is short:** a death always happens; the grave should not. The honest options (§5 Q2): the
-grave WAITS as a pending mound until a slab can be spared; or a temporary wooden marker stands until
-stone comes; or the poorest dead simply get a mound and no stone. This wants your ruling — it decides
-whether the cemetery is a *duty the living owe* (graves queue, pressuring the quarry) or a *grace they
-afford* (only the honoured get stone).
+**Marking the dead, and GRIEF (ruling 6) — the emotional spine.** A grave is marked in **stone** (a
+slab drawn from the stockpile — the fine, permanent memorial, and the master's own dressed stone may
+one day mark a neighbour) OR in **wood** (a marker drawn from the timber stock — the affordable one,
+raised at once when stone can't be spared). **An UNMARKED grave — a bare mound — makes the living
+SAD.** Grief is a standing cost: unmarked dead weigh on the settlement's mood, and a mood-burdened
+settlement fares worse (§5 Q4 — the proposed home is a **retention/growth modifier**, the exact shape
+the housing shelter tier already uses, so a grieving village loses hands faster and grows slower until
+its dead are honoured). So the player is pressured, gently and humanely, to spare *something* — even
+wood — for every grave. The cemetery becomes a duty the living owe, and the mood is its enforcement.
+*(Stone vs wood as markers of differing worth — a wooden marker weathers, a stone one endures — is a
+render/quality nuance, not a blocker.)*
 
 ### 2B. Succession and technique-death (ruling 3) — the generational engine
 
@@ -101,18 +120,28 @@ This generalizes the bond beyond the smith: **any master trade** (mason, and whi
 technique) participates in pass / migrate / lose / rediscover. The `specialist_arrived{origin}` event
 gains a sibling — `technique_lost` / `technique_rediscovered` — for the record.
 
-### 2C. The skill ladder, one rung higher (green → journeyman → master)
+### 2C. The skill ladder — competence for all, mastery for the rare (rulings 7 + 4)
 
 `worked{}` gives GREEN at a year (SIM 36); Beat 4 was reserved the rest. The anti-XP law holds:
-discrete bands off integer days worked, never a curve.
+discrete bands off integer days worked, never a curve. And the boss's frame: **low-level hands get the
+work done FINE** (untrained is no penalty — SIM 36's law); mastery makes it **much faster AND higher
+QUALITY**; and **great masters are RARE**.
 
-- **Green** (~1 year): today's bonus (×9/8) — competent.
-- **Journeyman** (~N years): a further bonus, and the state a hand must reach to be a master's
-  bonded **apprentice** (ready to inherit).
-- **Master** (~M years): holds the trade's **technique** — the thing that lives or dies with them.
+- **Green** (~1 year, anyone): today's bonus (×9/8) — competent. Common.
+- **Journeyman** (~4 years, anyone who persists): a further speed bonus, and the state a hand must
+  reach to be a master's bonded **apprentice** (ready to inherit). Common.
+- **Master** (~10 years — the long, generational climb — AND RARE): the precious tier. A master works
+  **much faster**, produces **higher QUALITY**, and holds the trade's losable **technique**. Not every
+  ten-year hand becomes a great master — mastery is rarer than tenure alone (§5 Q2: is the gate
+  *talent* [a high-vigor hand], a *lineage* [taught by a master], or a rare *emergence*?).
 
-The roadmap's ~15–25% band-spread cap governs the multipliers so the ladder never runs away. *(The
-exact years-to-journeyman and years-to-master, and the multipliers, are §5 Q4.)*
+**Quality — a new output dimension (ruling 7).** Speed the bands already model (`jobMult`); QUALITY is
+new. A master's work is *better*, and the natural home is the game's own finish axis — the **dress
+level** (rubble → scappled → ashlar) and its mason's-mark/patina aesthetic: a master lays **finer
+stone** (reaches ashlar where a novice manages scappled), and their courses read cleaner and weather
+prouder (§5 Q1 — does quality live in the *dress reached*, a *per-stone quality attribute* that feeds
+the patina/marks, or *durability*?). The roadmap's ~15–25% spread cap governs the speed multipliers;
+quality is the master's *distinct* reward, not just more speed.
 
 ### 2D. The chronicle — is the cemetery enough?
 
@@ -151,23 +180,38 @@ batch:
 Canon re-authored once (mortality first fires past tick 364, so the 200-tick canon may stay INERT —
 to be confirmed at build time, like the specialist bond which was inert on the canon).
 
-## 5. Open questions — the decisions still needed before a build opens
+## 5. Open questions — narrowed to what's still genuinely open
 
-1. **The chapel & the churchyard.** Must the player build a **chapel** before the dead can be buried
-   (graves wait for it), or does the churchyard grow on its own and the chapel is an optional blessing
-   that gathers/adorns it? And does the player **draw the churchyard's ground** (like a farm), or does
-   it emerge beside the chapel / the settlement centre?
-2. **When stone is short.** A death with no slab to spare → the grave **waits** (a pending mound that
-   pressures the quarry, a duty owed), a **wooden marker** until stone comes, or **no stone** for the
-   poorest (only the honoured get a headstone)?
-3. **What is a "technique," and how is it rediscovered?** Just the smith's relief, or a set (the great
-   wheel, ashlar dressing, …)? And is rediscovery from the tracing floor **automatic** over time
-   (knowledge slowly relearned) or a **deliberate act** (a hand assigned to *study* the floor)?
-4. **The bands' pacing.** Roughly how many years to **journeyman**, and to **master**? And how big are
-   their bonuses (within the ~15–25% spread cap)?
-5. **The chronicle.** Is the **cemetery** (inspectable headstones) enough as the chronicle-of-the-dead,
-   or do you also want a written **Annal/Testament** — the living knowledge recorded, not only the
-   dead remembered?
+*Decided (rulings 1–7): churchyard drawn like a farm · death costs a slab · marked in stone OR wood ·
+unmarked = grief · technique lost-unless-taught, rediscovered from the tracing floor · green ~1yr /
+journeyman ~4yr / master ~10yr / low hands still fine · mastery = faster + higher quality · masters
+rare · causeway permanent-but-demolishable. These four remain:*
+
+1. **Where does QUALITY live?** A master's work is *better* — but mechanically, does that mean the
+   master **reaches a finer dress level** (lays ashlar where a novice manages scappled), a **per-stone
+   quality attribute** that feeds the patina + mason's-mark aesthetic (the wall visibly finer), or
+   **durability** (a master's work weathers slower / stands prouder)? *Recommendation: the dress-level
+   reach — it reuses the finish axis you already have and makes a master's hand visible in the stone.*
+2. **What makes a great master RARE?** Beyond the ~10 years: is it a **talent gate** (only a
+   high-vigor hand can climb to master), a **lineage** (you can only become a master by being taught
+   by one — so the first master is precious and mastery can go extinct), or a rare **emergence** (a
+   small yearly chance a long-serving journeyman *becomes* a master)? *Recommendation: talent + tenure
+   — a hand needs both the years AND the gift, so masters are born of time and luck, and losing one
+   hurts.*
+3. **The technique set + rediscovery.** Which capabilities are losable **techniques** — just the
+   smith's forge-relief, or a set (the great wheel, fine ashlar, …)? And is rediscovery from the
+   tracing floor **automatic** (slowly relearned) or a **deliberate act** (a hand assigned to *study*
+   the floor)? *Recommendation: a small set + a study job — legible, and it gives the tracing floor a
+   living purpose.*
+4. **How hard does GRIEF bite, and does it fade?** The proposed home is a **retention/growth
+   modifier** (a grieving village loses hands faster + grows slower until its dead are marked — the
+   shape housing already uses). Does an unmarked grave's grief **persist until marked** (a standing
+   debt), or **fade over time** (raw grief that dulls even unmarked)? And how heavy — a gentle nudge,
+   or a real bite? *Recommendation: persists until marked, gentle per-grave but cumulative — so a
+   neglected churchyard genuinely weighs, but one bad year won't spiral.*
+
+*(Banked, not blocking: the chronicle — whether the inspectable cemetery is enough as the record of
+the dead, or you also want a written Testament for the living knowledge. Deferred to build time.)*
 
 ## 6. What this does NOT do (scope guard)
 
