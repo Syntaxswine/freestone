@@ -97,6 +97,7 @@ import { RoofLayer } from './roofs';
 import { PeopleLayer } from './people';
 import { PileLayer } from './piles';
 import { WayLayer } from './ways';
+import { GraveyardLayer } from './gravestones';
 import { AnimalLayer } from './animals';
 import { GranaryLayer } from './granary';
 import { OrchardLayer } from './orchard';
@@ -1448,6 +1449,9 @@ async function boot(): Promise<void> {
   const animals = new AnimalLayer(world, scene, groundShow);
   // THE TIMBER WAY (SIM 38): the causeway's baulks, creeping forward as the road hands plank it
   const ways = new WayLayer(world, groundShow, scene);
+  // THE CHURCHYARD (SIM 44, Beat 4): the dead laid to rest — headstones (stone), markers (wood),
+  // and bare mounds (the ungrieved) filling the drawn churchyard in rows as generations pass
+  const graveyard = new GraveyardLayer(world, groundShow, scene);
   // the workshops made visible: a lit forge on each smithy, a log stack + sawhorse on each yard
   const workshops = new WorkshopLayer(world, scene, groundShow);
   // the great wheel made visible: a treadwheel crane beside every wall that raised one (SIM 26)
@@ -1639,8 +1643,24 @@ async function boot(): Promise<void> {
    * PENDING plot's open words. Pure reads; the render never writes.
    */
   function entityCardAt(x: number, y: number): string | null {
+    // a HEADSTONE first (SIM 44, Beat 4): click a grave and the churchyard remembers its dead —
+    // the epitaph the record has always held (name, craft, dates), read from the stone.
+    const grave = graveyard.graveAt(x, y);
+    if (grave) {
+      const born = yearOf(grave.bornTick);
+      const died = yearOf(grave.diedTick);
+      const craft = grave.job ? `a ${grave.band} ${grave.job}` : 'a villager';
+      const rest =
+        grave.marker === 'stone' ? '' : grave.marker === 'wood' ? ' · a wooden marker' : ' · an unmarked mound';
+      return `⚰ here lies ${grave.name}, ${craft} · Year ${born}–${died}${rest}`;
+    }
     for (const f of world.farms) {
       if (f.points.length >= 3 && pointInPolygon(x, y, f.points)) {
+        if (f.use === 'churchyard') {
+          const n = world.graves.length;
+          const unmarked = world.graves.filter((g) => g.marker === 'none').length;
+          return `⛪ the churchyard · ${n} laid to rest${unmarked ? ` · ${unmarked} still await a stone` : n ? ' · all honoured' : ''}`;
+        }
         if (f.use === 'farm') {
           const mouths = f.area / AREA_PER_PERSON;
           return `🌾 an arable farm · ${f.area.toFixed(0)} m² · feeds ~${mouths.toFixed(1)} mouths a year (space-gated — skill moves tending, not yield) · ${f.workdays.toFixed(1)} workdays tended · wants ${Math.ceil(f.area / FARM_AREA_PER_HAND)} hand(s) a day`;
@@ -1846,6 +1866,7 @@ async function boot(): Promise<void> {
     wheel.setVisible(!on); // and the great-wheel cranes
     animals.setVisible(!on); // and the herds (Course 3)
     ways.setVisible(!on); // and the causeways (SIM 38)
+    graveyard.setVisible(!on); // and the churchyard (SIM 44)
     undergroundBtn.classList.toggle('active', on);
     if (on) tutorial.saw('underground'); // tutorial step 1
     updateDepthRuler();
@@ -2018,6 +2039,7 @@ async function boot(): Promise<void> {
     shafts.update(); // was missing from the live frame — a shaft placed in play never entered the scene
     piles.update(); // Course 2: the visible piles (Law 6 — BOTH update sites)
     ways.update(); // SIM 38: the timber way (Law 6 — BOTH update sites)
+    graveyard.update(); // SIM 44: the churchyard (Law 6 — BOTH update sites)
     tracingFloor.update();
     roofs.update();
     farms.update();
@@ -2481,6 +2503,7 @@ async function boot(): Promise<void> {
     workshops,
     wheel,
     ways, // SIM 38: the causeway layer — sleeperCount is the probe's handle
+    graveyard, // SIM 44: the churchyard layer — graveAt(x,y) is the card's handle
     animals, // SIM 41: pokeable so a hidden tab can pump the draft horses onto the road
     underworld,
     home,
@@ -2502,6 +2525,7 @@ async function boot(): Promise<void> {
       shafts.update();
       piles.update(); // Course 2: the visible piles (Law 6 — BOTH update sites)
       ways.update(); // SIM 38: plank a hidden tab's causeway (rAF is paused)
+      graveyard.update(); // SIM 44: place a hidden tab's headstones
       tracingFloor.update();
       roofs.update();
       farms.update();
