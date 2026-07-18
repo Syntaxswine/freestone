@@ -22,7 +22,7 @@ import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import type { Command, Vec2 } from '../src/sim/types';
+import { GRAVE_STONE, type Command, type Vec2 } from '../src/sim/types';
 
 const RING: Vec2[] = [
   { x: 100, y: 100 },
@@ -122,10 +122,15 @@ describe('the quarry in the sim', () => {
     const c = w.cuts[0]!;
     expect(c.workDone).toBeGreaterThanOrEqual(c.workTotal);
     expect(c.stoneWon).toBe(true);
-    expect(w.stockpile).toBeCloseTo(econ.stone, 5);
-    // credited exactly once — stockpile does not keep climbing after completion
+    // SIM 44: this long-enough run crosses a year-turn, and a founder's death may draw a STONE
+    // slab from the pile for their headstone (mortality draws the stone economy). The QUARRY still
+    // credited econ.stone — add back whatever graves spent to see its yield unchanged.
+    const graveStone = (x: ReturnType<typeof run>) =>
+      x.graves.filter((g) => g.marker === 'stone').length * GRAVE_STONE;
+    expect(w.stockpile + graveStone(w)).toBeCloseTo(econ.stone, 5);
+    // credited exactly once — the quarry's yield does not keep climbing after completion
     const later = run([cut(0)], ticks + 20);
-    expect(later.stockpile).toBeCloseTo(econ.stone, 5);
+    expect(later.stockpile + graveStone(later)).toBeCloseTo(econ.stone, 5);
     expect(later.events.filter((e) => e.kind === 'stone_won')).toHaveLength(1);
   });
 

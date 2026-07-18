@@ -209,7 +209,16 @@
 // diff is version + hashes only, one clean commit + regen (the bell-pit pattern). The master's rarer
 // rewards — the losable technique, the fine works only a master can raise, lineage, the churchyard —
 // are the later Beat-4 increments; this is the ladder they all stand on.
-export const SIM_VERSION = 43;
+//
+// SIM 44 — THE CHURCHYARD (Beat 4; boss-ruled 2026-07-17). Death is mourned and draws the stone
+// economy: each `person_died` raises a GRAVE, an unmarked mound until the living spare a STONE slab
+// (a headstone) or WOOD (a marker) — and every unmarked mound weighs on the living as GRIEF, a
+// gentle cumulative drag on GROWTH (births + migrants) that lifts the moment a grave is honoured
+// (floored so it never spirals). The churchyard is DRAWN like a farm (FIELD_USES += 'churchyard').
+// New state: graves[] + the churchyard use. INERT on the canon (livingYear first fires at tick 364,
+// past the 200-tick baseline — no death, no grave), so the diff is version + the empty graves[]
+// serialisation only. The RENDER (headstones in rows, inspectable) is the next, render-only course.
+export const SIM_VERSION = 44;
 /**
  * A horse-drawn haulage team moves stone this many times faster than a hand or an ox (SIM 41).
  * The VERIFIED ~doubling of hauling speed at the ox→horse transition (Langdon & Claridge 2011,
@@ -1014,7 +1023,10 @@ export interface Roof {
  * some may unlock later). Constant strings; they enter hashed state via
  * Farm.use and the designate command.
  */
-export const FIELD_USES = ['farm', 'livestock', 'pasture', 'orchard', 'fallow'] as const;
+// 'churchyard' (SIM 44, Beat 4) is a resting place, not a field — the enclosure grammar draws it
+// like a farm, but it is never tended (the tending filter is `use === 'farm'`), and the dead are
+// laid to rest and remembered there. The seventh use.
+export const FIELD_USES = ['farm', 'livestock', 'pasture', 'orchard', 'fallow', 'churchyard'] as const;
 export type FieldUse = (typeof FIELD_USES)[number];
 
 /**
@@ -1186,6 +1198,48 @@ export function layRateOf(p: Person): number {
 export function earthRateOf(p: Person, job: JobSkill): number {
   return (EARTH_RATE_BASE + p.vigor * EARTH_RATE_SPREAD) * jobMult(p, job);
 }
+
+/**
+ * THE GRAVE (SIM 44, Beat 4 — boss-ruled 2026-07-17). A soul the settlement has lost. Raised at
+ * death (livingYear), it stands an unmarked MOUND until the living can spare a STONE slab (the
+ * fine, lasting memorial — "you need one stone slab to make a headstone") or WOOD (the affordable
+ * one). Every unmarked mound weighs on the living as GRIEF (the demographic pass), because
+ * "unmarked people make others sad." Carries the dead's identity, so the eye reads the churchyard
+ * as a chronicle: *here lies Edith, a master mason, Year −22 to Year 34.*
+ */
+export type GraveMarker = 'none' | 'wood' | 'stone';
+export interface Grave {
+  id: number;
+  personId: number;
+  name: string;
+  bornTick: number;
+  diedTick: number;
+  /** the trade the dead were finest at, and their band there — the epitaph */
+  job: JobSkill | null;
+  band: SkillBand;
+  marker: GraveMarker;
+}
+/** the dead's finest craft, for the epitaph: the job with the most days worked, and its band */
+export function bestSkill(p: Person): { job: JobSkill | null; band: SkillBand } {
+  let job: JobSkill | null = null;
+  let most = 0;
+  for (const j of JOB_SKILLS) {
+    if (p.worked[j] > most) {
+      most = p.worked[j];
+      job = j;
+    }
+  }
+  return { job, band: job ? skillBand(p, job) : 'untrained' };
+}
+// What marking a grave costs (SIM 44): one STONE slab (a dressed block's worth), or one WOOD
+// marker — the affordable fallback when stone can't be spared. Both honour the dead and lift grief.
+export const GRAVE_STONE = STONE_VOLUME; // m³ of building stone for a headstone (the boss's "one slab")
+export const GRAVE_WOOD = TIMBER_PER_POST; // m³ of timber for a wooden marker
+// GRIEF (SIM 44): each UNMARKED grave weighs on the living — a gentle, cumulative drag on GROWTH
+// (births + migrants), lifting the moment a grave is given stone or wood. Persists until marked,
+// but FLOORED so even a neglected churchyard only slows growth, never halts it (no collapse spiral).
+export const GRIEF_PER_GRAVE = 0.04; // each unmarked mound cuts the year's growth by this…
+export const GRIEF_FLOOR = 0.4; // …to at most this fraction (a grieving village still grows, slowly)
 
 export type Command =
   | {
@@ -1438,6 +1492,10 @@ export type SimEvent =
   | { kind: 'person_arrived'; tick: number; personId: number; name: string }
   /** a named soul dies on the record — chronicled, never a bare subtraction */
   | { kind: 'person_died'; tick: number; personId: number; name: string; age: number }
+  /** the dead are laid to rest — a grave raised, unmarked until stone or wood is spared (SIM 44) */
+  | { kind: 'grave_dug'; tick: number; graveId: number; personId: number; name: string }
+  /** an unmarked mound is given a headstone (stone) or a marker (wood) — grief lifts (SIM 44) */
+  | { kind: 'grave_marked'; tick: number; graveId: number; marker: 'wood' | 'stone' }
   /** hunger drove a soul to leave for another manor */
   | { kind: 'person_left'; tick: number; personId: number; name: string }
   /**
@@ -1513,6 +1571,13 @@ export interface WorldState {
    * more stand at the wall. Empty on the 2026-07-10 canon, which draws none.
    */
   ways: WayPlan[];
+  /**
+   * The settlement's dead, laid to rest (SIM 44, Beat 4). Each death (livingYear) raises a Grave;
+   * it stands an unmarked mound until stone (a slab) or wood is spared to mark it, and unmarked
+   * mounds grieve the living. The churchyard the player draws is where they render. Empty on the
+   * 2026-07-10 canon (livingYear first fires at tick 364, past the 200-tick baseline — no death).
+   */
+  graves: Grave[];
   /**
    * Building stone won from finished quarries and adits and not yet spent, m³
    * (SIM 14). Masonry DRAWS it since SIM 16: each stone laid spends its dress

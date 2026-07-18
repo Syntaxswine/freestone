@@ -65,6 +65,7 @@ export function createWorld(seed: string, siteId: string): WorldState {
     shafts: [],
     stands: [],
     ways: [], // SIM 38: the timber causeways — none until the player draws one
+    graves: [], // SIM 44: the settlement's dead — none until the first death (past tick 364)
     stockpile: 0,
     timber: SEED_TIMBER, // the founder's woodpile (SIM 19) — a first palisade before the first fell
     grain: SEED_GRAIN, // the founder's larder (SIM 22) — a store before the first harvest

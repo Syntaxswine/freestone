@@ -78,6 +78,12 @@ import {
   type HaulRoute,
   type WorldState,
   type JobSkill,
+  type Grave,
+  bestSkill,
+  GRAVE_STONE,
+  GRAVE_WOOD,
+  GRIEF_PER_GRAVE,
+  GRIEF_FLOOR,
   WAY_MIN_LENGTH,
   WAY_MULT_FIRM,
   WAY_MULT_SOFT,
@@ -187,7 +193,7 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
           return 'a shell takes house, blacksmith, tower, or tavern';
         }
         if (cmd.use !== undefined && !isFieldUse(cmd.use)) {
-          return 'a field plot takes farm, livestock, pasture, orchard, or fallow';
+          return 'a field plot takes farm, livestock, pasture, orchard, fallow, or churchyard';
         }
         const rc = classifyRing(cmd.points, cmd.height);
         if ((cmd.roof !== undefined || cmd.buildingKind !== undefined) && rc?.kind !== 'building') {
@@ -453,7 +459,7 @@ function rejectReason(state: WorldState, cmd: Command): string | null {
       // re-derives its facts (wall geometry is immutable)
       const rc = classifyRing(wall.points, wall.height);
       if (rc === null || rc.kind !== 'farm') return 'no enclosure awaits the word there'; // unreachable
-      if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, pasture, orchard, or fallow';
+      if (!isFieldUse(cmd.use)) return 'a field plot takes farm, livestock, pasture, orchard, fallow, or churchyard';
       return null;
     }
     case 'choose_roof': {
@@ -1657,7 +1663,9 @@ function livingYear(state: WorldState): void {
   if (dayOfYear(state.tick) !== TICKS_PER_YEAR - 1) return;
   const rng = new Rng(hashSeed(`${state.seed}:demo:${yearOf(state.tick)}`));
 
-  // 1. MORTALITY — each soul rolls survival on the age curve; deaths leave the record
+  // 1. MORTALITY — each soul rolls survival on the age curve; deaths leave the record AND a GRAVE
+  // (SIM 44, Beat 4): a named soul is never a bare subtraction — the settlement raises a mound,
+  // unmarked until stone or wood is spared, carrying the dead's finest craft for the headstone.
   const survivors: Person[] = [];
   for (const p of state.people) {
     const age = ageInYears(p.bornTick, state.tick);
@@ -1670,11 +1678,47 @@ function livingYear(state: WorldState): void {
         name: p.name,
         age: Math.floor(age),
       });
+      const skill = bestSkill(p);
+      const grave: Grave = {
+        id: state.nextId++,
+        personId: p.id,
+        name: p.name,
+        bornTick: p.bornTick,
+        diedTick: state.tick,
+        job: skill.job,
+        band: skill.band,
+        marker: 'none',
+      };
+      state.graves.push(grave);
+      state.events.push({ kind: 'grave_dug', tick: state.tick, graveId: grave.id, personId: p.id, name: p.name });
     } else {
       survivors.push(p);
     }
   }
   state.people = survivors;
+
+  // MARKING (SIM 44): honour the unmarked dead — a STONE slab first (the fine, lasting memorial),
+  // else WOOD (the affordable marker); oldest mound first (grave id order), as material allows. What
+  // can't be spared this year waits as a mound, and grieves. So mortality gently draws the stone and
+  // timber the living would spend on walls — the dead compete for the same hands' harvest.
+  for (const g of state.graves) {
+    if (g.marker !== 'none') continue;
+    if (state.stockpile >= GRAVE_STONE) {
+      state.stockpile -= GRAVE_STONE;
+      g.marker = 'stone';
+      state.events.push({ kind: 'grave_marked', tick: state.tick, graveId: g.id, marker: 'stone' });
+    } else if (state.timber >= GRAVE_WOOD) {
+      state.timber -= GRAVE_WOOD;
+      g.marker = 'wood';
+      state.events.push({ kind: 'grave_marked', tick: state.tick, graveId: g.id, marker: 'wood' });
+    }
+  }
+  // GRIEF (SIM 44): every unmarked mound weighs on the living — a gentle, cumulative drag on the
+  // year's GROWTH (births + migrants below), lifting the moment a grave is honoured. Floored so a
+  // neglected churchyard slows the settlement without ever halting it (no death-spiral). "Unmarked
+  // people make others sad."
+  const unmarkedGraves = state.graves.reduce((n, g) => n + (g.marker === 'none' ? 1 : 0), 0);
+  const griefFactor = Math.max(GRIEF_FLOOR, 1 - unmarkedGraves * GRIEF_PER_GRAVE);
 
   // 2. THE HARVEST + THE GRAIN STOCK (SIM 22) — grain is PRODUCED (the founding floor +
   // the enclosed arable §4, times this year's WEATHER), EATEN by the mouths, and the
@@ -1750,7 +1794,7 @@ function livingYear(state: WorldState): void {
   if (birthFactor > 0) {
     const adults = state.people.filter((p) => isAdult(p, state.tick)).length;
     for (let i = 0; i < adults; i++) {
-      if (rng.float() < BIRTH_RATE_FULL * birthFactor * growthRoom) { // SIM 30: no room to house, no growth
+      if (rng.float() < BIRTH_RATE_FULL * birthFactor * growthRoom * griefFactor) { // SIM 30 housing · SIM 44 grief
         const p = newChild(state, rng, state.tick);
         state.people.push(p);
         state.events.push({ kind: 'person_born', tick: state.tick, personId: p.id, name: p.name });
@@ -1761,7 +1805,7 @@ function livingYear(state: WorldState): void {
   // a full granary spreads and working adults arrive THIS year (responsiveness).
   if (S >= GROWTH_THRESHOLD) {
     const g = Math.min(1, (S - GROWTH_THRESHOLD) / (GROWTH_FULL - GROWTH_THRESHOLD));
-    const want = MIGRANTS_PER_YEAR_FULL * g * growthRoom; // SIM 30: the housing gates migration too
+    const want = MIGRANTS_PER_YEAR_FULL * g * growthRoom * griefFactor; // SIM 30 housing · SIM 44 grief
     let migrants = Math.floor(want);
     if (rng.float() < want - migrants) migrants += 1;
     for (let i = 0; i < migrants; i++) {

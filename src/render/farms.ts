@@ -91,7 +91,7 @@ function bandTones(band: number, j: number): [THREE.Color, THREE.Color] {
 interface FarmView {
   colorAttr: THREE.BufferAttribute;
   parities: Uint8Array; // one per quad: which of the band's two tones
-  use: 'farm' | 'livestock' | 'pasture' | 'orchard' | 'fallow';
+  use: 'farm' | 'livestock' | 'pasture' | 'orchard' | 'fallow' | 'churchyard';
   establishedTick: number;
   jitter: number;
   shownBand: number;
@@ -122,6 +122,9 @@ export class FarmLayer {
   }
 
   private bandFor(v: FarmView): number {
+    // a churchyard is calm grass, not tilled ground — no crop strips, no season (SIM 44). The
+    // headstones themselves are a separate layer (the render course); this is the ground they rest on.
+    if (v.use === 'churchyard') return PASTURE_GREEN;
     if (v.use === 'fallow') return FALLOW_SCRUB; // rest knows no season
     if (v.use === 'livestock' || v.use === 'pasture') {
       // grazed sward (sheep or horse) keeps no crop calendar — only the cold shows

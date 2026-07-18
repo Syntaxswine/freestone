@@ -304,7 +304,7 @@ describe('designation — the palettes hold', () => {
       100,
     );
     expect(rejections(world)).toEqual([
-      'a field plot takes farm, livestock, pasture, orchard, or fallow',
+      'a field plot takes farm, livestock, pasture, orchard, fallow, or churchyard',
     ]);
     // the refusal consumed nothing: the honest word landed after
     expect(world.farms).toHaveLength(1);
