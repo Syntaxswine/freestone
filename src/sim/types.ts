@@ -218,7 +218,16 @@
 // New state: graves[] + the churchyard use. INERT on the canon (livingYear first fires at tick 364,
 // past the 200-tick baseline — no death, no grave), so the diff is version + the empty graves[]
 // serialisation only. The RENDER (headstones in rows, inspectable) is the next, render-only course.
-export const SIM_VERSION = 44;
+//
+// SIM 45 — LINEAGE (Beat 4; boss-ruled 2026-07-17: "their kids start off with a higher proficiency").
+// A child born to the settlement inherits a HEAD-START (LINEAGE_INHERIT of the days) in a parent's
+// finest trade — so a master's children begin closer to mastery and skilled bloodlines form across
+// generations (dynasties). No new saved state (the head-start seeds the child's existing worked{});
+// INERT on the canon (no child is born inside the 200-tick baseline — livingYear first fires tick
+// 364), so version + hashes only. The parent draw is on the isolated demo rng (never the masonry
+// cursor); the sweep shifts (children reach mastery sooner) but the equilibrium holds (skill speeds
+// non-food work; the harvest is space-gated) — re-verified.
+export const SIM_VERSION = 45;
 /**
  * A horse-drawn haulage team moves stone this many times faster than a hand or an ox (SIM 41).
  * The VERIFIED ~doubling of hauling speed at the ox→horse transition (Langdon & Claridge 2011,
@@ -1121,6 +1130,11 @@ export const MASTER_DAYS = 10 * TICKS_PER_YEAR; // ~10 years — the rare, gener
 export const GREEN_MULT = 1.125; // ×9/8 — a BONUS over today's rates (untrained = 1.0)
 export const JOURNEYMAN_MULT = 1.25; // ×5/4
 export const MASTER_MULT = 1.5; // ×3/2 — "much faster" (dyadic; the ladder accelerates 1.125 → 1.25 → 1.5)
+// LINEAGE (SIM 45, Beat 4 — "their kids start off with a higher proficiency"): a child inherits this
+// fraction of a PARENT's finest-trade days worked as a HEAD-START, so a master's children begin
+// closer to mastery and skilled bloodlines form across generations (the boss's dynasties). Capped
+// below master — a leg-up, never the title; mastery is still earned by the years.
+export const LINEAGE_INHERIT = 0.3;
 
 /**
  * Per-job base day rates (SIM 36): the old Person.pace was ONE scalar whose unit was

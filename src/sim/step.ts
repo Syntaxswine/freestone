@@ -84,6 +84,8 @@ import {
   GRAVE_WOOD,
   GRIEF_PER_GRAVE,
   GRIEF_FLOOR,
+  MASTER_DAYS,
+  LINEAGE_INHERIT,
   WAY_MIN_LENGTH,
   WAY_MULT_FIRM,
   WAY_MULT_SOFT,
@@ -1638,7 +1640,7 @@ function newAdult(state: WorldState, rng: Rng, tick: number): Person {
 
 /** a child born to the settlement — lifts no stone until it comes of age */
 function newChild(state: WorldState, rng: Rng, tick: number): Person {
-  return {
+  const child: Person = {
     id: state.nextId++,
     name: rng.pick(FOLK_NAMES),
     trade: 'villager',
@@ -1647,6 +1649,23 @@ function newChild(state: WorldState, rng: Rng, tick: number): Person {
     lastJob: null,
     bornTick: tick,
   };
+  // LINEAGE (SIM 45, Beat 4): the child inherits a HEAD-START in a parent's finest trade — a
+  // master's children begin closer to mastery, so skilled bloodlines form across the generations
+  // (the boss's dynasties: the Delvers dig, a mason's line lays). A parent is drawn among the
+  // adults on the demo rng (isolated, never the masonry cursor); the head-start is capped below
+  // the master threshold, so a child is born a prodigy at most, never a master — mastery is earned.
+  const adults = state.people.filter((p) => p.trade === 'villager' && isAdult(p, tick));
+  if (adults.length > 0) {
+    const parent = adults[rng.int(adults.length)]!;
+    const skill = bestSkill(parent);
+    if (skill.job) {
+      child.worked[skill.job] = Math.min(
+        MASTER_DAYS - 1,
+        Math.floor(parent.worked[skill.job] * LINEAGE_INHERIT),
+      );
+    }
+  }
+  return child;
 }
 
 /**
