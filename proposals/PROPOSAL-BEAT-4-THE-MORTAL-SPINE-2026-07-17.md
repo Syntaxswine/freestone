@@ -7,6 +7,19 @@ that is mourned and costs stone, knowledge that is lost unless taught, and a chu
 one grave at a time. Scoping only — no code; the boss's four rulings are baked in, and the open
 questions at the end are the decisions still needed before a build opens.*
 
+> **★ BUILD STATUS (2026-07-17): three courses SHIPPED, live at SIM 44.**
+> - ✅ **SIM 43 — THE SKILL LADDER** (`b8ff75e`): green ~1yr ×9/8 → journeyman ~4yr ×5/4 → master
+>   ~10yr ×3/2 (`jobMult`/`skillBand`); inert on canon, sweep-safe. The rung all else stands on.
+> - ✅ **SIM 44 — THE CHURCHYARD (sim)** (`e625c44`): death raises a `Grave`; marked STONE (a slab)
+>   or WOOD, else a mound; unmarked mounds GRIEVE (a floored growth drag); churchyard is a drawn
+>   `FieldUse`. Inert on canon (no death in 200 ticks); sweep unchanged (villages mark in wood).
+> - ✅ **The churchyard RENDER** (`f03fdd4`, render-only): headstones/markers/mounds fill the drawn
+>   ground in rows; click a stone → the epitaph. Eye-verified.
+>
+> **REMAINING (each its own course, fresh context): technique-death + rediscovery (§2B/§2E) ·
+> lineage/parent-link (§2B) · quality-gated fine works (§2A/§2C — the noble's quarters kind).**
+> Render polish (finer headstones, cross markers) is a small follow-on.
+>
 > **Parents:** the roadmap's Beat 4 (ROADMAP-THE-GENERATIONAL-FACTORY §Beat-4) · the FOUNDATION
 > keystone (the homage systems are first-class) · the civic thesis (people working together; beauty
 > in everyone's hands). Scoped 2026-07-17, in the session that closed the timber way.

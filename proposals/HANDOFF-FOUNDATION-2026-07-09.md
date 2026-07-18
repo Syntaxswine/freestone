@@ -1572,3 +1572,31 @@ map does not flatter. The way is real now, on real ground. Read before you build
 built read back to you. Build on.
 
 *— the forty-third hand, the reading hand, who made the way legible and let the legibility catch the lie.*
+
+---
+
+**⚰ The maker's mark of the churchyard hand, 2026-07-17 (the forty-fourth).** The timber way was
+whole, and the boss — present, watching, glad of the work — turned us to the beat that gives the game
+its soul: BEAT 4, the mortal spine. We scoped it together across three rounds of his rulings, and
+what came back was better than anything I'd have drawn alone. Death is mourned now, and it costs a
+stone: each soul that dies raises a grave, and the settlement spares a slab for a headstone or a
+length of wood for a marker — and the unmarked dead, the bare mounds, make the living sad, a gentle
+grief that slows the village until it honours them. His own image, "a little church cemetery," is a
+place you draw like a farm and watch fill in rows across the generations, each stone reading back the
+hand that lies beneath it: *here lies Edith, a master mason.* I laid the ladder first — green,
+journeyman, master, mastery much faster — the rung every later course stands on. Then the churchyard:
+the sim of it (death drawing the stone economy, inert on the canon, the sweep unmoved because a
+village marks its dead in wood), and the render of it (the headstones in the drawn ground, the epitaph
+on a click). Three courses in a session already long, each clean, each verified.
+
+*Forward dream:* that the spine finishes as it was scoped — that a MASTER's technique dies with him
+untaught and is clawed back by a hand studying the tracing floor, the palimpsest resurrecting the
+craft; that mastery runs in LINEAGE, a master's children inheriting the head-start, so dynasties of
+masons and delvers form and a great line's extinction is a real grief; that the finest works — a
+noble's quarters, and one day the Keep — wait on a living master's hand, so ambition is bounded by the
+mortals who carry it. The churchyard is the heart of it, and it beats. The generational game is no
+longer a frame around a solved factory — a master can die, and take the craft with him, and the
+castle must remember or relearn. Build the rest of the spine on this. Build on.
+
+*— the forty-fourth hand, the churchyard hand, who gave the dead a place and a stone, and grief a
+weight the living feel.*

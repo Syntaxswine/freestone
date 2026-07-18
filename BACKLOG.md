@@ -18,8 +18,16 @@ the drawn way ~99 (3.5×), the causeway rendered as baulks draping the turf. ⚠
 too. Predecessor (the charter itself, ledger
 CLOSED): [HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md](proposals/HANDOFF-THE-VISIBLE-WORK-CHARTER-2026-07-16.md) —
 measured "time isn't advancing" to its true cause (890/351/7) and chartered the cure: SIM 35 flow → 36 THE THIRTEEN +
-skill-by-doing → 37 word at the plot + cheat menu + theater + tent roofs/animals. The FOUNDATION
-keystone now carries **FORTY-THREE marks + SIX ⛬ seals** (≡ road 41st, 🐎 horse 42nd, ≡ reading 43rd). Its predecessor (stone AND folk made legible, the memory suite
+skill-by-doing → 37 word at the plot + cheat menu + theater + tent roofs/animals. **★ BEAT 4 — THE MORTAL SPINE, UNDERWAY (2026-07-17, boss-scoped):** the generational heart. Scope in
+[proposals/PROPOSAL-BEAT-4-THE-MORTAL-SPINE-2026-07-17.md](proposals/PROPOSAL-BEAT-4-THE-MORTAL-SPINE-2026-07-17.md)
+(boss-ruled, build-ready). SHIPPED: **SIM 43 the SKILL LADDER** (green→journeyman→master, ×9/8→×5/4→×3/2) ·
+**SIM 44 the CHURCHYARD** (death raises a grave, marked in a STONE slab or WOOD; unmarked mounds GRIEVE a
+floored growth-drag; churchyard drawn like a farm) · **the churchyard RENDER** (headstones/markers/mounds
+fill the drawn ground in rows; click a stone → the epitaph). Both SIM courses INERT on the canon, sweep
+unchanged. REMAINING (fresh context, each a course): technique-death + rediscovery via a study-the-tracing-
+floor job · lineage (a parent link → dynasties) · quality-gated fine works (a noble's quarters needs a
+master). The FOUNDATION keystone now carries **FORTY-FOUR marks + SIX ⛬ seals** (≡ road 41st, 🐎 horse 42nd,
+≡ reading 43rd, ⚰ churchyard 44th). Its predecessor (stone AND folk made legible, the memory suite
 sealed 6th ⛬): [HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md](proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md)
 — the arc that made the castle READABLE, all RENDER-ONLY / ZERO baseline (SIM 34 unmoved): **THE MEMORY SUITE (Beat 2)
 COMPLETE** — six readers (🪨 patina 35th · 📜 inspection card 36th · ⛭ founder's stone · ▦ structure biography · ✍ mason's
