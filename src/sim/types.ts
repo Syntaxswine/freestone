@@ -200,7 +200,16 @@
 // ordinary earth) with the wet quarter climbing toward 5 and only the driest ridges at 1.15. No new
 // state; INERT on the canon (no way); replay-visible (waySpeedMult freezes into plan_way), so it
 // earns the bump. The readout was the instrument that found it — the prospecting-clarity lesson.
-export const SIM_VERSION = 42;
+//
+// SIM 43 — THE SKILL LADDER (Beat 4's first course; boss-ruled 2026-07-17, PROPOSAL-BEAT-4-THE-MORTAL-
+// SPINE). jobMult grew from two states (untrained/green) to the full ladder: green ~1yr ×9/8,
+// JOURNEYMAN ~4yr ×5/4, MASTER ~10yr ×3/2 — an accelerating climb, mastery "much faster" (the boss's
+// word). Discrete bands off days worked (anti-XP). No new saved state; INERT on the canon (no hand
+// reaches journeyman's 4 years inside the 200-tick baseline — max worked ≈565 days ≪ 1460), so the
+// diff is version + hashes only, one clean commit + regen (the bell-pit pattern). The master's rarer
+// rewards — the losable technique, the fine works only a master can raise, lineage, the churchyard —
+// are the later Beat-4 increments; this is the ladder they all stand on.
+export const SIM_VERSION = 43;
 /**
  * A horse-drawn haulage team moves stone this many times faster than a hand or an ox (SIM 41).
  * The VERIFIED ~doubling of hauling speed at the ox→horse transition (Langdon & Claridge 2011,
@@ -1083,8 +1092,23 @@ export interface PlacedStone {
 // on it greens both halves of the work. This is the substrate the Carter surname always wanted.
 export type JobSkill = 'mason' | 'digger' | 'woodsman' | 'farmhand' | 'carter';
 export const JOB_SKILLS: readonly JobSkill[] = ['mason', 'digger', 'woodsman', 'farmhand', 'carter'];
-export const GREEN_DAYS = TICKS_PER_YEAR; // "a year of doing a job" — days worked at it, not calendar days
-export const GREEN_MULT = 1.125; // ×9/8 — green is a BONUS over today's rates (dyadic; untrained = 1.0)
+// THE SKILL LADDER (SIM 36 green; SIM 43 the rest — Beat 4, boss-ruled 2026-07-17). Discrete bands
+// off integer days WORKED at a job (the anti-XP law — never a curve). Low mastery comes to anyone who
+// works the task enough (green, journeyman); a MASTER is the long, generational climb (~10 years),
+// and mastery makes the work MUCH FASTER — an accelerating ladder, each rung a bigger step than the
+// last. Untrained hands still work fine (1.0, no penalty — SIM 36's law holds). Dyadic-exact
+// multipliers (÷8, ÷4, ÷2 — one bit pattern on every engine, no cross-engine hash risk). The FELT
+// "much faster" is bounded here to keep the economy stable; a master's rarer rewards — the losable
+// TECHNIQUE and the fine WORKS only a master can raise (noble's quarters, the Keep) — are the later
+// Beat-4 increments, and carry the deeper stakes. Reaching master in ONE trade is naturally rare
+// (mortality + the dawn pass's job-switching), and lineage (a later increment) makes it run in
+// families.
+export const GREEN_DAYS = TICKS_PER_YEAR; // ~1 year — competent, common
+export const JOURNEYMAN_DAYS = 4 * TICKS_PER_YEAR; // ~4 years — skilled, and ready to be a master's apprentice
+export const MASTER_DAYS = 10 * TICKS_PER_YEAR; // ~10 years — the rare, generational climb
+export const GREEN_MULT = 1.125; // ×9/8 — a BONUS over today's rates (untrained = 1.0)
+export const JOURNEYMAN_MULT = 1.25; // ×5/4
+export const MASTER_MULT = 1.5; // ×3/2 — "much faster" (dyadic; the ladder accelerates 1.125 → 1.25 → 1.5)
 
 /**
  * Per-job base day rates (SIM 36): the old Person.pace was ONE scalar whose unit was
@@ -1135,9 +1159,24 @@ export interface Person {
   bornTick: number;
 }
 
-/** the job's skill multiplier for this hand: 1.0 untrained, ×9/8 green (SIM 36) */
+/** the job's skill multiplier for this hand (SIM 36 green; SIM 43 the full ladder): 1.0 untrained,
+ *  ×9/8 green, ×5/4 journeyman, ×3/2 master — read off integer days worked, highest band first */
 export function jobMult(p: Person, job: JobSkill): number {
-  return p.worked[job] >= GREEN_DAYS ? GREEN_MULT : 1;
+  const d = p.worked[job];
+  if (d >= MASTER_DAYS) return MASTER_MULT;
+  if (d >= JOURNEYMAN_DAYS) return JOURNEYMAN_MULT;
+  if (d >= GREEN_DAYS) return GREEN_MULT;
+  return 1;
+}
+/** the hand's skill BAND at a job (SIM 43) — the field-guide word, for the HUD/cards and for the
+ *  Beat-4 layers (a MASTER holds the trade's technique + can raise its fine works). */
+export type SkillBand = 'untrained' | 'green' | 'journeyman' | 'master';
+export function skillBand(p: Person, job: JobSkill): SkillBand {
+  const d = p.worked[job];
+  if (d >= MASTER_DAYS) return 'master';
+  if (d >= JOURNEYMAN_DAYS) return 'journeyman';
+  if (d >= GREEN_DAYS) return 'green';
+  return 'untrained';
 }
 /** stones this hand can lay in a day (the mason job) */
 export function layRateOf(p: Person): number {

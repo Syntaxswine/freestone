@@ -14,7 +14,17 @@ import { hashState, makeSave, replay } from '../src/sim/save';
 import { flatSite } from '../src/sim/site';
 import { worldStep } from '../src/sim/step';
 import { createWorld } from '../src/sim/world';
-import { GREEN_DAYS, GREEN_MULT, type Command, type Person } from '../src/sim/types';
+import {
+  GREEN_DAYS,
+  GREEN_MULT,
+  JOURNEYMAN_DAYS,
+  JOURNEYMAN_MULT,
+  MASTER_DAYS,
+  MASTER_MULT,
+  skillBand,
+  type Command,
+  type Person,
+} from '../src/sim/types';
 import { villager, zeroWorked } from './helpers';
 
 const site = flatSite('flat', 4000);
@@ -76,6 +86,40 @@ describe('the skill system (SIM 36)', () => {
     for (let t = 0; t < 10; t++) worldStep(w, site, byTick.get(w.tick) ?? []);
     expect(w.stones.length).toBe(0);
     expect(w.people[0]!.worked.mason).toBe(0); // ten stalled days, zero days learned
+  });
+
+  // SIM 43 — the ladder above green (Beat 4). Same discrete-flip law, two more rungs.
+  // NB: build a FRESH worked object per stepped() call — stepped MUTATES worked.mason as the hand
+  // works, so a shared object would carry the flip from one run into the next (a test-only trap).
+  const masonAt = (days: number) => villager(1, { worked: { ...zeroWorked, mason: days } });
+  it('JOURNEYMAN flips on the exact day the 4th year completes — the rate steps to ×5/4', () => {
+    const w1 = stepped([masonAt(JOURNEYMAN_DAYS - 1)], [longWall()], 1);
+    expect(w1.stones.length).toBe(Math.ceil(30 * GREEN_MULT)); // day one still GREEN (34)…
+    expect(w1.people[0]!.worked.mason).toBe(JOURNEYMAN_DAYS); // …and that day completed the 4th year
+    const w2 = stepped([masonAt(JOURNEYMAN_DAYS - 1)], [longWall()], 2);
+    // day two the band held — journeyman ×5/4 (30 → 38, the begun block finished)
+    expect(w2.stones.length).toBe(Math.ceil(30 * GREEN_MULT) + Math.ceil(30 * JOURNEYMAN_MULT));
+  });
+
+  it('MASTER flips on the exact day the 10th year completes — the ladder accelerates to ×3/2', () => {
+    const w1 = stepped([masonAt(MASTER_DAYS - 1)], [longWall()], 1);
+    expect(w1.stones.length).toBe(Math.ceil(30 * JOURNEYMAN_MULT)); // day one still JOURNEYMAN (38)
+    const w2 = stepped([masonAt(MASTER_DAYS - 1)], [longWall()], 2);
+    // day two: MASTER ×3/2 (30 → 45) — the top rung, the biggest step of the accelerating ladder
+    expect(w2.stones.length).toBe(Math.ceil(30 * JOURNEYMAN_MULT) + Math.ceil(30 * MASTER_MULT));
+  });
+
+  it('skillBand names each rung off days worked, and a master out-lays untrained by exactly ×3/2', () => {
+    const base = villager(1);
+    const at = (d: number) => skillBand({ ...base, worked: { ...zeroWorked, mason: d } }, 'mason');
+    expect(at(0)).toBe('untrained');
+    expect(at(GREEN_DAYS - 1)).toBe('untrained');
+    expect(at(GREEN_DAYS)).toBe('green');
+    expect(at(JOURNEYMAN_DAYS)).toBe('journeyman');
+    expect(at(MASTER_DAYS)).toBe('master');
+    const untrained = stepped([villager(1)], [longWall()], 1).stones.length; // 30
+    const master = stepped([villager(1, { worked: { ...zeroWorked, mason: MASTER_DAYS } })], [longWall()], 1).stones.length;
+    expect(master).toBe(Math.ceil(untrained * MASTER_MULT)); // 45 — much faster
   });
 
   it('the biography replays byte-for-byte (worked and lastJob are hashed state)', () => {
