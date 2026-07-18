@@ -7,7 +7,7 @@ that is mourned and costs stone, knowledge that is lost unless taught, and a chu
 one grave at a time. Scoping only — no code; the boss's four rulings are baked in, and the open
 questions at the end are the decisions still needed before a build opens.*
 
-> **★ BUILD STATUS (2026-07-17): three courses SHIPPED, live at SIM 44.**
+> **★ BUILD STATUS (2026-07-17): FOUR courses SHIPPED, live at SIM 45.**
 > - ✅ **SIM 43 — THE SKILL LADDER** (`b8ff75e`): green ~1yr ×9/8 → journeyman ~4yr ×5/4 → master
 >   ~10yr ×3/2 (`jobMult`/`skillBand`); inert on canon, sweep-safe. The rung all else stands on.
 > - ✅ **SIM 44 — THE CHURCHYARD (sim)** (`e625c44`): death raises a `Grave`; marked STONE (a slab)
@@ -15,10 +15,13 @@ questions at the end are the decisions still needed before a build opens.*
 >   `FieldUse`. Inert on canon (no death in 200 ticks); sweep unchanged (villages mark in wood).
 > - ✅ **The churchyard RENDER** (`f03fdd4`, render-only): headstones/markers/mounds fill the drawn
 >   ground in rows; click a stone → the epitaph. Eye-verified.
+> - ✅ **SIM 45 — LINEAGE** (`427420a`): a child inherits a head-start (LINEAGE_INHERIT) in a
+>   parent's finest trade, so masters beget masters and skilled bloodlines form. Inert on canon,
+>   sweep-safe. (An explicit parentId for visible genealogy is a render/chronicle follow-on.)
 >
-> **REMAINING (each its own course, fresh context): technique-death + rediscovery (§2B/§2E) ·
-> lineage/parent-link (§2B) · quality-gated fine works (§2A/§2C — the noble's quarters kind).**
-> Render polish (finer headstones, cross markers) is a small follow-on.
+> **REMAINING (each its own course, best on fresh context): technique-death + rediscovery (§2B/§2E —
+> the generational engine) · quality-gated fine works (§2A/§2C — the noble's quarters kind).**
+> Render polish (finer headstones, cross markers) + explicit parentId are small follow-ons.
 >
 > **Parents:** the roadmap's Beat 4 (ROADMAP-THE-GENERATIONAL-FACTORY §Beat-4) · the FOUNDATION
 > keystone (the homage systems are first-class) · the civic thesis (people working together; beauty
