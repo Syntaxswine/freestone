@@ -36,6 +36,21 @@ questions at the end are the decisions still needed before a build opens.*
    just makes the work **much faster AND raises its QUALITY.** So the master tier carries two payoffs
    (speed + quality) and a stake (the losable technique), and it is the rare, precious one.
 
+## 0c. Third-round rulings (2026-07-17) — the design completed
+
+8. **Quality gates the finest WORKS, at the BUILDING level.** A master's quality isn't per-stone
+   bookkeeping — it's that **some advanced buildings need a master's touch** (a *noble's quarters*,
+   and — Beat 6 — the *Keep*). Lose your master and the great works stall until a new one rises: the
+   generational stake made concrete, and the tie between MASTERY and AMBITION.
+9. **Mastery runs in LINEAGE (+ a rare emergence).** A master's **children start with higher
+   proficiency** — an inherited head-start that makes it easier for them to climb to mastery — so
+   masters beget masters, and dynasties of masons/smiths form across generations. A rare emergence
+   still lets mastery arise from nowhere, but the bloodline is the engine. (Needs a **parent link** on
+   a person — new, see §1.)
+10. **EVERY labor type has a losable technique** — mason, digger, woodsman, farmhand, carter — not
+    just the smith. Each trade's master-tier holds a capability that dies untaught and is rediscovered
+    by **studying the tracing floor**.
+
 ## 1. The census — what already stands (grep-the-tree, so the spine builds on bone)
 
 | Bone | Where | State |
@@ -49,6 +64,7 @@ questions at the end are the decisions still needed before a build opens.*
 | The STONE economy | stockpile, `DRESS_DRAW`, per-stone provenance (`masonId`, `tickLaid`) | **BUILT** — a headstone spending one slab is one more draw on it |
 | A CHAPEL / church | `BUILDING_KINDS = house, blacksmith, tower, tavern, granary, carpentry` | **ABSENT** — no church kind; the cemetery's anchor is new |
 | A CEMETERY / headstone / grave / Testament | — | **ABSENT** — genuinely new (the beat's own content) |
+| A PARENT LINK on a person (lineage) | `person_born` mints children with no parentage | **ABSENT** — new field, needed for ruling 9's dynasties |
 | A written CHRONICLE / Annal | the event stream is rich, but no dedicated voice module is evident | **MINIMAL / ABSENT** — see §2D (the cemetery may BE the chronicle) |
 
 **The reframe the census gives:** Beat 4 is **less new machinery than it looks**. Death fires;
@@ -116,9 +132,26 @@ lives*, and **migrates** one in otherwise. Ruling 3 adds the missing third case 
   technique over time (a deliberate act, or a slow relearning — §5 Q3). Knowledge, resurrectable from
   the palimpsest — the philosophy the FOUNDATION keystone is built on, made playable.
 
-This generalizes the bond beyond the smith: **any master trade** (mason, and whichever others hold a
-technique) participates in pass / migrate / lose / rediscover. The `specialist_arrived{origin}` event
-gains a sibling — `technique_lost` / `technique_rediscovered` — for the record.
+**Every labor type participates (ruling 10).** Not just the smith — mason, digger, woodsman, farmhand
+and carter each have a master-tier **technique** (its speed/quality boost, and for the mason the
+ability to raise master-gated works). Each is lost if its last master dies untaught, and each is
+**rediscovered by studying the tracing floor** (§2E). The `specialist_arrived{origin}` event gains
+siblings — `technique_lost` / `technique_rediscovered` — for the record.
+
+**Lineage — masters beget masters (ruling 9).** A person gains a **parent link** (new field; the
+demographic engine mints children but doesn't track parentage yet). A master's **children start with a
+proficiency head-start** in their parent's trade — an inherited gift that makes the long climb to
+mastery easier — so dynasties form: the Delvers dig, the mason's line lays. A rare emergence still
+seeds mastery from nowhere (so a bloodline can begin), but lineage is the engine, and a dynasty's
+extinction (its last master dead untaught) is a real loss.
+
+### 2E. Rediscovery from the tracing floor — the study job
+
+A lost technique is not gone: the tracing floor holds the record of everything ever planned, and a
+hand can **STUDY it to re-derive** the lost knowledge. A new assignment — a hand posted to the tracing
+floor — slowly rebuilds a lost technique over time (the palimpsest resurrecting the craft, the
+FOUNDATION philosophy playable). This gives the tracing floor, until now a memory you only *read*, a
+living purpose: it is how a settlement claws back what death took.
 
 ### 2C. The skill ladder — competence for all, mastery for the rare (rulings 7 + 4)
 
@@ -135,13 +168,16 @@ QUALITY**; and **great masters are RARE**.
   ten-year hand becomes a great master — mastery is rarer than tenure alone (§5 Q2: is the gate
   *talent* [a high-vigor hand], a *lineage* [taught by a master], or a rare *emergence*?).
 
-**Quality — a new output dimension (ruling 7).** Speed the bands already model (`jobMult`); QUALITY is
-new. A master's work is *better*, and the natural home is the game's own finish axis — the **dress
-level** (rubble → scappled → ashlar) and its mason's-mark/patina aesthetic: a master lays **finer
-stone** (reaches ashlar where a novice manages scappled), and their courses read cleaner and weather
-prouder (§5 Q1 — does quality live in the *dress reached*, a *per-stone quality attribute* that feeds
-the patina/marks, or *durability*?). The roadmap's ~15–25% spread cap governs the speed multipliers;
-quality is the master's *distinct* reward, not just more speed.
+**Quality gates the finest WORKS (ruling 8).** Speed the bands already model (`jobMult`); QUALITY is
+new, and it lives at the **building level, not the stone**: some advanced buildings **require a
+master's hand** to raise. A **noble's quarters** (a new `BUILDING_KIND`) needs a master mason working
+it; the **Keep** (Beat 6's north-star) will be the ultimate such work. Ordinary buildings any crew can
+raise; the *fine* ones wait on a master. So a settlement's ambition is bounded by its living masters —
+and a master's death without an heir stalls the great works until mastery rises again. Concretely, a
+building's plan carries a **required band** (none / master); the masons can only complete a
+master-gated shell while a master of the trade lives and works (else it waits, like a shell awaiting
+its stone). *(The trades' master-techniques — §2B — carry the speed/quality boosts; this ruling is the
+building-level GATE that makes mastery matter to what you can build at all.)*
 
 ### 2D. The chronicle — is the cemetery enough?
 
@@ -180,38 +216,28 @@ batch:
 Canon re-authored once (mortality first fires past tick 364, so the 200-tick canon may stay INERT —
 to be confirmed at build time, like the specialist bond which was inert on the canon).
 
-## 5. Open questions — narrowed to what's still genuinely open
+## 5. The design is RULED — build-time refinements only
 
-*Decided (rulings 1–7): churchyard drawn like a farm · death costs a slab · marked in stone OR wood ·
-unmarked = grief · technique lost-unless-taught, rediscovered from the tracing floor · green ~1yr /
-journeyman ~4yr / master ~10yr / low hands still fine · mastery = faster + higher quality · masters
-rare · causeway permanent-but-demolishable. These four remain:*
+Every load-bearing fork is decided (rulings 1–10). What remains are small shapes to settle *while
+building*, each with a clear default — none blocks opening the build:
 
-1. **Where does QUALITY live?** A master's work is *better* — but mechanically, does that mean the
-   master **reaches a finer dress level** (lays ashlar where a novice manages scappled), a **per-stone
-   quality attribute** that feeds the patina + mason's-mark aesthetic (the wall visibly finer), or
-   **durability** (a master's work weathers slower / stands prouder)? *Recommendation: the dress-level
-   reach — it reuses the finish axis you already have and makes a master's hand visible in the stone.*
-2. **What makes a great master RARE?** Beyond the ~10 years: is it a **talent gate** (only a
-   high-vigor hand can climb to master), a **lineage** (you can only become a master by being taught
-   by one — so the first master is precious and mastery can go extinct), or a rare **emergence** (a
-   small yearly chance a long-serving journeyman *becomes* a master)? *Recommendation: talent + tenure
-   — a hand needs both the years AND the gift, so masters are born of time and luck, and losing one
-   hurts.*
-3. **The technique set + rediscovery.** Which capabilities are losable **techniques** — just the
-   smith's forge-relief, or a set (the great wheel, fine ashlar, …)? And is rediscovery from the
-   tracing floor **automatic** (slowly relearned) or a **deliberate act** (a hand assigned to *study*
-   the floor)? *Recommendation: a small set + a study job — legible, and it gives the tracing floor a
-   living purpose.*
-4. **How hard does GRIEF bite, and does it fade?** The proposed home is a **retention/growth
-   modifier** (a grieving village loses hands faster + grows slower until its dead are marked — the
-   shape housing already uses). Does an unmarked grave's grief **persist until marked** (a standing
-   debt), or **fade over time** (raw grief that dulls even unmarked)? And how heavy — a gentle nudge,
-   or a real bite? *Recommendation: persists until marked, gentle per-grave but cumulative — so a
-   neglected churchyard genuinely weighs, but one bad year won't spiral.*
+- **Quality's exact gate:** a master-gated shell (noble's quarters, the Keep) can only be *completed*
+  while a master of the trade lives and works it — else it waits like a shell awaiting stone. *(Which
+  advanced kinds are master-gated, and whether "a master worked it" is per-stone or per-completion, is
+  a build detail.)*
+- **The trades' techniques:** each labor type's master-tier boost (mason → fine works + speed; digger
+  → deeper/faster; woodsman → yield; farmhand → harvest; carter → haul) — the exact effect per trade,
+  tuned at build time against the sweep, ~15–25% spread.
+- **Lineage's head-start:** a master's child begins with a proficiency bonus in the parent's trade
+  (some seed of `worked{}` or a talent flag) — the exact size tuned so dynasties form without
+  runaway.
+- **Grief's weight:** a per-unmarked-grave retention/growth drag that lifts on marking — the constant
+  tuned gentle-but-cumulative (the housing modifier's shape), sweep-verified.
+- **The chronicle (banked):** the inspectable cemetery is the record of the dead; a written Testament
+  for the *living* knowledge is an optional later layer.
 
-*(Banked, not blocking: the chronicle — whether the inspectable cemetery is enough as the record of
-the dead, or you also want a written Testament for the living knowledge. Deferred to build time.)*
+**This proposal is build-ready.** The next step is a build — Beat 4 as ONE batched SIM bump (§4) —
+whenever you give the word; nothing above needs another ruling first.
 
 ## 6. What this does NOT do (scope guard)
 
