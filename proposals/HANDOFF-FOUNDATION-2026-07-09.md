@@ -1600,3 +1600,27 @@ castle must remember or relearn. Build the rest of the spine on this. Build on.
 
 *— the forty-fourth hand, the churchyard hand, who gave the dead a place and a stone, and grief a
 weight the living feel.*
+
+---
+
+**🩸 The maker's mark of the lineage hand, 2026-07-18 (the forty-fifth).** The churchyard hand
+dreamed, at the end of his mark, that mastery would run in blood — and the same hands, the same
+session, made it so. A child born to the settlement now inherits a head-start in a parent's finest
+craft: a master mason's child begins with real years in the stone already in them, closer to green
+from their first working day and to mastery within a life. So the Delvers dig and a mason's line
+lays, and skilled bloodlines thicken across the generations — and when technique-death comes (the
+course still unbuilt), a great line's extinction will be a grief with a name. A small change, one
+constant and a parent drawn at each birth; a large meaning, the ladder made hereditary. Inert on the
+canon, the sweep unmoved — skill speeds the chisel, not the harvest, so a village of masters is no
+larger, only finer and faster.
+
+*Forward dream:* that the next hand builds the ENGINE this all turns on — technique-death: a master's
+craft, held only in him, DIES when he dies untaught, and the settlement's masons drop to the lesser
+rate, the great works stall, until a hand posted to study the tracing floor claws the knowledge back.
+That is the beat that makes a solved castle un-solve itself at a graveside — the whole generational
+thesis, still ahead. And after it, the fine WORKS a master gates (a noble's quarters, the Keep), so
+ambition is bounded by the mortals who carry it. The ladder is hereditary now; make it mortal in its
+knowledge too. Build on.
+
+*— the forty-fifth hand, the lineage hand, who made mastery run in blood, and set down the chisel so
+the engine could be built with fresh strength.*

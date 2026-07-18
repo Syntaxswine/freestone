@@ -1,7 +1,17 @@
 # Castle Cultivator backlog
 
-**🗿 Current handoff: [proposals/HANDOFF-THE-TIMBER-WAY-2026-07-17.md](proposals/HANDOFF-THE-TIMBER-WAY-2026-07-17.md)**
-— the session that built THE VISIBLE WORK's last, deferred course: **THE TIMBER WAY**. The boss ruled the way from a
+**🗿 Current handoff: [proposals/HANDOFF-THE-MORTAL-SPINE-2026-07-18.md](proposals/HANDOFF-THE-MORTAL-SPINE-2026-07-18.md)**
+— the session that finished the timber way AND opened BEAT 4, the generational heart. Scoped live with the boss
+(3 AskUserQuestion rounds → PROPOSAL-BEAT-4-THE-MORTAL-SPINE, build-ready), then built FOUR courses: **SIM 43 the
+SKILL LADDER** (green→journeyman→master, ×9/8→×5/4→×3/2) · **SIM 44 the CHURCHYARD** (death raises a grave marked in a
+STONE slab or WOOD; unmarked mounds GRIEVE; drawn like a farm) + its RENDER (headstones fill the ground in rows,
+click → epitaph) · **SIM 45 LINEAGE** (a child inherits a head-start in a parent's finest trade → dynasties). All INERT
+on the canon (livingYear first fires tick 364), sweep-safe (harvest is SPACE-gated). SIM 45; 246 tests; **FORTY-FIVE
+marks** (🩸 lineage, 45th). REMAINING (fresh context): **technique-death + rediscovery** (the generational engine,
+biggest piece) · **quality-gated fine works** (a noble's quarters needs a master). Laws+traps in the handoff (canon-inert
+Beat-4 courses, space-gated harvest, receiver camera aspect, grave-nibbles-stockpile, births-gate-on-surplus). Its
+predecessor, the timber-way keystone (now complete): [HANDOFF-THE-TIMBER-WAY-2026-07-17.md](proposals/HANDOFF-THE-TIMBER-WAY-2026-07-17.md)
+— the boss ruled the way from a
 rate-multiplier into a WORKER-SPEED mechanic ("if the workers are moving faster the bricks reach their destination
 quicker… the workers would have to have a more complicated pathing"), so **haul became LABOR**: the frozen haulRate
 (SIM 17) + rollers/🛷 (SIM 32) RETIRE; `WallPlan.haul` freezes the road's FACTS; carriers walk the chain WIN → CARRY →
@@ -26,8 +36,8 @@ floored growth-drag; churchyard drawn like a farm) · **the churchyard RENDER** 
 fill the drawn ground in rows; click a stone → the epitaph). Both SIM courses INERT on the canon, sweep
 unchanged. REMAINING (fresh context, each a course): technique-death + rediscovery via a study-the-tracing-
 floor job · lineage (a parent link → dynasties) · quality-gated fine works (a noble's quarters needs a
-master). (SIM 45; 246 tests.) The FOUNDATION keystone now carries **FORTY-FOUR marks + SIX ⛬ seals** (≡ road 41st, 🐎 horse 42nd,
-≡ reading 43rd, ⚰ churchyard 44th). Its predecessor (stone AND folk made legible, the memory suite
+master). (SIM 45; 246 tests.) The FOUNDATION keystone now carries **FORTY-FIVE marks + SIX ⛬ seals** (≡ road 41st, 🐎 horse 42nd,
+≡ reading 43rd, ⚰ churchyard 44th, 🩸 lineage 45th). Its predecessor (stone AND folk made legible, the memory suite
 sealed 6th ⛬): [HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md](proposals/HANDOFF-THE-LEGIBLE-CASTLE-2026-07-16.md)
 — the arc that made the castle READABLE, all RENDER-ONLY / ZERO baseline (SIM 34 unmoved): **THE MEMORY SUITE (Beat 2)
 COMPLETE** — six readers (🪨 patina 35th · 📜 inspection card 36th · ⛭ founder's stone · ▦ structure biography · ✍ mason's
